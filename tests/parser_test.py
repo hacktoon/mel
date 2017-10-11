@@ -33,7 +33,7 @@ def test_list_parsing():
 
 
 def test_list_specific_node_parsing():
-    tree = Parser(r'[1, true, {{/site/title}}, name]').parse()
+    tree = Parser(r'[1, true, @"/site/title", name]').parse()
     items = tree.children[0].children
     assert items[0] == 'INT(1)'
     assert items[1] == 'BOOLEAN(True)'
@@ -109,7 +109,7 @@ def test_parsing_expression_with_multiple_children():
 
 
 def test_parsing_expression_with_parameters_and_query():
-    tree = Parser(r'(etc {id:1} {{/foo/bar}})').parse()
+    tree = Parser(r'(etc {id:1} @"/foo/bar")').parse()
     exp = tree.children[0]
     assert exp.identifier == 'IDENTIFIER(etc)'
     assert exp.children == 'QUERY(/foo/bar)'

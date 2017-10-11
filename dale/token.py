@@ -29,7 +29,7 @@ def build_boolean(boolean_literal):
 
 
 def build_query(query_literal):
-    return re.sub('^\{\{|\}\}$', '', query_literal)
+    return build_string(query_literal[1:])
 
 
 class Token:
@@ -77,10 +77,15 @@ class TokenType(Enum):
     EOF = 'eof'
 
 
+NAME_RULE = r'[_a-zA-Z]\w*(?:-\w+)?'
+SINGLE_QUOTE = r"'(?:\\'|[^'])*'"
+DOUBLE_QUOTE = r'"(?:\\"|[^"])*"'
+STRING_RULE = '(' + SINGLE_QUOTE + '|' + DOUBLE_QUOTE + ')'
+QUERY_RULE = r'@'+STRING_RULE
+
 TOKEN_RULES = [
     (rc(r'\('), TokenType.OPEN_EXP, lambda s: s),
     (rc(r'\)'), TokenType.CLOSE_EXP, lambda s: s),
-    (rc(r'\{\{.+?\}\}', re.DOTALL), TokenType.QUERY, build_query),
     (rc(r'\{'), TokenType.OPEN_PARAM, lambda s: s),
     (rc(r'\}'), TokenType.CLOSE_PARAM, lambda s: s),
     (rc(r'\['), TokenType.OPEN_LIST, lambda s: s),
@@ -90,10 +95,10 @@ TOKEN_RULES = [
     (rc(r'\r?\n'), TokenType.NEWLINE, lambda s: s),
     (rc(r'[ \t\f\v\x0b\x0c]+'), TokenType.WHITESPACE, lambda s: s),
     (rc(r'#[^\n\r]*'), TokenType.COMMENT, lambda s: s[1:]),
-    (rc(r'"(?:\\"|[^"])*"'), TokenType.STRING, build_string),
-    (rc(r"'(?:\\'|[^'])*'"), TokenType.STRING, build_string),
+    (rc(QUERY_RULE, re.DOTALL), TokenType.QUERY, build_query),
+    (rc(STRING_RULE), TokenType.STRING, build_string),
     (rc('true|false'), TokenType.BOOLEAN, build_boolean),
-    (rc(r'[_a-zA-Z]\w*(?:-\w+)?'), TokenType.IDENTIFIER, lambda s: s),
+    (rc(NAME_RULE), TokenType.IDENTIFIER, lambda s: s),
     (rc(r'-?\d+\.\d+\b'), TokenType.FLOAT, lambda s: float(s)),
     (rc(r'-?\d+\b'), TokenType.INT, lambda s: int(s)),
     (rc(r'\b\.\b'), TokenType.DOT, lambda s: s)

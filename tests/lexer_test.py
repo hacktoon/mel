@@ -144,7 +144,7 @@ def test_tokenize_modifier_expression():
 
 
 def test_tokenize_query():
-    text = '{{/data/source/\nattribute[id="x"]}} {{/site/title}}'
+    text = '@"/data/source/\nattribute[id=\'x\']" @"/site/title"'
     tokens = Lexer(text).tokenize()
-    assert tokens[0] == 'QUERY(/data/source/\nattribute[id="x"])'
+    assert tokens[0] == 'QUERY(/data/source/\nattribute[id=\'x\'])'
     assert tokens[1] == 'QUERY(/site/title)'
