@@ -10,15 +10,15 @@ def build_stream(text):
 
 def test_stream_get_current_token():
     stream = build_stream('345 name ()')
-    assert stream.get() == 'INT(345)'
+    assert stream.get() == 'INT<345>'
 
 
 def test_stream_consume_token():
     stream = build_stream('42 foo')
     int_token = stream.consume(TokenType.INT)
-    assert int_token == 'INT(42)'
-    id_token = stream.consume(TokenType.IDENTIFIER)
-    assert id_token == 'IDENTIFIER(foo)'
+    assert int_token == 'INT<42>'
+    id_token = stream.consume(TokenType.KEYWORD)
+    assert id_token == 'KEYWORD<foo>'
 
 
 def test_that_consume_unexpected_token_raises_error():
@@ -30,7 +30,7 @@ def test_that_consume_unexpected_token_raises_error():
 def test_stream_ends_with_eof_token():
     stream = build_stream('(age 5)')
     stream.consume(TokenType.OPEN_EXP)
-    stream.consume(TokenType.IDENTIFIER)
+    stream.consume(TokenType.KEYWORD)
     assert not stream.is_eof()
     stream.consume(TokenType.INT)
     stream.consume(TokenType.CLOSE_EXP)

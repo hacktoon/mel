@@ -33,51 +33,31 @@ class Parser:
     def _parse_content(self):
         if self.tokens.get().type == TokenType.OPEN_EXP:
             return self._parse_expression()
-        if self.tokens.get().type == TokenType.COMMENT:
-            self.tokens.consume(TokenType.COMMENT)
-        return self._parse_value()
+        else:
+            return self._parse_value()
 
     def _parse_expression(self):
         token = self.tokens.consume(TokenType.OPEN_EXP)
         expression_node = node.Expression(token)
-        expression_node.identifier = self._parse_identifier()
-        if self.tokens.get().type == TokenType.OPEN_PARAM:
-            expression_node.parameter_list = self._parse_parameter_list()
+        expression_node.keyword = token = self.tokens.consume(TokenType.KEYWORD)
+        expression_node.parameter_list = self._parse_parameter_list()
         while self.tokens.get().type != TokenType.CLOSE_EXP:
             expression_node.add(self._parse_content())
         self.tokens.consume(TokenType.CLOSE_EXP)
         return expression_node
 
-    def _parse_identifier(self):
-        token = self.tokens.consume(TokenType.IDENTIFIER)
-        identifier_node = node.Identifier(token)
-        identifier_node.add(token.value)
-        while self.tokens.get().type == TokenType.DOT:
-            self.tokens.consume(TokenType.DOT)
-            token = self.tokens.consume(TokenType.IDENTIFIER)
-            identifier_node.add(token.value)
-        return identifier_node
-
     def _parse_parameter_list(self):
-        token = self.tokens.consume(TokenType.OPEN_PARAM)
-        param_list = node.ParameterList(token)
-        while self.tokens.get().type != TokenType.CLOSE_PARAM:
-            param_list.add(self._parse_parameter())
-            if self.tokens.get().type == TokenType.COMMA:
-                self.tokens.consume(TokenType.COMMA)
-            else:
-                break
-        self.tokens.consume(TokenType.CLOSE_PARAM)
-        return param_list
-
-    def _parse_parameter(self):
-        identifier = self._parse_identifier()
-        self.tokens.consume(TokenType.COLON)
-        return node.Parameter(identifier, self._parse_value())
+        parameter_list = node.ParameterList()
+        while self.tokens.get().type == TokenType.PARAMETER:
+            key = self.tokens.consume(TokenType.PARAMETER)
+            value = self._parse_value()
+            parameter = node.Parameter(key, value)
+            parameter_list.add(parameter)
+        return parameter_list
 
     def _parse_value(self):
         value_parser_function = {
-            TokenType.IDENTIFIER: self._parse_identifier,
+            TokenType.ALIAS: self._parse_alias,
             TokenType.OPEN_LIST: self._parse_list,
             TokenType.BOOLEAN: self._parse_boolean,
             TokenType.STRING: self._parse_string,
@@ -92,6 +72,10 @@ class Parser:
             message = 'unexpected {!r} while parsing'.format(token.type.value)
             raise SyntaxError(message, token.line, token.column)
         return value_node
+
+    def _parse_alias(self):
+        token = self.tokens.consume(TokenType.ALIAS)
+        return node.Alias(token)
 
     def _parse_string(self):
         token = self.tokens.consume(TokenType.STRING)
@@ -119,9 +103,5 @@ class Parser:
         is_eof = self.tokens.is_eof()
         while self.tokens.get().type != TokenType.CLOSE_LIST:
             list_node.add(self._parse_value())
-            if self.tokens.get().type == TokenType.COMMA:
-                self.tokens.consume(TokenType.COMMA)
-            else:
-                break
         self.tokens.consume(TokenType.CLOSE_LIST)
         return list_node

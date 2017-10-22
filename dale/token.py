@@ -32,6 +32,10 @@ def build_query(query_literal):
     return build_string(query_literal[1:])
 
 
+def build_alias(alias_literal):
+    return alias_literal[1:].replace(' ', '')
+
+
 class Token:
     def __init__(self, value, type_, line, column):
         self.value = value
@@ -47,9 +51,9 @@ class Token:
 
     def __str__(self):
         value = str(self.value)
-        if value in string.punctuation or value.isspace():
+        if value in '()[]':
             return self.type.name.upper()
-        return '{}({})'.format(self.type.name.upper(), self.value)
+        return '{}<{}>'.format(self.type.name.upper(), self.value)
 
     def __repr__(self):
         return str(self)
@@ -58,50 +62,44 @@ class Token:
 class TokenType(Enum):
     OPEN_EXP = '('
     CLOSE_EXP = ')'
-    OPEN_PARAM = '{'
-    CLOSE_PARAM = '}'
     OPEN_LIST = '['
     CLOSE_LIST = ']'
     COMMENT = 'comment'
     WHITESPACE = 'whitespace'
+    PARAMETER = 'parameter'
+    KEYWORD = 'keyword'
     NEWLINE = 'newline'
-    COMMA = ','
-    COLON = ':'
-    DOT = '.'
     STRING = 'string'
     BOOLEAN = 'boolean'
-    IDENTIFIER = 'identifier'
+    ALIAS = 'alias'
     FLOAT = 'float'
     INT = 'int'
     QUERY = 'query'
     EOF = 'eof'
 
 
-NAME_RULE = r'[_a-zA-Z]\w*(?:-\w+)?'
-SINGLE_QUOTE = r"'(?:\\'|[^'])*'"
-DOUBLE_QUOTE = r'"(?:\\"|[^"])*"'
-STRING_RULE = '(' + SINGLE_QUOTE + '|' + DOUBLE_QUOTE + ')'
-QUERY_RULE = r'@'+STRING_RULE
+NAME_RULE = r'[_a-zA-Z]\w*(?:-[_a-zA-Z]\w*)?'
+SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
+DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
+STRING_RULE = '(' + SINGLE_QUOTE_STRING + '|' + DOUBLE_QUOTE_STRING + ')'
+ALIAS_RULE = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
 
 TOKEN_RULES = [
     (rc(r'\('), TokenType.OPEN_EXP, lambda s: s),
     (rc(r'\)'), TokenType.CLOSE_EXP, lambda s: s),
-    (rc(r'\{'), TokenType.OPEN_PARAM, lambda s: s),
-    (rc(r'\}'), TokenType.CLOSE_PARAM, lambda s: s),
     (rc(r'\['), TokenType.OPEN_LIST, lambda s: s),
     (rc(r'\]'), TokenType.CLOSE_LIST, lambda s: s),
-    (rc(','), TokenType.COMMA, lambda s: s),
-    (rc(':'), TokenType.COLON, lambda s: s),
-    (rc(r'\r?\n'), TokenType.NEWLINE, lambda s: s),
-    (rc(r'[ \t\f\v\x0b\x0c]+'), TokenType.WHITESPACE, lambda s: s),
-    (rc(r'#[^\n\r]*'), TokenType.COMMENT, lambda s: s[1:]),
-    (rc(QUERY_RULE, re.DOTALL), TokenType.QUERY, build_query),
-    (rc(STRING_RULE), TokenType.STRING, build_string),
     (rc('true|false'), TokenType.BOOLEAN, build_boolean),
-    (rc(NAME_RULE), TokenType.IDENTIFIER, lambda s: s),
+    (rc(r':' + NAME_RULE), TokenType.PARAMETER, lambda s: s[1:]),
+    (rc(NAME_RULE + '|\?'), TokenType.KEYWORD, lambda s: s),
+    (rc(r'\r?\n'), TokenType.NEWLINE, lambda s: s),
+    (rc(r'[ ,\t\f\v\x0b\x0c]+'), TokenType.WHITESPACE, lambda s: s),
+    (rc(r'#[^\n\r]*'), TokenType.COMMENT, lambda s: s[1:]),
+    (rc('@' + STRING_RULE), TokenType.QUERY, build_query),
+    (rc(STRING_RULE), TokenType.STRING, build_string),
+    (rc(ALIAS_RULE), TokenType.ALIAS, build_alias),
     (rc(r'-?\d+\.\d+\b'), TokenType.FLOAT, lambda s: float(s)),
-    (rc(r'-?\d+\b'), TokenType.INT, lambda s: int(s)),
-    (rc(r'\b\.\b'), TokenType.DOT, lambda s: s)
+    (rc(r'-?\d+\b'), TokenType.INT, lambda s: int(s))
 ]
 
 

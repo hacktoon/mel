@@ -23,7 +23,7 @@ class Node:
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return '{}({})'.format(class_name.upper(), self.value)
+        return '{}<{}>'.format(class_name.upper(), self.value)
 
 
 class String(Node):
@@ -46,6 +46,17 @@ class Query(Node):
     pass
 
 
+class Alias(Node):
+    def __init__(self, token):
+        super().__init__(token)
+        self.value = token.value.split('.')
+
+    def __str__(self):
+        class_name = self.__class__.__name__
+        value = '.'.join(self.value)
+        return '{}<{}>'.format(class_name.upper(), value)
+
+
 class Identifier(Node):
     def __init__(self, token):
         super().__init__(token)
@@ -57,7 +68,7 @@ class Identifier(Node):
     def __str__(self):
         class_name = self.__class__.__name__
         value = '.'.join(self.children)
-        return '{}({})'.format(class_name.upper(), value)
+        return '{}<{}>'.format(class_name.upper(), value)
 
 
 class List(Node):
@@ -67,7 +78,7 @@ class List(Node):
     def __str__(self):
         class_name = self.__class__.__name__
         value = ', '.join([str(x) for x in self.children])
-        return '{}({})'.format(class_name.upper(), '[{}]'.format(value))
+        return '{}<{}>'.format(class_name.upper(), value)
 
 
 class ParameterList(Node):
@@ -77,12 +88,12 @@ class ParameterList(Node):
     def __str__(self):
         class_name = self.__class__.__name__
         value = ', '.join([str(x) for x in self.children])
-        return '{}({})'.format(class_name.upper(), value)
+        return '{}<{}>'.format(class_name.upper(), value)
 
 
 class Parameter(Node):
-    def __init__(self, identifier, value):
-        self.identifier = identifier
+    def __init__(self, key, value):
+        self.key = key
         self.value = value
 
     def eval(self, context):
@@ -90,9 +101,8 @@ class Parameter(Node):
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return '{}({}:{})'.format(
-            class_name.upper(),
-            str(self.identifier),
+        return '{}:{}'.format(
+            self.key.value,
             self.value
         )
 
@@ -108,7 +118,7 @@ class Content(Node):
 class Expression(Node):
     def __init__(self, token):
         super().__init__(token)
-        self.identifier = ''
+        self.keyword = ''
         self.parameter_list = ParameterList()
         self.children = Content()
 
@@ -120,9 +130,9 @@ class Expression(Node):
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return '{}({} {} {})'.format(
+        return '{}<{} {} {}>'.format(
             class_name.upper(),
-            str(self.identifier),
+            str(self.keyword),
             str(self.parameter_list),
             str(self.children)
         )
