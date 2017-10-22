@@ -1,7 +1,7 @@
 import pytest
-from dale.error import SyntaxError
-from dale.lexer import Lexer
-from dale.token import TokenType
+from dale.lexing import Lexer
+from dale.data.tokens import TokenType
+from dale.data.errors import LexingError
 
 
 def test_that_comment_tokens_are_ignored():
@@ -70,7 +70,7 @@ def test_tokenize_aliases():
 
 
 def test_tokenize_aliases_cant_start_with_numbers():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(LexingError):
         Lexer(r'@42foo').tokenize()
 
 
@@ -87,22 +87,22 @@ def test_aliases_using_dot_syntax():
 
 
 def test_dot_token_wont_match_after_an_alias():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(LexingError):
         Lexer(r'f2.').tokenize()
 
 
 def test_dot_token_wont_match_before_an_alias():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(LexingError):
         Lexer(r'.f5').tokenize()
 
 
 def test_aliass_cant_start_with_hifens():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(LexingError):
         tokens = Lexer(r'-foo').tokenize()
 
 
 def test_aliass_cant_end_with_hifens():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(LexingError):
         tokens = Lexer(r'foo-').tokenize()
 
 
@@ -117,7 +117,7 @@ def test_aliass_with_dots_can_have_spaces_between_them():
 
 
 def test_wrong_code_raises_syntax_exception_with_message():
-    with pytest.raises(SyntaxError) as error:
+    with pytest.raises(LexingError) as error:
         Lexer(r'(foo %').tokenize()
     assert str(error.value) == 'invalid syntax'
 

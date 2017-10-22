@@ -1,6 +1,6 @@
 import sys
-from dale.parser import Parser
-from dale.error import ParserError
+from dale.parsing import Parser
+from dale.errors import ParsingError
 
 
 def _read_file(path):
@@ -16,7 +16,7 @@ def run(path):
     try:
         tree = Parser(source).parse()
         print(tree)
-    except ParserError as error:
+    except ParsingError as error:
         sys.exit('File {!r}:\n{}'.format(path, error))
 
 

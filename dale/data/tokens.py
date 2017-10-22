@@ -2,7 +2,7 @@ import re
 import codecs
 import string
 from enum import Enum
-from .error import SyntaxError
+from .errors import LexingError
 
 
 rc = re.compile
@@ -36,29 +36,6 @@ def build_alias(alias_literal):
     return alias_literal[1:].replace(' ', '')
 
 
-class Token:
-    def __init__(self, value, type_, line, column):
-        self.value = value
-        self.line = line
-        self.type = type_
-        self.column = column
-
-    def __eq__(self, token_repr):
-        return str(self) == token_repr
-
-    def __ne__(self, char):
-        return str(self) != token_repr
-
-    def __str__(self):
-        value = str(self.value)
-        if value in '()[]':
-            return self.type.name.upper()
-        return '{}<{}>'.format(self.type.name.upper(), self.value)
-
-    def __repr__(self):
-        return str(self)
-
-
 class TokenType(Enum):
     OPEN_EXP = '('
     CLOSE_EXP = ')'
@@ -83,15 +60,16 @@ SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
 STRING_RULE = '(' + SINGLE_QUOTE_STRING + '|' + DOUBLE_QUOTE_STRING + ')'
 ALIAS_RULE = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
+KEYWORD_RULE = NAME_RULE + r'|\?'
 
 TOKEN_RULES = [
     (rc(r'\('), TokenType.OPEN_EXP, lambda s: s),
-    (rc(r'\)'), TokenType.CLOSE_EXP, lambda s: s),
+    (rc(r'\)(?:'+ KEYWORD_RULE +'\))?'), TokenType.CLOSE_EXP, lambda s: s),
     (rc(r'\['), TokenType.OPEN_LIST, lambda s: s),
     (rc(r'\]'), TokenType.CLOSE_LIST, lambda s: s),
     (rc('true|false'), TokenType.BOOLEAN, build_boolean),
     (rc(r':' + NAME_RULE), TokenType.PARAMETER, lambda s: s[1:]),
-    (rc(NAME_RULE + '|\?'), TokenType.KEYWORD, lambda s: s),
+    (rc(KEYWORD_RULE), TokenType.KEYWORD, lambda s: s),
     (rc(r'\r?\n'), TokenType.NEWLINE, lambda s: s),
     (rc(r'[ ,\t\f\v\x0b\x0c]+'), TokenType.WHITESPACE, lambda s: s),
     (rc(r'#[^\n\r]*'), TokenType.COMMENT, lambda s: s[1:]),
@@ -103,25 +81,4 @@ TOKEN_RULES = [
 ]
 
 
-class TokenStream:
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.index = 0
 
-    def consume(self, expected_type):
-        token = self.get()
-        if token.type != expected_type:
-            template = 'expected a {!r}, found a {!r}'
-            message = template.format(expected_type.value, token.type.value)
-            raise SyntaxError(message, token.line, token.column)
-        self.index += 1
-        return token
-
-    def is_eof(self):
-        return self.index >= len(self.tokens)
-
-    def get(self, offset=0):
-        try:
-            return self.tokens[self.index + offset]
-        except IndexError:
-            return Token('', TokenType.EOF, -1, -1)

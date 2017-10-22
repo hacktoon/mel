@@ -1,7 +1,7 @@
-from .lexer import Lexer
-from .token import TokenStream, TokenType
-from . import node
-from .error import SyntaxError, ParserError
+from .lexing import TokenStream
+from .data import nodes
+from .data.tokens import TokenType
+from .data.errors import LexingError, ParsingError
 
 
 def build_error_message(error, text):
@@ -18,14 +18,14 @@ class Parser:
 
     def parse(self):
         try:
-            self.tokens = TokenStream(Lexer(self.text).tokenize())
+            self.tokens = TokenStream(self.text)
             return self._parse_root()
-        except SyntaxError as error:
+        except LexingError as error:
             message = build_error_message(error, self.text)
-            raise ParserError(message)
+            raise ParsingError(message)
 
     def _parse_root(self):
-        content_node = node.Content()
+        content_node = nodes.Content()
         while not self.tokens.is_eof():
             content_node.add(self._parse_content())
         return content_node
@@ -38,7 +38,7 @@ class Parser:
 
     def _parse_expression(self):
         token = self.tokens.consume(TokenType.OPEN_EXP)
-        expression_node = node.Expression(token)
+        expression_node = nodes.Expression(token)
         expression_node.keyword = token = self.tokens.consume(TokenType.KEYWORD)
         expression_node.parameter_list = self._parse_parameter_list()
         while self.tokens.get().type != TokenType.CLOSE_EXP:
@@ -47,11 +47,11 @@ class Parser:
         return expression_node
 
     def _parse_parameter_list(self):
-        parameter_list = node.ParameterList()
+        parameter_list = nodes.ParameterList()
         while self.tokens.get().type == TokenType.PARAMETER:
             key = self.tokens.consume(TokenType.PARAMETER)
             value = self._parse_value()
-            parameter = node.Parameter(key, value)
+            parameter = nodes.Parameter(key, value)
             parameter_list.add(parameter)
         return parameter_list
 
@@ -70,36 +70,36 @@ class Parser:
             value_node = value_parser_function[token.type]()
         except KeyError:
             message = 'unexpected {!r} while parsing'.format(token.type.value)
-            raise SyntaxError(message, token.line, token.column)
+            raise LexingError(message, token.line, token.column)
         return value_node
 
     def _parse_alias(self):
         token = self.tokens.consume(TokenType.ALIAS)
-        return node.Alias(token)
+        return nodes.Alias(token)
 
     def _parse_string(self):
         token = self.tokens.consume(TokenType.STRING)
-        return node.String(token)
+        return nodes.String(token)
 
     def _parse_query(self):
         token = self.tokens.consume(TokenType.QUERY)
-        return node.Query(token)
+        return nodes.Query(token)
 
     def _parse_float(self):
         token = self.tokens.consume(TokenType.FLOAT)
-        return node.Float(token)
+        return nodes.Float(token)
 
     def _parse_int(self):
         token = self.tokens.consume(TokenType.INT)
-        return node.Int(token)
+        return nodes.Int(token)
 
     def _parse_boolean(self):
         token = self.tokens.consume(TokenType.BOOLEAN)
-        return node.Boolean(token)
+        return nodes.Boolean(token)
 
     def _parse_list(self):
         token = self.tokens.consume(TokenType.OPEN_LIST)
-        list_node = node.List(token)
+        list_node = nodes.List(token)
         is_eof = self.tokens.is_eof()
         while self.tokens.get().type != TokenType.CLOSE_LIST:
             list_node.add(self._parse_value())

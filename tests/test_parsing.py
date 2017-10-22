@@ -1,7 +1,7 @@
 import pytest
-from dale.parser import Parser
-from dale.token import TokenType
-from dale.error import SyntaxError, ParserError
+from dale.parsing import Parser
+from dale.data.tokens import TokenType
+from dale.data.errors import LexingError, ParsingError
 
 
 def test_value_rule_for_float_token():
@@ -45,7 +45,7 @@ def test_list_specific_node_parsing_with_different_items():
 
 
 def test_parsing_non_terminated_list():
-    with pytest.raises(ParserError):
+    with pytest.raises(ParsingError):
         Parser(r'[1, 2, 5').parse()
 
 
@@ -99,7 +99,7 @@ def test_parsing_consecutive_expressions():
 
 
 def test_non_terminated_expression_raises_error():
-    with pytest.raises(ParserError):
+    with pytest.raises(ParsingError):
         Parser(r'(test 4').parse()
 
 

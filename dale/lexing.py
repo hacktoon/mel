@@ -1,5 +1,28 @@
-from .token import Token, TokenType, TOKEN_RULES
-from .error import SyntaxError
+from .data.tokens import TokenType, TOKEN_RULES
+from .data.errors import LexingError
+
+
+class Token:
+    def __init__(self, value, type_, line, column):
+        self.value = value
+        self.line = line
+        self.type = type_
+        self.column = column
+
+    def __eq__(self, token_repr):
+        return str(self) == token_repr
+
+    def __ne__(self, char):
+        return str(self) != token_repr
+
+    def __str__(self):
+        value = str(self.value)
+        if value in '()[]':
+            return self.type.name.upper()
+        return '{}<{}>'.format(self.type.name.upper(), self.value)
+
+    def __repr__(self):
+        return str(self)
 
 
 class Lexer:
@@ -35,7 +58,7 @@ class Lexer:
             self._update_counters(type_, match_length)
             return token
         else:
-            raise SyntaxError(
+            raise LexingError(
                 'invalid syntax',
                 self.line_index,
                 self.column_index
@@ -47,3 +70,27 @@ class Lexer:
             self.column_index = 0
         else:
             self.column_index += match_length
+
+
+class TokenStream:
+    def __init__(self, text):
+        self.tokens = Lexer(text).tokenize()
+        self.index = 0
+
+    def consume(self, expected_type):
+        token = self.get()
+        if token.type != expected_type:
+            template = 'expected a {!r}, found a {!r}'
+            message = template.format(expected_type.value, token.type.value)
+            raise LexingError(message, token.line, token.column)
+        self.index += 1
+        return token
+
+    def is_eof(self):
+        return self.index >= len(self.tokens)
+
+    def get(self, offset=0):
+        try:
+            return self.tokens[self.index + offset]
+        except IndexError:
+            return Token('', TokenType.EOF, -1, -1)
