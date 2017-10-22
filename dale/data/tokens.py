@@ -60,11 +60,11 @@ SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
 STRING_RULE = '(' + SINGLE_QUOTE_STRING + '|' + DOUBLE_QUOTE_STRING + ')'
 ALIAS_RULE = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
-KEYWORD_RULE = NAME_RULE + r'|\?'
+KEYWORD_RULE = '(' + NAME_RULE + r'|\?' + ')'
 
 TOKEN_RULES = [
     (rc(r'\('), TokenType.OPEN_EXP, lambda s: s),
-    (rc(r'\)(?:'+ KEYWORD_RULE +'\))?'), TokenType.CLOSE_EXP, lambda s: s),
+    (rc(r'\)('+ KEYWORD_RULE +'\))?'), TokenType.CLOSE_EXP, lambda s: s),
     (rc(r'\['), TokenType.OPEN_LIST, lambda s: s),
     (rc(r'\]'), TokenType.CLOSE_LIST, lambda s: s),
     (rc('true|false'), TokenType.BOOLEAN, build_boolean),

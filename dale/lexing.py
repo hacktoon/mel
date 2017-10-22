@@ -16,8 +16,7 @@ class Token:
         return str(self) != token_repr
 
     def __str__(self):
-        value = str(self.value)
-        if value in '()[]':
+        if str(self.value) in '()[]':
             return self.type.name.upper()
         return '{}<{}>'.format(self.type.name.upper(), self.value)
 

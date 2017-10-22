@@ -86,6 +86,19 @@ def test_aliases_using_dot_syntax():
     assert tokens[1] == 'ALIAS<a2.bez>'
 
 
+def test_expression_alt_closing():
+    tokens = Lexer(r'(foo "bar")foo)').tokenize()
+    close_exp = tokens[-1]
+    assert close_exp.type == TokenType.CLOSE_EXP
+    assert close_exp.value == ')foo)'
+
+
+def test_expression_alt_closing_must_not_have_spaces():
+    tokens = Lexer(r'(two 2) two)').tokenize()
+    assert tokens[3] == 'CLOSE_EXP'
+    assert tokens[3].value == ')'
+
+
 def test_dot_token_wont_match_after_an_alias():
     with pytest.raises(LexingError):
         Lexer(r'f2.').tokenize()
