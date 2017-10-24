@@ -148,3 +148,8 @@ def test_tokenize_query():
     token_list = Lexer(text).tokenize()
     assert token_list[0] == 'QUERY</data/source/\nattribute[id=\'x\']>'
     assert token_list[1] == 'QUERY</site/title>'
+
+
+def test_native_query_keyword():
+    token_list = Lexer(r'(@ "query")').tokenize()
+    assert token_list[1] == tokens.KeywordToken

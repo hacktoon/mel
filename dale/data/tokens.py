@@ -8,7 +8,7 @@ NAME_RULE = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
 SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
 STRING_RULE = '({}|{})'.format(SINGLE_QUOTE_STRING, DOUBLE_QUOTE_STRING)
-KEYWORD_RULE = '(' + NAME_RULE + r'|\?)'
+KEYWORD_RULE = '(' + NAME_RULE + r'|[\?@])'
 
 
 class Token:
@@ -177,13 +177,13 @@ TOKEN_TYPES = [
     CloseListToken,
     BooleanToken,
     ParameterToken,
-    KeywordToken,
     NewlineToken,
     WhitespaceToken,
     CommentToken,
     QueryToken,
     StringToken,
     AliasToken,
+    KeywordToken,
     FloatToken,
     IntToken
 ]
