@@ -26,6 +26,14 @@ class Node:
         return '{}<{}>'.format(class_name.upper(), self.value)
 
 
+class Content(Node):
+    def eval(self, context):
+        pass
+
+    def __str__(self):
+        return ' '.join([str(x) for x in self.children])
+
+
 class String(Node):
     pass
 
@@ -57,28 +65,32 @@ class Alias(Node):
         return '{}<{}>'.format(class_name.upper(), value)
 
 
-class Identifier(Node):
+class Expression(Node):
     def __init__(self, token):
         super().__init__(token)
-        self.value = ''
+        self.keyword = ''
+        self.parameters = ParameterList()
+        self.children = Content()
+
+    def add(self, value):
+        self.children.add(value)
 
     def eval(self, context):
         pass
 
     def __str__(self):
         class_name = self.__class__.__name__
-        value = '.'.join(self.children)
-        return '{}<{}>'.format(class_name.upper(), value)
+        return '{}<{} {} {}>'.format(
+            class_name.upper(),
+            str(self.keyword),
+            str(self.parameters),
+            str(self.children)
+        )
 
 
-class List(Node):
+class Keyword(Node):
     def eval(self, context):
         pass
-
-    def __str__(self):
-        class_name = self.__class__.__name__
-        value = ', '.join([str(x) for x in self.children])
-        return '{}<{}>'.format(class_name.upper(), value)
 
 
 class ParameterList(Node):
@@ -106,33 +118,11 @@ class Parameter(Node):
             self.value
         )
 
-
-class Content(Node):
-    def eval(self, context):
-        pass
-
-    def __str__(self):
-        return ' '.join([str(x) for x in self.children])
-
-
-class Expression(Node):
-    def __init__(self, token):
-        super().__init__(token)
-        self.keyword = ''
-        self.parameter_list = ParameterList()
-        self.children = Content()
-
-    def add(self, value):
-        self.children.add(value)
-
+class List(Node):
     def eval(self, context):
         pass
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return '{}<{} {} {}>'.format(
-            class_name.upper(),
-            str(self.keyword),
-            str(self.parameter_list),
-            str(self.children)
-        )
+        value = ', '.join([str(x) for x in self.children])
+        return '{}<{}>'.format(class_name.upper(), value)

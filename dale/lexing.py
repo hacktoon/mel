@@ -1,27 +1,6 @@
-from .data.tokens import TokenType, TOKEN_RULES
+import re
+from .data import tokens
 from .data.errors import LexingError
-
-
-class Token:
-    def __init__(self, value, type_, line, column):
-        self.value = value
-        self.line = line
-        self.type = type_
-        self.column = column
-
-    def __eq__(self, token_repr):
-        return str(self) == token_repr
-
-    def __ne__(self, char):
-        return str(self) != token_repr
-
-    def __str__(self):
-        if str(self.value) in '()[]':
-            return self.type.name.upper()
-        return '{}<{}>'.format(self.type.name.upper(), self.value)
-
-    def __repr__(self):
-        return str(self)
 
 
 class Lexer:
@@ -33,28 +12,21 @@ class Lexer:
 
     def tokenize(self):
         tokens = []
-        ignored_tokens = (
-            TokenType.COMMENT,
-            TokenType.WHITESPACE,
-            TokenType.NEWLINE
-        )
         while self.index < len(self.text):
-            token = self._create_token()
-            if token.type not in ignored_tokens:
-                tokens.append(token)
+            token = self._produce_token()
+            if token.skip:
+                continue
+            tokens.append(token)
         return tokens
 
-    def _create_token(self):
-        for token_regex, type_, get_token_value in TOKEN_RULES:
-            match = token_regex.match(self.text, self.index)
+    def _produce_token(self):
+        for Token in tokens.TOKEN_TYPES:
+            match = re.compile(Token.regex).match(self.text, self.index)
             if not match:
                 continue
-            matched_string = match.group(0)
-            match_length = len(matched_string)
-            self.index += match_length
-            value = get_token_value(matched_string)
-            token = Token(value, type_, self.line_index, self.column_index)
-            self._update_counters(type_, match_length)
+            matched_text = match.group(0)
+            token = Token(matched_text, self.line_index, self.column_index)
+            self._update_counters(Token, len(matched_text))
             return token
         else:
             raise LexingError(
@@ -64,7 +36,8 @@ class Lexer:
             )
 
     def _update_counters(self, token_type, match_length):
-        if token_type == TokenType.NEWLINE:
+        self.index += match_length
+        if token_type == tokens.NewlineToken:
             self.line_index += 1
             self.column_index = 0
         else:
@@ -78,9 +51,9 @@ class TokenStream:
 
     def consume(self, expected_type):
         token = self.get()
-        if token.type != expected_type:
+        if not isinstance(token, expected_type):
             template = 'expected a {!r}, found a {!r}'
-            message = template.format(expected_type.value, token.type.value)
+            message = template.format(expected_type.name, token.name)
             raise LexingError(message, token.line, token.column)
         self.index += 1
         return token
@@ -92,4 +65,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return Token('', TokenType.EOF, -1, -1)
+            return tokens.EOFToken('', -1, -1)

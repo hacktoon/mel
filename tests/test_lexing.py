@@ -1,72 +1,72 @@
 import pytest
 from dale.lexing import Lexer
-from dale.data.tokens import TokenType
+from dale.data import tokens
 from dale.data.errors import LexingError
 
 
 def test_that_comment_tokens_are_ignored():
-    tokens = Lexer('#comment  \n@here').tokenize()
-    assert tokens[0] == 'ALIAS<here>'
+    token_list = Lexer('#comment  \n@here').tokenize()
+    assert token_list[0] == 'ALIAS<here>'
 
 
 def test_token_line_count():
-    tokens = Lexer('foo 2\n  bar').tokenize()
-    assert tokens[0].line == 0
-    assert tokens[1].line == 0
-    assert tokens[2].line == 1
-    assert tokens[2].column == 2
+    token_list = Lexer('foo 2\n  bar').tokenize()
+    assert token_list[0].line == 0
+    assert token_list[1].line == 0
+    assert token_list[2].line == 1
+    assert token_list[2].column == 2
 
 
 def test_tokenize_boolean_values():
-    tokens = Lexer(r'true false').tokenize()
-    assert tokens[0] == 'BOOLEAN<True>'
-    assert tokens[1] == 'BOOLEAN<False>'
+    token_list = Lexer(r'true false').tokenize()
+    assert token_list[0] == 'BOOLEAN<True>'
+    assert token_list[1] == 'BOOLEAN<False>'
 
 
 def test_tokenize_string_with_single_quotes():
-    tokens = Lexer(r"'single' string").tokenize()
-    assert tokens[0] == 'STRING<single>'
+    token_list = Lexer(r"'single' string").tokenize()
+    assert token_list[0] == 'STRING<single>'
 
 
 def test_tokenize_string_with_double_quotes():
-    tokens = Lexer(r'"single" string').tokenize()
-    assert tokens[0] == 'STRING<single>'
+    token_list = Lexer(r'"single" string').tokenize()
+    assert token_list[0] == 'STRING<single>'
 
 
 def test_tokenize_string_with_newline():
-    tokens = Lexer(r'"line one\nline two"').tokenize()
-    assert tokens[0] == 'STRING<line one\nline two>'
+    token_list = Lexer(r'"line one\nline two"').tokenize()
+    assert token_list[0] == 'STRING<line one\nline two>'
 
 
 def test_tokenize_string_with_escaped_quotes():
-    tokens = Lexer(r'"single \"escaped\"" string').tokenize()
-    assert tokens[0] == 'STRING<single \"escaped\">'
+    token_list = Lexer(r'"single \"escaped\"" string').tokenize()
+    assert token_list[0] == 'STRING<single \"escaped\">'
 
 
 def test_tokenize_string_with_escaped_quotes_and_single_quotes():
-    tokens = Lexer(r"'single \'escaped\'' string").tokenize()
-    assert tokens[0] == 'STRING<single \'escaped\'>'
+    token_list = Lexer(r"'single \'escaped\'' string").tokenize()
+    assert token_list[0] == 'STRING<single \'escaped\'>'
 
 
 def test_tokenize_ints_and_floats():
-    tokens = Lexer(r'34 -5.62 -532').tokenize()
-    assert tokens[0] == 'INT<34>'
-    assert tokens[1] == 'FLOAT<-5.62>'
-    assert tokens[2] == 'INT<-532>'
+    token_list = Lexer(r'34 -5.62 -532').tokenize()
+    assert token_list[0] == 'INT<34>'
+    assert token_list[1] == 'FLOAT<-5.62>'
+    assert token_list[2] == 'INT<-532>'
 
 
 def test_tokenize_parenthesis_and_brackets():
-    tokens = Lexer(r'[]()').tokenize()
-    assert tokens[0] == 'OPEN_LIST'
-    assert tokens[1] == 'CLOSE_LIST'
-    assert tokens[2] == 'OPEN_EXP'
-    assert tokens[3] == 'CLOSE_EXP'
+    token_list = Lexer(r'[]()').tokenize()
+    assert token_list[0] == 'OPEN_LIST'
+    assert token_list[1] == 'CLOSE_LIST'
+    assert token_list[2] == 'OPEN_EXP'
+    assert token_list[3] == 'CLOSE_EXP'
 
 
 def test_tokenize_aliases():
-    tokens = Lexer(r'@name @value').tokenize()
-    assert tokens[0] == 'ALIAS<name>'
-    assert tokens[1] == 'ALIAS<value>'
+    token_list = Lexer(r'@name @value').tokenize()
+    assert token_list[0] == 'ALIAS<name>'
+    assert token_list[1] == 'ALIAS<value>'
 
 
 def test_tokenize_aliases_cant_start_with_numbers():
@@ -75,28 +75,28 @@ def test_tokenize_aliases_cant_start_with_numbers():
 
 
 def test_tokenize_aliases_and_keywords_with_hifens_and_numbers():
-    tokens = Lexer(r'@name33 id-foo').tokenize()
-    assert tokens[0] == 'ALIAS<name33>'
-    assert tokens[1] == 'KEYWORD<id-foo>'
+    token_list = Lexer(r'@name33 id-foo').tokenize()
+    assert token_list[0] == 'ALIAS<name33>'
+    assert token_list[1] == 'KEYWORD<id-foo>'
 
 
 def test_aliases_using_dot_syntax():
-    tokens = Lexer(r'@foo.bar @a2.bez').tokenize()
-    assert tokens[0] == 'ALIAS<foo.bar>'
-    assert tokens[1] == 'ALIAS<a2.bez>'
+    token_list = Lexer(r'@foo.bar @a2.bez').tokenize()
+    assert token_list[0] == 'ALIAS<foo.bar>'
+    assert token_list[1] == 'ALIAS<a2.bez>'
 
 
 def test_expression_alt_closing():
-    tokens = Lexer(r'(foo "bar")foo)').tokenize()
-    close_exp = tokens[-1]
-    assert close_exp.type == TokenType.CLOSE_EXP
-    assert close_exp.value == ')foo)'
+    token_list = Lexer(r'(foo "bar")foo)').tokenize()
+    close_exp = token_list[-1]
+    assert close_exp == tokens.CloseExpressionToken
+    assert close_exp.value == 'foo'
 
 
 def test_expression_alt_closing_must_not_have_spaces():
-    tokens = Lexer(r'(two 2) two)').tokenize()
-    assert tokens[3] == 'CLOSE_EXP'
-    assert tokens[3].value == ')'
+    token_list = Lexer(r'(two 2) two)').tokenize()
+    assert token_list[3] == 'CLOSE_EXP'
+    assert token_list[3].value == ')'
 
 
 def test_dot_token_wont_match_after_an_alias():
@@ -111,22 +111,22 @@ def test_dot_token_wont_match_before_an_alias():
 
 def test_aliass_cant_start_with_hifens():
     with pytest.raises(LexingError):
-        tokens = Lexer(r'-foo').tokenize()
+        Lexer(r'-foo').tokenize()
 
 
 def test_aliass_cant_end_with_hifens():
     with pytest.raises(LexingError):
-        tokens = Lexer(r'foo-').tokenize()
+        Lexer(r'foo-').tokenize()
 
 
 def test_type_of_alias_tokens_with_dot_syntax():
-    tokens = Lexer(r'@name.title').tokenize()
-    assert tokens[0].type == TokenType.ALIAS
+    token_list = Lexer(r'@name.title').tokenize()
+    assert token_list[0] == tokens.AliasToken
 
 
 def test_aliass_with_dots_can_have_spaces_between_them():
-    tokens = Lexer(r'@name . title').tokenize()
-    assert tokens[0].type == TokenType.ALIAS
+    token_list = Lexer(r'@name . title').tokenize()
+    assert token_list[0] == tokens.AliasToken
 
 
 def test_wrong_code_raises_syntax_exception_with_message():
@@ -136,15 +136,15 @@ def test_wrong_code_raises_syntax_exception_with_message():
 
 
 def test_tokenize_modifier_expression():
-    tokens = Lexer(r':foo "bar" :var "null"').tokenize()
-    assert tokens[0] == 'PARAMETER<foo>'
-    assert tokens[1] == 'STRING<bar>'
-    assert tokens[2] == 'PARAMETER<var>'
-    assert tokens[3] == 'STRING<null>'
+    token_list = Lexer(r':foo "bar" :var "null"').tokenize()
+    assert token_list[0] == 'PARAMETER<foo>'
+    assert token_list[1] == 'STRING<bar>'
+    assert token_list[2] == 'PARAMETER<var>'
+    assert token_list[3] == 'STRING<null>'
 
 
 def test_tokenize_query():
     text = '@"/data/source/\nattribute[id=\'x\']" @"/site/title"'
-    tokens = Lexer(text).tokenize()
-    assert tokens[0] == 'QUERY</data/source/\nattribute[id=\'x\']>'
-    assert tokens[1] == 'QUERY</site/title>'
+    token_list = Lexer(text).tokenize()
+    assert token_list[0] == 'QUERY</data/source/\nattribute[id=\'x\']>'
+    assert token_list[1] == 'QUERY</site/title>'

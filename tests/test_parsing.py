@@ -1,6 +1,6 @@
 import pytest
 from dale.parsing import Parser
-from dale.data.tokens import TokenType
+from dale.data import tokens
 from dale.data.errors import LexingError, ParsingError
 
 
@@ -49,9 +49,9 @@ def test_parsing_non_terminated_list():
         Parser(r'[1, 2, 5').parse()
 
 
-def test_parameter_list_parsing_using_comma_as_separator():
+def test_parameters_parsing_using_comma_as_separator():
     tree = Parser(r'(x :a 1, :b 2, :c 3)').parse()
-    items = tree.children[0].parameter_list.children
+    items = tree.children[0].parameters.children
     assert items[0] == 'a:INT<1>'
     assert items[1] == 'b:INT<2>'
     assert items[2] == 'c:INT<3>'
@@ -61,16 +61,15 @@ def test_simple_expression_parsing():
     tree = Parser(r'(name :id 1 "foo")').parse()
     exp = tree.children[0]
     assert exp.keyword == 'KEYWORD<name>'
-    assert exp.parameter_list == 'PARAMETERLIST<id:INT<1>>'
+    assert exp.parameters == 'PARAMETERLIST<id:INT<1>>'
     assert exp.children == 'STRING<foo>'
 
 
 def test_parsing_expression_with_multiple_children():
     tree = Parser(r'(x :id 1, :title "foo" "bar" 34)').parse()
     exp = tree.children[0]
-    parameter_list = 'PARAMETERLIST<id:INT<1>, title:STRING<foo>>'
     assert exp.keyword == 'KEYWORD<x>'
-    assert exp.parameter_list == parameter_list
+    assert exp.parameters == 'PARAMETERLIST<id:INT<1>, title:STRING<foo>>'
     assert exp.children == 'STRING<bar> INT<34>'
 
 
@@ -85,9 +84,8 @@ def test_parsing_expression_with_sub_expressions():
     tree = Parser(r'(foo-bar (bar 34))').parse()
     exp = tree.children[0]
     assert exp.keyword == 'KEYWORD<foo-bar>'
-    assert exp.parameter_list == 'PARAMETERLIST<>'
-    inner_exp = 'EXPRESSION<KEYWORD<bar> PARAMETERLIST<> INT<34>>'
-    assert exp.children == inner_exp
+    assert exp.parameters == 'PARAMETERLIST<>'
+    assert exp.children == 'EXPRESSION<KEYWORD<bar> PARAMETERLIST<> INT<34>>'
 
 
 def test_parsing_consecutive_expressions():
