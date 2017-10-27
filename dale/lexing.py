@@ -24,20 +24,19 @@ class Lexer:
             match = re.compile(Token.regex).match(self.text, self.index)
             if not match:
                 continue
-            matched_text = match.group(0)
-            token = Token(matched_text, self.line, self.column)
-            self._update_counters(Token, len(matched_text))
+            token = Token(match.group(0), self.line, self.column)
+            self._update_counters(Token, match.group(0))
             return token
         else:
             raise LexingError('invalid syntax', self.line, self.column)
 
-    def _update_counters(self, token_type, match_length):
-        self.index += match_length
+    def _update_counters(self, token_type, matched_text):
+        self.index += len(matched_text)
         if token_type == tokens.NewlineToken:
             self.line += 1
             self.column = 1
         else:
-            self.column += match_length
+            self.column += len(matched_text.splitlines()[0])
 
 
 class TokenStream:
