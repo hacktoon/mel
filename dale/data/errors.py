@@ -16,12 +16,15 @@ class ParsingError(Exception):
 
     def _build_message(self, error, text):
         lines = text.splitlines()
-        prev_line = max(0, error.line - 2)
-        snippet = '\n'.join(lines[prev_line:error.line])
+        prev_index = max(0, error.line - 2)
+        prev_line = '{}\t{}'.format(prev_index + 1, lines[prev_index])
+        index = error.line - 1
+        line = '{}\t{}'.format(index + 1, lines[index])
+        snippet = '\n'.join([prev_line, line])
         column = error.column - 1
-        
+
         if snippet.strip() == '':
             return 'Syntax error: ' + str(error)
         else:
-            template = 'Syntax error: {}\n{}\n{}^'
+            template = 'Syntax error: {}\n\n{}\n\t{}^'
             return template.format(str(error), snippet, ' ' * column)
