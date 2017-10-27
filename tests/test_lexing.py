@@ -11,10 +11,10 @@ def test_that_comment_tokens_are_ignored():
 
 def test_token_line_count():
     token_list = Lexer('foo 2\n  bar').tokenize()
-    assert token_list[0].line == 0
-    assert token_list[1].line == 0
-    assert token_list[2].line == 1
-    assert token_list[2].column == 2
+    assert token_list[0].line == 1
+    assert token_list[1].line == 1
+    assert token_list[2].line == 2
+    assert token_list[2].column == 3
 
 
 def test_tokenize_boolean_values():
@@ -57,10 +57,10 @@ def test_tokenize_ints_and_floats():
 
 def test_tokenize_parenthesis_and_brackets():
     token_list = Lexer(r'[]()').tokenize()
-    assert token_list[0] == 'OPEN_LIST'
-    assert token_list[1] == 'CLOSE_LIST'
-    assert token_list[2] == 'OPEN_EXP'
-    assert token_list[3] == 'CLOSE_EXP'
+    assert token_list[0] == '['
+    assert token_list[1] == ']'
+    assert token_list[2] == '('
+    assert token_list[3] == ')'
 
 
 def test_tokenize_aliases():
@@ -95,7 +95,7 @@ def test_expression_alt_closing():
 
 def test_expression_alt_closing_must_not_have_spaces():
     token_list = Lexer(r'(two 2) two)').tokenize()
-    assert token_list[3] == 'CLOSE_EXP'
+    assert token_list[3] == ')'
     assert token_list[3].value == ')'
 
 

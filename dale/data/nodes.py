@@ -76,9 +76,8 @@ class Expression(Node):
         self.children.add(value)
 
     def __str__(self):
-        class_name = self.__class__.__name__
         return '{}<{} {} {}>'.format(
-            class_name.upper(),
+            self.__class__.__name__.upper(),
             str(self.keyword),
             str(self.parameters),
             str(self.children)
@@ -103,11 +102,7 @@ class Parameter(Node):
         self.value = value
 
     def __str__(self):
-        class_name = self.__class__.__name__
-        return '{}:{}'.format(
-            self.key.value,
-            self.value
-        )
+        return '{}:{}'.format(self.key.value, self.value)
 
 
 class List(Node):

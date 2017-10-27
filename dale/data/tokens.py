@@ -32,7 +32,7 @@ class Token:
         return not self.__eq__(other)
 
     def __len__(self):
-        return len(self.value)
+        return len(str(self.value))
 
     def __str__(self):
         return '{}<{}>'.format(self.name.upper(), self.value)
