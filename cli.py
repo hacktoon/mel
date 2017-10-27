@@ -11,18 +11,16 @@ def _read_file(path):
         sys.exit('The file {!r} doesn\'t exist.'.format(path))
 
 
-def run(path):
-    source = _read_file(path)
-    try:
-        tree = Parser(source).parse()
-        print(tree)
-    except ParsingError as error:
-        sys.exit('File {!r}:\n{}'.format(path, error))
+def evaluate(source, context=None):
+    tree = Parser(source).parse()
+    print(tree)
 
 
 if __name__ == '__main__':
     try:
         path = sys.argv[1]
+        evaluate(_read_file(path))
     except IndexError:
         sys.exit('A source file is required.')
-    run(path)
+    except ParsingError as error:
+        sys.exit('File {!r}, line {}:\n{}'.format(path, error.line, error))

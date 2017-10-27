@@ -4,14 +4,6 @@ from .data import tokens
 from .data.errors import LexingError, ParsingError
 
 
-def build_error_message(error, text):
-    line_index = error.line
-    message = str(error)
-    line = text.split('\n')[line_index]
-    template = 'Syntax error: {} at line {}:\n{}\n{}^'
-    return template.format(message, line_index + 1, line, ' ' * error.column)
-
-
 class Parser:
     def __init__(self, text):
         self.text = text
@@ -21,8 +13,10 @@ class Parser:
             self.stream = TokenStream(self.text)
             return self._parse_root()
         except LexingError as error:
-            message = build_error_message(error, self.text)
-            raise ParsingError(message)
+            raise ParsingError(error, self.text)
+
+    def _is_eof(self, token):
+        return token == tokens.EOFToken
 
     def _parse_root(self):
         content_node = nodes.Content()
@@ -31,7 +25,8 @@ class Parser:
         return content_node
 
     def _parse_content(self):
-        if self.stream.get() == tokens.OpenExpressionToken:
+        token = self.stream.get()
+        if token == tokens.OpenExpressionToken:
             return self._parse_expression()
         else:
             return self._parse_value()
@@ -42,6 +37,8 @@ class Parser:
         node.keyword = self.stream.consume(tokens.KeywordToken)
         node.parameters = self._parse_parameter_list()
         while self.stream.get() != tokens.CloseExpressionToken:
+            if self._is_eof(self.stream.get()):
+                break
             node.add(self._parse_content())
         self.stream.consume(tokens.CloseExpressionToken)
         return node
@@ -49,6 +46,8 @@ class Parser:
     def _parse_parameter_list(self):
         node = nodes.ParameterList()
         while self.stream.get() == tokens.ParameterToken:
+            if self._is_eof(self.stream.get()):
+                break
             key = self.stream.consume(tokens.ParameterToken)
             value = self._parse_value()
             parameter = nodes.Parameter(key, value)
@@ -102,6 +101,8 @@ class Parser:
         list_node = nodes.List(token)
         is_eof = self.stream.is_eof()
         while self.stream.get() != tokens.CloseListToken:
+            if self._is_eof(self.stream.get()):
+                break
             list_node.add(self._parse_value())
         self.stream.consume(tokens.CloseListToken)
         return list_node

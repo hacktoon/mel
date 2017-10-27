@@ -9,8 +9,8 @@ class Node:
     def add(self, value):
         self.children.append(value)
 
-    def eval(self):
-        return self.value
+    def eval(self, context):
+        return ''
 
     def __eq__(self, node_repr):
         return str(self) == node_repr
@@ -75,9 +75,6 @@ class Expression(Node):
     def add(self, value):
         self.children.add(value)
 
-    def eval(self, context):
-        pass
-
     def __str__(self):
         class_name = self.__class__.__name__
         return '{}<{} {} {}>'.format(
@@ -94,9 +91,6 @@ class Keyword(Node):
 
 
 class ParameterList(Node):
-    def eval(self, context):
-        pass
-
     def __str__(self):
         class_name = self.__class__.__name__
         value = ', '.join([str(x) for x in self.children])
@@ -108,9 +102,6 @@ class Parameter(Node):
         self.key = key
         self.value = value
 
-    def eval(self, context):
-        pass
-
     def __str__(self):
         class_name = self.__class__.__name__
         return '{}:{}'.format(
@@ -118,10 +109,8 @@ class Parameter(Node):
             self.value
         )
 
-class List(Node):
-    def eval(self, context):
-        pass
 
+class List(Node):
     def __str__(self):
         class_name = self.__class__.__name__
         value = ', '.join([str(x) for x in self.children])

@@ -31,6 +31,9 @@ class Token:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __len__(self):
+        return len(self.value)
+
     def __str__(self):
         return '{}<{}>'.format(self.name.upper(), self.value)
 
@@ -44,12 +47,12 @@ class SymbolToken(Token):
 
 
 class OpenExpressionToken(SymbolToken):
-    name = 'Open_Exp'
+    name = '('
     regex = r'\('
 
 
 class CloseExpressionToken(SymbolToken):
-    name = 'Close_Exp'
+    name = ')'
     regex = r'\)(' + KEYWORD_RULE + r'\))?'
 
     def _process(self, exp):
@@ -59,12 +62,12 @@ class CloseExpressionToken(SymbolToken):
 
 
 class OpenListToken(SymbolToken):
-    name = 'Open_List'
+    name = '['
     regex = r'\['
 
 
 class CloseListToken(SymbolToken):
-    name = 'Close_List'
+    name = ']'
     regex = r'\]'
 
 
@@ -187,6 +190,3 @@ TOKEN_TYPES = [
     FloatToken,
     IntToken
 ]
-
-
-
