@@ -22,16 +22,13 @@ class Node:
         return str(self)
 
     def __str__(self):
-        class_name = self.__class__.__name__
-        return '{}<{}>'.format(class_name.upper(), self.value)
-
-
-class Content(Node):
-    def eval(self, context):
-        pass
-
-    def __str__(self):
-        return ' '.join([str(x) for x in self.children])
+        text = ''
+        if self.value:
+            class_name = self.__class__.__name__.upper()
+            text += '{}<{}>'.format(class_name, self.value)
+        if self.children:
+            text += ' '.join([str(x) for x in self.children])
+        return text
 
 
 class String(Node):
@@ -70,7 +67,7 @@ class Expression(Node):
         super().__init__(token)
         self.keyword = ''
         self.parameters = ParameterList()
-        self.children = Content()
+        self.children = Node()
 
     def add(self, value):
         self.children.add(value)
@@ -103,10 +100,3 @@ class Parameter(Node):
 
     def __str__(self):
         return '{}:{}'.format(self.key.value, self.value)
-
-
-class List(Node):
-    def __str__(self):
-        class_name = self.__class__.__name__
-        value = ', '.join([str(x) for x in self.children])
-        return '{}<{}>'.format(class_name.upper(), value)

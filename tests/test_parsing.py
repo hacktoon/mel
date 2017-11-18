@@ -14,11 +14,6 @@ def test_value_parsing_as_string():
     assert tree.children[0] == 'STRING<foo>'
 
 
-def test_parsing_non_terminated_list():
-    with pytest.raises(ParsingError):
-        Parser(r'[1, 2, 5').parse()
-
-
 def test_parameters_parsing_using_comma_as_separator():
     tree = Parser(r'(x :a 1, :b 2, :c 3)').parse()
     items = tree.children[0].parameters.children

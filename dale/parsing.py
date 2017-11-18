@@ -16,17 +16,10 @@ class Parser:
             raise ParsingError(error, self.text)
 
     def _parse_root(self):
-        content_node = nodes.Content()
+        content_node = nodes.Node()
         while not self.stream.is_eof():
-            content_node.add(self._parse_content())
+            content_node.add(self._parse_value())
         return content_node
-
-    def _parse_content(self):
-        token = self.stream.get()
-        if token == tokens.OpenExpressionToken:
-            return self._parse_expression()
-        else:
-            return self._parse_value()
 
     def _parse_expression(self):
         token = self.stream.consume(tokens.OpenExpressionToken)
@@ -36,7 +29,7 @@ class Parser:
         while self.stream.get() != tokens.CloseExpressionToken:
             if self.stream.is_eof():
                 break
-            node.add(self._parse_content())
+            node.add(self._parse_value())
         self.stream.consume(tokens.CloseExpressionToken)
         return node
 
@@ -53,6 +46,7 @@ class Parser:
 
     def _parse_value(self):
         value_parser_function = {
+            tokens.OpenExpressionToken: self._parse_expression,
             tokens.ReferenceToken: self._parse_reference,
             tokens.BooleanToken: self._parse_boolean,
             tokens.StringToken: self._parse_string,
