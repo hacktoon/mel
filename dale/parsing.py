@@ -15,9 +15,6 @@ class Parser:
         except LexingError as error:
             raise ParsingError(error, self.text)
 
-    def _is_eof(self, token):
-        return token == tokens.EOFToken
-
     def _parse_root(self):
         content_node = nodes.Content()
         while not self.stream.is_eof():
@@ -37,7 +34,7 @@ class Parser:
         node.keyword = self.stream.consume(tokens.KeywordToken)
         node.parameters = self._parse_parameter_list()
         while self.stream.get() != tokens.CloseExpressionToken:
-            if self._is_eof(self.stream.get()):
+            if self.stream.is_eof():
                 break
             node.add(self._parse_content())
         self.stream.consume(tokens.CloseExpressionToken)
@@ -46,7 +43,7 @@ class Parser:
     def _parse_parameter_list(self):
         node = nodes.ParameterList()
         while self.stream.get() == tokens.ParameterToken:
-            if self._is_eof(self.stream.get()):
+            if self.stream.is_eof():
                 break
             key = self.stream.consume(tokens.ParameterToken)
             value = self._parse_value()
@@ -56,8 +53,7 @@ class Parser:
 
     def _parse_value(self):
         value_parser_function = {
-            tokens.AliasToken: self._parse_alias,
-            tokens.OpenListToken: self._parse_list,
+            tokens.ReferenceToken: self._parse_reference,
             tokens.BooleanToken: self._parse_boolean,
             tokens.StringToken: self._parse_string,
             tokens.FloatToken: self._parse_float,
@@ -69,12 +65,12 @@ class Parser:
             node = value_parser_function[token.__class__]()
         except KeyError:
             message = 'unexpected {!r} while parsing'.format(token.name)
-            raise LexingError(message, token.line, token.column)
+            raise LexingError(message, token.index)
         return node
 
-    def _parse_alias(self):
-        token = self.stream.consume(tokens.AliasToken)
-        return nodes.Alias(token)
+    def _parse_reference(self):
+        token = self.stream.consume(tokens.ReferenceToken)
+        return nodes.Reference(token)
 
     def _parse_string(self):
         token = self.stream.consume(tokens.StringToken)
@@ -95,14 +91,3 @@ class Parser:
     def _parse_boolean(self):
         token = self.stream.consume(tokens.BooleanToken)
         return nodes.Boolean(token)
-
-    def _parse_list(self):
-        token = self.stream.consume(tokens.OpenListToken)
-        list_node = nodes.List(token)
-        is_eof = self.stream.is_eof()
-        while self.stream.get() != tokens.CloseListToken:
-            if self._is_eof(self.stream.get()):
-                break
-            list_node.add(self._parse_value())
-        self.stream.consume(tokens.CloseListToken)
-        return list_node

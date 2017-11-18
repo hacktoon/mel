@@ -6,15 +6,7 @@ from dale.data.errors import LexingError
 
 def test_that_comment_tokens_are_ignored():
     token_list = Lexer('#comment  \n@here').tokenize()
-    assert token_list[0] == 'ALIAS<here>'
-
-
-def test_token_line_count():
-    token_list = Lexer('foo 2\n  bar').tokenize()
-    assert token_list[0].line == 1
-    assert token_list[1].line == 1
-    assert token_list[2].line == 2
-    assert token_list[2].column == 3
+    assert token_list[0] == 'REFERENCE<here>'
 
 
 def test_tokenize_boolean_values():
@@ -55,35 +47,33 @@ def test_tokenize_ints_and_floats():
     assert token_list[2] == 'INT<-532>'
 
 
-def test_tokenize_parenthesis_and_brackets():
-    token_list = Lexer(r'[]()').tokenize()
-    assert token_list[0] == '['
-    assert token_list[1] == ']'
-    assert token_list[2] == '('
-    assert token_list[3] == ')'
+def test_tokenize_parenthesis():
+    token_list = Lexer(r'()').tokenize()
+    assert token_list[0] == '('
+    assert token_list[1] == ')'
 
 
-def test_tokenize_aliases():
+def test_tokenize_references():
     token_list = Lexer(r'@name @value').tokenize()
-    assert token_list[0] == 'ALIAS<name>'
-    assert token_list[1] == 'ALIAS<value>'
+    assert token_list[0] == 'REFERENCE<name>'
+    assert token_list[1] == 'REFERENCE<value>'
 
 
-def test_tokenize_aliases_cant_start_with_numbers():
+def test_tokenize_references_cant_start_with_numbers():
     with pytest.raises(LexingError):
         Lexer(r'@42foo').tokenize()
 
 
-def test_tokenize_aliases_and_keywords_with_hifens_and_numbers():
+def test_tokenize_references_and_keywords_with_hifens_and_numbers():
     token_list = Lexer(r'@name33 id-foo').tokenize()
-    assert token_list[0] == 'ALIAS<name33>'
+    assert token_list[0] == 'REFERENCE<name33>'
     assert token_list[1] == 'KEYWORD<id-foo>'
 
 
-def test_aliases_using_dot_syntax():
+def test_references_using_dot_syntax():
     token_list = Lexer(r'@foo.bar @a2.bez').tokenize()
-    assert token_list[0] == 'ALIAS<foo.bar>'
-    assert token_list[1] == 'ALIAS<a2.bez>'
+    assert token_list[0] == 'REFERENCE<foo.bar>'
+    assert token_list[1] == 'REFERENCE<a2.bez>'
 
 
 def test_expression_alt_closing():
@@ -99,34 +89,34 @@ def test_expression_alt_closing_must_not_have_spaces():
     assert token_list[3].value == ')'
 
 
-def test_dot_token_wont_match_after_an_alias():
+def test_dot_token_wont_match_after_an_reference():
     with pytest.raises(LexingError):
         Lexer(r'f2.').tokenize()
 
 
-def test_dot_token_wont_match_before_an_alias():
+def test_dot_token_wont_match_before_an_reference():
     with pytest.raises(LexingError):
         Lexer(r'.f5').tokenize()
 
 
-def test_aliass_cant_start_with_hifens():
+def test_references_cant_start_with_hifens():
     with pytest.raises(LexingError):
         Lexer(r'-foo').tokenize()
 
 
-def test_aliass_cant_end_with_hifens():
+def test_references_cant_end_with_hifens():
     with pytest.raises(LexingError):
         Lexer(r'foo-').tokenize()
 
 
-def test_type_of_alias_tokens_with_dot_syntax():
+def test_type_of_reference_tokens_with_dot_syntax():
     token_list = Lexer(r'@name.title').tokenize()
-    assert token_list[0] == tokens.AliasToken
+    assert token_list[0] == tokens.ReferenceToken
 
 
-def test_aliass_with_dots_can_have_spaces_between_them():
+def test_references_with_dots_can_have_spaces_between_them():
     token_list = Lexer(r'@name . title').tokenize()
-    assert token_list[0] == tokens.AliasToken
+    assert token_list[0] == tokens.ReferenceToken
 
 
 def test_wrong_code_raises_syntax_exception_with_message():

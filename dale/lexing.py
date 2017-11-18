@@ -7,8 +7,6 @@ class Lexer:
     def __init__(self, text):
         self.text = text
         self.index = 0
-        self.line = 1
-        self.column = 1
 
     def tokenize(self):
         tokens = []
@@ -24,19 +22,12 @@ class Lexer:
             match = re.compile(Token.regex).match(self.text, self.index)
             if not match:
                 continue
-            token = Token(match.group(0), self.line, self.column)
-            self._update_counters(Token, match.group(0))
+            token = Token(match.group(0), self.index)
+            self.index += len(match.group(0))
             return token
         else:
-            raise LexingError('invalid syntax', self.line, self.column)
-
-    def _update_counters(self, token_type, matched_text):
-        self.index += len(matched_text)
-        if token_type == tokens.NewlineToken:
-            self.line += 1
-            self.column = 1
-        else:
-            self.column += len(matched_text.splitlines()[0])
+            raise LexingError('invalid syntax', self.index)
+        
 
 
 class TokenStream:
@@ -54,12 +45,11 @@ class TokenStream:
             token = self.get(-1)
             template = 'expected a {!r} at end of file'
             message = template.format(expected_type.name)
-            column = token.column + len(token) - 1
-            raise LexingError(message, token.line, column)
+            raise LexingError(message, token.index)
 
         template = 'expected a {!r}, found a {!r}'
         message = template.format(expected_type.name, token.name)
-        raise LexingError(message, token.line, token.column)
+        raise LexingError(message, token.index)
 
     def is_eof(self):
         return self.index >= len(self.tokens)
@@ -68,4 +58,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken('', -1, -1)
+            return tokens.EOFToken('', -1)

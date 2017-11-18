@@ -14,36 +14,6 @@ def test_value_parsing_as_string():
     assert tree.children[0] == 'STRING<foo>'
 
 
-def test_list_parsing():
-    tree = Parser(r'[1, 2, 3]').parse()
-    items = tree.children[0].children
-    assert items[0] == 'INT<1>'
-    assert items[1] == 'INT<2>'
-    assert items[2] == 'INT<3>'
-
-
-def test_parsing_list_with_duplicated_commas_and_spaces():
-    tree = Parser(r'[1  2,, 3]').parse()
-    assert tree.children[0] == 'LIST<INT<1>, INT<2>, INT<3>>'
-
-
-def test_list_specific_node_parsing():
-    tree = Parser(r'[1, true, @"/site/title", @name]').parse()
-    items = tree.children[0].children
-    assert items[0] == 'INT<1>'
-    assert items[1] == 'BOOLEAN<True>'
-    assert items[2] == 'QUERY</site/title>'
-    assert items[3] == 'ALIAS<name>'
-
-
-def test_list_specific_node_parsing_with_different_items():
-    tree = Parser(r'[1, [2, 3.34] "foo"]').parse()
-    items = tree.children[0].children
-    assert items[0] == 'INT<1>'
-    assert items[1] == 'LIST<INT<2>, FLOAT<3.34>>'
-    assert items[2] == 'STRING<foo>'
-
-
 def test_parsing_non_terminated_list():
     with pytest.raises(ParsingError):
         Parser(r'[1, 2, 5').parse()

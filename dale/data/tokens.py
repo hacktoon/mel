@@ -8,17 +8,16 @@ NAME_RULE = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
 SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
 STRING_RULE = '({}|{})'.format(SINGLE_QUOTE_STRING, DOUBLE_QUOTE_STRING)
-KEYWORD_RULE = '(' + NAME_RULE + r'|[\?@])'
+KEYWORD_RULE = '(' + NAME_RULE + r'|[:?@])'
 
 
 class Token:
     regex = ''
     skip = False
 
-    def __init__(self, value, line, column):
+    def __init__(self, value, index):
         self.value = self._process(value)
-        self.line = line
-        self.column = column
+        self.index = index
 
     def _process(self, raw_value):
         return raw_value
@@ -61,16 +60,6 @@ class CloseExpressionToken(SymbolToken):
         return exp
 
 
-class OpenListToken(SymbolToken):
-    name = '['
-    regex = r'\['
-
-
-class CloseListToken(SymbolToken):
-    name = ']'
-    regex = r'\]'
-
-
 class StringToken(Token):
     name = 'String'
     regex = STRING_RULE
@@ -109,19 +98,13 @@ class CommentToken(Token):
 
 
 class WhitespaceToken(Token):
-    name = 'Whitespace'
+    name = 'whitespace'
     skip = True
-    regex = r'[ ,\t\f\v\x0b\x0c]+'
-
-
-class NewlineToken(Token):
-    name = 'Newline'
-    skip = True
-    regex = r'\r?\n'
+    regex = r'[ ,\n\t\f\v\x0b\x0c]+'
 
 
 class BooleanToken(Token):
-    name = 'Boolean'
+    name = 'boolean'
     regex = 'true|false'
 
     def _process(self, boolean_literal):
@@ -129,7 +112,7 @@ class BooleanToken(Token):
 
 
 class ParameterToken(Token):
-    name = 'Parameter'
+    name = 'parameter'
     regex = ':' + NAME_RULE
 
     def _process(self, parameter_literal):
@@ -137,12 +120,12 @@ class ParameterToken(Token):
 
 
 class KeywordToken(Token):
-    name = 'Keyword'
+    name = 'keyword'
     regex = KEYWORD_RULE
 
 
 class FloatToken(Token):
-    name = 'Float'
+    name = 'float'
     regex = r'-?\d+\.\d+\b'
 
     def _process(self, float_literal):
@@ -150,15 +133,15 @@ class FloatToken(Token):
 
 
 class IntToken(Token):
-    name = 'Int'
+    name = 'int'
     regex = r'-?\d+\b'
 
     def _process(self, int_literal):
         return int(int_literal)
 
 
-class AliasToken(Token):
-    name = 'Alias'
+class ReferenceToken(Token):
+    name = 'reference'
     regex = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
 
     def _process(self, alias_literal):
@@ -176,16 +159,13 @@ class EOFToken(Token):
 TOKEN_TYPES = [
     OpenExpressionToken,
     CloseExpressionToken,
-    OpenListToken,
-    CloseListToken,
     BooleanToken,
     ParameterToken,
-    NewlineToken,
     WhitespaceToken,
     CommentToken,
     QueryToken,
     StringToken,
-    AliasToken,
+    ReferenceToken,
     KeywordToken,
     FloatToken,
     IntToken

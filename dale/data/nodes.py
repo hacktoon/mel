@@ -54,7 +54,7 @@ class Query(Node):
     pass
 
 
-class Alias(Node):
+class Reference(Node):
     def __init__(self, token):
         super().__init__(token)
         self.value = token.value.split('.')
