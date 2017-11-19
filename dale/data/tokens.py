@@ -15,7 +15,7 @@ class Token:
     regex = ''
     skip = False
 
-    def __init__(self, value, index):
+    def __init__(self, index, value):
         self.value = self._process(value)
         self.index = index
 

@@ -22,7 +22,7 @@ class Lexer:
             match = re.compile(Token.regex).match(self.text, self.index)
             if not match:
                 continue
-            token = Token(match.group(0), self.index)
+            token = Token(self.index, match.group(0))
             self.index += len(match.group(0))
             return token
         else:
@@ -58,4 +58,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken('', -1)
+            return tokens.EOFToken(-1, '')
