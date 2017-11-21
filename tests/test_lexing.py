@@ -81,14 +81,14 @@ def test_references_using_dot_syntax():
     assert token_list[1].value() == ['a2', 'bez']
 
 
-def test_named_expression_closing():
+def test_named_expression_ending_keyword_must_be_equal():
     token_list = Lexer('(name  \t "foo")name)').tokenize()
-    close_exp = token_list[-1]
-    assert isinstance(close_exp, tokens.CloseExpressionToken)
-    assert close_exp.value() == 'name'
+    end_exp = token_list[-1]
+    assert isinstance(end_exp, tokens.EndExpressionToken)
+    assert end_exp.value() == 'name'
 
 
-def test_named_expression_closing_must_not_have_spaces():
+def test_named_expression_ending_must_not_have_spaces():
     token_list = Lexer('(two 2) two)').tokenize()
     assert str(token_list[3]) == ')'
     assert token_list[3].value() == ')'

@@ -25,10 +25,10 @@ def test_that_consume_unexpected_token_raises_error():
 
 def test_stream_ends_with_eof_token():
     stream = TokenStream('(age 5)')
-    stream.consume(tokens.OpenExpressionToken)
+    stream.consume(tokens.StartExpressionToken)
     stream.consume(tokens.KeywordToken)
     assert not stream.is_eof()
     stream.consume(tokens.IntToken)
-    stream.consume(tokens.CloseExpressionToken)
+    stream.consume(tokens.EndExpressionToken)
     assert stream.is_eof()
     assert isinstance(stream.get(), tokens.EOFToken)

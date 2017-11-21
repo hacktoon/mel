@@ -52,7 +52,7 @@ def test_parsing_simple_expression():
     }
 
 
-def test_parsing_expression_with_named_closing():
+def test_parsing_expression_with_named_ending():
     tree = Parser('(name :id 1 "foo")name)').parse()
     assert tree.value() == {
         'keyword': 'name',
@@ -61,7 +61,7 @@ def test_parsing_expression_with_named_closing():
     }
 
 
-def test_parsing_expression_with_wrong_closing_keyword():
+def test_parsing_expression_with_wrong_ending_keyword():
     with pytest.raises(ParsingError):
         Parser('(start  \t "foo")end)').parse()
 

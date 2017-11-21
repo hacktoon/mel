@@ -23,7 +23,7 @@ class Parser:
 
     def _parse_expression(self):
         node = nodes.Expression()
-        self.stream.consume(tokens.OpenExpressionToken)
+        self.stream.consume(tokens.StartExpressionToken)
         node.add('keyword', self.stream.consume(tokens.KeywordToken))
         node.add('parameters', self._parse_parameters())
         self._parse_expression_value(node)
@@ -31,13 +31,13 @@ class Parser:
         return node
 
     def _parse_expression_value(self, node):
-        while not isinstance(self.stream.get(), tokens.CloseExpressionToken):
+        while not isinstance(self.stream.get(), tokens.EndExpressionToken):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
 
     def _parse_expression_end(self, node):
-        end = self.stream.consume(tokens.CloseExpressionToken)
+        end = self.stream.consume(tokens.EndExpressionToken)
         if len(end.value()) > 1 and end.value() != node.keyword.value():
             raise ParsingError('expected a matching keyword', self.text)
 
@@ -51,10 +51,8 @@ class Parser:
         return node
 
     def _parse_value(self):
-        # Maybe an OrderedDict will be better here
-        # in case of ambiguity between future new token types
         parser_method = {
-            tokens.OpenExpressionToken: self._parse_expression,
+            tokens.StartExpressionToken: self._parse_expression,
             tokens.OpenListToken: self._parse_list,
             tokens.ReferenceToken: self._parse_reference,
             tokens.BooleanToken: self._parse_boolean,

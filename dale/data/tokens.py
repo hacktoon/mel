@@ -55,12 +55,12 @@ class CloseListToken(Token):
     regex = r'\]'
 
 
-class OpenExpressionToken(Token):
+class StartExpressionToken(Token):
     id = '('
     regex = r'\('
 
 
-class CloseExpressionToken(Token):
+class EndExpressionToken(Token):
     id = ')'
     regex = r'\)(' + KEYWORD_RULE + r'\))?'
 
@@ -152,8 +152,8 @@ class EOFToken(Token):
 TOKEN_TYPES = [
     OpenListToken,
     CloseListToken,
-    OpenExpressionToken,
-    CloseExpressionToken,
+    StartExpressionToken,
+    EndExpressionToken,
     BooleanToken,
     ParameterToken,
     WhitespaceToken,
