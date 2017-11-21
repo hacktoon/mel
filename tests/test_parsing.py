@@ -5,60 +5,61 @@ from dale.data.errors import LexingError, ParsingError
 
 
 def test_value_rule_for_float_token():
-    tree = Parser('56.72 ').parse()
-    assert tree.children[0] == 'FLOAT<56.72>'
+    tree = Parser('56.72').parse()
+    assert tree.value() == 56.72
 
 
 def test_value_parsing_as_string():
     tree = Parser(r'"foo"').parse()
-    assert tree.children[0] == 'STRING<foo>'
-
-
-def test_parameters_parsing_using_comma_as_separator():
-    tree = Parser(r'(x :a 1, :b 2, :c 3)').parse()
-    items = tree.children[0].parameters.children
-    assert items[0] == 'a:INT<1>'
-    assert items[1] == 'b:INT<2>'
-    assert items[2] == 'c:INT<3>'
+    assert tree.value() == 'foo'
 
 
 def test_simple_expression_parsing():
-    tree = Parser(r'(name :id 1 "foo")').parse()
-    exp = tree.children[0]
-    assert exp.keyword == 'KEYWORD<name>'
-    assert exp.parameters == 'PARAMETERLIST<id:INT<1>>'
-    assert exp.children == 'STRING<foo>'
+    tree = Parser('(name :id 1 "foo")').parse()
+    assert tree[0].keyword.value() == 'name'
+    assert tree[0].parameters.value() == {'id': 1}
+
+
+def test_expression_named_closing():
+    tree = Parser('(name :id 1 "foo")name)').parse()
+    assert tree[0].value() == {
+        'keyword': 'name',
+        'parameters': {'id': 1},
+        'values': 'foo'
+    }
+
+
+def test_named_expression_closing_with_wrong_keyword():
+    with pytest.raises(ParsingError):
+        Parser('(start  \t "foo")end)').parse()
+
+
+def test_parameters_parsing_using_comma_as_separator():
+    tree = Parser('(x :a 1, :b 2, :c 3, "foo-bar")').parse()
+    assert tree.value() == {
+        'keyword': 'x',
+        'parameters': {'a': 1, 'b': 2, 'c': 3},
+        'values': 'foo-bar'
+    }
 
 
 def test_parsing_expression_with_multiple_children():
-    tree = Parser(r'(x :id 1, :title "foo" "bar" 34)').parse()
-    exp = tree.children[0]
-    assert exp.keyword == 'KEYWORD<x>'
-    assert exp.parameters == 'PARAMETERLIST<id:INT<1>, title:STRING<foo>>'
-    assert exp.children == 'STRING<bar> INT<34>'
+    tree = Parser(r'(kw :id 1, :title "foo" "bar" 34)').parse()
+    assert tree.value() == {
+        'keyword': 'kw',
+        'parameters': {'id': 1, 'title': 'foo'},
+        'values': ['bar', 34]
+    }
 
 
-def test_parsing_expression_with_parameters_and_query():
-    tree = Parser(r'(etc :id 1 @"/foo/bar")').parse()
-    exp = tree.children[0]
-    assert exp.keyword == 'KEYWORD<etc>'
-    assert exp.children == 'QUERY</foo/bar>'
-
-
-def test_parsing_expression_with_sub_expressions():
-    tree = Parser(r'(foo-bar (bar 34))').parse()
-    exp = tree.children[0]
-    assert exp.keyword == 'KEYWORD<foo-bar>'
-    assert exp.parameters == 'PARAMETERLIST<>'
-    assert exp.children == 'EXPRESSION<KEYWORD<bar> PARAMETERLIST<> INT<34>>'
-
-
-def test_parsing_consecutive_expressions():
+def test_parsing_consecutive_expressions_with_sub_expressions():
     tree = Parser(r'(x "foo") (y (a 42))').parse()
-    first_exp = 'EXPRESSION<KEYWORD<x> PARAMETERLIST<> STRING<foo>>'
-    inner = 'EXPRESSION<KEYWORD<a> PARAMETERLIST<> INT<42>>'
-    second_exp = 'EXPRESSION<KEYWORD<y> PARAMETERLIST<> {}>'.format(inner)
-    assert tree == '{} {}'.format(first_exp, second_exp)
+    assert tree[0].value() == {'keyword': 'x', 'values': 'foo'}
+    assert tree[1].value() == {
+        'keyword': 'y', 'values': {
+            'keyword': 'a', 'values': 42
+        }
+    }
 
 
 def test_non_terminated_expression_raises_error():
@@ -68,6 +69,4 @@ def test_non_terminated_expression_raises_error():
 
 def test_parsing_documentation_keyword_expression():
     tree = Parser(r'(? "help me")').parse()
-    exp = tree.children[0]
-    assert exp.keyword == 'KEYWORD<?>'
-    assert exp.children == 'STRING<help me>'
+    assert tree.value() == {'keyword': '?', 'values': 'help me'}

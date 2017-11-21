@@ -1,34 +1,72 @@
 
 
 class Node:
-    def __init__(self, token=None):
-        self.token = token
-        self.children = []
-        self.value = token.value if token else ''
+    def __init__(self):
+        self._children = []
+        self._properties = {}
 
-    def add(self, value):
-        self.children.append(value)
+    def add(self, *args):
+        if len(args) == 2:
+            name, child = args
+            self._add(name, child)
+        elif len(args) == 1:
+            self._add(None, args[0])
+        else:
+            raise TypeError('invalid number of arguments')
 
-    def eval(self, context):
-        return ''
+    def _add(self, name, child):
+        if name:
+            if name in self.__dict__:
+                raise ValueError(name + ' attribute is already defined')
+            self._properties[name] = child
+            self.__dict__[name] = child
+        else:
+            self._children.append(child)
 
-    def __eq__(self, node_repr):
-        return str(self) == node_repr
+    def value(self):
+        if len(self._children) == 1:
+            return self._children[0].value()
+        return [child.value() for child in self._children]
 
-    def __ne__(self, node_repr):
-        return str(self) != node_repr
+    def __getitem__(self, key):
+        try:
+            if key in self._properties:
+                return self._properties[key]
+            else:
+                return self._children[key]
+        except (KeyError, IndexError):
+            raise ValueError(key + ' is not a valid key or index')
+
+    def __len__(self):
+        return len(self._children)
 
     def __repr__(self):
-        return str(self)
+        return str(self._children)
 
     def __str__(self):
-        text = ''
-        if self.value:
-            class_name = self.__class__.__name__.upper()
-            text += '{}<{}>'.format(class_name, self.value)
-        if self.children:
-            text += ' '.join([str(x) for x in self.children])
-        return text
+        return repr(self)
+
+
+class Expression(Node):
+    def value(self):
+        exp = {'keyword': self.keyword.value()}
+
+        if self.parameters.value().items():
+            exp['parameters'] = self.parameters.value()
+        if len(self._children) > 1:
+            exp['values'] = [child.value() for child in self._children]
+        elif len(self._children) == 1:
+            exp['values'] = self._children[0].value()
+        return exp
+
+
+class Keyword(Node):
+    pass
+
+
+class Parameters(Node):
+    def value(self):
+        return {key:child.value() for key, child in self._properties.items()}
 
 
 class String(Node):
@@ -52,51 +90,4 @@ class Query(Node):
 
 
 class Reference(Node):
-    def __init__(self, token):
-        super().__init__(token)
-        self.value = token.value.split('.')
-
-    def __str__(self):
-        class_name = self.__class__.__name__
-        value = '.'.join(self.value)
-        return '{}<{}>'.format(class_name.upper(), value)
-
-
-class Expression(Node):
-    def __init__(self, token):
-        super().__init__(token)
-        self.keyword = ''
-        self.parameters = ParameterList()
-        self.children = Node()
-
-    def add(self, value):
-        self.children.add(value)
-
-    def __str__(self):
-        return '{}<{} {} {}>'.format(
-            self.__class__.__name__.upper(),
-            str(self.keyword),
-            str(self.parameters),
-            str(self.children)
-        )
-
-
-class Keyword(Node):
-    def eval(self, context):
-        pass
-
-
-class ParameterList(Node):
-    def __str__(self):
-        class_name = self.__class__.__name__
-        value = ', '.join([str(x) for x in self.children])
-        return '{}<{}>'.format(class_name.upper(), value)
-
-
-class Parameter(Node):
-    def __init__(self, key, value):
-        self.key = key
-        self.value = value
-
-    def __str__(self):
-        return '{}:{}'.format(self.key.value, self.value)
+    pass

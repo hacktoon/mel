@@ -6,15 +6,15 @@ from dale.data.errors import LexingError
 
 def test_stream_get_current_token():
     stream = TokenStream('345 name ()')
-    assert stream.get() == 'INT<345>'
+    assert stream.get().value() == 345
 
 
 def test_stream_consume_token():
     stream = TokenStream('42 foo')
     int_token = stream.consume(tokens.IntToken)
-    assert int_token == 'INT<42>'
+    assert int_token.value() == 42
     id_token = stream.consume(tokens.KeywordToken)
-    assert id_token == 'KEYWORD<foo>'
+    assert id_token.value() == 'foo'
 
 
 def test_that_consume_unexpected_token_raises_error():
@@ -31,4 +31,4 @@ def test_stream_ends_with_eof_token():
     stream.consume(tokens.IntToken)
     stream.consume(tokens.CloseExpressionToken)
     assert stream.is_eof()
-    assert stream.get() == 'EOF'
+    assert isinstance(stream.get(), tokens.EOFToken)

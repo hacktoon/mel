@@ -16,39 +16,38 @@ class Parser:
             raise ParsingError(error, self.text)
 
     def _parse_root(self):
-        root_node = nodes.Node()
+        node = nodes.Node()
         while not self.stream.is_eof():
-            root_node.add(self._parse_value())
-        return root_node
+            node.add(self._parse_value())
+        return node
 
     def _parse_expression(self):
-        token = self.stream.consume(tokens.OpenExpressionToken)
-        node = nodes.Expression(token)
-        node.keyword = self.stream.consume(tokens.KeywordToken)
-        node.parameters = self._parse_parameter_list()
-        while self.stream.get() != tokens.CloseExpressionToken:
+        node = nodes.Expression()
+        self.stream.consume(tokens.OpenExpressionToken)
+        node.add('keyword', self.stream.consume(tokens.KeywordToken))
+        node.add('parameters', self._parse_parameters())
+        while not isinstance(self.stream.get(), tokens.CloseExpressionToken):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
-        self.stream.consume(tokens.CloseExpressionToken)
+        end = self.stream.consume(tokens.CloseExpressionToken)
+        if len(end.value()) > 1 and end.value() != node.keyword.value():
+            raise ParsingError('expected a matching keyword', self.text)
         return node
 
-    def _parse_parameter_list(self):
-        node = nodes.ParameterList()
-        while self.stream.get() == tokens.ParameterToken:
+    def _parse_parameters(self):
+        node = nodes.Parameters()
+        while isinstance(self.stream.get(), tokens.ParameterToken):
             if self.stream.is_eof():
                 break
-            parameter = self._parse_parameter()
-            node.add(parameter)
+            key = self.stream.consume(tokens.ParameterToken)
+            node.add(key.value(), self._parse_value())
         return node
 
-    def _parse_parameter(self):
-        key = self.stream.consume(tokens.ParameterToken)
-        value = self._parse_value()
-        return nodes.Parameter(key, value)
-
     def _parse_value(self):
-        value_parser_function = {
+        # Maybe an OrderedDict will be better here
+        # in case of ambiguity between future new token types
+        parser_method = {
             tokens.OpenExpressionToken: self._parse_expression,
             tokens.ReferenceToken: self._parse_reference,
             tokens.BooleanToken: self._parse_boolean,
@@ -58,33 +57,40 @@ class Parser:
             tokens.IntToken: self._parse_int
         }
         token = self.stream.get()
+
         try:
-            node = value_parser_function[token.__class__]()
+            node = parser_method[token.__class__]()
         except KeyError:
-            message = 'unexpected {!r} while parsing'.format(token.name)
+            message = 'unexpected {!r} while parsing'.format(token.id)
             raise LexingError(message, token.index)
         return node
 
     def _parse_reference(self):
-        token = self.stream.consume(tokens.ReferenceToken)
-        return nodes.Reference(token)
+        node = nodes.Reference()
+        node.add(self.stream.consume(tokens.ReferenceToken))
+        return node
 
     def _parse_string(self):
-        token = self.stream.consume(tokens.StringToken)
-        return nodes.String(token)
+        node = nodes.String()
+        node.add(self.stream.consume(tokens.StringToken))
+        return node
 
     def _parse_query(self):
-        token = self.stream.consume(tokens.QueryToken)
-        return nodes.Query(token)
+        node = nodes.Query()
+        node.add(self.stream.consume(tokens.QueryToken))
+        return node
 
     def _parse_float(self):
-        token = self.stream.consume(tokens.FloatToken)
-        return nodes.Float(token)
+        node = nodes.Float()
+        node.add(self.stream.consume(tokens.FloatToken))
+        return node
 
     def _parse_int(self):
-        token = self.stream.consume(tokens.IntToken)
-        return nodes.Int(token)
+        node = nodes.Int()
+        node.add(self.stream.consume(tokens.IntToken))
+        return node
 
     def _parse_boolean(self):
-        token = self.stream.consume(tokens.BooleanToken)
-        return nodes.Boolean(token)
+        node = nodes.Boolean()
+        node.add(self.stream.consume(tokens.BooleanToken))
+        return node

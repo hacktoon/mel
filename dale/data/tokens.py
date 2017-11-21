@@ -12,59 +12,59 @@ KEYWORD_RULE = '(' + NAME_RULE + r'|[:?@])'
 
 
 class Token:
+    id = ''
     regex = ''
     skip = False
 
-    def __init__(self, index, value):
-        self.value = self._process(value)
+    def __init__(self, match='', index=0, source_text=''):
+        self.match = match
         self.index = index
 
-    def _process(self, raw_value):
-        return raw_value
-
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return str(self) == other
-        return isinstance(self, other)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __len__(self):
-        return len(str(self.value))
-
-    def __str__(self):
-        return '{}<{}>'.format(self.name.upper(), self.value)
+    def value(self, context=None):
+        return self.match
 
     def __repr__(self):
-        return str(self)
+        return self.match
 
-
-class SymbolToken(Token):
     def __str__(self):
-        return self.name.upper()
+        return self.match
 
 
-class OpenExpressionToken(SymbolToken):
-    name = '('
+class WhitespaceToken(Token):
+    id = 'whitespace'
+    regex = r'[,\s]+'
+    skip = True
+
+
+class CommentToken(Token):
+    id = 'comment'
+    regex = r'#[^\n\r]*'
+    skip = True
+
+    def value(self):
+        return self.match[1:]
+
+
+class OpenExpressionToken(Token):
+    id = '('
     regex = r'\('
 
 
-class CloseExpressionToken(SymbolToken):
-    name = ')'
+class CloseExpressionToken(Token):
+    id = ')'
     regex = r'\)(' + KEYWORD_RULE + r'\))?'
 
-    def _process(self, exp):
-        if len(exp) > 1:
-            return exp.replace(')', '')
-        return exp
+    def value(self):
+        if len(self.match) > 1:
+            return self.match.replace(')', '')
+        return self.match
 
 
 class StringToken(Token):
-    name = 'String'
+    id = 'string'
     regex = STRING_RULE
 
-    def _process(self, string_literal):
+    def value(self):
         # thanks to @rspeer in https://stackoverflow.com/a/24519338/544184
         ESCAPE_SEQUENCE_RE = re.compile(r'''
             \\( U........    # 8-digit hex escapes
@@ -77,82 +77,64 @@ class StringToken(Token):
 
         def decode_match(match):
             return codecs.decode(match.group(0), 'unicode-escape')
-        return ESCAPE_SEQUENCE_RE.sub(decode_match, string_literal[1:-1])
+        return ESCAPE_SEQUENCE_RE.sub(decode_match, self.match[1:-1])
 
 
 class QueryToken(StringToken):
-    name = 'Query'
+    id = 'query'
     regex = '@' + STRING_RULE
 
-    def _process(self, query_literal):
-        return super()._process(query_literal[1:])
-
-
-class CommentToken(Token):
-    name = 'Comment'
-    skip = True
-    regex = r'#[^\n\r]*'
-
-    def _process(self, comment_literal):
-        return comment_literal[1:]
-
-
-class WhitespaceToken(Token):
-    name = 'whitespace'
-    skip = True
-    regex = r'[ ,\n\t\f\v\x0b\x0c]+'
+    def value(self):
+        return super().value()[1:]
 
 
 class BooleanToken(Token):
-    name = 'boolean'
+    id = 'boolean'
     regex = 'true|false'
 
-    def _process(self, boolean_literal):
-        return {'true': True, 'false': False}[boolean_literal]
+    def value(self):
+        return {'true': True, 'false': False}[self.match]
 
 
 class ParameterToken(Token):
-    name = 'parameter'
+    id = 'parameter'
     regex = ':' + NAME_RULE
 
-    def _process(self, parameter_literal):
-        return super()._process(parameter_literal[1:])
+    def value(self):
+        return self.match[1:]
 
 
 class KeywordToken(Token):
-    name = 'keyword'
+    id = 'keyword'
     regex = KEYWORD_RULE
 
 
 class FloatToken(Token):
-    name = 'float'
+    id = 'float'
     regex = r'-?\d+\.\d+\b'
 
-    def _process(self, float_literal):
-        return float(float_literal)
+    def value(self):
+        return float(self.match)
 
 
 class IntToken(Token):
-    name = 'int'
+    id = 'int'
     regex = r'-?\d+\b'
 
-    def _process(self, int_literal):
-        return int(int_literal)
+    def value(self):
+        return int(self.match)
 
 
 class ReferenceToken(Token):
-    name = 'reference'
+    id = 'reference'
     regex = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
 
-    def _process(self, alias_literal):
-        return alias_literal[1:].replace(' ', '')
+    def value(self):
+        return self.match[1:].replace(' ', '').split('.')
 
 
 class EOFToken(Token):
-    name = 'EOF'
-
-    def __str__(self):
-        return self.name
+    id = 'EOF'
 
 
 # the order of tokens is important in this list

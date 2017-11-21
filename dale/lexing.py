@@ -11,23 +11,21 @@ class Lexer:
     def tokenize(self):
         tokens = []
         while self.index < len(self.text):
-            token = self._produce_token()
-            if token.skip:
-                continue
-            tokens.append(token)
+            token = self._emit_token()
+            if not token.skip:
+                tokens.append(token)
         return tokens
 
-    def _produce_token(self):
-        for Token in tokens.TOKEN_TYPES:
-            match = re.compile(Token.regex).match(self.text, self.index)
+    def _emit_token(self):
+        for token_type in tokens.TOKEN_TYPES:
+            match = re.compile(token_type.regex).match(self.text, self.index)
             if not match:
                 continue
-            token = Token(self.index, match.group(0))
+            token = token_type(match.group(0), self.index)
             self.index += len(match.group(0))
             return token
         else:
             raise LexingError('invalid syntax', self.index)
-        
 
 
 class TokenStream:
@@ -35,21 +33,22 @@ class TokenStream:
         self.tokens = Lexer(text).tokenize()
         self.index = 0
 
-    def consume(self, expected_type):
+    def consume(self, expected_token_type):
         token = self.get()
-        if isinstance(token, expected_type):
+        if isinstance(token, expected_token_type):
             self.index += 1
             return token
 
-        if token == tokens.EOFToken:
+        if isinstance(token, tokens.EOFToken):
             token = self.get(-1)
             template = 'expected a {!r} at end of file'
-            message = template.format(expected_type.name)
+            message = template.format(expected_token_type.id)
             raise LexingError(message, token.index)
 
         template = 'expected a {!r}, found a {!r}'
-        message = template.format(expected_type.name, token.name)
+        message = template.format(expected_token_type.id, token.id)
         raise LexingError(message, token.index)
+
 
     def is_eof(self):
         return self.index >= len(self.tokens)
@@ -58,4 +57,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken(-1, '')
+            return tokens.EOFToken()
