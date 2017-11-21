@@ -1,6 +1,5 @@
 from .lexing import TokenStream
 from .data import nodes
-from .data import tokens
 from .data.errors import LexingError, ParsingError
 
 
@@ -34,7 +33,7 @@ class Parser:
         return node
 
     def _parse_expression_value(self, node):
-        while not isinstance(self.stream.get(), tokens.EndExpressionToken):
+        while not self.stream.is_current('EndExpression'):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
@@ -46,7 +45,7 @@ class Parser:
 
     def _parse_parameters(self):
         node = nodes.Parameters()
-        while isinstance(self.stream.get(), tokens.ParameterToken):
+        while self.stream.is_current('Parameter'):
             if self.stream.is_eof():
                 break
             parameter = self._read_token('Parameter')
@@ -55,28 +54,27 @@ class Parser:
 
     def _parse_value(self):
         parser_method = {
-            tokens.StartExpressionToken: self._parse_expression,
-            tokens.OpenListToken: self._parse_list,
-            tokens.ReferenceToken: self._parse_reference,
-            tokens.BooleanToken: self._parse_boolean,
-            tokens.StringToken: self._parse_string,
-            tokens.FloatToken: self._parse_float,
-            tokens.QueryToken: self._parse_query,
-            tokens.IntToken: self._parse_int
+            'StartExpression': self._parse_expression,
+            'OpenList': self._parse_list,
+            'Reference': self._parse_reference,
+            'Boolean': self._parse_boolean,
+            'String': self._parse_string,
+            'Float': self._parse_float,
+            'Query': self._parse_query,
+            'Int': self._parse_int
         }
         token = self.stream.get()
-
         try:
-            node = parser_method[token.__class__]()
+            node = parser_method[token.id]()
         except KeyError:
-            message = 'unexpected {!r} while parsing'.format(token.id)
+            message = 'unexpected {!r} while parsing'.format(token.id) #FIX change to str or repr
             raise LexingError(message, token.index)
         return node
 
     def _parse_list(self):
         node = nodes.List()
         self._read_token('OpenList')
-        while not isinstance(self.stream.get(), tokens.CloseListToken):
+        while not self.stream.is_current('CloseList'):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())

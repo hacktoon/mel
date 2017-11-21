@@ -48,6 +48,10 @@ class TokenStream:
     def is_eof(self):
         return self.index >= len(self.tokens)
 
+    def is_current(self, token_type_name):
+        CurrentToken = getattr(tokens, token_type_name + 'Token')
+        return isinstance(self.get(), CurrentToken)
+
     def get(self, offset=0):
         try:
             return self.tokens[self.index + offset]

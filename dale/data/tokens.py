@@ -31,13 +31,13 @@ class Token:
 
 
 class WhitespaceToken(Token):
-    id = 'whitespace'
+    id = 'Whitespace'
     regex = r'[,\s]+'
     skip = True
 
 
 class CommentToken(Token):
-    id = 'comment'
+    id = 'Comment'
     regex = r'#[^\n\r]*'
     skip = True
 
@@ -46,22 +46,22 @@ class CommentToken(Token):
 
 
 class OpenListToken(Token):
-    id = '['
+    id = 'OpenList'
     regex = r'\['
 
 
 class CloseListToken(Token):
-    id = ']'
+    id = 'CloseList'
     regex = r'\]'
 
 
 class StartExpressionToken(Token):
-    id = '('
+    id = 'StartExpression'
     regex = r'\('
 
 
 class EndExpressionToken(Token):
-    id = ')'
+    id = 'EndExpression'
     regex = r'\)(' + KEYWORD_RULE + r'\))?'
 
     def value(self):
@@ -71,7 +71,7 @@ class EndExpressionToken(Token):
 
 
 class StringToken(Token):
-    id = 'string'
+    id = 'String'
     regex = STRING_RULE
 
     def value(self):
@@ -91,7 +91,7 @@ class StringToken(Token):
 
 
 class QueryToken(StringToken):
-    id = 'query'
+    id = 'Query'
     regex = '@' + STRING_RULE
 
     def value(self):
@@ -99,7 +99,7 @@ class QueryToken(StringToken):
 
 
 class BooleanToken(Token):
-    id = 'boolean'
+    id = 'Boolean'
     regex = 'true|false'
 
     def value(self):
@@ -107,7 +107,7 @@ class BooleanToken(Token):
 
 
 class ParameterToken(Token):
-    id = 'parameter'
+    id = 'Parameter'
     regex = ':' + NAME_RULE
 
     def value(self):
@@ -115,12 +115,12 @@ class ParameterToken(Token):
 
 
 class KeywordToken(Token):
-    id = 'keyword'
+    id = 'Keyword'
     regex = KEYWORD_RULE
 
 
 class FloatToken(Token):
-    id = 'float'
+    id = 'Float'
     regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
 
     def value(self):
@@ -128,7 +128,7 @@ class FloatToken(Token):
 
 
 class IntToken(Token):
-    id = 'int'
+    id = 'Int'
     regex = r'[-+]?\d+\b'
 
     def value(self):
@@ -136,7 +136,7 @@ class IntToken(Token):
 
 
 class ReferenceToken(Token):
-    id = 'reference'
+    id = 'Reference'
     regex = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
 
     def value(self):
