@@ -26,14 +26,17 @@ class Parser:
         self.stream.consume(tokens.OpenExpressionToken)
         node.add('keyword', self.stream.consume(tokens.KeywordToken))
         node.add('parameters', self._parse_parameters())
-        while not isinstance(self.stream.get(), tokens.CloseExpressionToken):
-            if self.stream.is_eof():
-                break
-            node.add(self._parse_value())
+        self._parse_expression_value(node)
         end = self.stream.consume(tokens.CloseExpressionToken)
         if len(end.value()) > 1 and end.value() != node.keyword.value():
             raise ParsingError('expected a matching keyword', self.text)
         return node
+
+    def _parse_expression_value(self, node):
+        while not isinstance(self.stream.get(), tokens.CloseExpressionToken):
+            if self.stream.is_eof():
+                break
+            node.add(self._parse_value())
 
     def _parse_parameters(self):
         node = nodes.Parameters()
