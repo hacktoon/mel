@@ -145,7 +145,7 @@ class ReferenceToken(Token):
 
 
 class EOFToken(Token):
-    id = 'EOF'
+    id = 'end of file'
 
 
 # the order of tokens is important in this list

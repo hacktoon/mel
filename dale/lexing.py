@@ -39,13 +39,7 @@ class TokenStream:
             self.index += 1
             return token
 
-        if isinstance(token, tokens.EOFToken):
-            token = self.get(-1)
-            template = 'expected a {!r} at end of file'
-            message = template.format(expected_token_type.id)
-            raise LexingError(message, token.index)
-
-        template = 'expected a {!r}, found a {!r}'
+        template = 'expected a token of type {}, but found {}'
         message = template.format(expected_token_type.id, token.id)
         raise LexingError(message, token.index)
 
