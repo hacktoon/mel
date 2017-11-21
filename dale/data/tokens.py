@@ -111,7 +111,7 @@ class KeywordToken(Token):
 
 class FloatToken(Token):
     id = 'float'
-    regex = r'-?\d+\.\d+\b'
+    regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
 
     def value(self):
         return float(self.match)
@@ -119,7 +119,7 @@ class FloatToken(Token):
 
 class IntToken(Token):
     id = 'int'
-    regex = r'-?\d+\b'
+    regex = r'[-+]?\d+\b'
 
     def value(self):
         return int(self.match)

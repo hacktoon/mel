@@ -7,6 +7,9 @@ from dale.data.errors import LexingError, ParsingError
 @pytest.mark.parametrize('input, expected', [
     ('56.75', 56.75),
     ('-0.75', -0.75),
+    ('-.099999', -.099999),
+    ('-0.75e10', -0.75e10),
+    ('+1.45e-10', 1.45e-10),
     ('-56', -56),
     ('45', 45),
     ('"string"', 'string'),
