@@ -4,14 +4,19 @@ from dale.data import tokens
 from dale.data.errors import LexingError, ParsingError
 
 
-def test_value_rule_for_float_token():
-    tree = Parser('56.72').parse()
-    assert tree.value() == 56.72
-
-
-def test_value_parsing_as_string():
-    tree = Parser(r'"foo"').parse()
-    assert tree.value() == 'foo'
+@pytest.mark.parametrize('input, expected', [
+    ('56.75', 56.75),
+    ('-0.75', -0.75),
+    ('-56', -56),
+    ('45', 45),
+    ('"string"', 'string'),
+    ("'string'", 'string'),
+    ('@"/foo/bar"', '/foo/bar'),
+    ('@foo.bar', ['foo', 'bar']),
+])
+def test_parsing_of_single_values(input, expected):
+    tree = Parser(input).parse()
+    assert tree.value() == expected
 
 
 def test_simple_expression_parsing():
@@ -22,7 +27,7 @@ def test_simple_expression_parsing():
 
 def test_expression_named_closing():
     tree = Parser('(name :id 1 "foo")name)').parse()
-    assert tree[0].value() == {
+    assert tree.value() == {
         'keyword': 'name',
         'parameters': {'id': 1},
         'values': 'foo'
