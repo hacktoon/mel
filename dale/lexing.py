@@ -33,14 +33,15 @@ class TokenStream:
         self.tokens = Lexer(text).tokenize()
         self.index = 0
 
-    def consume(self, expected_token_type):
+    def consume(self, token_type_name):
         token = self.get()
-        if isinstance(token, expected_token_type):
+        ExpectedToken = getattr(tokens, token_type_name + 'Token')
+        if isinstance(token, ExpectedToken):
             self.index += 1
             return token
 
         template = 'expected a token of type {}, but found {}'
-        message = template.format(expected_token_type.id, token.id)
+        message = template.format(ExpectedToken.id, token.id)
         raise LexingError(message, token.index)
 
 

@@ -15,6 +15,9 @@ class Parser:
         except LexingError as error:
             raise ParsingError(error, self.text)
 
+    def _read_token(self, type_name):
+        return self.stream.consume(type_name)
+
     def _parse_root(self):
         node = nodes.Node()
         while not self.stream.is_eof():
@@ -23,8 +26,8 @@ class Parser:
 
     def _parse_expression(self):
         node = nodes.Expression()
-        self.stream.consume(tokens.StartExpressionToken)
-        node.add('keyword', self.stream.consume(tokens.KeywordToken))
+        self._read_token('StartExpression')
+        node.add('keyword', self._read_token('Keyword'))
         node.add('parameters', self._parse_parameters())
         self._parse_expression_value(node)
         self._parse_expression_end(node)
@@ -37,7 +40,7 @@ class Parser:
             node.add(self._parse_value())
 
     def _parse_expression_end(self, node):
-        end = self.stream.consume(tokens.EndExpressionToken)
+        end = self._read_token('EndExpression')
         if len(end.value()) > 1 and end.value() != node.keyword.value():
             raise ParsingError('expected a matching keyword', self.text)
 
@@ -46,8 +49,8 @@ class Parser:
         while isinstance(self.stream.get(), tokens.ParameterToken):
             if self.stream.is_eof():
                 break
-            key = self.stream.consume(tokens.ParameterToken)
-            node.add(key.value(), self._parse_value())
+            parameter = self._read_token('Parameter')
+            node.add(parameter.value(), self._parse_value())
         return node
 
     def _parse_value(self):
@@ -72,40 +75,40 @@ class Parser:
 
     def _parse_list(self):
         node = nodes.List()
-        self.stream.consume(tokens.OpenListToken)
+        self._read_token('OpenList')
         while not isinstance(self.stream.get(), tokens.CloseListToken):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
-        self.stream.consume(tokens.CloseListToken)
+        self._read_token('CloseList')
         return node
 
     def _parse_reference(self):
         node = nodes.Reference()
-        node.add(self.stream.consume(tokens.ReferenceToken))
+        node.add(self._read_token('Reference'))
         return node
 
     def _parse_string(self):
         node = nodes.String()
-        node.add(self.stream.consume(tokens.StringToken))
+        node.add(self._read_token('String'))
         return node
 
     def _parse_query(self):
         node = nodes.Query()
-        node.add(self.stream.consume(tokens.QueryToken))
+        node.add(self._read_token('Query'))
         return node
 
     def _parse_float(self):
         node = nodes.Float()
-        node.add(self.stream.consume(tokens.FloatToken))
+        node.add(self._read_token('Float'))
         return node
 
     def _parse_int(self):
         node = nodes.Int()
-        node.add(self.stream.consume(tokens.IntToken))
+        node.add(self._read_token('Int'))
         return node
 
     def _parse_boolean(self):
         node = nodes.Boolean()
-        node.add(self.stream.consume(tokens.BooleanToken))
+        node.add(self._read_token('Boolean'))
         return node
