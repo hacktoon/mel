@@ -91,3 +91,10 @@ class Query(Node):
 
 class Reference(Node):
     pass
+
+
+class List(Node):
+    def value(self):
+        if len(self._children) == 1:
+            return self._children[0].value()
+        return [child.value() for child in self._children]

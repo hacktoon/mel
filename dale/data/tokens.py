@@ -45,6 +45,16 @@ class CommentToken(Token):
         return self.match[1:]
 
 
+class OpenListToken(Token):
+    id = '['
+    regex = r'\['
+
+
+class CloseListToken(Token):
+    id = ']'
+    regex = r'\]'
+
+
 class OpenExpressionToken(Token):
     id = '('
     regex = r'\('
@@ -130,7 +140,8 @@ class ReferenceToken(Token):
     regex = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
 
     def value(self):
-        return self.match[1:].replace(' ', '').split('.')
+        strip_whitespaces = lambda value: re.sub('\s+', '', value)
+        return strip_whitespaces(self.match[1:]).split('.')
 
 
 class EOFToken(Token):
@@ -139,6 +150,8 @@ class EOFToken(Token):
 
 # the order of tokens is important in this list
 TOKEN_TYPES = [
+    OpenListToken,
+    CloseListToken,
     OpenExpressionToken,
     CloseExpressionToken,
     BooleanToken,

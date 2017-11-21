@@ -49,6 +49,7 @@ class Parser:
         # in case of ambiguity between future new token types
         parser_method = {
             tokens.OpenExpressionToken: self._parse_expression,
+            tokens.OpenListToken: self._parse_list,
             tokens.ReferenceToken: self._parse_reference,
             tokens.BooleanToken: self._parse_boolean,
             tokens.StringToken: self._parse_string,
@@ -63,6 +64,16 @@ class Parser:
         except KeyError:
             message = 'unexpected {!r} while parsing'.format(token.id)
             raise LexingError(message, token.index)
+        return node
+
+    def _parse_list(self):
+        node = nodes.List()
+        self.stream.consume(tokens.OpenListToken)
+        while not isinstance(self.stream.get(), tokens.CloseListToken):
+            if self.stream.is_eof():
+                break
+            node.add(self._parse_value())
+        self.stream.consume(tokens.CloseListToken)
         return node
 
     def _parse_reference(self):
