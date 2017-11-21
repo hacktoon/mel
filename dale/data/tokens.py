@@ -45,13 +45,13 @@ class CommentToken(Token):
         return self.match[1:]
 
 
-class OpenListToken(Token):
-    id = 'OpenList'
+class StartListToken(Token):
+    id = 'StartList'
     regex = r'\['
 
 
-class CloseListToken(Token):
-    id = 'CloseList'
+class EndListToken(Token):
+    id = 'EndList'
     regex = r'\]'
 
 
@@ -150,8 +150,8 @@ class EOFToken(Token):
 
 # the order of tokens is important in this list
 TOKEN_TYPES = [
-    OpenListToken,
-    CloseListToken,
+    StartListToken,
+    EndListToken,
     StartExpressionToken,
     EndExpressionToken,
     BooleanToken,

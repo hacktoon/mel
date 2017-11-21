@@ -55,7 +55,7 @@ class Parser:
     def _parse_value(self):
         parser_method = {
             'StartExpression': self._parse_expression,
-            'OpenList': self._parse_list,
+            'StartList': self._parse_list,
             'Reference': self._parse_reference,
             'Boolean': self._parse_boolean,
             'String': self._parse_string,
@@ -73,12 +73,12 @@ class Parser:
 
     def _parse_list(self):
         node = nodes.List()
-        self._read_token('OpenList')
-        while not self.stream.is_current('CloseList'):
+        self._read_token('StartList')
+        while not self.stream.is_current('EndList'):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
-        self._read_token('CloseList')
+        self._read_token('EndList')
         return node
 
     def _parse_reference(self):
