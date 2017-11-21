@@ -1,5 +1,5 @@
 import pytest
-from dale.lexing import Lexer
+from dale.lexing import Lexer, TokenStream
 from dale.data import tokens
 from dale.data.errors import LexingError
 
@@ -148,3 +148,42 @@ def test_tokenize_query():
 def test_native_query_keyword():
     token_list = Lexer(r'(@ "query")').tokenize()
     assert isinstance(token_list[1], tokens.KeywordToken)
+
+
+def test_stream_get_current_token():
+    stream = TokenStream('345 name ()')
+    assert stream.get().value() == 345
+
+
+def test_stream_verify_current_token():
+    stream = TokenStream('345 name ()')
+    assert stream.consume('Int')
+    assert stream.is_current('Keyword')
+    assert not stream.is_current('String')
+    assert stream.consume('Keyword')
+    assert stream.is_current('StartExpression')
+
+
+def test_stream_consume_token():
+    stream = TokenStream('42 foo')
+    int_token = stream.consume('Int')
+    assert int_token.value() == 42
+    id_token = stream.consume('Keyword')
+    assert id_token.value() == 'foo'
+
+
+def test_that_consume_unexpected_token_raises_error():
+    stream = TokenStream('"string"')
+    with pytest.raises(LexingError):
+        stream.consume('Int')
+
+
+def test_stream_ends_with_eof_token():
+    stream = TokenStream('(age 5)')
+    stream.consume('StartExpression')
+    stream.consume('Keyword')
+    assert not stream.is_eof()
+    stream.consume('Int')
+    stream.consume('EndExpression')
+    assert stream.is_eof()
+    assert isinstance(stream.get(), tokens.EOFToken)
