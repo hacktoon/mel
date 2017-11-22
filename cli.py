@@ -1,6 +1,6 @@
 import sys
 from dale.parsing import Parser
-from dale.data.errors import ParsingError
+from dale.types.errors import ParsingError
 
 
 def _read_file(path):
