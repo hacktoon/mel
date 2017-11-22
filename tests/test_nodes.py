@@ -1,5 +1,5 @@
-from dale.data import tokens
-from dale.data.nodes import Node
+from dale.types import tokens
+from dale.types.nodes import Node
 
 
 def test_addition_of_children_to_node():

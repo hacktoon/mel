@@ -1,6 +1,6 @@
 from .lexing import TokenStream
-from .data import nodes
-from .data.errors import LexingError, ParsingError
+from .types import nodes
+from .types.errors import LexingError, ParsingError
 
 
 class Parser:

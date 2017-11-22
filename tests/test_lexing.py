@@ -1,7 +1,7 @@
 import pytest
 from dale.lexing import Lexer, TokenStream
-from dale.data import tokens
-from dale.data.errors import LexingError
+from dale.types import tokens
+from dale.types.errors import LexingError
 
 
 def test_token_comparison():

@@ -1,6 +1,6 @@
 import re
-from .data import tokens
-from .data.errors import LexingError
+from .types import tokens
+from .types.errors import LexingError
 
 
 class Lexer:

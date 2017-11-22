@@ -1,7 +1,7 @@
 import pytest
 from dale.parsing import Parser
-from dale.data import tokens
-from dale.data.errors import LexingError, ParsingError
+from dale.types import tokens
+from dale.types.errors import LexingError, ParsingError
 
 
 @pytest.mark.parametrize('test_input, expected', [
