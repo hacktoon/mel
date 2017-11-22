@@ -1,8 +1,9 @@
 [run]
-source = dale
+source = dale/
 branch = true
 data_file = /tmp/.dale-coverage
 omit = *__init__.py
 
 [report]
 fail_under = 20
+show_missing = true
