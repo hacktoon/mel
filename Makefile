@@ -1,7 +1,10 @@
-install-deps:
+install:
 	pip install -r requirements.txt
+	
+install-dev:
+	pip install ipython ipdb
 
-upgrade-deps:
+upgrade:
 	pip install --upgrade pip -r requirements.txt
 
 test:
