@@ -33,8 +33,8 @@ class TokenStream:
         self.tokens = Lexer(text).tokenize()
         self.index = 0
 
-    def consume(self, token_type_name):
-        token = self.get()
+    def read(self, token_type_name):
+        token = self.current()
         ExpectedToken = getattr(tokens, token_type_name + 'Token')
         if isinstance(token, ExpectedToken):
             self.index += 1
@@ -50,9 +50,9 @@ class TokenStream:
 
     def is_current(self, token_type_name):
         CurrentToken = getattr(tokens, token_type_name + 'Token')
-        return isinstance(self.get(), CurrentToken)
+        return isinstance(self.current(), CurrentToken)
 
-    def get(self, offset=0):
+    def current(self, offset=0):
         try:
             return self.tokens[self.index + offset]
         except IndexError:

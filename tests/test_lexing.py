@@ -152,38 +152,38 @@ def test_native_query_keyword():
 
 def test_stream_get_current_token():
     stream = TokenStream('345 name ()')
-    assert stream.get().value() == 345
+    assert stream.current().value() == 345
 
 
 def test_stream_verify_current_token():
     stream = TokenStream('345 name ()')
-    assert stream.consume('Int')
+    assert stream.read('Int')
     assert stream.is_current('Keyword')
     assert not stream.is_current('String')
-    assert stream.consume('Keyword')
+    assert stream.read('Keyword')
     assert stream.is_current('StartExpression')
 
 
-def test_stream_consume_token():
+def test_stream_read_token():
     stream = TokenStream('42 foo')
-    int_token = stream.consume('Int')
+    int_token = stream.read('Int')
     assert int_token.value() == 42
-    id_token = stream.consume('Keyword')
+    id_token = stream.read('Keyword')
     assert id_token.value() == 'foo'
 
 
-def test_that_consume_unexpected_token_raises_error():
+def test_that_read_unexpected_token_raises_error():
     stream = TokenStream('"string"')
     with pytest.raises(LexingError):
-        stream.consume('Int')
+        stream.read('Int')
 
 
 def test_stream_ends_with_eof_token():
     stream = TokenStream('(age 5)')
-    stream.consume('StartExpression')
-    stream.consume('Keyword')
+    stream.read('StartExpression')
+    stream.read('Keyword')
     assert not stream.is_eof()
-    stream.consume('Int')
-    stream.consume('EndExpression')
+    stream.read('Int')
+    stream.read('EndExpression')
     assert stream.is_eof()
-    assert isinstance(stream.get(), tokens.EOFToken)
+    assert isinstance(stream.current(), tokens.EOFToken)

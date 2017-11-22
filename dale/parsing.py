@@ -14,9 +14,6 @@ class Parser:
         except LexingError as error:
             raise ParsingError(error, self.text)
 
-    def _read_token(self, type_name):
-        return self.stream.consume(type_name)
-
     def _parse_root(self):
         node = nodes.Node()
         while not self.stream.is_eof():
@@ -25,8 +22,8 @@ class Parser:
 
     def _parse_expression(self):
         node = nodes.Expression()
-        self._read_token('StartExpression')
-        node.add('keyword', self._read_token('Keyword'))
+        self.stream.read('StartExpression')
+        node.add('keyword', self.stream.read('Keyword'))
         node.add('parameters', self._parse_parameters())
         self._parse_expression_value(node)
         self._parse_expression_end(node)
@@ -39,8 +36,10 @@ class Parser:
             node.add(self._parse_value())
 
     def _parse_expression_end(self, node):
-        end = self._read_token('EndExpression')
-        if len(end.value()) > 1 and end.value() != node.keyword.value():
+        end = self.stream.read('EndExpression')
+        is_named = len(end.value()) > 1
+        is_same_keyword = end.value() != node.keyword.value()
+        if is_named and is_same_keyword:
             raise ParsingError('expected a matching keyword', self.text)
 
     def _parse_parameters(self):
@@ -48,7 +47,7 @@ class Parser:
         while self.stream.is_current('Parameter'):
             if self.stream.is_eof():
                 break
-            parameter = self._read_token('Parameter')
+            parameter = self.stream.read('Parameter')
             node.add(parameter.value(), self._parse_value())
         return node
 
@@ -63,7 +62,7 @@ class Parser:
             'Query': self._parse_query,
             'Int': self._parse_int
         }
-        token = self.stream.get()
+        token = self.stream.current()
         try:
             node = parser_method[token.id]()
         except KeyError:
@@ -73,40 +72,40 @@ class Parser:
 
     def _parse_list(self):
         node = nodes.List()
-        self._read_token('StartList')
+        self.stream.read('StartList')
         while not self.stream.is_current('EndList'):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
-        self._read_token('EndList')
+        self.stream.read('EndList')
         return node
 
     def _parse_reference(self):
         node = nodes.Reference()
-        node.add(self._read_token('Reference'))
+        node.add(self.stream.read('Reference'))
         return node
 
     def _parse_string(self):
         node = nodes.String()
-        node.add(self._read_token('String'))
+        node.add(self.stream.read('String'))
         return node
 
     def _parse_query(self):
         node = nodes.Query()
-        node.add(self._read_token('Query'))
+        node.add(self.stream.read('Query'))
         return node
 
     def _parse_float(self):
         node = nodes.Float()
-        node.add(self._read_token('Float'))
+        node.add(self.stream.read('Float'))
         return node
 
     def _parse_int(self):
         node = nodes.Int()
-        node.add(self._read_token('Int'))
+        node.add(self.stream.read('Int'))
         return node
 
     def _parse_boolean(self):
         node = nodes.Boolean()
-        node.add(self._read_token('Boolean'))
+        node.add(self.stream.read('Boolean'))
         return node
