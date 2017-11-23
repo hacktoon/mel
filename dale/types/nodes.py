@@ -89,6 +89,10 @@ class Query(Node):
     pass
 
 
+class File(Node):
+    pass
+
+
 class Reference(Node):
     pass
 

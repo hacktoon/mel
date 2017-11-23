@@ -1,3 +1,4 @@
+import tempfile
 import pytest
 from dale.lexing import Lexer, TokenStream
 from dale.types import tokens
@@ -186,4 +187,15 @@ def test_stream_ends_with_eof_token():
     stream.read('Int')
     stream.read('EndExpression')
     assert stream.is_eof()
-    assert isinstance(stream.current(), tokens.EOFToken)
+    assert stream.is_current('EOF')
+
+
+def test_file_token_value_is_file_content():
+    content = 'foobar'
+    f = tempfile.NamedTemporaryFile(mode='w+')
+    f.write(content)
+    f.seek(0)
+    stream = TokenStream('<"{}"'.format(f.name))
+    file_token = stream.read('File')
+    assert file_token.value() == content
+    f.close()

@@ -60,6 +60,7 @@ class Parser:
             'String': self._parse_string,
             'Float': self._parse_float,
             'Query': self._parse_query,
+            'File': self._parse_file,
             'Int': self._parse_int
         }
         token = self.stream.current()
@@ -93,6 +94,11 @@ class Parser:
     def _parse_query(self):
         node = nodes.Query()
         node.add(self.stream.read('Query'))
+        return node
+
+    def _parse_file(self):
+        node = nodes.File()
+        node.add(self.stream.read('File'))
         return node
 
     def _parse_float(self):

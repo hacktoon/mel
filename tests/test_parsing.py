@@ -19,7 +19,7 @@ from dale.types.errors import LexingError, ParsingError
     ('@"/foo/bar"', '/foo/bar'),
     ('@"/foo/\nbar"', '/foo/\nbar'),
     ('@foo.bar', ['foo', 'bar']),
-    ('@foo .\n bar', ['foo', 'bar']),
+    ('@foo .\n bar', ['foo', 'bar'])
 ])
 def test_parsing_single_values(test_input, expected):
     tree = Parser(test_input).parse()

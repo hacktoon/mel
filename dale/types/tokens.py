@@ -98,6 +98,21 @@ class QueryToken(StringToken):
         return super().value()[1:]
 
 
+class FileToken(Token):
+    id = 'File'
+    regex = '<' + STRING_RULE
+
+    def value(self):
+        filename = self.match[2:-1]
+        try:
+            with open(filename, 'r') as file_obj:
+                return file_obj.read()
+        except IOError as e:
+           return "I/O error: {}".format(e)
+        except:
+           return "Unexpected error"
+
+
 class BooleanToken(Token):
     id = 'Boolean'
     regex = 'true|false'
@@ -159,6 +174,7 @@ TOKEN_TYPES = [
     WhitespaceToken,
     CommentToken,
     QueryToken,
+    FileToken,
     StringToken,
     ReferenceToken,
     KeywordToken,
