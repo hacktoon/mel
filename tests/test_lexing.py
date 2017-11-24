@@ -190,12 +190,9 @@ def test_stream_ends_with_eof_token():
     assert stream.is_current('EOF')
 
 
-def test_file_token_value_is_file_content():
+def test_file_token_value_is_file_content(temporary_file):
     content = 'foobar'
-    f = tempfile.NamedTemporaryFile(mode='w+')
-    f.write(content)
-    f.seek(0)
-    stream = TokenStream('<"{}"'.format(f.name))
-    file_token = stream.read('File')
-    assert file_token.value() == content
-    f.close()
+    with temporary_file(content) as file:
+        stream = TokenStream('<"{}"'.format(file.name))
+        file_token = stream.read('File')
+        assert file_token.value() == content
