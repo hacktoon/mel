@@ -42,6 +42,11 @@ def test_list_parsing():
     assert tree.value() == [1, 2.3, 3, ['foo', 'bar'], "str"]
 
 
+def test_EOF_while_parsing_list():
+    with pytest.raises(ParsingError):
+        Parser('[1, 2.3, 3, ').parse()
+
+
 def test_parsing_simple_expression():
     tree = Parser('(name :id 1 "foo")').parse()
     assert tree.value() == {

@@ -45,8 +45,6 @@ class Parser:
     def _parse_parameters(self):
         node = nodes.Parameters()
         while self.stream.is_current('Parameter'):
-            if self.stream.is_eof():
-                break
             parameter = self.stream.read('Parameter')
             node.add(parameter.value(), self._parse_value())
         return node
@@ -76,7 +74,8 @@ class Parser:
         self.stream.read('StartList')
         while not self.stream.is_current('EndList'):
             if self.stream.is_eof():
-                break
+                token = self.stream.current()
+                raise LexingError('unexpected EOF while parsing list', token.index)
             node.add(self._parse_value())
         self.stream.read('EndList')
         return node

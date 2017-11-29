@@ -12,3 +12,4 @@ test:
 
 debug:
 	pytest -s
+
