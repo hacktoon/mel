@@ -18,8 +18,8 @@ from dale.types.errors import LexingError, ParsingError
     ("'string'", 'string'),
     ('@"/foo/bar"', '/foo/bar'),
     ('@"/foo/\nbar"', '/foo/\nbar'),
-    ('@foo.bar', ['foo', 'bar']),
-    ('@foo .\n bar', ['foo', 'bar'])
+    ('foo.bar', ['foo', 'bar']),
+    ('foo .\n bar', ['foo', 'bar'])
 ])
 def test_parsing_single_values(test_input, expected):
     tree = Parser(test_input).parse()
@@ -30,7 +30,6 @@ def test_parsing_single_values(test_input, expected):
     ('%foo'),
     ('.bar'),
     (':orphan-param'),
-    ('orphan-keyword'),
     ('@/foo/bar'),
 ])
 def test_parsing_invalid_single_values_will_raise_errors(test_input):
@@ -39,7 +38,7 @@ def test_parsing_invalid_single_values_will_raise_errors(test_input):
 
 
 def test_list_parsing():
-    tree = Parser('[1, 2.3, 3, @foo.bar "str" ]').parse()
+    tree = Parser('[1, 2.3, 3, foo.bar "str" ]').parse()
     assert tree.value() == [1, 2.3, 3, ['foo', 'bar'], "str"]
 
 
@@ -95,7 +94,7 @@ def test_parsing_consecutive_expressions_with_sub_expressions():
 
 
 def test_parsing_expression_with_a_list_as_child():
-    tree = Parser('(opts [3 @foo.bar "str"])').parse()
+    tree = Parser('(opts [3 foo.bar "str"])').parse()
     assert tree.value() == {
         'keyword': 'opts',
         'values': [3, ['foo', 'bar'], "str"]
@@ -113,15 +112,3 @@ def test_parsing_expression_with_a_nested_expression_as_child():
 def test_non_terminated_expression_raises_error():
     with pytest.raises(ParsingError):
         Parser(r'(test 4').parse()
-
-
-def test_parsing_help_expression():
-    tree = Parser(r'(? "help me")').parse()
-    assert tree.value() == {'keyword': '?', 'values': 'help me'}
-
-
-@pytest.mark.skip
-def test_help_expression_is_set_as_parent_nodes_help_property():
-    tree = Parser(r'(? "help me")').parse()
-    assert tree.value() == {'keyword': '?', 'values': 'help me'}
-

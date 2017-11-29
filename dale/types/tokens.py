@@ -8,7 +8,6 @@ NAME_RULE = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
 SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
 STRING_RULE = '({}|{})'.format(SINGLE_QUOTE_STRING, DOUBLE_QUOTE_STRING)
-KEYWORD_RULE = '(' + NAME_RULE + r'|[:?@])'
 
 
 class Token:
@@ -45,6 +44,11 @@ class CommentToken(Token):
         return self.match[1:]
 
 
+class DotToken(Token):
+    id = 'Dot'
+    regex = r'\.'
+
+
 class StartListToken(Token):
     id = 'StartList'
     regex = r'\['
@@ -62,7 +66,7 @@ class StartExpressionToken(Token):
 
 class EndExpressionToken(Token):
     id = 'EndExpression'
-    regex = r'\)(' + KEYWORD_RULE + r'\))?'
+    regex = r'\)(' + NAME_RULE + r'\))?'
 
     def value(self):
         if len(self.match) > 1:
@@ -129,9 +133,9 @@ class ParameterToken(Token):
         return self.match[1:]
 
 
-class KeywordToken(Token):
-    id = 'Keyword'
-    regex = KEYWORD_RULE
+class NameToken(Token):
+    id = 'Name'
+    regex = NAME_RULE
 
 
 class FloatToken(Token):
@@ -150,15 +154,6 @@ class IntToken(Token):
         return int(self.match)
 
 
-class ReferenceToken(Token):
-    id = 'Reference'
-    regex = r'@' + NAME_RULE + r'(\s*\.\s*' + NAME_RULE + ')*'
-
-    def value(self):
-        strip_whitespaces = lambda value: re.sub('\s+', '', value)
-        return strip_whitespaces(self.match[1:]).split('.')
-
-
 class EOFToken(Token):
     id = 'end of file'
 
@@ -169,15 +164,15 @@ TOKEN_TYPES = [
     EndListToken,
     StartExpressionToken,
     EndExpressionToken,
-    BooleanToken,
+    DotToken,
     ParameterToken,
+    BooleanToken,
+    NameToken,
     WhitespaceToken,
     CommentToken,
     QueryToken,
     FileToken,
     StringToken,
-    ReferenceToken,
-    KeywordToken,
     FloatToken,
     IntToken
 ]

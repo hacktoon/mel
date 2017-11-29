@@ -23,7 +23,7 @@ class Parser:
     def _parse_expression(self):
         node = nodes.Expression()
         self.stream.read('StartExpression')
-        node.add('keyword', self.stream.read('Keyword'))
+        node.add('keyword', self.stream.read('Name'))
         node.add('parameters', self._parse_parameters())
         self._parse_expression_value(node)
         self._parse_expression_end(node)
@@ -55,7 +55,7 @@ class Parser:
         parser_method = {
             'StartExpression': self._parse_expression,
             'StartList': self._parse_list,
-            'Reference': self._parse_reference,
+            'Name': self._parse_reference,
             'Boolean': self._parse_boolean,
             'String': self._parse_string,
             'Float': self._parse_float,
@@ -83,7 +83,12 @@ class Parser:
 
     def _parse_reference(self):
         node = nodes.Reference()
-        node.add(self.stream.read('Reference'))
+        node.add(self.stream.read('Name'))
+        while self.stream.is_current('Dot'):
+            if self.stream.is_eof():
+                break
+            self.stream.read('Dot')
+            node.add(self.stream.read('Name'))
         return node
 
     def _parse_string(self):

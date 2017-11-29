@@ -11,8 +11,8 @@ def test_token_comparison():
 
 
 def test_that_comment_and_whitespace_tokens_are_ignored():
-    token_list = Lexer('#comment  \n@here').tokenize()
-    assert token_list[0].value() == ['here']
+    token_list = Lexer('#comment  \nhere').tokenize()
+    assert token_list[0].value() == 'here'
 
 
 def test_tokenize_boolean_values():
@@ -59,27 +59,15 @@ def test_tokenize_parenthesis():
     assert token_list[1].value() == ')'
 
 
-def test_tokenize_references():
-    token_list = Lexer(r'@name @value').tokenize()
-    assert token_list[0].value() == ['name']
-    assert token_list[1].value() == ['value']
+def test_tokenize_names():
+    token_list = Lexer(r'name value').tokenize()
+    assert token_list[0].value() == 'name'
+    assert token_list[1].value() == 'value'
 
 
-def test_tokenize_references_cant_start_with_numbers():
+def test_name_tokens_cant_start_with_numbers():
     with pytest.raises(LexingError):
-        Lexer(r'@42foo').tokenize()
-
-
-def test_tokenize_references_and_keywords_with_hifens_and_numbers():
-    token_list = Lexer(r'@name33 id-foo').tokenize()
-    assert token_list[0].value() == ['name33']
-    assert token_list[1].value() == 'id-foo'
-
-
-def test_references_using_dot_syntax():
-    token_list = Lexer(r'@foo.bar @a2.bez').tokenize()
-    assert token_list[0].value() == ['foo', 'bar']
-    assert token_list[1].value() == ['a2', 'bez']
+        Lexer(r'42foo').tokenize()
 
 
 def test_named_expression_ending_keyword_must_be_equal():
@@ -93,36 +81,6 @@ def test_named_expression_ending_must_not_have_spaces():
     token_list = Lexer('(two 2) two)').tokenize()
     assert str(token_list[3]) == ')'
     assert token_list[3].value() == ')'
-
-
-def test_dot_token_wont_match_after_an_reference():
-    with pytest.raises(LexingError):
-        Lexer(r'f2.').tokenize()
-
-
-def test_dot_token_wont_match_before_an_reference():
-    with pytest.raises(LexingError):
-        Lexer(r'.f5').tokenize()
-
-
-def test_references_cant_start_with_hifens():
-    with pytest.raises(LexingError):
-        Lexer(r'-foo').tokenize()
-
-
-def test_references_cant_end_with_hifens():
-    with pytest.raises(LexingError):
-        Lexer(r'foo-').tokenize()
-
-
-def test_type_of_reference_tokens_with_dot_syntax():
-    token_list = Lexer(r'@name.title').tokenize()
-    assert isinstance(token_list[0], tokens.ReferenceToken)
-
-
-def test_references_with_dots_can_have_spaces_between_them():
-    token_list = Lexer(r'@name . title').tokenize()
-    assert isinstance(token_list[0], tokens.ReferenceToken)
 
 
 def test_wrong_code_raises_syntax_exception_with_message():
@@ -146,11 +104,6 @@ def test_tokenize_query():
     assert token_list[1].value() == '/site/title'
 
 
-def test_native_query_keyword():
-    token_list = Lexer(r'(@ "query")').tokenize()
-    assert isinstance(token_list[1], tokens.KeywordToken)
-
-
 def test_stream_get_current_token():
     stream = TokenStream('345 name ()')
     assert stream.current().value() == 345
@@ -159,9 +112,10 @@ def test_stream_get_current_token():
 def test_stream_verify_current_token():
     stream = TokenStream('345 name ()')
     assert stream.read('Int')
-    assert stream.is_current('Keyword')
+    # import ipdb; ipdb.set_trace()
+    assert stream.is_current('Name')
     assert not stream.is_current('String')
-    assert stream.read('Keyword')
+    assert stream.read('Name')
     assert stream.is_current('StartExpression')
 
 
@@ -169,8 +123,8 @@ def test_stream_read_token():
     stream = TokenStream('42 foo')
     int_token = stream.read('Int')
     assert int_token.value() == 42
-    id_token = stream.read('Keyword')
-    assert id_token.value() == 'foo'
+    name_token = stream.read('Name')
+    assert name_token.value() == 'foo'
 
 
 def test_that_read_unexpected_token_raises_error():
@@ -182,7 +136,7 @@ def test_that_read_unexpected_token_raises_error():
 def test_stream_ends_with_eof_token():
     stream = TokenStream('(age 5)')
     stream.read('StartExpression')
-    stream.read('Keyword')
+    stream.read('Name')
     assert not stream.is_eof()
     stream.read('Int')
     stream.read('EndExpression')

@@ -60,10 +60,6 @@ class Expression(Node):
         return exp
 
 
-class Keyword(Node):
-    pass
-
-
 class Parameters(Node):
     def value(self):
         return {key:child.value() for key, child in self._properties.items()}
@@ -98,7 +94,4 @@ class Reference(Node):
 
 
 class List(Node):
-    def value(self):
-        if len(self._children) == 1:
-            return self._children[0].value()
-        return [child.value() for child in self._children]
+    pass
