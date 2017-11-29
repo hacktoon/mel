@@ -97,11 +97,11 @@ def test_tokenize_modifier_expression():
     assert token_list[3].value() == 'null'
 
 
-def test_tokenize_query():
+def test_tokenize_query_strings():
     text = '@"/data/source/\nattribute[id=\'x\']" @"/site/title"'
     token_list = Lexer(text).tokenize()
-    assert token_list[0].value() == '/data/source/\nattribute[id=\'x\']'
-    assert token_list[1].value() == '/site/title'
+    assert token_list[1].value() == '/data/source/\nattribute[id=\'x\']'
+    assert token_list[3].value() == '/site/title'
 
 
 def test_stream_get_current_token():
@@ -142,11 +142,3 @@ def test_stream_ends_with_eof_token():
     stream.read('EndExpression')
     assert stream.is_eof()
     assert stream.is_current('EOF')
-
-
-def test_file_token_value_is_file_content(temporary_file):
-    content = 'foobar'
-    with temporary_file(content) as file:
-        stream = TokenStream('<"{}"'.format(file.name))
-        file_token = stream.read('File')
-        assert file_token.value() == content

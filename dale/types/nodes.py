@@ -82,11 +82,17 @@ class Boolean(Node):
 
 
 class Query(Node):
-    pass
-
-
-class File(Node):
-    pass
+    def value(self):
+        if self.source == 'file':
+            try:
+                with open(self.content.value(), 'r') as file_obj:
+                    return file_obj.read()
+            except IOError as e:
+               raise ParsingError("I/O error: {}".format(e))
+            except:
+               raise ParsingError("Unexpected error")
+        else:
+            return self.content.value()
 
 
 class Reference(Node):

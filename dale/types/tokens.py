@@ -79,7 +79,7 @@ class StringToken(Token):
     regex = STRING_RULE
 
     def value(self):
-        # thanks to @rspeer in https://stackoverflow.com/a/24519338/544184
+        # thanks to @rspeer at https://stackoverflow.com/a/24519338/544184
         ESCAPE_SEQUENCE_RE = re.compile(r'''
             \\( U........    # 8-digit hex escapes
             | u....          # 4-digit hex escapes
@@ -94,27 +94,9 @@ class StringToken(Token):
         return ESCAPE_SEQUENCE_RE.sub(decode_match, self.match[1:-1])
 
 
-class QueryToken(StringToken):
+class QueryToken(Token):
     id = 'Query'
-    regex = '@' + STRING_RULE
-
-    def value(self):
-        return super().value()[1:]
-
-
-class FileToken(Token):
-    id = 'File'
-    regex = '<' + STRING_RULE
-
-    def value(self):
-        filename = self.match[2:-1]
-        try:
-            with open(filename, 'r') as file_obj:
-                return file_obj.read()
-        except IOError as e:
-           return "I/O error: {}".format(e)
-        except:
-           return "Unexpected error"
+    regex = '@'
 
 
 class BooleanToken(Token):
@@ -171,7 +153,6 @@ TOKEN_TYPES = [
     WhitespaceToken,
     CommentToken,
     QueryToken,
-    FileToken,
     StringToken,
     FloatToken,
     IntToken

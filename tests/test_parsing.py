@@ -16,8 +16,8 @@ from dale.types.errors import LexingError, ParsingError
     ('45', 45),
     ('"string"', 'string'),
     ("'string'", 'string'),
-    ('@"/foo/bar"', '/foo/bar'),
-    ('@"/foo/\nbar"', '/foo/\nbar'),
+    ("@ '/foo/bar'", '/foo/bar'),
+    ('@ "/foo/\nbar"', '/foo/\nbar'),
     ('foo.bar', ['foo', 'bar']),
     ('foo .\n bar', ['foo', 'bar'])
 ])
@@ -112,3 +112,10 @@ def test_parsing_expression_with_a_nested_expression_as_child():
 def test_non_terminated_expression_raises_error():
     with pytest.raises(ParsingError):
         Parser(r'(test 4').parse()
+
+
+def test_file_node_value_is_file_content(temporary_file):
+    content = 'foobar 123'
+    with temporary_file(content) as file:
+        tree = Parser('@ file "{}"'.format(file.name)).parse()
+        assert tree.value() == content

@@ -54,13 +54,13 @@ class Parser:
     def _parse_value(self):
         parser_method = {
             'StartExpression': self._parse_expression,
+            'Boolean': self._parse_boolean,
             'StartList': self._parse_list,
             'Name': self._parse_reference,
-            'Boolean': self._parse_boolean,
             'String': self._parse_string,
             'Float': self._parse_float,
-            'Query': self._parse_query,
             'File': self._parse_file,
+            'Query': self._parse_query,
             'Int': self._parse_int
         }
         token = self.stream.current()
@@ -98,7 +98,12 @@ class Parser:
 
     def _parse_query(self):
         node = nodes.Query()
-        node.add(self.stream.read('Query'))
+        self.stream.read('Query')
+        if self.stream.is_current('Name'):
+            node.add('source', self.stream.read('Name').value())
+        else:
+            node.add('source', '')
+        node.add('content', self.stream.read('String'))
         return node
 
     def _parse_file(self):
