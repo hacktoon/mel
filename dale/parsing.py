@@ -57,7 +57,6 @@ class Parser:
             'Name': self._parse_reference,
             'String': self._parse_string,
             'Float': self._parse_float,
-            'File': self._parse_file,
             'Query': self._parse_query,
             'Int': self._parse_int
         }
@@ -84,8 +83,6 @@ class Parser:
         node = nodes.Reference()
         node.add(self.stream.read('Name'))
         while self.stream.is_current('Dot'):
-            if self.stream.is_eof():
-                break
             self.stream.read('Dot')
             node.add(self.stream.read('Name'))
         return node
@@ -103,11 +100,6 @@ class Parser:
         else:
             node.add('source', '')
         node.add('content', self.stream.read('String'))
-        return node
-
-    def _parse_file(self):
-        node = nodes.File()
-        node.add(self.stream.read('File'))
         return node
 
     def _parse_float(self):

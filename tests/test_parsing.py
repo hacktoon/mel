@@ -47,6 +47,11 @@ def test_EOF_while_parsing_list():
         Parser('[1, 2.3, 3, ').parse()
 
 
+def test_EOF_while_parsing_reference():
+    with pytest.raises(ParsingError):
+        Parser('foo.bar.').parse()
+
+
 def test_parsing_simple_expression():
     tree = Parser('(name :id 1 "foo")').parse()
     assert tree.value() == {
