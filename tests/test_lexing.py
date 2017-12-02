@@ -73,7 +73,7 @@ def test_name_tokens_cant_start_with_numbers():
 def test_named_expression_ending_keyword_must_be_equal():
     token_list = Lexer('(name  \t "foo")name)').tokenize()
     end_exp = token_list[-1]
-    assert isinstance(end_exp, tokens.EndExpressionToken)
+    assert isinstance(end_exp, tokens.RightParenToken)
     assert end_exp.value() == 'name'
 
 
@@ -116,7 +116,7 @@ def test_stream_verify_current_token():
     assert stream.is_current('Name')
     assert not stream.is_current('String')
     assert stream.read('Name')
-    assert stream.is_current('StartExpression')
+    assert stream.is_current('LeftParen')
 
 
 def test_stream_read_token():
@@ -135,10 +135,10 @@ def test_that_read_unexpected_token_raises_error():
 
 def test_stream_ends_with_eof_token():
     stream = TokenStream('(age 5)')
-    stream.read('StartExpression')
+    stream.read('LeftParen')
     stream.read('Name')
     assert not stream.is_eof()
     stream.read('Int')
-    stream.read('EndExpression')
+    stream.read('RightParen')
     assert stream.is_eof()
     assert stream.is_current('EOF')

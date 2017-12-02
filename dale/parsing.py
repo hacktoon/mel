@@ -22,7 +22,7 @@ class Parser:
 
     def _parse_expression(self):
         node = nodes.Expression()
-        self.stream.read('StartExpression')
+        self.stream.read('LeftParen')
         node.add('keyword', self.stream.read('Name'))
         node.add('parameters', self._parse_parameters())
         self._parse_expression_value(node)
@@ -30,13 +30,13 @@ class Parser:
         return node
 
     def _parse_expression_value(self, node):
-        while not self.stream.is_current('EndExpression'):
+        while not self.stream.is_current('RightParen'):
             if self.stream.is_eof():
                 break
             node.add(self._parse_value())
 
     def _parse_expression_end(self, node):
-        end = self.stream.read('EndExpression')
+        end = self.stream.read('RightParen')
         is_named = len(end.value()) > 1
         is_same_keyword = end.value() != node.keyword.value()
         if is_named and is_same_keyword:
@@ -51,9 +51,9 @@ class Parser:
 
     def _parse_value(self):
         parser_method = {
-            'StartExpression': self._parse_expression,
+            'LeftParen': self._parse_expression,
             'Boolean': self._parse_boolean,
-            'StartList': self._parse_list,
+            'LeftBracket': self._parse_list,
             'Name': self._parse_reference,
             'String': self._parse_string,
             'Float': self._parse_float,
@@ -70,13 +70,13 @@ class Parser:
 
     def _parse_list(self):
         node = nodes.List()
-        self.stream.read('StartList')
-        while not self.stream.is_current('EndList'):
+        self.stream.read('LeftBracket')
+        while not self.stream.is_current('RightBracket'):
             if self.stream.is_eof():
                 token = self.stream.current()
                 raise LexingError('unexpected EOF while parsing list', token.index)
             node.add(self._parse_value())
-        self.stream.read('EndList')
+        self.stream.read('RightBracket')
         return node
 
     def _parse_reference(self):

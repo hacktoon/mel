@@ -49,23 +49,23 @@ class DotToken(Token):
     regex = r'\.'
 
 
-class StartListToken(Token):
-    id = 'StartList'
+class LeftBracketToken(Token):
+    id = 'LeftBracket'
     regex = r'\['
 
 
-class EndListToken(Token):
-    id = 'EndList'
+class RightBracketToken(Token):
+    id = 'RightBracket'
     regex = r'\]'
 
 
-class StartExpressionToken(Token):
-    id = 'StartExpression'
+class LeftParenToken(Token):
+    id = 'LeftParen'
     regex = r'\('
 
 
-class EndExpressionToken(Token):
-    id = 'EndExpression'
+class RightParenToken(Token):
+    id = 'RightParen'
     regex = r'\)(' + NAME_RULE + r'\))?'
 
     def value(self):
@@ -142,10 +142,10 @@ class EOFToken(Token):
 
 # the order of tokens is important in this list
 TOKEN_TYPES = [
-    StartListToken,
-    EndListToken,
-    StartExpressionToken,
-    EndExpressionToken,
+    LeftBracketToken,
+    RightBracketToken,
+    LeftParenToken,
+    RightParenToken,
     DotToken,
     ParameterToken,
     BooleanToken,
