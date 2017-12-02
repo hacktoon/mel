@@ -37,6 +37,21 @@ def test_parsing_invalid_single_values_will_raise_errors(test_input):
         Parser(test_input).parse()
 
 
+@pytest.mark.parametrize('test_input, expected', [
+    ('56.75', '56.75'),
+    ('-0.75', '-0.75'),
+    ('[11, -0.75]', '[11, -0.75]'),
+    ('true', 'true'),
+    ('"string"', '"string"'),
+    ('@ "/tree/data"', '@ "/tree/data"'),
+    ('(foo 321 x.y)', '(foo 321 x.y)'),
+    ('(foo :id 4  "data")', '(foo :id 4 "data")'),
+])
+def test_tree_repr(test_input, expected):
+    tree = Parser(test_input).parse()
+    assert repr(tree) == expected
+
+
 def test_list_parsing():
     tree = Parser('[1, 2.3, 3, foo.bar "str" ]').parse()
     assert tree.value() == [1, 2.3, 3, ['foo', 'bar'], "str"]

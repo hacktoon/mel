@@ -41,7 +41,9 @@ class Node:
         return len(self._children)
 
     def __repr__(self):
-        return str(self._children)
+        if len(self._children) == 1:
+            return repr(self._children[0])
+        return repr(self._children)
 
     def __str__(self):
         return repr(self)
@@ -59,26 +61,26 @@ class Expression(Node):
             exp['values'] = self._children[0].value()
         return exp
 
+    def __repr__(self):
+        args = [self.keyword.value()]
+        values = ''
+        if self.parameters.value().items():
+            args.append(repr(self.parameters))
+        if len(self._children) > 1:
+            args.append(' '.join(repr(value) for value in self._children))
+        elif len(self._children) == 1:
+            args.append(repr(self._children[0]))
+        return '({})'.format(' '.join(args))
+
 
 class Parameters(Node):
     def value(self):
         return {key:child.value() for key, child in self._properties.items()}
 
-
-class String(Node):
-    pass
-
-
-class Int(Node):
-    pass
-
-
-class Float(Node):
-    pass
-
-
-class Boolean(Node):
-    pass
+    def __repr__(self):
+        items = self._properties.items()
+        params = [':{} {}'.format(key, repr(child)) for key, child in items]
+        return ' '.join(params)
 
 
 class Query(Node):
@@ -94,8 +96,30 @@ class Query(Node):
         else:
             return self.content.value()
 
+    def __repr__(self):
+        if self.source:
+            return '@ {} {}'.format(self.source, self.content)
+        return '@ {}'.format(self.content)
+
 
 class Reference(Node):
+    def __repr__(self):
+        return '.'.join(repr(child) for child in self._children)
+
+
+class String(Node):
+    pass
+
+
+class Int(Node):
+    pass
+
+
+class Float(Node):
+    pass
+
+
+class Boolean(Node):
     pass
 
 
