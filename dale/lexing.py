@@ -33,11 +33,16 @@ class TokenStream:
         self.tokens = Lexer(text).tokenize()
         self.index = 0
 
-    def read(self, token_id):
+    def read(self, token_id, value=None):
         token = self.current()
         if self.is_current(token_id):
-            self.index += 1
-            return token
+            if value:
+                if value == token.value:
+                    self.index += 1
+                    return token
+            else:
+                self.index += 1
+                return token
 
         template = 'expected a token of type {}, but found {}'
         message = template.format(token_id, token.id)
@@ -49,6 +54,10 @@ class TokenStream:
     def is_current(self, token_id):
         Token = getattr(tokens, token_id + 'Token')
         return isinstance(self.current(), Token)
+
+    def is_next(self, token_id, offset=1):
+        Token = getattr(tokens, token_id + 'Token')
+        return isinstance(self.current(offset=offset), Token)
 
     def current(self, offset=0):
         try:

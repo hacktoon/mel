@@ -67,13 +67,7 @@ class LeftParenToken(Token):
 
 class RightParenToken(Token):
     id = 'RightParen'
-    regex = r'\)(' + NAME_RULE + r'\))?'
-
-    @property
-    def value(self):
-        if len(self.match) > 1:
-            return self.match.replace(')', '')
-        return self.match
+    regex = r'\)'
 
 
 class StringToken(Token):

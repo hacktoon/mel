@@ -74,7 +74,7 @@ def test_named_expression_ending_keyword_must_be_equal():
     token_list = Lexer('(name  \t "foo")name)').tokenize()
     end_exp = token_list[-1]
     assert isinstance(end_exp, tokens.RightParenToken)
-    assert end_exp.value == 'name'
+    assert end_exp.value == ')'
 
 
 def test_named_expression_ending_must_not_have_spaces():
