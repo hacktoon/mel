@@ -37,8 +37,8 @@ class Parser:
 
     def _parse_expression_end(self, node):
         end = self.stream.read('RightParen')
-        is_named = len(end.value()) > 1
-        is_same_keyword = end.value() != node.keyword.value()
+        is_named = len(end.value) > 1
+        is_same_keyword = end.value != node.keyword.value
         if is_named and is_same_keyword:
             raise ParsingError('expected a matching keyword', self.text)
 
@@ -46,7 +46,7 @@ class Parser:
         node = nodes.Parameters()
         while self.stream.is_current('Parameter'):
             parameter = self.stream.read('Parameter')
-            node.add(parameter.value(), self._parse_value())
+            node.add(parameter.value, self._parse_value())
         return node
 
     def _parse_value(self):
@@ -96,7 +96,7 @@ class Parser:
         node = nodes.Query()
         self.stream.read('Query')
         if self.stream.is_current('Name'):
-            node.add('source', self.stream.read('Name').value())
+            node.add('source', self.stream.read('Name').value)
         else:
             node.add('source', '')
         node.add('content', self.stream.read('String'))

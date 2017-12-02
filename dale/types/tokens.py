@@ -7,7 +7,6 @@ from .errors import LexingError
 NAME_RULE = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
 SINGLE_QUOTE_STRING = r"'(?:\\'|[^'])*'"
 DOUBLE_QUOTE_STRING = r'"(?:\\"|[^"])*"'
-STRING_RULE = '({}|{})'.format(SINGLE_QUOTE_STRING, DOUBLE_QUOTE_STRING)
 
 
 class Token:
@@ -19,6 +18,7 @@ class Token:
         self.match = match
         self.index = index
 
+    @property
     def value(self, context=None):
         return self.match
 
@@ -40,6 +40,7 @@ class CommentToken(Token):
     regex = r'#[^\n\r]*'
     skip = True
 
+    @property
     def value(self):
         return self.match[1:]
 
@@ -68,6 +69,7 @@ class RightParenToken(Token):
     id = 'RightParen'
     regex = r'\)(' + NAME_RULE + r'\))?'
 
+    @property
     def value(self):
         if len(self.match) > 1:
             return self.match.replace(')', '')
@@ -76,8 +78,9 @@ class RightParenToken(Token):
 
 class StringToken(Token):
     id = 'String'
-    regex = STRING_RULE
+    regex = '({}|{})'.format(SINGLE_QUOTE_STRING, DOUBLE_QUOTE_STRING)
 
+    @property
     def value(self):
         # thanks to @rspeer at https://stackoverflow.com/a/24519338/544184
         ESCAPE_SEQUENCE_RE = re.compile(r'''
@@ -103,6 +106,7 @@ class BooleanToken(Token):
     id = 'Boolean'
     regex = 'true|false'
 
+    @property
     def value(self):
         return {'true': True, 'false': False}[self.match]
 
@@ -111,6 +115,7 @@ class ParameterToken(Token):
     id = 'Parameter'
     regex = ':' + NAME_RULE
 
+    @property
     def value(self):
         return self.match[1:]
 
@@ -124,6 +129,7 @@ class FloatToken(Token):
     id = 'Float'
     regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
 
+    @property
     def value(self):
         return float(self.match)
 
@@ -132,6 +138,7 @@ class IntToken(Token):
     id = 'Int'
     regex = r'[-+]?\d+\b'
 
+    @property
     def value(self):
         return int(self.match)
 

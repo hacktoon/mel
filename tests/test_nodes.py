@@ -38,4 +38,4 @@ def test_getting_node_value_returns_a_list_of_children_values():
     node = Node()
     node.add(tokens.Token('Inception'))
     node.add(tokens.Token('Jurassic Park'))
-    assert node.value() == ['Inception', 'Jurassic Park']
+    assert node.value == ['Inception', 'Jurassic Park']

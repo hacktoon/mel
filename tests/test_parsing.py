@@ -23,7 +23,7 @@ from dale.types.errors import LexingError, ParsingError
 ])
 def test_parsing_single_values(test_input, expected):
     tree = Parser(test_input).parse()
-    assert tree.value() == expected
+    assert tree.value == expected
 
 
 @pytest.mark.parametrize('test_input', [
@@ -54,7 +54,7 @@ def test_tree_repr(test_input, expected):
 
 def test_list_parsing():
     tree = Parser('[1, 2.3, 3, foo.bar "str" ]').parse()
-    assert tree.value() == [1, 2.3, 3, ['foo', 'bar'], "str"]
+    assert tree.value == [1, 2.3, 3, ['foo', 'bar'], "str"]
 
 
 def test_EOF_while_parsing_list():
@@ -69,7 +69,7 @@ def test_EOF_while_parsing_reference():
 
 def test_parsing_simple_expression():
     tree = Parser('(name :id 1 "foo")').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'name',
         'parameters': {'id': 1},
         'values': 'foo'
@@ -78,7 +78,7 @@ def test_parsing_simple_expression():
 
 def test_parsing_expression_with_named_ending():
     tree = Parser('(name :id 1 "foo")name)').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'name',
         'parameters': {'id': 1},
         'values': 'foo'
@@ -92,7 +92,7 @@ def test_parsing_expression_with_wrong_ending_keyword():
 
 def test_parameters_parsing_using_comma_as_separator():
     tree = Parser('(x :a 1, :b 2, :c 3, "foo-bar")').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'x',
         'parameters': {'a': 1, 'b': 2, 'c': 3},
         'values': 'foo-bar'
@@ -101,7 +101,7 @@ def test_parameters_parsing_using_comma_as_separator():
 
 def test_parsing_expression_with_multiple_children():
     tree = Parser(r'(kw :id 1, :title "foo" "bar" 34)').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'kw',
         'parameters': {'id': 1, 'title': 'foo'},
         'values': ['bar', 34]
@@ -110,8 +110,8 @@ def test_parsing_expression_with_multiple_children():
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
     tree = Parser(r'(x "foo") (y (a 42))').parse()
-    assert tree[0].value() == {'keyword': 'x', 'values': 'foo'}
-    assert tree[1].value() == {
+    assert tree[0].value == {'keyword': 'x', 'values': 'foo'}
+    assert tree[1].value == {
         'keyword': 'y', 'values': {
             'keyword': 'a', 'values': 42
         }
@@ -120,7 +120,7 @@ def test_parsing_consecutive_expressions_with_sub_expressions():
 
 def test_parsing_expression_with_a_list_as_child():
     tree = Parser('(opts [3 foo.bar "str"])').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'opts',
         'values': [3, ['foo', 'bar'], "str"]
     }
@@ -128,7 +128,7 @@ def test_parsing_expression_with_a_list_as_child():
 
 def test_parsing_expression_with_a_nested_expression_as_child():
     tree = Parser('(out [3 (in [4])])').parse()
-    assert tree.value() == {
+    assert tree.value == {
         'keyword': 'out',
         'values': [3, {'keyword': 'in', 'values': 4}]
     }
@@ -143,4 +143,4 @@ def test_file_node_value_is_file_content(temporary_file):
     content = 'foobar 123'
     with temporary_file(content) as file:
         tree = Parser('@ file "{}"'.format(file.name)).parse()
-        assert tree.value() == content
+        assert tree.value == content

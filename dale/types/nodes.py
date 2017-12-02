@@ -23,10 +23,11 @@ class Node:
         else:
             self._children.append(child)
 
+    @property
     def value(self):
         if len(self._children) == 1:
-            return self._children[0].value()
-        return [child.value() for child in self._children]
+            return self._children[0].value
+        return [child.value for child in self._children]
 
     def __getitem__(self, key):
         try:
@@ -50,21 +51,23 @@ class Node:
 
 
 class Expression(Node):
-    def value(self):
-        exp = {'keyword': self.keyword.value()}
 
-        if self.parameters.value().items():
-            exp['parameters'] = self.parameters.value()
+    @property
+    def value(self):
+        exp = {'keyword': self.keyword.value}
+
+        if self.parameters.value.items():
+            exp['parameters'] = self.parameters.value
         if len(self._children) > 1:
-            exp['values'] = [child.value() for child in self._children]
+            exp['values'] = [child.value for child in self._children]
         elif len(self._children) == 1:
-            exp['values'] = self._children[0].value()
+            exp['values'] = self._children[0].value
         return exp
 
     def __repr__(self):
-        args = [self.keyword.value()]
+        args = [self.keyword.value]
         values = ''
-        if self.parameters.value().items():
+        if self.parameters.value.items():
             args.append(repr(self.parameters))
         if len(self._children) > 1:
             args.append(' '.join(repr(value) for value in self._children))
@@ -74,8 +77,9 @@ class Expression(Node):
 
 
 class Parameters(Node):
+    @property
     def value(self):
-        return {key:child.value() for key, child in self._properties.items()}
+        return {key:child.value for key, child in self._properties.items()}
 
     def __repr__(self):
         items = self._properties.items()
@@ -84,17 +88,18 @@ class Parameters(Node):
 
 
 class Query(Node):
+    @property
     def value(self):
         if self.source == 'file':
             try:
-                with open(self.content.value(), 'r') as file_obj:
+                with open(self.content.value, 'r') as file_obj:
                     return file_obj.read()
             except IOError as e:
                raise ParsingError("I/O error: {}".format(e))
             except:
                raise ParsingError("Unexpected error")
         else:
-            return self.content.value()
+            return self.content.value
 
     def __repr__(self):
         if self.source:
