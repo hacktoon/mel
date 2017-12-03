@@ -1,6 +1,6 @@
 import re
 from .types import tokens
-from .types.errors import LexingError
+from .types.errors import LexingError, ParsingError
 
 
 class Lexer:
@@ -46,7 +46,7 @@ class TokenStream:
 
         template = 'expected a token of type {}, but found {}'
         message = template.format(token_id, token.id)
-        raise LexingError(message, token.index)
+        raise ParsingError(message)
 
     def is_eof(self):
         return self.index >= len(self.tokens)

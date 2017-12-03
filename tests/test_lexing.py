@@ -2,7 +2,7 @@ import tempfile
 import pytest
 from dale.lexing import Lexer, TokenStream
 from dale.types import tokens
-from dale.types.errors import LexingError
+from dale.types.errors import LexingError, ParsingError
 
 
 def test_token_comparison():
@@ -129,7 +129,7 @@ def test_stream_read_token():
 
 def test_that_read_unexpected_token_raises_error():
     stream = TokenStream('"string"')
-    with pytest.raises(LexingError):
+    with pytest.raises(ParsingError):
         stream.read('Int')
 
 

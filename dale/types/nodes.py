@@ -1,7 +1,12 @@
 
 
+def create(node_id, stream):
+    return globals()[node_id](stream=stream)
+
+
 class Node:
-    def __init__(self):
+    def __init__(self, stream=None):
+        self.stream = stream
         self._children = []
         self._properties = {}
 

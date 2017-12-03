@@ -1,27 +1,23 @@
-from .lexing import TokenStream
+from dale.lexing import TokenStream
 from .types import nodes
-from .types.errors import LexingError, ParsingError
+from .types.errors import ParsingError
 
 
 class Parser:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, stream):
+        self.stream = stream
 
     def parse(self):
-        try:
-            self.stream = TokenStream(self.text)
-            return self._parse_root()
-        except LexingError as error:
-            raise ParsingError(error, self.text)
-
-    def _parse_root(self):
-        node = nodes.Node()
+        node = self._create_node()
         while not self.stream.is_eof():
             node.add(self._parse_value())
         return node
 
+    def _create_node(self, node_id=None):
+        return nodes.create(node_id or 'Node', self.stream)
+
     def _parse_expression(self):
-        node = nodes.Expression()
+        node = self._create_node('Expression')
         self.stream.read('LeftParen')
         node.add('keyword', self.stream.read('Name'))
         node.add('parameters', self._parse_parameters())
@@ -42,7 +38,7 @@ class Parser:
             self.stream.read('RightParen')
 
     def _parse_parameters(self):
-        node = nodes.Parameters()
+        node = self._create_node('Parameters')
         while self.stream.is_current('Parameter'):
             parameter = self.stream.read('Parameter')
             node.add(parameter.value, self._parse_value())
@@ -64,22 +60,22 @@ class Parser:
             node = parser_method[token.id]()
         except KeyError:
             message = 'unexpected {!r} while parsing'.format(token.id) #FIX change to str or repr
-            raise LexingError(message, token.index)
+            raise ParsingError(message)
         return node
 
     def _parse_list(self):
-        node = nodes.List()
+        node = self._create_node('List')
         self.stream.read('LeftBracket')
         while not self.stream.is_current('RightBracket'):
             if self.stream.is_eof():
                 token = self.stream.current()
-                raise LexingError('unexpected EOF while parsing list', token.index)
+                raise ParsingError('unexpected EOF while parsing list')
             node.add(self._parse_value())
         self.stream.read('RightBracket')
         return node
 
     def _parse_reference(self):
-        node = nodes.Reference()
+        node = self._create_node('Reference')
         node.add(self.stream.read('Name'))
         while self.stream.is_current('Dot'):
             self.stream.read('Dot')
@@ -87,12 +83,12 @@ class Parser:
         return node
 
     def _parse_string(self):
-        node = nodes.String()
+        node = self._create_node('String')
         node.add(self.stream.read('String'))
         return node
 
     def _parse_query(self):
-        node = nodes.Query()
+        node = self._create_node('Query')
         self.stream.read('Query')
         if self.stream.is_current('Name'):
             node.add('source', self.stream.read('Name').value)
@@ -102,16 +98,16 @@ class Parser:
         return node
 
     def _parse_float(self):
-        node = nodes.Float()
+        node = self._create_node('Float')
         node.add(self.stream.read('Float'))
         return node
 
     def _parse_int(self):
-        node = nodes.Int()
+        node = self._create_node('Int')
         node.add(self.stream.read('Int'))
         return node
 
     def _parse_boolean(self):
-        node = nodes.Boolean()
+        node = self._create_node('Boolean')
         node.add(self.stream.read('Boolean'))
         return node
