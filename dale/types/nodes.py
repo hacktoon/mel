@@ -1,12 +1,6 @@
 
-
-def create(node_id, stream):
-    return globals()[node_id](stream=stream)
-
-
 class Node:
-    def __init__(self, stream=None):
-        self.stream = stream
+    def __init__(self):
         self._children = []
         self._properties = {}
 
@@ -55,7 +49,7 @@ class Node:
         return repr(self)
 
 
-class Expression(Node):
+class ExpressionNode(Node):
 
     @property
     def value(self):
@@ -81,7 +75,7 @@ class Expression(Node):
         return '({})'.format(' '.join(args))
 
 
-class Parameters(Node):
+class ParametersNode(Node):
     @property
     def value(self):
         return {key:child.value for key, child in self._properties.items()}
@@ -92,7 +86,7 @@ class Parameters(Node):
         return ' '.join(params)
 
 
-class Query(Node):
+class QueryNode(Node):
     @property
     def value(self):
         if self.source == 'file':
@@ -112,26 +106,26 @@ class Query(Node):
         return '@ {}'.format(self.content)
 
 
-class Reference(Node):
+class ReferenceNode(Node):
     def __repr__(self):
         return '.'.join(repr(child) for child in self._children)
 
 
-class String(Node):
+class StringNode(Node):
     pass
 
 
-class Int(Node):
+class IntNode(Node):
     pass
 
 
-class Float(Node):
+class FloatNode(Node):
     pass
 
 
-class Boolean(Node):
+class BooleanNode(Node):
     pass
 
 
-class List(Node):
+class ListNode(Node):
     pass

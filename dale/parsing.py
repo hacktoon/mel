@@ -1,5 +1,5 @@
 from dale.lexing import TokenStream
-from .types import nodes
+from .types.nodes import *
 from .types.errors import ParsingError
 
 
@@ -8,16 +8,13 @@ class Parser:
         self.stream = stream
 
     def parse(self):
-        node = self._create_node()
+        node = Node()
         while not self.stream.is_eof():
             node.add(self._parse_value())
         return node
 
-    def _create_node(self, node_id=None):
-        return nodes.create(node_id or 'Node', self.stream)
-
     def _parse_expression(self):
-        node = self._create_node('Expression')
+        node = ExpressionNode()
         self.stream.read('LeftParen')
         node.add('keyword', self.stream.read('Name'))
         node.add('parameters', self._parse_parameters())
@@ -38,7 +35,7 @@ class Parser:
             self.stream.read('RightParen')
 
     def _parse_parameters(self):
-        node = self._create_node('Parameters')
+        node = ParametersNode()
         while self.stream.is_current('Parameter'):
             parameter = self.stream.read('Parameter')
             node.add(parameter.value, self._parse_value())
@@ -64,7 +61,7 @@ class Parser:
         return node
 
     def _parse_list(self):
-        node = self._create_node('List')
+        node = ListNode()
         self.stream.read('LeftBracket')
         while not self.stream.is_current('RightBracket'):
             if self.stream.is_eof():
@@ -75,7 +72,7 @@ class Parser:
         return node
 
     def _parse_reference(self):
-        node = self._create_node('Reference')
+        node = ReferenceNode()
         node.add(self.stream.read('Name'))
         while self.stream.is_current('Dot'):
             self.stream.read('Dot')
@@ -83,12 +80,12 @@ class Parser:
         return node
 
     def _parse_string(self):
-        node = self._create_node('String')
+        node = StringNode()
         node.add(self.stream.read('String'))
         return node
 
     def _parse_query(self):
-        node = self._create_node('Query')
+        node = QueryNode()
         self.stream.read('Query')
         if self.stream.is_current('Name'):
             node.add('source', self.stream.read('Name').value)
@@ -98,16 +95,16 @@ class Parser:
         return node
 
     def _parse_float(self):
-        node = self._create_node('Float')
+        node = FloatNode()
         node.add(self.stream.read('Float'))
         return node
 
     def _parse_int(self):
-        node = self._create_node('Int')
+        node = IntNode()
         node.add(self.stream.read('Int'))
         return node
 
     def _parse_boolean(self):
-        node = self._create_node('Boolean')
+        node = BooleanNode()
         node.add(self.stream.read('Boolean'))
         return node
