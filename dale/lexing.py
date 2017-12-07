@@ -5,7 +5,10 @@ from collections import namedtuple
 
 
 TokenRule = namedtuple('TokenRule', 'id, regex, skip')
-Token = namedtuple('Token', 'id, value, line, column, skip')
+Token = namedtuple('Token', 'id, value, position, skip')
+Position = namedtuple('Position', 'start, end, line, column')
+
+NEWLINE_RE = r'[\r\n]+'
 
 
 class Lexer:
@@ -35,22 +38,30 @@ class Lexer:
             _tokens.append(token_rule)
         return _tokens
 
+    def _build_token(self, rule, match):
+        id, value, skip = rule.id, match.group(0), rule.skip
+        position = Position(
+            start  = match.start(),
+            end    = match.end(),
+            line   = self.line,
+            column = self.column
+        )
+        self._update_counters(value)
+        return Token(id, value, position, skip)
+
     def _emit_token(self):
         for rule in self.token_rules:
             match = rule.regex.match(self.text, self.index)
             if not match:
                 continue
-            id, value, skip = rule.id, match.group(0), rule.skip
-            token = Token(id, value, self.line, self.column, skip)
-            self._update_counters(value)
-            return token
+            return self._build_token(rule, match)
         else:
             raise LexingError('invalid syntax', self.index)
 
     def _update_counters(self, value):
         length = len(value)
         self.index += length
-        newlines = re.findall(r'[\r\n]+', value)
+        newlines = re.findall(NEWLINE_RE, value)
         if newlines:
             self.line += len(newlines)
             self.column = 1
@@ -61,6 +72,7 @@ class Lexer:
 class TokenStream:
     def __init__(self, text, rules):
         self.tokens = Lexer(text, rules).tokenize()
+        self.text = text
         self.index = 0
 
     def read(self, token_id, value=None):
@@ -91,4 +103,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return Token('eof', '', -1, -1, True)
+            return Token('eof', '', None, True)

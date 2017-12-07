@@ -1,18 +1,35 @@
+import re
 import codecs
+from dale.types.errors import ParsingError
+from collections import namedtuple
+
+Position = namedtuple('Position', 'start, end, line, column')
 
 
 class Node:
-    def __init__(self):
+    def __init__(self, stream):
         self._children = []
-        self._tokens = []
+        self._parameters = {}
+        self.stream = stream
+        self.position = Position(0, 0, 0, 0)
 
     def add(self, *args):
         if len(args) == 2:
-            name, child = args
-            self.__dict__[name] = child
+            key, child = args
+            self.__dict__[key] = child
+            self._parameters[key] = child
             self._children.append(child)
         else:
             self._children.append(args[0])
+        self.update_position()
+
+    def update_position(self):
+        self.position = Position(
+            start  = self._children[0].position.start,
+            end    = self._children[-1].position.end,
+            line   = self._children[0].position.line,
+            column = self._children[0].position.column
+        )
 
     @property
     def value(self):
@@ -22,10 +39,7 @@ class Node:
 
     def __getitem__(self, key):
         try:
-            if key in self._properties:
-                return self._properties[key]
-            else:
-                return self._children[key]
+            return self._parameters.get(key, self._children[key])
         except (KeyError, IndexError):
             raise ValueError(key + ' is not a valid key or index')
 
@@ -33,55 +47,45 @@ class Node:
         return len(self._children)
 
     def __repr__(self):
-        if len(self._children) == 1:
-            return repr(self._children[0])
-        return repr(self._children)
-
+        start = self._children[0].position.start
+        end = self._children[-1].position.end
+        return self.stream.text[start:end]
+        
     def __str__(self):
         return repr(self)
 
 
 class ExpressionNode(Node):
+    def __init__(self, stream):
+        super().__init__(stream)
+        self.keyword = None
+        self.parameters = None
 
     @property
     def value(self):
         exp = {'keyword': self.keyword.value}
-
         if self.parameters.value.items():
             exp['parameters'] = self.parameters.value
-        if len(self._children) > 1:
-            exp['values'] = [child.value for child in self._children]
-        elif len(self._children) == 1:
-            exp['values'] = self._children[0].value
+        exp['values'] = [child.value for child in self._children[3:-1]]
         return exp
-
-    def __repr__(self):
-        args = [self.keyword.value]
-        values = ''
-        if self.parameters.value.items():
-            args.append(repr(self.parameters))
-        if len(self._children) > 1:
-            args.append(' '.join(repr(value) for value in self._children))
-        elif len(self._children) == 1:
-            args.append(repr(self._children[0]))
-        return '({})'.format(' '.join(args))
 
 
 class ParametersNode(Node):
     @property
     def value(self):
-        return {key:child.value for key, child in self._properties.items()}
-
-    def __repr__(self):
-        items = self._properties.items()
-        params = [':{} {}'.format(key, repr(child)) for key, child in items]
-        return ' '.join(params)
+        params = self._parameters.items()
+        return {key.value:child.value for key, child in params}
 
 
 class QueryNode(Node):
+    def __init__(self, stream):
+        super().__init__(stream)
+        self.source = None
+        self.content = None
+
     @property
     def value(self):
-        if self.source == 'file':
+        if self.source and self.source.value == 'file':
             try:
                 with open(self.content.value, 'r') as file_obj:
                     return file_obj.read()
@@ -92,21 +96,15 @@ class QueryNode(Node):
         else:
             return self.content.value
 
-    def __repr__(self):
-        if self.source:
-            return '@ {} {}'.format(self.source, self.content)
-        return '@ {}'.format(self.content)
-
 
 class ReferenceNode(Node):
-    def __repr__(self):
-        return '.'.join(repr(child) for child in self._children)
+    pass
 
 
 class StringNode(Node):
     @property
     def value(self):
-        # thanks to @rspeer at https://stackoverflow.com/a/24519338/544184
+        # source: https://stackoverflow.com/a/24519338/544184
         ESCAPE_SEQUENCE_RE = re.compile(r'''
            \\( U........    # 8-digit hex escapes
            | u....          # 4-digit hex escapes
@@ -118,6 +116,7 @@ class StringNode(Node):
 
         def decode_match(match):
            return codecs.decode(match.group(0), 'unicode-escape')
+
         value = self._children[0].value
         return ESCAPE_SEQUENCE_RE.sub(decode_match, value[1:-1])
 
@@ -138,8 +137,11 @@ class FloatNode(Node):
 class BooleanNode(Node):
     @property
     def value(self):
-        return {'true': True, 'false': False}[self._children[0].value]
+        mapping = {'true': True, 'false': False}
+        return mapping[self._children[0].value]
 
 
 class ListNode(Node):
-    pass
+    @property
+    def value(self):
+        return [child.value for child in self._children[1:-1]]

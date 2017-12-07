@@ -1,7 +1,7 @@
 import tempfile
 import pytest
-from dale.lexing import Lexer, TokenStream
 from dale.types import tokens
+from dale.lexing import Lexer, TokenStream
 from dale.types.errors import LexingError, ParsingError
 
 
@@ -26,29 +26,29 @@ def test_newline_and_comments_are_ignored():
 def test_token_line_attribute():
     tokens = create_lexer('2 \r\n "foo" \n @')
     assert tokens[0].value == '2'
-    assert tokens[0].line == 1
+    assert tokens[0].position.line == 1
     assert tokens[1].value == '"foo"'
-    assert tokens[1].line == 2
+    assert tokens[1].position.line == 2
     assert tokens[2].value == '@'
-    assert tokens[2].line == 3
+    assert tokens[2].position.line == 3
 
 
 def test_token_column_attribute():
     tokens = create_lexer('name \r\n"bar" \n @ 2.5')
     assert tokens[0].value == 'name'
-    assert tokens[0].column == 1
+    assert tokens[0].position.column == 1
     assert tokens[1].value == '"bar"'
-    assert tokens[1].column == 1
+    assert tokens[1].position.column == 1
     assert tokens[2].value == '@'
-    assert tokens[2].column == 2
+    assert tokens[2].position.column == 2
     assert tokens[3].value == '2.5'
-    assert tokens[3].column == 4
+    assert tokens[3].position.column == 4
 
 
 def test_newline_inside_string_is_parsed():
     tokens = create_lexer('"a \r\n multiline\n string" @')
     assert tokens[-1].value == '@'
-    assert tokens[-1].line == 3
+    assert tokens[-1].position.line == 3
 
 
 def test_tokenize_boolean_values():
