@@ -8,21 +8,9 @@ TokenRule = namedtuple('TokenRule', 'id, regex, skip')
 Token = namedtuple('Token', 'id, value, line, column, skip')
 
 
-def build_token_rules(rules):
-    _tokens = []
-    priority_function = lambda rule: rule.get('priority', 0)
-    prioritized_rules = sorted(rules, key=priority_function, reverse=True)
-    for rule in prioritized_rules:
-        regex = re.compile(rule['regex'])
-        skip = rule.get('skip', False)
-        token_rule = TokenRule(rule['id'], regex, skip)
-        _tokens.append(token_rule)
-    return _tokens
-
-
 class Lexer:
-    def __init__(self, text):
-        self.token_rules = build_token_rules(tokens.rules)
+    def __init__(self, text, rules):
+        self.token_rules = self._build_rules(rules)
         self.text = text
         self.index = 0
         self.line = 1
@@ -34,6 +22,17 @@ class Lexer:
             token = self._emit_token()
             if not token.skip:
                 _tokens.append(token)
+        return _tokens
+
+    def _build_rules(self, rules):
+        _tokens = []
+        priority_function = lambda rule: rule.get('priority', 0)
+        prioritized_rules = sorted(rules, key=priority_function, reverse=True)
+        for rule in prioritized_rules:
+            regex = re.compile(rule['regex'])
+            skip = rule.get('skip', False)
+            token_rule = TokenRule(rule['id'], regex, skip)
+            _tokens.append(token_rule)
         return _tokens
 
     def _emit_token(self):
@@ -60,8 +59,8 @@ class Lexer:
 
 
 class TokenStream:
-    def __init__(self, text):
-        self.tokens = Lexer(text).tokenize()
+    def __init__(self, text, rules):
+        self.tokens = Lexer(text, rules).tokenize()
         self.index = 0
 
     def read(self, token_id, value=None):

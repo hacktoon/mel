@@ -5,18 +5,26 @@ from dale.types import tokens
 from dale.types.errors import LexingError, ParsingError
 
 
+def create_lexer(text):
+    return Lexer(text, tokens.rules).tokenize()
+
+
+def create_stream(text):
+    return TokenStream(text, tokens.rules)
+
+
 def test_token_comparison():
-    tokens = Lexer('54').tokenize()
+    tokens = create_lexer('54')
     assert tokens[0].id == 'int'
 
 
 def test_newline_and_comments_are_ignored():
-    tokens = Lexer('#comment \n 45').tokenize()
+    tokens = create_lexer('#comment \n 45')
     assert tokens[0].value == '45'
 
 
 def test_token_line_attribute():
-    tokens = Lexer('2 \r\n "foo" \n @').tokenize()
+    tokens = create_lexer('2 \r\n "foo" \n @')
     assert tokens[0].value == '2'
     assert tokens[0].line == 1
     assert tokens[1].value == '"foo"'
@@ -26,7 +34,7 @@ def test_token_line_attribute():
 
 
 def test_token_column_attribute():
-    tokens = Lexer('name \r\n"bar" \n @ 2.5').tokenize()
+    tokens = create_lexer('name \r\n"bar" \n @ 2.5')
     assert tokens[0].value == 'name'
     assert tokens[0].column == 1
     assert tokens[1].value == '"bar"'
@@ -38,68 +46,68 @@ def test_token_column_attribute():
 
 
 def test_newline_inside_string_is_parsed():
-    tokens = Lexer('"a \r\n multiline\n string" @').tokenize()
+    tokens = create_lexer('"a \r\n multiline\n string" @')
     assert tokens[-1].value == '@'
     assert tokens[-1].line == 3
 
 
 def test_tokenize_boolean_values():
-    tokens = Lexer(r'true false').tokenize()
+    tokens = create_lexer(r'true false')
     assert tokens[0].value == 'true'
     assert tokens[1].value == 'false'
 
 
 def test_tokenize_string_with_single_quotes():
-    tokens = Lexer(r"'single' string").tokenize()
+    tokens = create_lexer(r"'single' string")
     assert tokens[0].value == "'single'"
 
 
 def test_tokenize_string_with_double_quotes():
-    tokens = Lexer(r'"single" string').tokenize()
+    tokens = create_lexer(r'"single" string')
     assert tokens[0].value == '"single"'
 
 
 def test_tokenize_string_with_newline():
-    tokens = Lexer(r'"line one\nline two"').tokenize()
+    tokens = create_lexer(r'"line one\nline two"')
     assert tokens[0].value == r'"line one\nline two"'
 
 
 def test_tokenize_string_with_escaped_quotes():
-    tokens = Lexer(r'"single \"escaped\"" string').tokenize()
+    tokens = create_lexer(r'"single \"escaped\"" string')
     assert tokens[0].value == r'"single \"escaped\""'
 
 
 def test_tokenize_string_with_escaped_quotes_and_single_quotes():
-    tokens = Lexer(r"'single \'escaped\'' string").tokenize()
+    tokens = create_lexer(r"'single \'escaped\'' string")
     assert tokens[0].value == r"'single \'escaped\''"
 
 
 def test_tokenize_ints_and_floats():
-    tokens = Lexer('34 -5.62 -532').tokenize()
+    tokens = create_lexer('34 -5.62 -532')
     assert tokens[0].value == '34'
     assert tokens[1].value == '-5.62'
     assert tokens[2].value == '-532'
 
 
 def test_tokenize_parenthesis():
-    tokens = Lexer(r'()').tokenize()
+    tokens = create_lexer(r'()')
     assert tokens[0].value == '('
     assert tokens[1].value == ')'
 
 
 def test_tokenize_names():
-    tokens = Lexer(r'name value').tokenize()
+    tokens = create_lexer(r'name value')
     assert tokens[0].value == 'name'
     assert tokens[1].value == 'value'
 
 
 def test_name_tokens_cant_start_with_numbers():
     with pytest.raises(LexingError):
-        Lexer(r'42foo').tokenize()
+        create_lexer(r'42name')
 
 
 def test_tokenize_modifier_expression():
-    tokens = Lexer(r':foo "bar" :var "null"').tokenize()
+    tokens = create_lexer(r':foo "bar" :var "null"')
     assert tokens[0].value == ':'
     assert tokens[1].value == 'foo'
     assert tokens[2].value == '"bar"'
@@ -109,7 +117,7 @@ def test_tokenize_modifier_expression():
 
 def test_tokenize_query_strings():
     text = '@"/data/source/\nattribute[id=\'x\']" @"/site/title"'
-    tokens = Lexer(text).tokenize()
+    tokens = create_lexer(text)
     assert tokens[0].value == '@'
     assert tokens[1].value == '"/data/source/\nattribute[id=\'x\']"'
     assert tokens[2].value == '@'
@@ -117,12 +125,12 @@ def test_tokenize_query_strings():
 
 
 def test_stream_get_current_token():
-    stream = TokenStream('345 name ()')
+    stream = create_stream('345 name ()')
     assert stream.current().value == '345'
 
 
 def test_stream_verify_current_token():
-    stream = TokenStream('345 name (')
+    stream = create_stream('345 name (')
     assert stream.read('int')
     assert stream.is_current('name')
     assert not stream.is_current('string')
@@ -130,8 +138,16 @@ def test_stream_verify_current_token():
     assert stream.is_current('(')
 
 
+def test_stream_verify_next_token():
+    stream = create_stream('"bár" @ (')
+    assert stream.is_current('string')
+    assert stream.is_next('@')
+    assert stream.read('string')
+    assert stream.is_next('(')
+
+
 def test_stream_read_token_with_no_id():
-    stream = TokenStream('42 foo')
+    stream = create_stream('42 foo')
     int_token = stream.read('int')
     assert int_token.value == '42'
     name_token = stream.read('name')
@@ -139,13 +155,13 @@ def test_stream_read_token_with_no_id():
 
 
 def test_that_read_unexpected_token_raises_error():
-    stream = TokenStream('"string"')
+    stream = create_stream('"string"')
     with pytest.raises(ParsingError):
         stream.read('int')
 
 
 def test_stream_ends_with_eof_token():
-    stream = TokenStream('(age 5)')
+    stream = create_stream('(age 5)')
     stream.read('(')
     stream.read('name')
     assert not stream.is_eof()

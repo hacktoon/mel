@@ -1,4 +1,3 @@
-from dale.lexing import TokenStream
 from .types.nodes import *
 from .types.errors import ParsingError
 
