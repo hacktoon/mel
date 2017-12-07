@@ -4,31 +4,47 @@ from .types.errors import LexingError, ParsingError
 from collections import namedtuple
 
 
-Token = namedtuple('Token', 'id, value, line, column')
+TokenRule = namedtuple('TokenRule', 'id, regex, skip')
+Token = namedtuple('Token', 'id, value, line, column, skip')
+
+
+def build_token_rules(rules):
+    _tokens = []
+    priority_function = lambda rule: rule.get('priority', 0)
+    prioritized_rules = sorted(rules, key=priority_function, reverse=True)
+    for rule in prioritized_rules:
+        regex = re.compile(rule['regex'])
+        skip = rule.get('skip', False)
+        token_rule = TokenRule(rule['id'], regex, skip)
+        _tokens.append(token_rule)
+    return _tokens
 
 
 class Lexer:
     def __init__(self, text):
+        self.token_rules = build_token_rules(tokens.rules)
         self.text = text
         self.index = 0
         self.line = 1
         self.column = 1
 
     def tokenize(self):
-        tokens = []
+        _tokens = []
         while self.index < len(self.text):
             token = self._emit_token()
-            tokens.append(token)
-        return tokens
+            if not token.skip:
+                _tokens.append(token)
+        return _tokens
 
     def _emit_token(self):
-        for id, regex in tokens.specs.items():
-            match = regex.match(self.text, self.index)
+        for rule in self.token_rules:
+            match = rule.regex.match(self.text, self.index)
             if not match:
                 continue
-            index, value = self.index, match.group(0)
+            id, value, skip = rule.id, match.group(0), rule.skip
+            token = Token(id, value, self.line, self.column, skip)
             self._update_counters(value)
-            return Token(id, value, self.line, self.column)
+            return token
         else:
             raise LexingError('invalid syntax', self.index)
 
@@ -38,7 +54,7 @@ class Lexer:
         newlines = re.findall(r'[\r\n]+', value)
         if newlines:
             self.line += len(newlines)
-            self.column = 0
+            self.column = 1
         else:
             self.column += length
 
@@ -48,11 +64,8 @@ class TokenStream:
         self.tokens = Lexer(text).tokenize()
         self.index = 0
 
-    def read(self, token_id=None, value=None):
+    def read(self, token_id, value=None):
         token = self.current()
-        if token_id is None:
-            self.index += 1
-            return token
         if self.is_current(token_id):
             if value:
                 if value == token.value:
@@ -79,4 +92,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return Token('eof', '', -1, -1)
+            return Token('eof', '', -1, -1, True)
