@@ -1,26 +1,18 @@
+import codecs
+
 
 class Node:
     def __init__(self):
         self._children = []
-        self._properties = {}
+        self._tokens = []
 
     def add(self, *args):
         if len(args) == 2:
             name, child = args
-            self._add(name, child)
-        elif len(args) == 1:
-            self._add(None, args[0])
-        else:
-            raise TypeError('invalid number of arguments')
-
-    def _add(self, name, child):
-        if name:
-            if name in self.__dict__:
-                raise ValueError(name + ' attribute is already defined')
-            self._properties[name] = child
             self.__dict__[name] = child
-        else:
             self._children.append(child)
+        else:
+            self._children.append(args[0])
 
     @property
     def value(self):
@@ -112,19 +104,41 @@ class ReferenceNode(Node):
 
 
 class StringNode(Node):
-    pass
+    @property
+    def value(self):
+        # thanks to @rspeer at https://stackoverflow.com/a/24519338/544184
+        ESCAPE_SEQUENCE_RE = re.compile(r'''
+           \\( U........    # 8-digit hex escapes
+           | u....          # 4-digit hex escapes
+           | x..            # 2-digit hex escapes
+           | [0-7]{1,3}     # Octal escapes
+           | N\{[^}]+\}     # Unicode characters by name
+           | [\\'"abfnrtv]  # Single-character escapes
+           )''', re.VERBOSE)
+
+        def decode_match(match):
+           return codecs.decode(match.group(0), 'unicode-escape')
+        value = self._children[0].value
+        return ESCAPE_SEQUENCE_RE.sub(decode_match, value[1:-1])
+
 
 
 class IntNode(Node):
-    pass
+    @property
+    def value(self):
+        return int(self._children[0].value)
 
 
 class FloatNode(Node):
-    pass
+    @property
+    def value(self):
+        return float(self._children[0].value)
 
 
 class BooleanNode(Node):
-    pass
+    @property
+    def value(self):
+        return {'true': True, 'false': False}[self._children[0].value]
 
 
 class ListNode(Node):
