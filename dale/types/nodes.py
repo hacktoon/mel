@@ -150,7 +150,7 @@ class String(Node):
     regex = r'|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"'])
 
 
-class ExpressionNode(Node):
+class Expression(Node):
     def __init__(self, stream):
         super().__init__(stream)
         self.keyword = None
@@ -165,14 +165,14 @@ class ExpressionNode(Node):
         return exp
 
 
-class ParametersNode(Node):
+class Parameters(Node):
     @property
     def value(self):
         params = self._parameters.items()
         return {key.value:child.value for key, child in params}
 
 
-class QueryNode(Node):
+class Query(Node):
     def __init__(self, stream):
         super().__init__(stream)
         self.source = None
@@ -192,11 +192,11 @@ class QueryNode(Node):
             return self.content.value
 
 
-class ReferenceNode(Node):
+class Reference(Node):
     pass
 
 
-class StringNode(Node):
+class String(Node):
     @property
     def value(self):
         # source: https://stackoverflow.com/a/24519338/544184
@@ -217,26 +217,26 @@ class StringNode(Node):
 
 
 
-class IntNode(Node):
+class Int(Node):
     @property
     def value(self):
         return int(self._children[0].value)
 
 
-class FloatNode(Node):
+class Float(Node):
     @property
     def value(self):
         return float(self._children[0].value)
 
 
-class BooleanNode(Node):
+class Boolean(Node):
     @property
     def value(self):
         mapping = {'true': True, 'false': False}
         return mapping[self._children[0].value]
 
 
-class ListNode(Node):
+class List(Node):
     @property
     def value(self):
         return [child.value for child in self._children[1:-1]]

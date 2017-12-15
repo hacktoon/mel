@@ -40,7 +40,7 @@ class Parser:
         return node
 
     def _parse_list(self):
-        node = self._build_node(ListNode)
+        node = self._build_node(List)
         node.add(self.stream.read('['))
         while not self.stream.is_current(']'):
             if self.stream.is_eof():
@@ -50,7 +50,7 @@ class Parser:
         return node
 
     def _parse_reference(self):
-        node = self._build_node(ReferenceNode)
+        node = self._build_node(Reference)
         node.add(self.stream.read('name'))
         while self.stream.is_current('.'):
             self.stream.read('.')
@@ -58,12 +58,12 @@ class Parser:
         return node
 
     def _parse_string(self):
-        node = self._build_node(StringNode)
+        node = self._build_node(String)
         node.add(self.stream.read('string'))
         return node
 
     def _parse_query(self):
-        node = self._build_node(QueryNode)
+        node = self._build_node(Query)
         node.add(self.stream.read('@'))
         if self.stream.is_current('name'):
             node.add('source', self.stream.read('name'))
@@ -71,24 +71,24 @@ class Parser:
         return node
 
     def _parse_float(self):
-        node = self._build_node(FloatNode)
+        node = self._build_node(Float)
         node.add(self.stream.read('float'))
         return node
 
     def _parse_int(self):
-        node = self._build_node(IntNode)
+        node = self._build_node(Int)
         node.add(self.stream.read('int'))
         return node
 
     def _parse_boolean(self):
-        node = self._build_node(BooleanNode)
+        node = self._build_node(Boolean)
         node.add(self.stream.read('boolean'))
         return node
 
 
 class ExpressionParser(Parser):
     def parse(self):
-        node = self._build_node(ExpressionNode)
+        node = self._build_node(Expression)
         node.add(self.stream.read('('))
         node.add('keyword', self.stream.read('name'))
         node.add('parameters', self._parse_parameters())
@@ -112,7 +112,7 @@ class ExpressionParser(Parser):
             node.add(self.stream.read(')'))
 
     def _parse_parameters(self):
-        node = self._build_node(ParametersNode)
+        node = self._build_node(Parameters)
         while self.stream.is_current(':'):
             node.add(self.stream.read(':'))
             name = self.stream.read('name')
