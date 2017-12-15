@@ -7,6 +7,9 @@ Position = namedtuple('Position', 'start, end, line, column')
 
 
 class Node:
+    priority = 0
+    skip = False
+
     def __init__(self, stream):
         self._children = []
         self._parameters = {}
@@ -53,6 +56,98 @@ class Node:
         
     def __str__(self):
         return repr(self)
+
+
+class Dot(Node):
+    id = '.'
+    regex = r'\.'
+
+
+class At(Node):
+    id = '@'
+    regex = '@'
+
+
+class Colon(Node):
+    id = ':'
+    regex = ':'
+
+
+class LeftParenthesis(Node):
+    id = '('
+    regex = r'\('
+
+
+class RightParenthesis(Node):
+    id = ')'
+    regex = r'\)'
+
+
+class LeftBracket(Node):
+    id = '.'
+    regex = r'\.'
+
+
+class RightBracket(Node):
+    id = '['
+    regex = r'\['
+
+
+class LeftBracket(Node):
+    id = ']'
+    regex = r'\]'
+
+
+class LeftBracket(Node):
+    id = ']'
+    regex = r'\]'
+
+
+class Whitespace(Node):
+    id = 'whitespace'
+    regex = r'[ ,\t\x0b\x0c]+'
+    skip = True
+
+
+class Newline(Node):
+    id = 'newline'
+    regex = r'[\r\n]+'
+    skip = True
+
+
+class Comment(Node):
+    id = 'comment'
+    regex = r'#[^\n\r]*'
+    skip = True
+
+
+class Boolean(Node):
+    id = 'boolean'
+    regex = r'(true|false)\b'
+    priority = 2
+
+
+class Name(Node):
+    id = 'name'
+    regex = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
+    priority = 1
+
+
+class Float(Node):
+    id = 'float'
+    priority = 2
+    regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
+
+
+class Int(Node):
+    id = 'int'
+    priority = 1
+    regex = r'[-+]?\d+\b'
+
+
+class String(Node):
+    id = 'string'
+    regex = r'|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"'])
 
 
 class ExpressionNode(Node):
