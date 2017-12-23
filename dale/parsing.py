@@ -5,8 +5,9 @@ from .types.errors import ParsingError
 class Parser:
     def __init__(self, stream):
         self.stream = stream
+        self.context = {}
 
-    def parse(self):
+    def parse(self, context=None):
         node = self._build_node(Node)
         while not self.stream.is_eof():
             if self.stream.is_current('('):

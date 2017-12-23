@@ -2,7 +2,7 @@ import pytest
 from dale.types import tokens
 from dale.lexing import TokenStream
 from dale.parsing import Parser
-from dale.types.errors import ParsingError
+from dale.types.errors import ParsingError, UnexpectedValueError
 
 
 def create_tree(text):
@@ -58,7 +58,7 @@ def test_EOF_while_parsing_list():
 
 
 def test_EOF_while_parsing_reference():
-    with pytest.raises(ParsingError):
+    with pytest.raises(UnexpectedValueError):
         create_tree('foo.bar.')
 
 
@@ -82,7 +82,7 @@ def test_parsing_expression_with_named_ending():
 
 
 def test_parsing_expression_with_wrong_ending_keyword():
-    with pytest.raises(ParsingError):
+    with pytest.raises(UnexpectedValueError):
         create_tree('(start  \t "foo")end)')
 
 
@@ -123,7 +123,7 @@ def test_parsing_expression_with_a_list_as_child():
 
 
 def test_non_terminated_expression_raises_error():
-    with pytest.raises(ParsingError):
+    with pytest.raises(UnexpectedValueError):
         create_tree('(test 4')
 
 

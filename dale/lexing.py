@@ -1,6 +1,6 @@
 import re
 from .types import tokens
-from .types.errors import LexingError, ParsingError
+from .types.errors import LexingError, UnexpectedValueError
 from collections import namedtuple
 
 
@@ -56,7 +56,7 @@ class Lexer:
                 continue
             return self._build_token(rule, match)
         else:
-            raise LexingError('invalid syntax', self.index)
+            raise LexingError('invalid syntax')
 
     def _update_counters(self, value):
         length = len(value)
@@ -75,9 +75,9 @@ class TokenStream:
         self.text = text
         self.index = 0
 
-    def read(self, token_id, value=None):
+    def read(self, expected_token_id, value=None):
         token = self.current()
-        if self.is_current(token_id):
+        if self.is_current(expected_token_id):
             if value:
                 if value == token.value:
                     self.index += 1
@@ -85,10 +85,7 @@ class TokenStream:
             else:
                 self.index += 1
                 return token
-
-        template = 'expected a token of type {!r}, but found {!r}'
-        message = template.format(token_id, token.id)
-        raise ParsingError(message)
+        raise UnexpectedValueError(expected_token_id, token.id)
 
     def is_eof(self):
         return self.index >= len(self.tokens)

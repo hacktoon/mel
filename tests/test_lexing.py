@@ -2,7 +2,7 @@ import tempfile
 import pytest
 from dale.types import tokens
 from dale.lexing import Lexer, TokenStream
-from dale.types.errors import LexingError, ParsingError
+from dale.types.errors import LexingError, UnexpectedValueError
 
 
 def create_lexer(text):
@@ -156,7 +156,7 @@ def test_stream_read_token_with_no_id():
 
 def test_that_read_unexpected_token_raises_error():
     stream = create_stream('"string"')
-    with pytest.raises(ParsingError):
+    with pytest.raises(UnexpectedValueError):
         stream.read('int')
 
 
