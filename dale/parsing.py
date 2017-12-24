@@ -42,12 +42,12 @@ class Parser:
 
     def _parse_list(self):
         node = self._build_node(List)
-        node.add(self.stream.read('['))
+        node.match(LeftBracket)
         while not self.stream.is_current(']'):
             if self.stream.is_eof():
                 raise ParsingError('unexpected EOF while parsing list')
             node.add(self._parse_value())
-        node.add(self.stream.read(']'))
+        node.match(RightBracket)
         return node
 
     def _parse_reference(self):
@@ -55,7 +55,15 @@ class Parser:
         node.match(Name)
         while self.stream.is_current('.'):
             self.stream.read('.')
-            node.add(self.stream.read('name'))
+            node.match(Name)
+        return node
+
+    def _parse_query(self):
+        node = self._build_node(Query)
+        node.match(At)
+        if self.stream.is_current('name'):
+            node.add('source', self.stream.read('name'))
+        node.add('content', self.stream.read('string'))
         return node
 
     def _parse_string(self):
@@ -63,17 +71,9 @@ class Parser:
         node.match(String)
         return node
 
-    def _parse_query(self):
-        node = self._build_node(Query)
-        node.add(self.stream.read('@'))
-        if self.stream.is_current('name'):
-            node.add('source', self.stream.read('name'))
-        node.add('content', self.stream.read('string'))
-        return node
-
     def _parse_float(self):
         node = self._build_node(Float)
-        node.add(self.stream.read('float'))
+        node.match(Float)
         return node
 
     def _parse_int(self):
@@ -83,14 +83,14 @@ class Parser:
 
     def _parse_boolean(self):
         node = self._build_node(Boolean)
-        node.add(self.stream.read('boolean'))
+        node.match(Boolean)
         return node
 
 
 class ExpressionParser(Parser):
     def parse(self):
         node = self._build_node(Expression)
-        node.add(self.stream.read('('))
+        node.match(LeftParenthesis)
         node.add('keyword', self.stream.read('name'))
         node.add('parameters', self._parse_parameters())
         self._parse_values(node)
@@ -110,12 +110,12 @@ class ExpressionParser(Parser):
         node.add(self.stream.read(')'))
         if self.stream.is_current('name') and self.stream.is_next(')'):
             node.add(self.stream.read('name', value=node.keyword.value))
-            node.add(self.stream.read(')'))
+            node.match(RightParenthesis)
 
     def _parse_parameters(self):
         node = self._build_node(Parameters)
         while self.stream.is_current(':'):
-            node.add(self.stream.read(':'))
+            node.match(Colon)
             name = self.stream.read('name')
             node.add(name)
             node.add(name, self._parse_value())

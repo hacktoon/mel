@@ -87,12 +87,12 @@ class RightParenthesis(Node):
     regex = r'\)'
 
 
-class RightBracket(Node):
+class LeftBracket(Node):
     id = '['
     regex = r'\['
 
 
-class LeftBracket(Node):
+class RightBracket(Node):
     id = ']'
     regex = r'\]'
 
@@ -188,7 +188,6 @@ class String(Node):
 
         value = self._children[0].value
         return ESCAPE_SEQUENCE_RE.sub(decode_match, value[1:-1])
-
 
 
 class Int(Node):
