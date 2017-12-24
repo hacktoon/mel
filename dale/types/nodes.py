@@ -16,6 +16,10 @@ class Node:
         self.stream = stream
         self.position = Position(0, 0, 0, 0)
 
+    def match(self, node):
+        token = self.stream.read(node.id)
+        self.add(token)
+
     def add(self, *args):
         if len(args) == 2:
             key, child = args
@@ -83,19 +87,9 @@ class RightParenthesis(Node):
     regex = r'\)'
 
 
-class LeftBracket(Node):
-    id = '.'
-    regex = r'\.'
-
-
 class RightBracket(Node):
     id = '['
     regex = r'\['
-
-
-class LeftBracket(Node):
-    id = ']'
-    regex = r'\]'
 
 
 class LeftBracket(Node):
@@ -121,33 +115,10 @@ class Comment(Node):
     skip = True
 
 
-class Boolean(Node):
-    id = 'boolean'
-    regex = r'(true|false)\b'
-    priority = 2
-
-
 class Name(Node):
     id = 'name'
     regex = r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
     priority = 1
-
-
-class Float(Node):
-    id = 'float'
-    priority = 2
-    regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
-
-
-class Int(Node):
-    id = 'int'
-    priority = 1
-    regex = r'[-+]?\d+\b'
-
-
-class String(Node):
-    id = 'string'
-    regex = r'|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"'])
 
 
 class Expression(Node):
@@ -197,6 +168,9 @@ class Reference(Node):
 
 
 class String(Node):
+    id = 'string'
+    regex = r'|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"'])
+
     @property
     def value(self):
         # source: https://stackoverflow.com/a/24519338/544184
@@ -218,18 +192,30 @@ class String(Node):
 
 
 class Int(Node):
+    id = 'int'
+    priority = 1
+    regex = r'[-+]?\d+\b'
+
     @property
     def value(self):
         return int(self._children[0].value)
 
 
 class Float(Node):
+    id = 'float'
+    priority = 2
+    regex = r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
+
     @property
     def value(self):
         return float(self._children[0].value)
 
 
 class Boolean(Node):
+    id = 'boolean'
+    regex = r'(true|false)\b'
+    priority = 2
+
     @property
     def value(self):
         mapping = {'true': True, 'false': False}

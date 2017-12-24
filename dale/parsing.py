@@ -52,7 +52,7 @@ class Parser:
 
     def _parse_reference(self):
         node = self._build_node(Reference)
-        node.add(self.stream.read('name'))
+        node.match(Name)
         while self.stream.is_current('.'):
             self.stream.read('.')
             node.add(self.stream.read('name'))
@@ -60,7 +60,7 @@ class Parser:
 
     def _parse_string(self):
         node = self._build_node(String)
-        node.add(self.stream.read('string'))
+        node.match(String)
         return node
 
     def _parse_query(self):
@@ -78,7 +78,7 @@ class Parser:
 
     def _parse_int(self):
         node = self._build_node(Int)
-        node.add(self.stream.read('int'))
+        node.match(Int)
         return node
 
     def _parse_boolean(self):

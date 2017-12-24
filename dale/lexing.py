@@ -11,6 +11,58 @@ Position = namedtuple('Position', 'start, end, line, column')
 NEWLINE_RE = r'[\r\n]+'
 
 
+class Token2:
+    def __init__(self, match, line, column, **kwargs):
+        self.position = Position(
+            start = match.start(),
+            end = match.end(),
+            line = line,
+            column = column
+        )
+
+
+class Tokens:
+    def __init__(self, text):
+        self.text = text
+        self.index = 0
+        self.line = 1
+        self.column = 1
+
+    def read(self, regex):
+        match = regex.match(self.text, self.index)
+        if not match:
+            raise UnexpectedValueError('')
+        token = self._build_token(match)
+        self.index += 1
+        return token
+
+    def is_eof(self):
+        return self.index >= len(self.tokens)
+
+    def is_current(self, token_id):
+        return self.current().id == token_id
+
+    def is_next(self, token_id):
+        return self.current(offset=1).id == token_id
+
+    def current(self, offset=0):
+        try:
+            return 
+        except IndexError:
+            return Token('eof', '', None, True)
+
+    def _update_counters(self, value):
+        length = len(value)
+        self.index += length
+        newlines = re.findall(NEWLINE_RE, value)
+        if newlines:
+            self.line += len(newlines)
+            self.column = 1
+        else:
+            self.column += length
+
+
+
 class Lexer:
     def __init__(self, text, rules):
         self.token_rules = self._build_rules(rules)
