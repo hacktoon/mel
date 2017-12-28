@@ -24,15 +24,15 @@ class TokenRules:
             yield rule
 
     def _build(self, rules):
-        _tokens = []
+        token_rules = []
         priority_function = lambda rule: rule.get('priority', 0)
         prioritized_rules = sorted(rules, key=priority_function, reverse=True)
         for rule in prioritized_rules:
             regex = re.compile(rule['regex'])
             skip = rule.get('skip', False)
             token_rule = TokenRule(rule['id'], regex, skip)
-            _tokens.append(token_rule)
-        return _tokens
+            token_rules.append(token_rule)
+        return token_rules
 
 
 class Lexer:
@@ -96,4 +96,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return Token('eof', '', None, True)
+            return Token('eof', '', True)
