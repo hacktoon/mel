@@ -15,9 +15,29 @@ class Token:
         self.skip = skip
 
 
+class TokenRules:
+    def __init__(self, rules):
+        self.rules = self._build(rules)
+
+    def __iter__(self):
+        for rule in self.rules:
+            yield rule
+
+    def _build(self, rules):
+        _tokens = []
+        priority_function = lambda rule: rule.get('priority', 0)
+        prioritized_rules = sorted(rules, key=priority_function, reverse=True)
+        for rule in prioritized_rules:
+            regex = re.compile(rule['regex'])
+            skip = rule.get('skip', False)
+            token_rule = TokenRule(rule['id'], regex, skip)
+            _tokens.append(token_rule)
+        return _tokens
+
+
 class Lexer:
     def __init__(self, text, rules):
-        self.token_rules = self._build_rules(rules)
+        self.token_rules = TokenRules(rules)
         self.text = text
         self.index = 0
 
@@ -27,17 +47,6 @@ class Lexer:
             token = self._emit_token()
             if not token.skip:
                 _tokens.append(token)
-        return _tokens
-
-    def _build_rules(self, rules):
-        _tokens = []
-        priority_function = lambda rule: rule.get('priority', 0)
-        prioritized_rules = sorted(rules, key=priority_function, reverse=True)
-        for rule in prioritized_rules:
-            regex = re.compile(rule['regex'])
-            skip = rule.get('skip', False)
-            token_rule = TokenRule(rule['id'], regex, skip)
-            _tokens.append(token_rule)
         return _tokens
 
     def _build_token(self, rule, match):
