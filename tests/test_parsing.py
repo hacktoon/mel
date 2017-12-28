@@ -32,21 +32,6 @@ def test_parsing_single_values(test_input, expected):
     assert tree.value == expected
 
 
-@pytest.mark.parametrize('test_input, expected', [
-    ('56.75', '56.75'),
-    ('-0.75', '-0.75'),
-    ('[11, -0.75]', '[11, -0.75]'),
-    ('true', 'true'),
-    ('"string"', '"string"'),
-    ('@ "/tree/data"', '@ "/tree/data"'),
-    ('(foo 321 x.y)', '(foo 321 x.y)'),
-    ('(foo :id 4 "data")', '(foo :id 4 "data")'),
-])
-def test_tree_repr(test_input, expected):
-    tree = create_tree(test_input)
-    assert repr(tree) == expected
-
-
 def test_list_parsing():
     tree = create_tree('[1, 2.3, 3, foo.bar "str" ]')
     assert tree.value == [1, 2.3, 3, ['foo', 'bar'], "str"]

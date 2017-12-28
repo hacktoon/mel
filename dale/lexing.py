@@ -5,10 +5,14 @@ from collections import namedtuple
 
 
 TokenRule = namedtuple('TokenRule', 'id, regex, skip')
-Token = namedtuple('Token', 'id, value, position, skip')
-Position = namedtuple('Position', 'start, end, line, column')
 
-NEWLINE_RE = r'[\r\n]+'
+
+class Token:
+    def __init__(self, id, value, index, skip=False):
+        self.id = id
+        self.index = index
+        self.value = value
+        self.skip = skip
 
 
 class Lexer:
@@ -16,8 +20,6 @@ class Lexer:
         self.token_rules = self._build_rules(rules)
         self.text = text
         self.index = 0
-        self.line = 1
-        self.column = 1
 
     def tokenize(self):
         _tokens = []
@@ -40,14 +42,9 @@ class Lexer:
 
     def _build_token(self, rule, match):
         id, value, skip = rule.id, match.group(0), rule.skip
-        position = Position(
-            start  = match.start(),
-            end    = match.end(),
-            line   = self.line,
-            column = self.column
-        )
-        self._update_counters(value)
-        return Token(id, value, position, skip)
+        token = Token(id, value, self.index, skip)
+        self.index += len(value)
+        return token
 
     def _emit_token(self):
         for rule in self.token_rules:
@@ -57,16 +54,6 @@ class Lexer:
             return self._build_token(rule, match)
         else:
             raise LexingError('invalid syntax')
-
-    def _update_counters(self, value):
-        length = len(value)
-        self.index += length
-        newlines = re.findall(NEWLINE_RE, value)
-        if newlines:
-            self.line += len(newlines)
-            self.column = 1
-        else:
-            self.column += length
 
 
 class TokenStream:

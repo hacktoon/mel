@@ -23,34 +23,6 @@ def test_newline_and_comments_are_ignored():
     assert tokens[0].value == '45'
 
 
-def test_token_line_attribute():
-    tokens = create_lexer('2 \r\n "foo" \n @')
-    assert tokens[0].value == '2'
-    assert tokens[0].position.line == 1
-    assert tokens[1].value == '"foo"'
-    assert tokens[1].position.line == 2
-    assert tokens[2].value == '@'
-    assert tokens[2].position.line == 3
-
-
-def test_token_column_attribute():
-    tokens = create_lexer('name \r\n"bar" \n @ 2.5')
-    assert tokens[0].value == 'name'
-    assert tokens[0].position.column == 1
-    assert tokens[1].value == '"bar"'
-    assert tokens[1].position.column == 1
-    assert tokens[2].value == '@'
-    assert tokens[2].position.column == 2
-    assert tokens[3].value == '2.5'
-    assert tokens[3].position.column == 4
-
-
-def test_newline_inside_string_is_parsed():
-    tokens = create_lexer('"a \r\n multiline\n string" @')
-    assert tokens[-1].value == '@'
-    assert tokens[-1].position.line == 3
-
-
 def test_tokenize_boolean_values():
     tokens = create_lexer(r'true false')
     assert tokens[0].value == 'true'

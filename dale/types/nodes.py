@@ -1,9 +1,6 @@
 import re
 import codecs
 from dale.types.errors import ParsingError
-from collections import namedtuple
-
-Position = namedtuple('Position', 'start, end, line, column')
 
 
 class Node:
@@ -14,7 +11,6 @@ class Node:
         self._children = []
         self._parameters = {}
         self.stream = stream
-        self.position = Position(0, 0, 0, 0)
 
     def match(self, node):
         token = self.stream.read(node.id)
@@ -28,15 +24,6 @@ class Node:
             self._children.append(child)
         else:
             self._children.append(args[0])
-        self.update_position()
-
-    def update_position(self):
-        self.position = Position(
-            start  = self._children[0].position.start,
-            end    = self._children[-1].position.end,
-            line   = self._children[0].position.line,
-            column = self._children[0].position.column
-        )
 
     @property
     def value(self):
@@ -54,9 +41,7 @@ class Node:
         return len(self._children)
 
     def __repr__(self):
-        start = self._children[0].position.start
-        end = self._children[-1].position.end
-        return self.stream.text[start:end]
+        return '' 
         
     def __str__(self):
         return repr(self)
