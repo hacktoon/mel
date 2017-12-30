@@ -5,12 +5,10 @@ class DaleError(Exception):
     pass
 
 
-class LexingError(DaleError):
-    pass
-
-
-class ParsingError(DaleError):
-    pass
+class InvalidSyntaxError(DaleError):
+    def __init__(self, index):
+        super().__init__('Invalid syntax')
+        self.index = index
 
 
 class FileError(DaleError):
@@ -25,8 +23,8 @@ class FileError(DaleError):
 
 class UnexpectedTokenError(DaleError):
     def __init__(self, token, allowed_values=None):
-        message = 'Expected a token of type {!r}.'.format(token.id)
+        message = 'Expected a {!r} token.'.format(token.id)
         if allowed_values:
-            message += ' Accepted type(s): ' + str(allowed_values)
+            message += ' Accepted token(s): ' + str(allowed_values)
         super().__init__(message)
         self.index = token.index

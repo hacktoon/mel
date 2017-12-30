@@ -2,7 +2,7 @@ import tempfile
 import pytest
 
 from dale.lexing import Lexer, TokenStream
-from dale.types.errors import LexingError, UnexpectedTokenError
+from dale.types.errors import InvalidSyntaxError, UnexpectedTokenError
 
 
 def tokenize(text):
@@ -65,7 +65,7 @@ def test_tokenize_string_with_escaped_quotes_and_single_quotes():
 
 
 def test_name_tokens_cant_start_with_numbers():
-    with pytest.raises(LexingError):
+    with pytest.raises(InvalidSyntaxError):
         tokenize(r'42name')
 
 
@@ -132,4 +132,4 @@ def test_stream_ends_with_eof_token():
     stream.read('int')
     stream.read(')')
     assert stream.is_eof()
-    assert stream.is_current('eof')
+    assert stream.is_current('end of file')

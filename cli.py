@@ -1,7 +1,7 @@
 import sys
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
-from dale.types.errors import ParsingError
+from dale.types.errors import DaleError
 from dale.types import tokens
 
 
@@ -26,5 +26,5 @@ if __name__ == '__main__':
         evaluate(_read_file(path))
     except IndexError:
         sys.exit('A source file is required.')
-    except ParsingError as error:
+    except DaleError as error:
         sys.exit('File {!r}:\n{}'.format(path, error))

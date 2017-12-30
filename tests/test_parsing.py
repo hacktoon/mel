@@ -1,8 +1,8 @@
 import pytest
+
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
 from dale.types.errors import (
-    ParsingError,
     UnexpectedTokenError,
     FileError
 )
@@ -20,7 +20,7 @@ def test_list_parsing():
 
 
 def test_EOF_while_parsing_list():
-    with pytest.raises(ParsingError):
+    with pytest.raises(UnexpectedTokenError):
         create_tree('[1, 2.3, 3, ')
 
 

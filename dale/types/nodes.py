@@ -2,7 +2,6 @@ import errno
 
 from .tokens import Token
 from .errors import (
-    ParsingError,
     FileError
 )
 

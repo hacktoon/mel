@@ -1,5 +1,5 @@
 from .types.nodes import *
-from .types.errors import ParsingError, UnexpectedTokenError
+from .types.errors import UnexpectedTokenError
 
 
 class Parser:
@@ -41,8 +41,6 @@ class Parser:
         node = ListNode()
         self.stream.read('[')
         while not self.stream.is_current(']'):
-            if self.stream.is_eof():
-                raise ParsingError('unexpected EOF while parsing list')
             node.add(self._parse_value())
         self.stream.read(']')
         return node

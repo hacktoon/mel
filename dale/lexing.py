@@ -1,6 +1,6 @@
 import re
 from .types import tokens
-from .types.errors import LexingError, UnexpectedTokenError
+from .types.errors import InvalidSyntaxError, UnexpectedTokenError
 
 
 class Lexer:
@@ -27,7 +27,7 @@ class Lexer:
             self.index += len(value)
             return token
         else:
-            raise LexingError('invalid syntax')
+            raise InvalidSyntaxError(self.index)
 
 
 class TokenStream:
