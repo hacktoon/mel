@@ -1,69 +1,130 @@
-rules = [
-    {
-        'id': '.',
-        'regex': r'\.'
-    },
-    {
-        'id': '@',
-        'regex': '@'
-    },
-    {
-        'id': ':',
-        'regex': ':'
-    },
-    {
-        'id': '(',
-        'regex': r'\('
-    },
-    {
-        'id': ')',
-        'regex': r'\)'
-    },
-    {
-        'id': '[',
-        'regex': r'\['
-    },
-    {
-        'id': ']',
-        'regex': r'\]'
-    },
-    {
-        'id': 'whitespace',
-        'skip': True,
-        'regex': r'[ ,\t\x0b\x0c]+'
-    },
-    {
-        'id': 'newline',
-        'skip': True,
-        'regex': r'[\r\n]+'
-    },
-    {
-        'id': 'comment',
-        'skip': True,
-        'regex': r'#[^\n\r]*'
-    },
-    {
-        'id': 'boolean',
-        'priority': 2,
-        'regex': r'(true|false)\b'
-    },
-    {
-        'id': 'name',
-        'priority': 1,
-        'regex': r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?'
-    },
-    {
-        'id': 'float',
-        'priority': 2,
-        'regex': r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b'
-    },
-    {
-        'id': 'int',
-        'priority': 1,
-        'regex': r'[-+]?\d+\b'
-    },
-    {
-        'id': 'string',
-        'regex': r'|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"'])
-    }
-]
+import re
+import codecs
+
+
+def types():
+    token_types = []
+    for cls in Token.__subclasses__():
+        token_types.append(cls)
+    return sorted(token_types, key=lambda cls: cls.priority, reverse=True)
+
+
+class Token:
+    id = ''
+    regex = None
+    skip = False
+    priority = 0
+
+    def __init__(self, value='', index=-1):
+        self.value = value
+        self.index = index
+
+
+class StringToken(Token):
+    id = 'string'
+    regex = re.compile('|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"']))
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        # source: https://stackoverflow.com/a/24519338/544184
+        ESCAPE_SEQUENCE_RE = re.compile(r'''
+           \\( U........    # 8-digit hex escapes
+           | u....          # 4-digit hex escapes
+           | x..            # 2-digit hex escapes
+           | [0-7]{1,3}     # Octal escapes
+           | N\{[^}]+\}     # Unicode characters by name
+           | [\\'"abfnrtv]  # Single-character escapes
+           )''', re.VERBOSE)
+
+        def decode_match(match):
+            return codecs.decode(match.group(0), 'unicode-escape')
+
+        self.value = ESCAPE_SEQUENCE_RE.sub(decode_match, self.value[1:-1])
+
+
+class FloatToken(Token):
+    id = 'float'
+    regex = re.compile(r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b')
+    priority = 2
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.value = float(self.value)
+
+
+class IntToken(Token):
+    id = 'int'
+    regex = re.compile(r'[-+]?\d+\b')
+    priority = 1
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.value = int(self.value)
+
+
+class BooleanToken(Token):
+    id = 'boolean'
+    regex = re.compile(r'(true|false)\b')
+    priority = 2
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.value = {'true': True, 'false': False}[self.value]
+
+
+class WhitespaceToken(Token):
+    id = 'whitespace'
+    regex = re.compile(r'[ ,\n\r\t\x0b\x0c]+')
+    skip = True
+
+
+class CommentToken(Token):
+    id = 'comment'
+    regex = re.compile(r'#[^\n\r]*')
+    skip = True
+
+
+class NameToken(Token):
+    id = 'name'
+    regex = re.compile(r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?')
+    priority = 1
+
+
+class DotToken(Token):
+    id = '.'
+    regex = re.compile(r'\.')
+
+
+class AtToken(Token):
+    id = '@'
+    regex = re.compile('@')
+
+
+class ColonToken(Token):
+    id = ':'
+    regex = re.compile(':')
+
+
+class LeftParenthesisToken(Token):
+    id = '('
+    regex = re.compile(r'\(')
+
+
+class RightParenthesisToken(Token):
+    id = ')'
+    regex = re.compile(r'\)')
+
+
+class LeftBracketToken(Token):
+    id = '['
+    regex = re.compile(r'\[')
+
+
+class RightBracketToken(Token):
+    id = ']'
+    regex = re.compile(r'\]')
+
+
+class EOFToken(Token):
+    id = 'eof'
+    regex = re.compile(r'\0')

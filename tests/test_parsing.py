@@ -1,35 +1,13 @@
 import pytest
-from dale.types import tokens
-from dale.lexing import TokenStream
+from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
 from dale.types.errors import ParsingError, UnexpectedValueError
 
 
 def create_tree(text):
-    stream = TokenStream(text, tokens.rules)
+    tokens = Lexer(text).tokenize()
+    stream = TokenStream(tokens)
     return Parser(stream).parse()
-
-
-@pytest.mark.parametrize('test_input, expected', [
-    ('56.75', 56.75),
-    ('-0.75', -0.75),
-    ('-.099999', -.099999),
-    ('-0.75e10', -0.75e10),
-    ('+1.45e-10', 1.45e-10),
-    ('true', True),
-    ('false', False),
-    ('-56', -56),
-    ('45', 45),
-    ('"string"', 'string'),
-    ("'string'", 'string'),
-    #("@ '/foo/bar'", '/foo/bar'),
-    #('@ "/foo/\nbar"', '/foo/\nbar'),
-    ('foo.bar', ['foo', 'bar']),
-    ('foo .\n bar', ['foo', 'bar'])
-])
-def test_parsing_single_values(test_input, expected):
-    tree = create_tree(test_input)
-    assert tree.value == expected
 
 
 def test_list_parsing():
@@ -52,7 +30,7 @@ def test_parsing_simple_expression():
     assert tree.value == {
         'keyword': 'name',
         'parameters': {'id': 1},
-        'values': ['foo']
+        'values': 'foo'
     }
 
 
@@ -62,7 +40,7 @@ def test_parsing_expression_with_named_ending():
     assert tree.value == {
         'keyword': 'name',
         'parameters': {'id': 1},
-        'values': ['foo']
+        'values': 'foo'
     }
 
 
@@ -76,7 +54,7 @@ def test_parameters_parsing_using_comma_as_separator():
     assert tree.value == {
         'keyword': 'x',
         'parameters': {'a': 1, 'b': 2, 'c': 3},
-        'values': ['foo-bar']
+        'values': 'foo-bar'
     }
 
 
@@ -91,11 +69,15 @@ def test_parsing_expression_with_multiple_children():
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
     tree = create_tree(r'(x "foo") (y (a 42))')
-    assert tree[0].value == {'keyword': 'x', 'values': ['foo']}
+    assert tree[0].value == {
+        'keyword': 'x',
+        'parameters': {},
+        'values': 'foo'
+    }
     assert tree[1].value == {
-        'keyword': 'y', 'values': [
-            {'keyword': 'a', 'values': [42]}
-        ]
+        'keyword': 'y', 
+        'parameters': {},
+        'values': {'keyword': 'a', 'parameters': {}, 'values': 42}
     }
 
 
@@ -103,7 +85,8 @@ def test_parsing_expression_with_a_list_as_child():
     tree = create_tree('(opts [3 foo.bar "str"])')
     assert tree.value == {
         'keyword': 'opts',
-        'values': [[3, ['foo', 'bar'], "str"]]
+        'parameters': {},
+        'values': [3, ['foo', 'bar'], "str"]
     }
 
 

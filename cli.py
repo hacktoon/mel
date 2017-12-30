@@ -1,5 +1,5 @@
 import sys
-from dale.lexing import TokenStream
+from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
 from dale.types.errors import ParsingError
 from dale.types import tokens
@@ -14,8 +14,9 @@ def _read_file(path):
 
 
 def evaluate(text, context=None):
-    stream = TokenStream(text, tokens.rules)
-    tree = Parser(stream).parse()
+    tokens = Lexer(text).tokenize()
+    stream = TokenStream(tokens)
+    tree = Parser(stream).parse(context)
     print(tree)
 
 
