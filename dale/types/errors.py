@@ -3,6 +3,7 @@
 class DaleError(Exception):
     pass
 
+
 class LexingError(DaleError):
     pass
 
