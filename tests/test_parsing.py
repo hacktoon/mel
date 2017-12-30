@@ -1,7 +1,11 @@
 import pytest
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
-from dale.types.errors import ParsingError, UnexpectedValueError
+from dale.types.errors import (
+    ParsingError,
+    UnexpectedTokenError,
+    FileError
+)
 
 
 def create_tree(text):
@@ -11,8 +15,8 @@ def create_tree(text):
 
 
 def test_list_parsing():
-    tree = create_tree('[1, 2.3, 3, foo.bar "str" ]')
-    assert tree.value == [1, 2.3, 3, ['foo', 'bar'], "str"]
+    tree = create_tree('[1, 2.3, true, foo.bar "str" ]')
+    assert tree.value == [1, 2.3, True, ['foo', 'bar'], "str"]
 
 
 def test_EOF_while_parsing_list():
@@ -20,8 +24,13 @@ def test_EOF_while_parsing_list():
         create_tree('[1, 2.3, 3, ')
 
 
+def test_parsing_wrong_value_node():
+    with pytest.raises(UnexpectedTokenError):
+        tree = create_tree('(x :a :b)')
+
+
 def test_EOF_while_parsing_reference():
-    with pytest.raises(UnexpectedValueError):
+    with pytest.raises(UnexpectedTokenError):
         create_tree('foo.bar.')
 
 
@@ -34,9 +43,8 @@ def test_parsing_simple_expression():
     }
 
 
-@pytest.mark.skip
 def test_parsing_expression_with_named_ending():
-    tree = create_tree('(name :id 1 "foo")name)')
+    tree = create_tree('(name :id 1 "foo" ) name )')
     assert tree.value == {
         'keyword': 'name',
         'parameters': {'id': 1},
@@ -45,7 +53,7 @@ def test_parsing_expression_with_named_ending():
 
 
 def test_parsing_expression_with_wrong_ending_keyword():
-    with pytest.raises(UnexpectedValueError):
+    with pytest.raises(UnexpectedTokenError):
         create_tree('(start  \t "foo")end)')
 
 
@@ -91,13 +99,18 @@ def test_parsing_expression_with_a_list_as_child():
 
 
 def test_non_terminated_expression_raises_error():
-    with pytest.raises(UnexpectedValueError):
+    with pytest.raises(UnexpectedTokenError):
         create_tree('(test 4')
 
 
-@pytest.mark.skip
 def test_file_node_value_is_file_content(temporary_file):
     content = 'foobar 123'
     with temporary_file(content) as file:
         tree = create_tree('@ file "{}"'.format(file.name))
         assert tree.value == content
+
+
+def test_missing_file_parsing():
+    with pytest.raises(FileError):
+        path = 'this_file_is_missing.jpg'
+        create_tree('@ file "{}"'.format(path)).value

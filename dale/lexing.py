@@ -1,6 +1,6 @@
 import re
 from .types import tokens
-from .types.errors import LexingError, UnexpectedValueError
+from .types.errors import LexingError, UnexpectedTokenError
 
 
 class Lexer:
@@ -45,7 +45,7 @@ class TokenStream:
             else:
                 self.index += 1
                 return current_token
-        raise UnexpectedValueError(expected_token_id, current_token.id)
+        raise UnexpectedTokenError(current_token, expected_token_id)
 
     def is_eof(self):
         return self.index >= len(self.tokens)

@@ -1,5 +1,5 @@
 from .types.nodes import *
-from .types.errors import ParsingError
+from .types.errors import ParsingError, UnexpectedTokenError
 
 
 class Parser:
@@ -33,8 +33,8 @@ class Parser:
         try:
             node = parser_method[token.id]()
         except KeyError:
-            message = 'unexpected {!r} while parsing'.format(token.id)
-            raise ParsingError(message)
+            expected_values = parser_method.keys()
+            raise UnexpectedTokenError(token, expected_values)
         return node
 
     def _parse_list(self):

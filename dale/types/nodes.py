@@ -1,5 +1,10 @@
+import errno
+
 from .tokens import Token
-from .errors import ParsingError
+from .errors import (
+    ParsingError,
+    FileError
+)
 
 
 class Node:
@@ -54,9 +59,6 @@ class ParametersNode(Node):
     def __setitem__(self, key, value):
         self._parameters[key] = value
 
-    def __getitem__(self, key):
-        return self._parameters[key]
-
     @property
     def value(self):
         return {k: v.value for k, v in self._parameters.items()}
@@ -74,10 +76,8 @@ class QueryNode(Node):
             try:
                 with open(self.query.value, 'r') as file_obj:
                     return file_obj.read()
-            except IOError as e:
-                raise ParsingError("I/O error: {}".format(e))
-            except Exception:
-                raise ParsingError("Unexpected error")
+            except IOError as original_error:
+                raise FileError(self.query, original_error)
         else:
             return self.query.value
 

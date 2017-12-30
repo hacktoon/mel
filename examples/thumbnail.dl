@@ -1,4 +1,4 @@
-(component :id "thumbnail"
+(component :id "thumbnail
     (help "this is a component for thumbnails")
     
     (page @"/site/page[current]")
