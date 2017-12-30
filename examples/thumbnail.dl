@@ -1,7 +1,7 @@
 (component :id "thumbnail"
-    (? "this is a component for thumbnails")
+    (help "this is a component for thumbnails")
     
     (page @"/site/page[current]")
 
-    (a (image :src @page.thumbnail.url :alt "A random image"))
+    (a (image :src page.thumbnail.url :alt "A random image"))
 )component)
