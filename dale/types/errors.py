@@ -1,12 +1,18 @@
-import re
 
 
-class LexingError(Exception):
-    def __init__(self, message, index):
-        super().__init__(message)
-        self.index = index
+class DaleError(Exception):
+    pass
 
 
-class ParsingError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+class LexingError(DaleError):
+    pass
+
+
+class ParsingError(DaleError):
+    pass
+
+
+class UnexpectedValueError(DaleError):
+    def __init__(self, expected, found):
+        template = 'expected a token of type {!r}, but found {!r}'
+        super().__init__(template.format(expected, found))

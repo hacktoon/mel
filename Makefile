@@ -7,8 +7,11 @@ install-dev:
 upgrade:
 	pip install --upgrade pip -r requirements.txt
 
+inspect:
+	pycodestyle .
+
 test:
-	pytest --color=yes --cov --durations=3 --no-cov-on-fail
+	pytest --color=yes --cov --durations=3 --no-cov-on-fail -v
 
 debug:
 	pytest -s

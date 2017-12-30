@@ -1,26 +1,16 @@
+from .tokens import Token
+from .errors import ParsingError
+
 
 class Node:
     def __init__(self):
         self._children = []
-        self._properties = {}
 
-    def add(self, *args):
-        if len(args) == 2:
-            name, child = args
-            self._add(name, child)
-        elif len(args) == 1:
-            self._add(None, args[0])
-        else:
-            raise TypeError('invalid number of arguments')
+    def add(self, child):
+        self._children.append(child)
 
-    def _add(self, name, child):
-        if name:
-            if name in self.__dict__:
-                raise ValueError(name + ' attribute is already defined')
-            self._properties[name] = child
-            self.__dict__[name] = child
-        else:
-            self._children.append(child)
+    def __getitem__(self, index):
+        return self._children[index]
 
     @property
     def value(self):
@@ -28,90 +18,75 @@ class Node:
             return self._children[0].value
         return [child.value for child in self._children]
 
-    def __getitem__(self, key):
-        try:
-            if key in self._properties:
-                return self._properties[key]
-            else:
-                return self._children[key]
-        except (KeyError, IndexError):
-            raise ValueError(key + ' is not a valid key or index')
-
     def __len__(self):
         return len(self._children)
 
     def __repr__(self):
         if len(self._children) == 1:
-            return repr(self._children[0])
-        return repr(self._children)
-
-    def __str__(self):
-        return repr(self)
+            return str(self._children[0].value)
+        return [str(child.value) for child in self._children]
 
 
 class ExpressionNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.keyword = Token()
+        self.parameters = Token()
 
     @property
     def value(self):
-        exp = {'keyword': self.keyword.value}
-
-        if self.parameters.value.items():
-            exp['parameters'] = self.parameters.value
-        if len(self._children) > 1:
-            exp['values'] = [child.value for child in self._children]
-        elif len(self._children) == 1:
-            exp['values'] = self._children[0].value
-        return exp
-
-    def __repr__(self):
-        args = [self.keyword.value]
-        values = ''
-        if self.parameters.value.items():
-            args.append(repr(self.parameters))
-        if len(self._children) > 1:
-            args.append(' '.join(repr(value) for value in self._children))
-        elif len(self._children) == 1:
-            args.append(repr(self._children[0]))
-        return '({})'.format(' '.join(args))
+        if len(self) == 1:
+            values = self._children[0].value
+        else:
+            values = [child.value for child in self._children]
+        return {
+            'keyword': self.keyword.value,
+            'parameters': self.parameters.value,
+            'values': values
+        }
 
 
 class ParametersNode(Node):
+    def __init__(self):
+        super().__init__()
+        self._parameters = {}
+
+    def __setitem__(self, key, value):
+        self._parameters[key] = value
+
+    def __getitem__(self, key):
+        return self._parameters[key]
+
     @property
     def value(self):
-        return {key:child.value for key, child in self._properties.items()}
-
-    def __repr__(self):
-        items = self._properties.items()
-        params = [':{} {}'.format(key, repr(child)) for key, child in items]
-        return ' '.join(params)
+        return {k: v.value for k, v in self._parameters.items()}
 
 
 class QueryNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.source = Token()
+        self.query = Token()
+
     @property
     def value(self):
-        if self.source == 'file':
+        if self.source.value == 'file':
             try:
-                with open(self.content.value, 'r') as file_obj:
+                with open(self.query.value, 'r') as file_obj:
                     return file_obj.read()
             except IOError as e:
-               raise ParsingError("I/O error: {}".format(e))
-            except:
-               raise ParsingError("Unexpected error")
+                raise ParsingError("I/O error: {}".format(e))
+            except Exception:
+                raise ParsingError("Unexpected error")
         else:
-            return self.content.value
-
-    def __repr__(self):
-        if self.source:
-            return '@ {} {}'.format(self.source, self.content)
-        return '@ {}'.format(self.content)
+            return self.query.value
 
 
 class ReferenceNode(Node):
-    def __repr__(self):
-        return '.'.join(repr(child) for child in self._children)
+    pass
 
 
-class StringNode(Node):
+class ListNode(Node):
     pass
 
 
@@ -127,5 +102,5 @@ class BooleanNode(Node):
     pass
 
 
-class ListNode(Node):
+class StringNode(Node):
     pass

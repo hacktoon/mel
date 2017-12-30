@@ -1,6 +1,6 @@
 import re
 from .types import tokens
-from .types.errors import LexingError, ParsingError
+from .types.errors import LexingError, UnexpectedValueError
 
 
 class Lexer:
@@ -9,58 +9,55 @@ class Lexer:
         self.index = 0
 
     def tokenize(self):
-        tokens = []
+        _tokens = []
         while self.index < len(self.text):
-            token = self._emit_token()
-            if not token.skip:
-                tokens.append(token)
-        return tokens
+            token = self._build_token()
+            if token.skip:
+                continue
+            _tokens.append(token)
+        return _tokens
 
-    def _emit_token(self):
-        for token_type in tokens.TOKEN_TYPES:
-            match = re.compile(token_type.regex).match(self.text, self.index)
+    def _build_token(self):
+        for token_type in tokens.types():
+            match = token_type.regex.match(self.text, self.index)
             if not match:
                 continue
-            token = token_type(match.group(0), self.index)
-            self.index += len(match.group(0))
+            value = match.group(0)
+            token = token_type(value, self.index)
+            self.index += len(value)
             return token
         else:
-            raise LexingError('invalid syntax', self.index)
+            raise LexingError('invalid syntax')
 
 
 class TokenStream:
-    def __init__(self, text):
-        self.tokens = Lexer(text).tokenize()
+    def __init__(self, tokens):
+        self.tokens = tokens
         self.index = 0
 
-    def read(self, token_id, value=None):
-        token = self.current()
-        if self.is_current(token_id):
-            if value:
-                if value == token.value:
+    def read(self, expected_token_id, expected_value=None):
+        current_token = self.current()
+        if self.is_current(expected_token_id):
+            if expected_value:
+                if expected_value == current_token.value:
                     self.index += 1
-                    return token
+                    return current_token
             else:
                 self.index += 1
-                return token
-
-        template = 'expected a token of type {}, but found {}'
-        message = template.format(token_id, token.id)
-        raise ParsingError(message)
+                return current_token
+        raise UnexpectedValueError(expected_token_id, current_token.id)
 
     def is_eof(self):
         return self.index >= len(self.tokens)
 
     def is_current(self, token_id):
-        Token = getattr(tokens, token_id + 'Token')
-        return isinstance(self.current(), Token)
+        return self.current().id == token_id
 
-    def is_next(self, token_id, offset=1):
-        Token = getattr(tokens, token_id + 'Token')
-        return isinstance(self.current(offset=offset), Token)
+    def is_next(self, token_id):
+        return self.current(offset=1).id == token_id
 
     def current(self, offset=0):
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken()
+            return tokens.EOFToken('', -1)
