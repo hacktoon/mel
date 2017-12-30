@@ -59,7 +59,7 @@ class ParametersNode(Node):
 
     @property
     def value(self):
-        return {k : v.value for k, v in self._parameters.items()}
+        return {k: v.value for k, v in self._parameters.items()}
 
 
 class QueryNode(Node):

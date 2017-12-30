@@ -75,7 +75,7 @@ def test_parsing_consecutive_expressions_with_sub_expressions():
         'values': 'foo'
     }
     assert tree[1].value == {
-        'keyword': 'y', 
+        'keyword': 'y',
         'parameters': {},
         'values': {'keyword': 'a', 'parameters': {}, 'values': 42}
     }
