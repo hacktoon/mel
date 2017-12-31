@@ -1,8 +1,6 @@
 import sys
-from dale.lexing import Lexer, TokenStream
-from dale.parsing import Parser
+import dale
 from dale.types.errors import DaleError
-from dale.types import tokens
 
 
 def _read_file(path):
@@ -13,18 +11,21 @@ def _read_file(path):
         sys.exit('The file {!r} doesn\'t exist.'.format(path))
 
 
-def evaluate(text, context=None):
-    tokens = Lexer(text).tokenize()
-    stream = TokenStream(tokens)
-    tree = Parser(stream).parse(context)
-    print(tree)
+def _read_path():
+    try:
+        return sys.argv[1]
+    except IndexError:
+        sys.exit('A source file is required.')
+
+
+def main():
+    path = _read_path()
+    text = _read_file(path)
+    try:
+        print(dale.eval(text))
+    except DaleError as error:
+        sys.exit('File {!r}:\n{}'.format(path, error))
 
 
 if __name__ == '__main__':
-    try:
-        path = sys.argv[1]
-        evaluate(_read_file(path))
-    except IndexError:
-        sys.exit('A source file is required.')
-    except DaleError as error:
-        sys.exit('File {!r}:\n{}'.format(path, error))
+    main()
