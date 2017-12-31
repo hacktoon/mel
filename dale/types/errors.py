@@ -1,41 +1,6 @@
 import errno
 
 
-def _get_line_column(lines, error_index):
-    chars_read = 0
-    for line_index, line in enumerate(lines):
-        if error_index < len(line) + chars_read:
-            column_index = error_index - chars_read
-            return line_index, column_index
-        else:
-            chars_read += len(line)
-
-
-def _prefix_lines(lines, error_index):
-    line_index, column_index = _get_line_column(lines, error_index)
-    offset_length = len(str(len(lines)))
-    delimiter = '|    '
-
-    def prefix(line, line_index):
-        line_num = str(line_index + 1).zfill(offset_length)
-        return '{}{}{}'.format(line_num, delimiter, line)
-
-    prefixed_lines = [prefix(line, index) for index, line in enumerate(lines)]
-
-    arrow_length = offset_length + len(delimiter) + column_index
-    line_info = arrow_length * '-' + '^\n'
-    prefixed_lines.insert(line_index + 1, line_info)
-
-    return prefixed_lines
-
-
-def build_message(text, error_index):
-    display_range = 5
-    lines = text.splitlines(keepends=True)
-    prefixed_lines = _prefix_lines(lines, error_index)
-    return ''.join(prefixed_lines)
-
-
 class DaleError(Exception):
     pass
 
@@ -63,3 +28,47 @@ class UnexpectedTokenError(DaleError):
             message += ' Expected token(s): ' + str(allowed_values)
         super().__init__(message)
         self.index = token.index
+
+
+class ErrorMessage:
+    def __init__(self, text, error):
+        self.error = error
+        self.lines = text.splitlines(keepends=True)
+        self.line, self.column = self.get_position()
+
+        self.line_prefix_length = len(str(len(self.lines)))
+        self.delimiter = ' |    '
+
+    def build(self):
+        annotated_code = ''.join(self.prefix_lines())
+        return '{}\n\n{}'.format(str(self.error), annotated_code)
+
+    def get_position(self):
+        chars_read = 0
+        for line_index, line in enumerate(self.lines):
+            if self.error.index < len(line) + chars_read:
+                column_index = self.error.index - chars_read
+                return line_index, column_index
+            else:
+                chars_read += len(line)
+
+    def prefix_lines(self):
+        def prefix(line, index):
+            line_num = str(index + 1).zfill(self.line_prefix_length)
+            return '{}{}{}'.format(line_num, self.delimiter, line)
+
+        lines = enumerate(self.lines)
+        prefixed_lines = [prefix(line, index) for index, line in lines]
+
+        self.prefix_error_pointer(prefixed_lines)
+        return prefixed_lines
+
+    def prefix_error_pointer(self, prefixed_lines):
+        prefix_length = self.line_prefix_length + len(self.delimiter)
+        arrow_length = prefix_length + self.column
+        error_pointer = arrow_length * '-' + '^\n'
+        prefixed_lines.insert(self.line + 1, error_pointer)
+
+    
+
+

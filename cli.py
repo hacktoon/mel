@@ -24,7 +24,7 @@ def main():
     try:
         print(dale.eval(text))
     except DaleError as error:
-        sys.exit('File {!r}:\n{}'.format(path, error))
+        sys.exit('File {!r}: \n\n{}'.format(path, error))
 
 
 if __name__ == '__main__':

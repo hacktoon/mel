@@ -1,8 +1,7 @@
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
 
-from dale.types import errors
-from dale.types.errors import DaleError
+from dale.types.errors import ErrorMessage, DaleError
 
 
 def eval(text, context=None):
@@ -11,5 +10,5 @@ def eval(text, context=None):
         stream = TokenStream(tokens)
         return Parser(stream).parse(context)
     except DaleError as error:
-        message = errors.build_message(text, error.index)
+        message = ErrorMessage(text, error).build()
         raise DaleError(message)
