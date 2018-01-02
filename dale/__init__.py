@@ -10,5 +10,5 @@ def eval(text, context=None):
         stream = TokenStream(tokens)
         return Parser(stream).parse(context)
     except DaleError as error:
-        message = ErrorMessage(text, error).build()
+        message = ErrorMessage(text, error).build(line_range=4)
         raise DaleError(message)

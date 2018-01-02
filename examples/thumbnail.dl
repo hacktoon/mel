@@ -1,15 +1,3 @@
-(component :id %"thumbnail"
-    (help "this is a component for thumbnails")
-    (page @"/site/page[current]")
-    (a (image :src page.thumbnail.url :alt "A random image"))
-)component)
-
-(component :id "thumbnail"
-    (help "this is a component for thumbnails")
-    (page @"/site/page[current]")
-    (a (image :src page.thumbnail.url :alt "A random image"))
-)component)
-
 (component :id "thumbnail"
     (help "this is a component for thumbnails")
     (page @"/site/page[current]")

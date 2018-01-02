@@ -34,41 +34,46 @@ class ErrorMessage:
     def __init__(self, text, error):
         self.error = error
         self.lines = text.splitlines(keepends=True)
-        self.line, self.column = self.get_position()
-
-        self.line_prefix_length = len(str(len(self.lines)))
+        self.line_index, self.column_index = self._get_position()
+        self.digits_offset = len(str(len(self.lines)))
         self.delimiter = ' |    '
 
-    def build(self):
-        annotated_code = ''.join(self.prefix_lines())
-        return '{}\n\n{}'.format(str(self.error), annotated_code)
+    def build(self, line_range=4):
+        code_snippet = self._build_code_snippet(line_range)
+        tpl = 'Error at line {line}, column {column}.\n{error}.\n\n{code}'
+        return tpl.format(
+            line = self.line_index + 1,
+            column = self.column_index + 1,
+            error = self.error,
+            code = code_snippet
+        )
 
-    def get_position(self):
+    def _get_position(self):
         chars_read = 0
         for line_index, line in enumerate(self.lines):
-            if self.error.index < len(line) + chars_read:
+            if self.error.index >= chars_read:
                 column_index = self.error.index - chars_read
                 return line_index, column_index
             else:
                 chars_read += len(line)
 
-    def prefix_lines(self):
-        def prefix(line, index):
-            line_num = str(index + 1).zfill(self.line_prefix_length)
-            return '{}{}{}'.format(line_num, self.delimiter, line)
+    def _build_code_snippet(self, line_range):
+        prefixed_lines = ''
+        min_index = max(0, self.line_index - line_range)
+        max_index = min(self.line_index + line_range, len(self.lines))
 
-        lines = enumerate(self.lines)
-        prefixed_lines = [prefix(line, index) for index, line in lines]
-
-        self.prefix_error_pointer(prefixed_lines)
+        for index in range(min_index, max_index + 1):
+            line = self._prefix_line(self.lines[index], index)
+            prefixed_lines += line
+            if index == self.line_index:
+                prefixed_lines += self._build_error_pointer()
         return prefixed_lines
 
-    def prefix_error_pointer(self, prefixed_lines):
-        prefix_length = self.line_prefix_length + len(self.delimiter)
-        arrow_length = prefix_length + self.column
-        error_pointer = arrow_length * '-' + '^\n'
-        prefixed_lines.insert(self.line + 1, error_pointer)
+    def _prefix_line(self, line, index):
+        line_num = str(index + 1).zfill(self.digits_offset)
+        return '{}{}{}'.format(line_num, self.delimiter, line)
 
-    
-
-
+    def _build_error_pointer(self):
+        prefix_length = self.digits_offset + len(self.delimiter)
+        arrow_length = prefix_length + self.column_index
+        return arrow_length * '-' + '^\n'

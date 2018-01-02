@@ -1,4 +1,5 @@
 import sys
+
 import dale
 from dale.types.errors import DaleError
 
@@ -28,4 +29,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted.')
