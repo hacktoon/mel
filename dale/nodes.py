@@ -26,7 +26,7 @@ class Node:
     def __repr__(self):
         if len(self._children) == 1:
             return str(self._children[0].value)
-        return [str(child.value) for child in self._children]
+        return str([child.value for child in self._children])
 
 
 class ExpressionNode(Node):
