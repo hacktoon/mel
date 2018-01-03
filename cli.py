@@ -1,7 +1,7 @@
 import sys
 
 import dale
-from dale.types.errors import DaleError
+from dale.exceptions import DaleError
 
 
 def _read_file(path):

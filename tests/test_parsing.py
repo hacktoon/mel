@@ -2,7 +2,7 @@ import pytest
 
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
-from dale.types.errors import (
+from dale.exceptions import (
     UnexpectedTokenError,
     FileError
 )

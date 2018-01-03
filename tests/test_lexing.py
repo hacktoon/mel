@@ -2,7 +2,7 @@ import tempfile
 import pytest
 
 from dale.lexing import Lexer, TokenStream
-from dale.types.errors import InvalidSyntaxError, UnexpectedTokenError
+from dale.exceptions import InvalidSyntaxError, UnexpectedTokenError
 
 
 def tokenize(text):

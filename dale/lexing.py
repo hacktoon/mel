@@ -1,6 +1,6 @@
 import re
-from .types import tokens
-from .types.errors import InvalidSyntaxError, UnexpectedTokenError
+from . import tokens
+from .exceptions import InvalidSyntaxError, UnexpectedTokenError
 
 
 class Lexer:

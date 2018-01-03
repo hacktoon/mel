@@ -1,5 +1,5 @@
-from .types.nodes import *
-from .types.errors import UnexpectedTokenError
+from . import nodes
+from .exceptions import UnexpectedTokenError
 
 
 class Parser:
@@ -8,7 +8,7 @@ class Parser:
         self.context = {}
 
     def parse(self, context=None):
-        node = Node()
+        node = nodes.Node()
         while not self.stream.is_eof():
             if self.stream.is_current('('):
                 node.add(self._parse_expression())
@@ -38,7 +38,7 @@ class Parser:
         return node
 
     def _parse_list(self):
-        node = ListNode()
+        node = nodes.ListNode()
         self.stream.read('[')
         while not self.stream.is_current(']'):
             node.add(self._parse_value())
@@ -46,7 +46,7 @@ class Parser:
         return node
 
     def _parse_reference(self):
-        node = ReferenceNode()
+        node = nodes.ReferenceNode()
         node.add(self.stream.read('name'))
         while self.stream.is_current('.'):
             self.stream.read('.')
@@ -54,7 +54,7 @@ class Parser:
         return node
 
     def _parse_query(self):
-        node = QueryNode()
+        node = nodes.QueryNode()
         self.stream.read('@')
         if self.stream.is_current('name'):
             node.source = self.stream.read('name')
@@ -62,29 +62,29 @@ class Parser:
         return node
 
     def _parse_string(self):
-        node = StringNode()
+        node = nodes.StringNode()
         node.add(self.stream.read('string'))
         return node
 
     def _parse_float(self):
-        node = FloatNode()
+        node = nodes.FloatNode()
         node.add(self.stream.read('float'))
         return node
 
     def _parse_int(self):
-        node = IntNode()
+        node = nodes.IntNode()
         node.add(self.stream.read('int'))
         return node
 
     def _parse_boolean(self):
-        node = BooleanNode()
+        node = nodes.BooleanNode()
         node.add(self.stream.read('boolean'))
         return node
 
 
 class ExpressionParser(Parser):
     def parse(self):
-        node = ExpressionNode()
+        node = nodes.ExpressionNode()
         self.stream.read('(')
         node.keyword = self.stream.read('name')
         node.parameters = self._parse_parameters()
@@ -108,7 +108,7 @@ class ExpressionParser(Parser):
             self.stream.read(')')
 
     def _parse_parameters(self):
-        node = ParametersNode()
+        node = nodes.ParametersNode()
         while self.stream.is_current(':'):
             self.stream.read(':')
             attribute = self.stream.read('name')

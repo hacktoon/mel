@@ -1,9 +1,7 @@
 import errno
 
 from .tokens import Token
-from .errors import (
-    FileError
-)
+from .exceptions import FileError
 
 
 class Node:
