@@ -19,7 +19,7 @@ class Token:
         self.value = value
         self.index = index
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return self.value
 
 

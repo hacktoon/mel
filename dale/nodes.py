@@ -12,7 +12,7 @@ class Node:
     def add(self, token):
         self.values.append(token)
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return [value.eval(context) for value in self.values]
 
     def __repr__(self):
@@ -25,7 +25,7 @@ class ExpressionNode(Node):
         self.keyword = Token()
         self.parameters = {}
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return {
             'keyword': self.keyword.eval(),
             'parameters': {k: v.eval() for k, v in self.parameters.items()},
@@ -38,7 +38,7 @@ class QueryNode(Node):
         self.source = Token()
         self.query = Token()
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return self.query.eval(context)
 
 
@@ -46,7 +46,7 @@ class FileNode(Node):
     def __init__(self):
         self.path = Token()
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         try:
             with open(self.path.eval(), 'r') as file_obj:
                 return file_obj.read()
@@ -58,7 +58,7 @@ class EnvNode(Node):
     def __init__(self):
         self.variable = Token()
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return os.environ.get(self.variable.eval(), '')
 
 
@@ -70,7 +70,7 @@ class ValueNode:
     def __init__(self):
         self.value = Token()
 
-    def eval(self, context=None):
+    def eval(self, context={}):
         return self.value.eval()
 
 

@@ -7,7 +7,7 @@ class Parser:
         self.stream = stream
         self.context = {}
 
-    def parse(self, context=None):
+    def parse(self, context={}):
         node = nodes.Node()
         while not self.stream.is_eof():
             if self.stream.is_current('('):
