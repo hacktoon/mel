@@ -8,67 +8,68 @@ from dale.exceptions import (
 )
 
 
-def create_tree(text):
+def eval(text):
     tokens = Lexer(text).tokenize()
     stream = TokenStream(tokens)
-    return Parser(stream).parse()
+    tree = Parser(stream).parse()
+    return tree.eval({})
 
 
 def test_list_parsing():
-    tree = create_tree('[1, 2.3, true, foo.bar "str" ]')
-    assert tree.value == [1, 2.3, True, ['foo', 'bar'], "str"]
+    tree = eval('[1, 2.3, true, foo.bar "str" ]')
+    assert tree[0] == [1, 2.3, True, ['foo', 'bar'], "str"]
 
 
 def test_EOF_while_parsing_list():
     with pytest.raises(UnexpectedTokenError):
-        create_tree('[1, 2.3, 3, ')
+        eval('[1, 2.3, 3, ')
 
 
 def test_parsing_wrong_value_node():
     with pytest.raises(UnexpectedTokenError):
-        tree = create_tree('(x :a :b)')
+        tree = eval('(x :a :b)')
 
 
 def test_EOF_while_parsing_reference():
     with pytest.raises(UnexpectedTokenError):
-        create_tree('foo.bar.')
+        eval('foo.bar.')
 
 
 def test_parsing_simple_expression():
-    tree = create_tree('(name :id 1 "foo")')
-    assert tree.value == {
+    tree = eval('(name :id 1 "foo")')
+    assert tree[0] == {
         'keyword': 'name',
         'parameters': {'id': 1},
-        'values': 'foo'
+        'values': ['foo']
     }
 
 
 def test_parsing_expression_with_named_ending():
-    tree = create_tree('(name :id 1 "foo" ) name )')
-    assert tree.value == {
+    tree = eval('(name :id 1 "foo" ) name )')
+    assert tree[0] == {
         'keyword': 'name',
         'parameters': {'id': 1},
-        'values': 'foo'
+        'values': ['foo']
     }
 
 
 def test_parsing_expression_with_wrong_ending_keyword():
     with pytest.raises(UnexpectedTokenError):
-        create_tree('(start  \t "foo")end)')
+        eval('(start  \t "foo")end)')
 
 
 def test_parameters_parsing_using_comma_as_separator():
-    tree = create_tree('(x :a 1, :b 2, :c 3, "foo-bar")')
-    assert tree.value == {
+    tree = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
+    assert tree[0] == {
         'keyword': 'x',
         'parameters': {'a': 1, 'b': 2, 'c': 3},
-        'values': 'foo-bar'
+        'values': ['foo-bar']
     }
 
 
 def test_parsing_expression_with_multiple_children():
-    tree = create_tree(r'(kw :id 1, :title "foo" "bar" 34)')
-    assert tree.value == {
+    tree = eval('(kw :id 1, :title "foo" "bar" 34)')
+    assert tree[0] == {
         'keyword': 'kw',
         'parameters': {'id': 1, 'title': 'foo'},
         'values': ['bar', 34]
@@ -76,41 +77,40 @@ def test_parsing_expression_with_multiple_children():
 
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
-    tree = create_tree(r'(x "foo") (y (a 42))')
-    assert tree[0].value == {
+    tree = eval('(x "foo") (y (a 42))')
+    assert tree[0] == {
         'keyword': 'x',
         'parameters': {},
-        'values': 'foo'
+        'values': ['foo']
     }
-    assert tree[1].value == {
+    assert tree[1] == {
         'keyword': 'y',
         'parameters': {},
-        'values': {'keyword': 'a', 'parameters': {}, 'values': 42}
+        'values': [{'keyword': 'a', 'parameters': {}, 'values': [42]}]
     }
 
 
 def test_parsing_expression_with_a_list_as_child():
-    tree = create_tree('(opts [3 foo.bar "str"])')
-    assert tree.value == {
+    tree = eval('(opts [3 foo.bar "str"])')
+    assert tree[0] == {
         'keyword': 'opts',
         'parameters': {},
-        'values': [3, ['foo', 'bar'], "str"]
+        'values': [[3, ['foo', 'bar'], "str"]]
     }
 
 
 def test_non_terminated_expression_raises_error():
     with pytest.raises(UnexpectedTokenError):
-        create_tree('(test 4')
+        eval('(test 4')
 
 
 def test_file_node_value_is_file_content(temporary_file):
     content = 'foobar 123'
     with temporary_file(content) as file:
-        tree = create_tree('@ file "{}"'.format(file.name))
-        assert tree.value == content
+        tree = eval('< "{}"'.format(file.name))
+        assert tree[0] == content
 
 
 def test_missing_file_parsing():
     with pytest.raises(FileError):
-        path = 'this_file_is_missing.jpg'
-        create_tree('@ file "{}"'.format(path)).value
+        eval('< "this_file_is_missing.jpg"')

@@ -22,6 +22,8 @@ class Parser:
     def _parse_value(self):
         parser_method = {
             '@': self._parse_query,
+            '<': self._parse_file,
+            '$': self._parse_env,
             '[': self._parse_list,
             'boolean': self._parse_boolean,
             'name': self._parse_reference,
@@ -38,7 +40,7 @@ class Parser:
         return node
 
     def _parse_list(self):
-        node = nodes.ListNode()
+        node = nodes.Node()
         self.stream.read('[')
         while not self.stream.is_current(']'):
             node.add(self._parse_value())
@@ -61,24 +63,36 @@ class Parser:
         node.query = self.stream.read('string')
         return node
 
+    def _parse_file(self):
+        node = nodes.FileNode()
+        self.stream.read('<')
+        node.path = self.stream.read('string')
+        return node
+
+    def _parse_env(self):
+        node = nodes.EnvNode()
+        self.stream.read('$')
+        node.variable = self.stream.read('name')
+        return node
+
     def _parse_string(self):
         node = nodes.StringNode()
-        node.add(self.stream.read('string'))
+        node.value = self.stream.read('string')
         return node
 
     def _parse_float(self):
         node = nodes.FloatNode()
-        node.add(self.stream.read('float'))
+        node.value = self.stream.read('float')
         return node
 
     def _parse_int(self):
         node = nodes.IntNode()
-        node.add(self.stream.read('int'))
+        node.value = self.stream.read('int')
         return node
 
     def _parse_boolean(self):
         node = nodes.BooleanNode()
-        node.add(self.stream.read('boolean'))
+        node.value = self.stream.read('boolean')
         return node
 
 
@@ -86,32 +100,33 @@ class ExpressionParser(Parser):
     def parse(self):
         node = nodes.ExpressionNode()
         self.stream.read('(')
+
         node.keyword = self.stream.read('name')
         node.parameters = self._parse_parameters()
-        self._parse_values(node)
-        self._parse_expression_end(node)
-        return node
+        node.values = self._parse_values()
 
-    def _parse_values(self, node):
-        while not self.stream.is_current(')'):
-            if self.stream.is_eof():
-                break
-            if self.stream.is_current('('):
-                node.add(self._parse_expression())
-            else:
-                node.add(self._parse_value())
-
-    def _parse_expression_end(self, node):
         self.stream.read(')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
             self.stream.read('name', expected_value=node.keyword.value)
             self.stream.read(')')
+        return node
+
+    def _parse_values(self):
+        values = []
+        while not self.stream.is_current(')'):
+            if self.stream.is_eof():
+                break
+            if self.stream.is_current('('):
+                values.append(self._parse_expression())
+            else:
+                values.append(self._parse_value())
+        return values
 
     def _parse_parameters(self):
-        node = nodes.ParametersNode()
+        parameters = {}
         while self.stream.is_current(':'):
             self.stream.read(':')
             attribute = self.stream.read('name')
             value = self._parse_value()
-            node[attribute.value] = value
-        return node
+            parameters[attribute.value] = value
+        return parameters

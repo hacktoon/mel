@@ -1,3 +1,4 @@
+import os
 import errno
 
 from .tokens import Token
@@ -6,98 +7,84 @@ from .exceptions import FileError
 
 class Node:
     def __init__(self):
-        self._children = []
+        self.values = []
 
-    def add(self, child):
-        self._children.append(child)
+    def add(self, token):
+        self.values.append(token)
 
-    def __getitem__(self, index):
-        return self._children[index]
-
-    @property
-    def value(self):
-        if len(self._children) == 1:
-            return self._children[0].value
-        return [child.value for child in self._children]
-
-    def __len__(self):
-        return len(self._children)
+    def eval(self, context=None):
+        return [value.eval(context) for value in self.values]
 
     def __repr__(self):
-        if len(self._children) == 1:
-            return str(self._children[0].value)
-        return str([child.value for child in self._children])
+        return str(self.eval())
 
 
 class ExpressionNode(Node):
     def __init__(self):
         super().__init__()
         self.keyword = Token()
-        self.parameters = Token()
+        self.parameters = {}
 
-    @property
-    def value(self):
-        if len(self) == 1:
-            values = self._children[0].value
-        else:
-            values = [child.value for child in self._children]
+    def eval(self, context=None):
         return {
-            'keyword': self.keyword.value,
-            'parameters': self.parameters.value,
-            'values': values
+            'keyword': self.keyword.eval(),
+            'parameters': {k: v.eval() for k, v in self.parameters.items()},
+            'values': super().eval()
         }
-
-
-class ParametersNode(Node):
-    def __init__(self):
-        super().__init__()
-        self._parameters = {}
-
-    def __setitem__(self, key, value):
-        self._parameters[key] = value
-
-    @property
-    def value(self):
-        return {k: v.value for k, v in self._parameters.items()}
 
 
 class QueryNode(Node):
     def __init__(self):
-        super().__init__()
         self.source = Token()
         self.query = Token()
 
-    @property
-    def value(self):
-        if self.source.value == 'file':
-            try:
-                with open(self.query.value, 'r') as file_obj:
-                    return file_obj.read()
-            except IOError as original_error:
-                raise FileError(self.query, original_error)
-        else:
-            return self.query.value
+    def eval(self, context=None):
+        return self.query.eval(context)
+
+
+class FileNode(Node):
+    def __init__(self):
+        self.path = Token()
+
+    def eval(self, context=None):
+        try:
+            with open(self.path.eval(), 'r') as file_obj:
+                return file_obj.read()
+        except IOError as error:
+            raise FileError(self.path, error)
+
+
+class EnvNode(Node):
+    def __init__(self):
+        self.variable = Token()
+
+    def eval(self, context=None):
+        return os.environ.get(self.variable.eval(), '')
 
 
 class ReferenceNode(Node):
     pass
 
 
-class ListNode(Node):
+class ValueNode:
+    def __init__(self):
+        self.value = Token()
+
+    def eval(self, context=None):
+        return self.value.eval()
+
+
+class IntNode(ValueNode):
     pass
 
 
-class IntNode(Node):
+class FloatNode(ValueNode):
     pass
 
 
-class FloatNode(Node):
+class BooleanNode(ValueNode):
     pass
 
 
-class BooleanNode(Node):
-    pass
-
-
-class StringNode(Node):
-    pass
+class StringNode(ValueNode):
+        pass

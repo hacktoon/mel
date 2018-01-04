@@ -17,7 +17,7 @@ class FileError(DaleError):
             template = 'File {!r} could not be found or doesn\'t exist.'
         elif original_error.errno == errno.EPERM:
             template = 'No permission to open file {!r}.'
-        super().__init__(template.format(token.value))
+        super().__init__(template.format(token.eval()))
         self.index = token.index
 
 

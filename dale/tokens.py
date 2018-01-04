@@ -19,13 +19,15 @@ class Token:
         self.value = value
         self.index = index
 
+    def eval(self, context=None):
+        return self.value
+
 
 class StringToken(Token):
     id = 'string'
     regex = re.compile('|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"']))
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def eval(self):
         # source: https://stackoverflow.com/a/24519338/544184
         ESCAPE_SEQUENCE_RE = re.compile(r'''
            \\( U........    # 8-digit hex escapes
@@ -39,7 +41,7 @@ class StringToken(Token):
         def decode_match(match):
             return codecs.decode(match.group(0), 'unicode-escape')
 
-        self.value = ESCAPE_SEQUENCE_RE.sub(decode_match, self.value[1:-1])
+        return ESCAPE_SEQUENCE_RE.sub(decode_match, self.value[1:-1])
 
 
 class FloatToken(Token):
@@ -47,9 +49,8 @@ class FloatToken(Token):
     regex = re.compile(r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b')
     priority = 2
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.value = float(self.value)
+    def eval(self):
+        return float(self.value)
 
 
 class IntToken(Token):
@@ -57,9 +58,8 @@ class IntToken(Token):
     regex = re.compile(r'[-+]?\d+\b')
     priority = 1
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.value = int(self.value)
+    def eval(self):
+        return int(self.value)
 
 
 class BooleanToken(Token):
@@ -67,9 +67,8 @@ class BooleanToken(Token):
     regex = re.compile(r'(true|false)\b')
     priority = 2
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.value = {'true': True, 'false': False}[self.value]
+    def eval(self):
+        return {'true': True, 'false': False}[self.value]
 
 
 class WhitespaceToken(Token):
@@ -93,6 +92,16 @@ class NameToken(Token):
 class DotToken(Token):
     id = '.'
     regex = re.compile(r'\.')
+
+
+class EnvToken(Token):
+    id = '$'
+    regex = re.compile(r'\$')
+
+
+class FileToken(Token):
+    id = '<'
+    regex = re.compile('<')
 
 
 class AtToken(Token):

@@ -6,6 +6,7 @@ from dale.exceptions.formatting import ErrorFormatter
 
 
 def eval(text, context=None):
+    context = {}
     try:
         tokens = Lexer(text).tokenize()
         stream = TokenStream(tokens)
