@@ -2,7 +2,7 @@ import re
 import codecs
 
 
-def types():
+def classes():
     token_types = []
     for cls in Token.__subclasses__():
         token_types.append(cls)

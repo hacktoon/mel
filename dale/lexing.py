@@ -9,21 +9,21 @@ class Lexer:
         self.index = 0
 
     def tokenize(self):
-        _tokens = []
+        tokens = []
         while self.index < len(self.text):
             token = self._build_token()
             if token.skip:
                 continue
-            _tokens.append(token)
-        return _tokens
+            tokens.append(token)
+        return tokens
 
     def _build_token(self):
-        for token_type in tokens.types():
-            match = token_type.regex.match(self.text, self.index)
+        for Token in tokens.classes():
+            match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
             value = match.group(0)
-            token = token_type(value, self.index)
+            token = Token(value, self.index)
             self.index += len(value)
             return token
         else:
