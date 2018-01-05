@@ -3,7 +3,7 @@ install:
 	chmod +x .git/hooks/pre-commit
 	pip install -r requirements.txt
 	
-install-dev:
+install-dev: install
 	pip install ipython ipdb
 
 upgrade:
