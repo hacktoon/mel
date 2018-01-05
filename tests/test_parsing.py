@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from dale.lexing import Lexer, TokenStream
@@ -114,3 +116,23 @@ def test_file_node_value_is_file_content(temporary_file):
 def test_missing_file_parsing():
     with pytest.raises(FileError):
         eval('< "this_file_is_missing.jpg"')
+
+
+def test_reading_environment_variable():
+    os.environ['SAMPLE_VAR'] = 'sample_value'
+    tree = eval('(foo $ SAMPLE_VAR)')
+    assert tree[0] == {
+        'keyword': 'foo',
+        'parameters': {},
+        'values': ['sample_value']
+    }
+    del os.environ['SAMPLE_VAR']
+
+
+def test_reading_undefined_environment_variable():
+    tree = eval('(foo $ NON_VAR)')
+    assert tree[0] == {
+        'keyword': 'foo',
+        'parameters': {},
+        'values': ['']
+    }
