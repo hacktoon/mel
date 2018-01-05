@@ -1,5 +1,3 @@
-import re
-
 
 class ErrorFormatter:
     def __init__(self, text, error):

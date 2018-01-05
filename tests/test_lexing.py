@@ -1,4 +1,3 @@
-import tempfile
 import pytest
 
 from dale.lexing import Lexer, TokenStream

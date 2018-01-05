@@ -1,4 +1,3 @@
-import re
 from . import tokens
 from .exceptions import (
     InvalidSyntaxError,

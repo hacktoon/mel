@@ -25,7 +25,7 @@ class Token:
 
 class StringToken(Token):
     id = 'string'
-    regex = re.compile('|'.join([r"'(?:\\'|[^'])*'", r'"(?:\\"|[^"])*"']))
+    regex = re.compile('|'.join([r"'(\\'|[^'])*'", r'"(\\"|[^"])*"']))
 
     def eval(self):
         # source: https://stackoverflow.com/a/24519338/544184

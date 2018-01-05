@@ -1,8 +1,6 @@
 import pytest
 
 import dale
-
-from dale.exceptions.formatting import ErrorFormatter
 from dale.exceptions import DaleError
 
 

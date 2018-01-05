@@ -30,7 +30,7 @@ def test_EOF_while_parsing_list():
 
 def test_parsing_wrong_value_node():
     with pytest.raises(UnexpectedTokenError):
-        tree = eval('(x :a :b)')
+        eval('(x :a :b)')
 
 
 def test_EOF_while_parsing_reference():

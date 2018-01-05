@@ -1,5 +1,4 @@
 import os
-import errno
 
 from .tokens import Token
 from .exceptions import FileError
