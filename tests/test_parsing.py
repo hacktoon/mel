@@ -6,6 +6,7 @@ from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
 from dale.exceptions import (
     UnexpectedTokenError,
+    UnexpectedTokenValueError,
     FileError
 )
 
@@ -56,7 +57,7 @@ def test_parsing_expression_with_named_ending():
 
 
 def test_parsing_expression_with_wrong_ending_keyword():
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(UnexpectedTokenValueError):
         eval('(start  \t "foo")end)')
 
 

@@ -35,7 +35,7 @@ class Parser:
         try:
             node = parser_method[token.id]()
         except KeyError:
-            expected_values = parser_method.keys()
+            expected_values = list(parser_method.keys())
             raise UnexpectedTokenError(token, expected_values)
         return node
 

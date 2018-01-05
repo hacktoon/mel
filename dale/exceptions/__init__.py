@@ -22,9 +22,21 @@ class FileError(DaleError):
 
 
 class UnexpectedTokenError(DaleError):
-    def __init__(self, token, allowed_values=None):
-        message = 'Found a {!r} token.'.format(token.id)
-        if allowed_values:
-            message += ' Expected token(s): ' + str(allowed_values)
+    def __init__(self, token, expected_tokens=None):
+        message = 'Found a {!r} token.\n'.format(token.id)
+        if expected_tokens:
+            message += 'Expected token(s): {!r}'.format(str(expected_tokens))
+        super().__init__(message)
+        self.index = token.index
+
+
+class UnexpectedTokenValueError(DaleError):
+    def __init__(self, token, expected_tokens=None, expected_values=None):
+        tpl = 'Found a {!r} token with value {!r}.\n'
+        message = tpl.format(token.id, token.value)
+        if expected_tokens:
+            message += 'Expected {!r} token(s)'.format(str(expected_tokens))
+        if expected_values:
+            message += ', with value(s): {!r}'.format(str(expected_values))
         super().__init__(message)
         self.index = token.index

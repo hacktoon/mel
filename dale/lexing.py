@@ -1,6 +1,10 @@
 import re
 from . import tokens
-from .exceptions import InvalidSyntaxError, UnexpectedTokenError
+from .exceptions import (
+    InvalidSyntaxError,
+    UnexpectedTokenError,
+    UnexpectedTokenValueError
+)
 
 
 class Lexer:
@@ -42,6 +46,12 @@ class TokenStream:
                 if expected_value == current_token.value:
                     self.index += 1
                     return current_token
+                else:
+                    raise UnexpectedTokenValueError(
+                        current_token,
+                        expected_token_id,
+                        expected_value
+                    )
             else:
                 self.index += 1
                 return current_token
