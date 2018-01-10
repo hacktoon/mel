@@ -39,7 +39,7 @@ class Parser:
         return node
 
     def _parse_list(self):
-        node = nodes.Node()
+        node = nodes.ListNode()
         self.stream.read('[')
         while not self.stream.is_current(']'):
             node.add(self._parse_value())
@@ -98,34 +98,33 @@ class Parser:
 class ExpressionParser(Parser):
     def parse(self):
         node = nodes.ExpressionNode()
+
         self.stream.read('(')
 
-        node.keyword = self.stream.read('name')
-        node.parameters = self._parse_parameters()
-        node.values = self._parse_values()
+        node.name = self.stream.read('name')
+        node.attributes = self._parse_attributes()
+        self._parse_subnodes(node)
 
         self.stream.read(')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
-            self.stream.read('name', expected_value=node.keyword.value)
+            self.stream.read('name', expected_value=node.name.eval())
             self.stream.read(')')
         return node
 
-    def _parse_values(self):
-        values = []
+    def _parse_attributes(self):
+        attributes = {}
+        while self.stream.is_current(':'):
+            self.stream.read(':')
+            attribute = self.stream.read('name').eval()
+            value = self._parse_value()
+            attributes[attribute] = value
+        return attributes
+
+    def _parse_subnodes(self, node):
         while not self.stream.is_current(')'):
             if self.stream.is_eof():
                 break
             if self.stream.is_current('('):
-                values.append(self._parse_expression())
+                node.add(self._parse_expression())
             else:
-                values.append(self._parse_value())
-        return values
-
-    def _parse_parameters(self):
-        parameters = {}
-        while self.stream.is_current(':'):
-            self.stream.read(':')
-            attribute = self.stream.read('name')
-            value = self._parse_value()
-            parameters[attribute.value] = value
-        return parameters
+                node.add(self._parse_value())
