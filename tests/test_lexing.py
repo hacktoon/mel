@@ -43,24 +43,25 @@ def test_newline_and_comments_are_ignored():
 
 
 def test_commas_are_treated_as_whitespace():
-    tokens = tokenize('222, 45')
+    tokens = tokenize('222, 45  true')
     assert tokens[0].eval() == 222
     assert tokens[1].eval() == 45
+    assert tokens[2].eval() is True
 
 
 def test_tokenize_string_with_newline():
-    tokens = tokenize(r'"line one\nline two"')
+    tokens = tokenize('"line one\nline two"')
     assert tokens[0].eval() == 'line one\nline two'
 
 
 def test_tokenize_string_with_escaped_quotes():
-    tokens = tokenize(r'"single \"escaped\"" string')
-    assert tokens[0].eval() == 'single "escaped"'
+    tokens = tokenize('"single \'escaped\'"')
+    assert tokens[0].eval() == "single 'escaped'"
 
 
 def test_tokenize_string_with_escaped_quotes_and_single_quotes():
-    tokens = tokenize(r"'single \'escaped\'' string")
-    assert tokens[0].eval() == "single 'escaped'"
+    tokens = tokenize("'single \"escaped\"'")
+    assert tokens[0].eval() == 'single "escaped"'
 
 
 def test_name_tokens_cant_start_with_numbers():
@@ -68,7 +69,22 @@ def test_name_tokens_cant_start_with_numbers():
         tokenize(r'42name')
 
 
-def test_tokenize_parameters_tokens():
+def test_non_terminated_string_throws_error():
+    with pytest.raises(InvalidSyntaxError):
+        tokenize('" test ')
+
+
+def test_single_quoted_string_doesnt_allow_same_quote_symbol():
+    with pytest.raises(InvalidSyntaxError):
+        tokenize('"a quote \" "')
+
+
+def test_double_quoted_string_doesnt_allow_same_quote_symbol():
+    with pytest.raises(InvalidSyntaxError):
+        tokenize('"a quote \" "')
+
+
+def test_tokenize_attributes_tokens():
     tokens = tokenize(r':foo "bar" :var "null"')
     assert tokens[0].eval() == ':'
     assert tokens[1].eval() == 'foo'
@@ -78,43 +94,12 @@ def test_tokenize_parameters_tokens():
 
 
 def test_tokenize_query_strings():
-    text = '@"/data/source/\nattribute[id=\'x\']" @file "title.txt"'
+    text = '@ "/data/query/", <"title.txt"'
     tokens = tokenize(text)
     assert tokens[0].eval() == '@'
-    assert tokens[1].eval() == '/data/source/\nattribute[id=\'x\']'
-    assert tokens[2].eval() == '@'
-    assert tokens[3].eval() == 'file'
-    assert tokens[4].eval() == 'title.txt'
-
-
-def test_stream_get_current_token():
-    stream = create_stream('345 name ()')
-    assert stream.current().eval() == 345
-
-
-def test_stream_verify_current_token():
-    stream = create_stream('345 name (')
-    assert stream.read('int')
-    assert stream.is_current('name')
-    assert not stream.is_current('string')
-    assert stream.read('name')
-    assert stream.is_current('(')
-
-
-def test_stream_verify_next_token():
-    stream = create_stream('"bár" @ (')
-    assert stream.is_current('string')
-    assert stream.is_next('@')
-    assert stream.read('string')
-    assert stream.is_next('(')
-
-
-def test_stream_read_token_with_no_id():
-    stream = create_stream('42 foo')
-    int_token = stream.read('int')
-    assert int_token.eval() == 42
-    name_token = stream.read('name')
-    assert name_token.eval() == 'foo'
+    assert tokens[1].eval() == '/data/query/'
+    assert tokens[2].eval() == '<'
+    assert tokens[3].eval() == 'title.txt'
 
 
 def test_that_read_unexpected_token_raises_error():

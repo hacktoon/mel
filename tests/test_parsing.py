@@ -4,6 +4,8 @@ import pytest
 
 from dale.lexing import Lexer, TokenStream
 from dale.parsing import Parser
+from dale.utils.context import Context
+
 from dale.exceptions import (
     UnexpectedTokenError,
     UnexpectedTokenValueError,
@@ -11,16 +13,17 @@ from dale.exceptions import (
 )
 
 
-def eval(text):
+def eval(text, context=Context()):
     tokens = Lexer(text).tokenize()
     stream = TokenStream(tokens)
     tree = Parser(stream).parse()
-    return tree.eval({})
+    context.var('tree', tree)
+    return tree.eval(context)
 
 
 def test_list_parsing():
-    tree = eval('[1, 2.3, true, foo.bar "str" ]')
-    assert tree[0] == [1, 2.3, True, ['foo', 'bar'], "str"]
+    output = eval('(a 5) [1, 2.3, true, a "str" ]')
+    assert output[1] == [1, 2.3, True, 5, "str"]
 
 
 def test_EOF_while_parsing_list():
@@ -39,67 +42,39 @@ def test_EOF_while_parsing_reference():
 
 
 def test_parsing_simple_expression():
-    tree = eval('(name :id 1 "foo")')
-    assert tree[0] == {
-        'keyword': 'name',
-        'parameters': {'id': 1},
-        'values': ['foo']
-    }
+    output = eval('(name :id 1 "foo")')
+    assert output == 'foo'
 
 
 def test_parsing_expression_with_named_ending():
-    tree = eval('(name :id 1 "foo" ) name )')
-    assert tree[0] == {
-        'keyword': 'name',
-        'parameters': {'id': 1},
-        'values': ['foo']
-    }
+    output = eval('(name :id 1 "foo" ) name )')
+    assert output == 'foo'
 
 
-def test_parsing_expression_with_wrong_ending_keyword():
+def test_parsing_expression_with_wrong_ending_name():
     with pytest.raises(UnexpectedTokenValueError):
         eval('(start  \t "foo")end)')
 
 
-def test_parameters_parsing_using_comma_as_separator():
-    tree = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
-    assert tree[0] == {
-        'keyword': 'x',
-        'parameters': {'a': 1, 'b': 2, 'c': 3},
-        'values': ['foo-bar']
-    }
+def test_attributes_parsing_using_comma_as_separator():
+    output = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
+    assert output == 'foo-bar'
 
 
 def test_parsing_expression_with_multiple_children():
-    tree = eval('(kw :id 1, :title "foo" "bar" 34)')
-    assert tree[0] == {
-        'keyword': 'kw',
-        'parameters': {'id': 1, 'title': 'foo'},
-        'values': ['bar', 34]
-    }
+    output = eval('(kw :id 1, :title "foo" "bar" 34)')
+    assert output == ['bar', 34]
 
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
-    tree = eval('(x "foo") (y (a 42))')
-    assert tree[0] == {
-        'keyword': 'x',
-        'parameters': {},
-        'values': ['foo']
-    }
-    assert tree[1] == {
-        'keyword': 'y',
-        'parameters': {},
-        'values': [{'keyword': 'a', 'parameters': {}, 'values': [42]}]
-    }
+    output = eval('(x "foo") (y (a 42))')
+    assert output[0] == 'foo'
+    assert output[1] == 42
 
 
 def test_parsing_expression_with_a_list_as_child():
-    tree = eval('(opts [3 foo.bar "str"])')
-    assert tree[0] == {
-        'keyword': 'opts',
-        'parameters': {},
-        'values': [[3, ['foo', 'bar'], "str"]]
-    }
+    output = eval('(x (y 6)) (opts [3 x.y "str"])')
+    assert output[1] == [3, 6, "str"]
 
 
 def test_non_terminated_expression_raises_error():
@@ -110,8 +85,8 @@ def test_non_terminated_expression_raises_error():
 def test_file_node_value_is_file_content(temporary_file):
     content = 'foobar 123'
     with temporary_file(content) as file:
-        tree = eval('< "{}"'.format(file.name))
-        assert tree[0] == content
+        output = eval('< "{}"'.format(file.name))
+        assert output == content
 
 
 def test_missing_file_parsing():
@@ -121,19 +96,11 @@ def test_missing_file_parsing():
 
 def test_reading_environment_variable():
     os.environ['SAMPLE_VAR'] = 'sample_value'
-    tree = eval('(foo $ SAMPLE_VAR)')
-    assert tree[0] == {
-        'keyword': 'foo',
-        'parameters': {},
-        'values': ['sample_value']
-    }
+    output = eval('(foo $ SAMPLE_VAR)')
+    assert output == 'sample_value'
     del os.environ['SAMPLE_VAR']
 
 
 def test_reading_undefined_environment_variable():
-    tree = eval('(foo $ NON_VAR)')
-    assert tree[0] == {
-        'keyword': 'foo',
-        'parameters': {},
-        'values': ['']
-    }
+    output = eval('(foo $ NON_VAR)')
+    assert output == ''

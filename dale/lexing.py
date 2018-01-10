@@ -12,13 +12,13 @@ class Lexer:
         self.index = 0
 
     def tokenize(self):
-        tokens = []
+        _tokens = []
         while self.index < len(self.text):
             token = self._build_token()
             if token.skip:
                 continue
-            tokens.append(token)
-        return tokens
+            _tokens.append(token)
+        return _tokens
 
     def _build_token(self):
         for Token in tokens.classes():
