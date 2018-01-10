@@ -1,5 +1,4 @@
 import re
-import codecs
 
 
 def classes():
@@ -19,29 +18,16 @@ class Token:
         self.value = value
         self.index = index
 
-    def eval(self, context={}):
+    def eval(self):
         return self.value
 
 
 class StringToken(Token):
     id = 'string'
-    regex = re.compile('|'.join([r"'(\\'|[^'])*'", r'"(\\"|[^"])*"']))
+    regex = re.compile('{}|{}'.format(r"'[^']*'", r'"[^"]*"'))
 
     def eval(self):
-        # source: https://stackoverflow.com/a/24519338/544184
-        ESCAPE_SEQUENCE_RE = re.compile(r'''
-           \\( U........    # 8-digit hex escapes
-           | u....          # 4-digit hex escapes
-           | x..            # 2-digit hex escapes
-           | [0-7]{1,3}     # Octal escapes
-           | N\{[^}]+\}     # Unicode characters by name
-           | [\\'"abfnrtv]  # Single-character escapes
-           )''', re.VERBOSE)
-
-        def decode_match(match):
-            return codecs.decode(match.group(0), 'unicode-escape')
-
-        return ESCAPE_SEQUENCE_RE.sub(decode_match, self.value[1:-1])
+        return self.value[1:-1]
 
 
 class FloatToken(Token):
