@@ -1,10 +1,9 @@
-import os
-
+from . import utils
 from .tokens import Token
 from .exceptions import FileError
 
 
-class Node():
+class Node:
     def __init__(self):
         self._subnodes = []
         self._named_subnodes = {}
@@ -51,8 +50,7 @@ class FileNode(Node):
 
     def eval(self, context):
         try:
-            with open(self.path.eval(), 'r') as file_obj:
-                return file_obj.read()
+            return utils.read_file(self.path.eval())
         except IOError as error:
             raise FileError(self.path, error)
 
@@ -63,7 +61,7 @@ class EnvNode(Node):
         self.variable = Token()
 
     def eval(self, context):
-        return os.environ.get(self.variable.eval(), '')
+        return utils.read_environment(self.variable.eval(), '')
 
 
 class ReferenceNode(Node):
