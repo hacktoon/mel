@@ -5,9 +5,8 @@ from .exceptions import UnexpectedTokenError
 class Parser:
     def __init__(self, stream):
         self.stream = stream
-        self.context = {}
 
-    def parse(self, context={}):
+    def parse(self):
         node = nodes.Node()
         while not self.stream.is_eof():
             if self.stream.is_current('('):
