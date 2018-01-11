@@ -10,7 +10,7 @@ class Node:
 
     def add(self, node):
         self._subnodes.append(node)
-        if hasattr(node, 'name'):
+        if isinstance(node, ExpressionNode):
             self._named_subnodes[node.name.eval()] = node
 
     def __getitem__(self, key):
