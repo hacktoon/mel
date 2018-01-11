@@ -18,6 +18,9 @@ class Parser:
     def _parse_expression(self):
         return ExpressionParser(self.stream).parse()
 
+    def _parse_reference(self):
+        return ReferenceParser(self.stream).parse()
+
     def _parse_value(self):
         parser_method = {
             '@': self._parse_query,
@@ -46,7 +49,43 @@ class Parser:
         self.stream.read(']')
         return node
 
-    def _parse_reference(self):
+    def _parse_query(self):
+        source = None
+        self.stream.read('@')
+        if self.stream.is_current('name'):
+            source = self.stream.read('name')
+        query = self.stream.read('string')
+        return nodes.QueryNode(source, query)
+
+    def _parse_file(self):
+        self.stream.read('<')
+        path = self.stream.read('string')
+        return nodes.FileNode(path)
+
+    def _parse_env(self):
+        self.stream.read('$')
+        variable = self.stream.read('name')
+        return nodes.EnvNode(variable)
+
+    def _parse_string(self):
+        value = self.stream.read('string')
+        return nodes.StringNode(value)
+
+    def _parse_float(self):
+        value = self.stream.read('float')
+        return nodes.FloatNode(value)
+
+    def _parse_int(self):
+        value = self.stream.read('int')
+        return nodes.IntNode(value)
+
+    def _parse_boolean(self):
+        value = self.stream.read('boolean')
+        return nodes.BooleanNode(value)
+
+
+class ReferenceParser(Parser):
+    def parse(self):
         node = nodes.ReferenceNode()
         node.add(self.stream.read('name'))
         while self.stream.is_current('.'):
@@ -54,60 +93,22 @@ class Parser:
             node.add(self.stream.read('name'))
         return node
 
-    def _parse_query(self):
-        node = nodes.QueryNode()
-        self.stream.read('@')
-        if self.stream.is_current('name'):
-            node.source = self.stream.read('name')
-        node.query = self.stream.read('string')
-        return node
-
-    def _parse_file(self):
-        node = nodes.FileNode()
-        self.stream.read('<')
-        node.path = self.stream.read('string')
-        return node
-
-    def _parse_env(self):
-        node = nodes.EnvNode()
-        self.stream.read('$')
-        node.variable = self.stream.read('name')
-        return node
-
-    def _parse_string(self):
-        node = nodes.StringNode()
-        node.value = self.stream.read('string')
-        return node
-
-    def _parse_float(self):
-        node = nodes.FloatNode()
-        node.value = self.stream.read('float')
-        return node
-
-    def _parse_int(self):
-        node = nodes.IntNode()
-        node.value = self.stream.read('int')
-        return node
-
-    def _parse_boolean(self):
-        node = nodes.BooleanNode()
-        node.value = self.stream.read('boolean')
-        return node
-
 
 class ExpressionParser(Parser):
     def parse(self):
-        node = nodes.ExpressionNode()
-
         self.stream.read('(')
+        name = self.stream.read('name')
+        attributes = self._parse_attributes()
 
-        node.name = self.stream.read('name')
-        node.attributes = self._parse_attributes()
+        node = nodes.ExpressionNode(name, attributes)
+
         self._parse_subnodes(node)
 
         self.stream.read(')')
+
+        # self.stream.read_optional('name', ')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
-            self.stream.read('name', expected_value=node.name.eval())
+            self.stream.read('name', expected_value=name.value)
             self.stream.read(')')
         return node
 
@@ -115,9 +116,9 @@ class ExpressionParser(Parser):
         attributes = {}
         while self.stream.is_current(':'):
             self.stream.read(':')
-            attribute = self.stream.read('name').eval()
+            attribute = self.stream.read('name')
             value = self._parse_value()
-            attributes[attribute] = value
+            attributes[attribute.value] = value
         return attributes
 
     def _parse_subnodes(self, node):

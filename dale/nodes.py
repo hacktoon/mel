@@ -1,52 +1,53 @@
 from . import utils
-from .tokens import Token
 from .exceptions import FileError
 
 
 class Node:
-    def __init__(self):
-        self._subnodes = []
-        self._named_subnodes = {}
+    current = None
+
+    def __init__(self, subnodes=None):
+        self.subnodes = subnodes or []
+        self.references = {}
 
     def add(self, node):
-        self._subnodes.append(node)
+        self.subnodes.append(node)
         if isinstance(node, ExpressionNode):
-            self._named_subnodes[node.name.eval()] = node
+            self.references[node.name.value] = node
 
     def __getitem__(self, key):
         if isinstance(key, str):
-            return self._named_subnodes[key]
-        return self._subnodes[key]
+            return self.references[key]
+        return self.subnodes[key]
 
     def eval(self, context):
-        values = [subnode.eval(context) for subnode in self._subnodes]
-        return values[0] if len(values) == 1 else values
+        subnodes = [subnode.eval(context) for subnode in self.subnodes]
+        return subnodes[0] if len(subnodes) == 1 else subnodes
 
 
 class ExpressionNode(Node):
-    def __init__(self):
+    def __init__(self, name, attributes):
         super().__init__()
-        self.name = Token()
-        self.attributes = {}
+        self.name = name
+        self.attributes = attributes
 
     def eval(self, context):
         return super().eval(context)
 
 
 class QueryNode(Node):
-    def __init__(self):
+    def __init__(self, source, query):
         super().__init__()
-        self.source = Token()
-        self.query = Token()
+        self.source = source
+        self.query = query
 
     def eval(self, context):
         return self.query.value
 
 
 class FileNode(Node):
-    def __init__(self):
+    def __init__(self, path):
         super().__init__()
-        self.path = Token()
+        self.path = path
 
     def eval(self, context):
         try:
@@ -56,17 +57,20 @@ class FileNode(Node):
 
 
 class EnvNode(Node):
-    def __init__(self):
+    def __init__(self, variable):
         super().__init__()
-        self.variable = Token()
+        self.variable = variable
 
     def eval(self, context):
         return utils.read_environment(self.variable.value, '')
 
 
 class ReferenceNode(Node):
-    def add(self, node):
-        self.subnodes.append(node)
+    def __init__(self):
+        self.names = []
+
+    def add(self, name):
+        self.names.append(name)
 
     def eval(self, context):
         tree = context.var('tree')
@@ -74,25 +78,25 @@ class ReferenceNode(Node):
         def get_node(node, names):
             name = names[0].value
             if len(names) == 1:
-                return node[names[0]]
-            else:
-                return get(node[names[0]], names[1:])
+                return node[name]
+            return get_node(node[name], names[1:])
 
-        reference_node = get(tree, self.names)
-        return reference_node.eval(context)
+        node = get_node(tree, self.names)
+        return node.eval(context)
 
 
 class ValueNode(Node):
-    def __init__(self):
+    def __init__(self, token):
         super().__init__()
-        self.value = Token()
+        self.token = token
 
     def eval(self, context):
-        return self.value.value
+        return self.token.value
 
 
 class ListNode(Node):
-    pass
+    def eval(self, context):
+        return [subnode.eval(context) for subnode in self.subnodes]
 
 
 class IntNode(ValueNode):
