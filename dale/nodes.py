@@ -2,11 +2,13 @@ from . import utils
 from .exceptions import FileError
 
 
-class Node:
-    current = None
+class BaseNode:
+    pass
 
-    def __init__(self, subnodes=None):
-        self.subnodes = subnodes or []
+
+class Node(BaseNode):
+    def __init__(self):
+        self.subnodes = []
         self.references = {}
 
     def add(self, node):
@@ -34,7 +36,18 @@ class ExpressionNode(Node):
         return super().eval(context)
 
 
-class QueryNode(Node):
+class ListNode(BaseNode):
+    def __init__(self):
+        self.items = []
+
+    def add(self, item):
+        self.items.append(item)
+
+    def eval(self, context):
+        return [item.eval(context) for item in self.items]
+
+
+class QueryNode(BaseNode):
     def __init__(self, source, query):
         super().__init__()
         self.source = source
@@ -44,7 +57,7 @@ class QueryNode(Node):
         return self.query.value
 
 
-class FileNode(Node):
+class FileNode(BaseNode):
     def __init__(self, path):
         super().__init__()
         self.path = path
@@ -56,7 +69,7 @@ class FileNode(Node):
             raise FileError(self.path, error)
 
 
-class EnvNode(Node):
+class EnvNode(BaseNode):
     def __init__(self, variable):
         super().__init__()
         self.variable = variable
@@ -65,7 +78,7 @@ class EnvNode(Node):
         return utils.read_environment(self.variable.value, '')
 
 
-class ReferenceNode(Node):
+class ReferenceNode(BaseNode):
     def __init__(self):
         self.names = []
 
@@ -85,18 +98,13 @@ class ReferenceNode(Node):
         return node.eval(context)
 
 
-class ValueNode(Node):
+class ValueNode(BaseNode):
     def __init__(self, token):
         super().__init__()
         self.token = token
 
     def eval(self, context):
         return self.token.value
-
-
-class ListNode(Node):
-    def eval(self, context):
-        return [subnode.eval(context) for subnode in self.subnodes]
 
 
 class IntNode(ValueNode):

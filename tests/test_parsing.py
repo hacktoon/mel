@@ -31,7 +31,12 @@ def test_EOF_while_parsing_list():
         eval('[1, 2.3, 3, ')
 
 
-def test_parsing_wrong_value_node():
+def test_lists_cant_have_expression_subnodes():
+    with pytest.raises(UnexpectedTokenError):
+        eval('[(a 3)]')
+
+
+def test_parsing_unexpected_value_node():
     with pytest.raises(UnexpectedTokenError):
         eval('(x :a :b)')
 
