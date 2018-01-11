@@ -40,7 +40,7 @@ class QueryNode(Node):
         self.query = Token()
 
     def eval(self, context):
-        return self.query.eval()
+        return self.query.value
 
 
 class FileNode(Node):
@@ -50,7 +50,7 @@ class FileNode(Node):
 
     def eval(self, context):
         try:
-            return utils.read_file(self.path.eval())
+            return utils.read_file(self.path.value)
         except IOError as error:
             raise FileError(self.path, error)
 
@@ -61,21 +61,18 @@ class EnvNode(Node):
         self.variable = Token()
 
     def eval(self, context):
-        return utils.read_environment(self.variable.eval(), '')
+        return utils.read_environment(self.variable.value, '')
 
 
 class ReferenceNode(Node):
-    def __init__(self):
-        super().__init__()
-        self.names = []
-
-    def add(self, token):
-        self.names.append(token.eval())
+    def add(self, node):
+        self.subnodes.append(node)
 
     def eval(self, context):
         tree = context.var('tree')
 
-        def get(node, names):
+        def get_node(node, names):
+            name = names[0].value
             if len(names) == 1:
                 return node[names[0]]
             else:
@@ -91,7 +88,7 @@ class ValueNode(Node):
         self.value = Token()
 
     def eval(self, context):
-        return self.value.eval()
+        return self.value.value
 
 
 class ListNode(Node):

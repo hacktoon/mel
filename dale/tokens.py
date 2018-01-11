@@ -14,20 +14,22 @@ class Token:
     skip = False
     priority = 0
 
-    def __init__(self, value='', index=-1):
-        self.value = value
+    def __init__(self, match='', index=-1):
+        self.match = match
         self.index = index
 
-    def eval(self):
-        return self.value
+    @property
+    def value(self):
+        return self.match
 
 
 class StringToken(Token):
     id = 'string'
     regex = re.compile('{}|{}'.format(r"'[^']*'", r'"[^"]*"'))
 
-    def eval(self):
-        return self.value[1:-1]
+    @property
+    def value(self):
+        return self.match[1:-1]
 
 
 class FloatToken(Token):
@@ -35,8 +37,9 @@ class FloatToken(Token):
     regex = re.compile(r'[-+]?\d*\.\d+([eE][-+]?\d+)?\b')
     priority = 2
 
-    def eval(self):
-        return float(self.value)
+    @property
+    def value(self):
+        return float(self.match)
 
 
 class IntToken(Token):
@@ -44,8 +47,9 @@ class IntToken(Token):
     regex = re.compile(r'[-+]?\d+\b')
     priority = 1
 
-    def eval(self):
-        return int(self.value)
+    @property
+    def value(self):
+        return int(self.match)
 
 
 class BooleanToken(Token):
@@ -53,8 +57,9 @@ class BooleanToken(Token):
     regex = re.compile(r'(true|false)\b')
     priority = 2
 
-    def eval(self):
-        return {'true': True, 'false': False}[self.value]
+    @property
+    def value(self):
+        return {'true': True, 'false': False}[self.match]
 
 
 class WhitespaceToken(Token):

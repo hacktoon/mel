@@ -34,34 +34,34 @@ def create_stream(text):
 ])
 def test_token_value_comparison(test_input, expected):
     tokens = tokenize(test_input)
-    assert tokens[0].eval() == expected
+    assert tokens[0].value == expected
 
 
 def test_newline_and_comments_are_ignored():
     tokens = tokenize('#comment \n 45')
-    assert tokens[0].eval() == 45
+    assert tokens[0].value == 45
 
 
 def test_commas_are_treated_as_whitespace():
     tokens = tokenize('222, 45  true')
-    assert tokens[0].eval() == 222
-    assert tokens[1].eval() == 45
-    assert tokens[2].eval() is True
+    assert tokens[0].value == 222
+    assert tokens[1].value == 45
+    assert tokens[2].value is True
 
 
 def test_tokenize_string_with_newline():
     tokens = tokenize('"line one\nline two"')
-    assert tokens[0].eval() == 'line one\nline two'
+    assert tokens[0].value == 'line one\nline two'
 
 
 def test_tokenize_string_with_escaped_quotes():
     tokens = tokenize('"single \'escaped\'"')
-    assert tokens[0].eval() == "single 'escaped'"
+    assert tokens[0].value == "single 'escaped'"
 
 
 def test_tokenize_string_with_escaped_quotes_and_single_quotes():
     tokens = tokenize("'single \"escaped\"'")
-    assert tokens[0].eval() == 'single "escaped"'
+    assert tokens[0].value == 'single "escaped"'
 
 
 def test_name_tokens_cant_start_with_numbers():
@@ -86,20 +86,20 @@ def test_double_quoted_string_doesnt_allow_same_quote_symbol():
 
 def test_tokenize_attributes_tokens():
     tokens = tokenize(r':foo "bar" :var "null"')
-    assert tokens[0].eval() == ':'
-    assert tokens[1].eval() == 'foo'
-    assert tokens[2].eval() == 'bar'
-    assert tokens[3].eval() == ':'
-    assert tokens[4].eval() == 'var'
+    assert tokens[0].value == ':'
+    assert tokens[1].value == 'foo'
+    assert tokens[2].value == 'bar'
+    assert tokens[3].value == ':'
+    assert tokens[4].value == 'var'
 
 
 def test_tokenize_query_strings():
     text = '@ "/data/query/", <"title.txt"'
     tokens = tokenize(text)
-    assert tokens[0].eval() == '@'
-    assert tokens[1].eval() == '/data/query/'
-    assert tokens[2].eval() == '<'
-    assert tokens[3].eval() == 'title.txt'
+    assert tokens[0].value == '@'
+    assert tokens[1].value == '/data/query/'
+    assert tokens[2].value == '<'
+    assert tokens[3].value == 'title.txt'
 
 
 def test_that_read_unexpected_token_raises_error():

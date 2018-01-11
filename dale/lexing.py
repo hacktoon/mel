@@ -25,9 +25,9 @@ class Lexer:
             match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
-            value = match.group(0)
-            token = Token(value, self.index)
-            self.index += len(value)
+            text = match.group(0)
+            token = Token(text, self.index)
+            self.index += len(text)
             return token
         else:
             raise InvalidSyntaxError(self.index)
