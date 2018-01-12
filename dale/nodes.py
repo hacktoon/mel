@@ -1,5 +1,5 @@
 from . import utils
-from .exceptions import FileError
+from .exceptions import UnknownReferenceError, FileError
 
 
 class BaseNode:
@@ -13,7 +13,7 @@ class Node(BaseNode):
 
     def add(self, node):
         self.subnodes.append(node)
-        if isinstance(node, ExpressionNode):
+        if isinstance(node, self.__class__):
             self.references[node.name.value] = node
 
     def __getitem__(self, key):
@@ -85,14 +85,21 @@ class ReferenceNode(BaseNode):
     def add(self, name):
         self.names.append(name)
 
+    def read(self, node, name):
+        try:
+            return node[name.value]
+        except KeyError:
+            raise UnknownReferenceError(name)
+
     def eval(self, context):
         tree = context.var('tree')
 
         def get_node(node, names):
-            name = names[0].value
+            name = names[0]
             if len(names) == 1:
-                return node[name]
-            return get_node(node[name], names[1:])
+                return self.read(node, name)
+            node = self.read(node, name)
+            return get_node(node, names[1:])
 
         node = get_node(tree, self.names)
         return node.eval(context)

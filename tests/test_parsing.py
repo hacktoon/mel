@@ -9,6 +9,7 @@ from dale.utils.context import Context
 from dale.exceptions import (
     UnexpectedTokenError,
     UnexpectedTokenValueError,
+    UnknownReferenceError,
     FileError
 )
 
@@ -85,6 +86,16 @@ def test_parsing_expression_with_a_list_as_child():
 def test_non_terminated_expression_raises_error():
     with pytest.raises(UnexpectedTokenError):
         eval('(test 4')
+
+
+def test_unknown_single_reference():
+    with pytest.raises(UnknownReferenceError):
+        eval('(test x)')
+
+
+def test_unknown_chained_reference():
+    with pytest.raises(UnknownReferenceError):
+        eval('(x 2) (test x.y)')
 
 
 def test_file_node_value_is_file_content(temporary_file):

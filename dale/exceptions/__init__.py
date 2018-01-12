@@ -40,3 +40,10 @@ class UnexpectedTokenValueError(DaleError):
             message += ', with value(s): {!r}'.format(str(expected_values))
         super().__init__(message)
         self.index = token.index
+
+
+class UnknownReferenceError(DaleError):
+    def __init__(self, token):
+        message = 'Name {!r} is not defined'.format(token.value)
+        super().__init__(message)
+        self.index = token.index
