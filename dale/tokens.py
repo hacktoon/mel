@@ -22,6 +22,9 @@ class Token:
     def value(self):
         return self.match
 
+    def __repr__(self):
+        return self.match
+
 
 class StringToken(Token):
     id = 'string'
