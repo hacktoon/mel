@@ -10,7 +10,8 @@ class Parser:
         node = nodes.Node()
         while not self.stream.is_eof():
             if self.stream.is_current('('):
-                node.add(self._parse_expression())
+                expression = self._parse_expression()
+                node.add(expression, ref=expression.name.value)
             else:
                 node.add(self._parse_value())
         return node
@@ -125,6 +126,7 @@ class ExpressionParser(Parser):
             if self.stream.is_eof():
                 break
             if self.stream.is_current('('):
-                node.add(self._parse_expression())
+                expression = self._parse_expression()
+                node.add(expression, ref=expression.name.value)
             else:
                 node.add(self._parse_value())

@@ -11,10 +11,10 @@ class Node(BaseNode):
         self.subnodes = []
         self.references = {}
 
-    def add(self, node):
+    def add(self, node, ref=None):
         self.subnodes.append(node)
-        if isinstance(node, self.__class__):
-            self.references[node.name.value] = node
+        if ref is not None:
+            self.references[ref] = node
 
     def __getitem__(self, key):
         if isinstance(key, str):
