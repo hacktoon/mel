@@ -9,8 +9,7 @@ def tokenize(text):
 
 
 def create_stream(text):
-    tokens = tokenize(text)
-    return TokenStream(tokens)
+    return TokenStream(text)
 
 
 @pytest.mark.parametrize('test_input, expected', [

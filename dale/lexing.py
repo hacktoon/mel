@@ -33,8 +33,8 @@ class Lexer:
 
 
 class TokenStream:
-    def __init__(self, tokens):
-        self.tokens = tokens
+    def __init__(self, text):
+        self.tokens = Lexer().tokenize(text)
         self.index = 0
 
     def read(self, expected_token_id, expected_value=None):
