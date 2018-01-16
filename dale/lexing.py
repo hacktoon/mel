@@ -26,7 +26,7 @@ class Lexer:
             if not match:
                 continue
             text = match.group(0)
-            token = Token(text, self.index)
+            token = Token(text, match.start(), match.end())
             self.index += len(text)
             return token
         else:
@@ -69,4 +69,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken('', -1)
+            return tokens.EOFToken('', -1, -1)

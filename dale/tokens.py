@@ -14,9 +14,10 @@ class Token:
     skip = False
     priority = 0
 
-    def __init__(self, match='', index=-1):
+    def __init__(self, match='', start=0, end=0):
         self.match = match
-        self.index = index
+        self.start = start
+        self.end = end
 
     @property
     def value(self):

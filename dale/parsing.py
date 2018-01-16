@@ -106,7 +106,6 @@ class ExpressionParser(Parser):
 
         self.stream.read(')')
 
-        # self.stream.read_optional('name', ')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
             self.stream.read('name', expected_value=name.value)
             self.stream.read(')')
