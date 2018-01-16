@@ -8,7 +8,7 @@ from dale.exceptions.formatting import ErrorFormatter
 
 def eval(text, context=Context()):
     try:
-        tokens = Lexer(text).tokenize()
+        tokens = Lexer().tokenize(text)
         stream = TokenStream(tokens)
         tree = Parser(stream).parse()
 

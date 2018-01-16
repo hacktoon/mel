@@ -5,7 +5,7 @@ from dale.exceptions import InvalidSyntaxError, UnexpectedTokenError
 
 
 def tokenize(text):
-    return Lexer(text).tokenize()
+    return Lexer().tokenize(text)
 
 
 def create_stream(text):

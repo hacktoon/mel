@@ -7,22 +7,21 @@ from .exceptions import (
 
 
 class Lexer:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self):
         self.index = 0
 
-    def tokenize(self):
+    def tokenize(self, text):
         _tokens = []
-        while self.index < len(self.text):
-            token = self._build_token()
+        while self.index < len(text):
+            token = self._build_token(text)
             if token.skip:
                 continue
             _tokens.append(token)
         return _tokens
 
-    def _build_token(self):
+    def _build_token(self, text):
         for Token in tokens.classes():
-            match = Token.regex.match(self.text, self.index)
+            match = Token.regex.match(text, self.index)
             if not match:
                 continue
             text = match.group(0)

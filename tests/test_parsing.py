@@ -15,7 +15,7 @@ from dale.exceptions import (
 
 
 def eval(text, context=Context()):
-    tokens = Lexer(text).tokenize()
+    tokens = Lexer().tokenize(text)
     stream = TokenStream(tokens)
     tree = Parser(stream).parse()
     context.var('tree', tree)
