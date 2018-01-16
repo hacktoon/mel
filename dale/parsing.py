@@ -7,13 +7,18 @@ class Parser:
         self.stream = stream
 
     def parse(self):
-        node = nodes.Node()
+        node = self._create_node(nodes.Node)
         while not self.stream.is_eof():
             if self.stream.is_current('('):
                 expression = self._parse_expression()
                 node.add(expression, ref=expression.name.value)
             else:
                 node.add(self._parse_value())
+        return node
+
+    def _create_node(self, node_class):
+        node = node_class()
+        node.text = self.stream.text
         return node
 
     def _parse_expression(self):
@@ -58,7 +63,7 @@ class Parser:
         return nodes.EnvNode(variable)
 
     def _parse_list(self):
-        node = nodes.ListNode()
+        node = self._create_node(nodes.ListNode)
         self.stream.read('[')
         while not self.stream.is_current(']'):
             node.add(self._parse_value())
@@ -87,7 +92,7 @@ class Parser:
 
 class ReferenceParser(Parser):
     def parse(self):
-        node = nodes.ReferenceNode()
+        node = self._create_node(nodes.ReferenceNode)
         node.add(self.stream.read('name'))
         while self.stream.is_current('.'):
             self.stream.read('.')
