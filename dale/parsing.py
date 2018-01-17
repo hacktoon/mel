@@ -88,26 +88,26 @@ class Parser:
 
     def _parse_boolean(self):
         node = self._create_node(nodes.BooleanNode)
-        node.value = self.stream.read('boolean')
-        node.text_range = text_range(node.value)
+        node.token = self.stream.read('boolean')
+        node.text_range = text_range(node.token)
         return node
 
     def _parse_string(self):
         node = self._create_node(nodes.StringNode)
-        node.value = self.stream.read('string')
-        node.text_range = text_range(node.value)
+        node.token = self.stream.read('string')
+        node.text_range = text_range(node.token)
         return node
 
     def _parse_float(self):
         node = self._create_node(nodes.FloatNode)
-        node.value = self.stream.read('float')
-        node.text_range = text_range(node.value)
+        node.token = self.stream.read('float')
+        node.text_range = text_range(node.token)
         return node
 
     def _parse_int(self):
         node = self._create_node(nodes.IntNode)
-        node.value = self.stream.read('int')
-        node.text_range = text_range(node.value)
+        node.token = self.stream.read('int')
+        node.text_range = text_range(node.token)
         return node
 
 

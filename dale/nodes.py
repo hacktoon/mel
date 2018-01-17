@@ -105,7 +105,7 @@ class ReferenceNode(BaseNode):
 
 class ValueNode(BaseNode):
     def eval(self, context):
-        return self.value.value
+        return self.token.value
 
 
 class IntNode(ValueNode):
