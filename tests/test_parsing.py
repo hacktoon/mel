@@ -23,7 +23,13 @@ def eval(text, context=Context()):
 
 def test_list_parsing():
     output = eval('(a 5) [1, 2.3, true, a "str" ]')
-    assert output[1] == [1, 2.3, True, 5, "str"]
+    a = {
+        'name': 'a',
+        'attributes': {},
+        'references': {},
+        'subnodes': [5]
+    }
+    assert output[1] == [1, 2.3, True, a, "str"]
 
 
 def test_EOF_while_parsing_list():
@@ -48,12 +54,22 @@ def test_EOF_while_parsing_reference():
 
 def test_parsing_simple_expression():
     output = eval('(name :id 1 "foo")')
-    assert output == 'foo'
+    assert output == {
+        'name': 'name',
+        'attributes': {'id': 1},
+        'references': {},
+        'subnodes': ['foo']
+    }
 
 
 def test_parsing_expression_with_named_ending():
-    output = eval('(name :id 1 "foo" ) name )')
-    assert output == 'foo'
+    output = eval('(object :id 1 "foo" 3 ) object)')
+    assert output == {
+        'name': 'object',
+        'attributes': {'id': 1},
+        'references': {},
+        'subnodes': ['foo', 3]
+    }
 
 
 def test_parsing_expression_with_wrong_ending_name():
@@ -63,23 +79,64 @@ def test_parsing_expression_with_wrong_ending_name():
 
 def test_attributes_parsing_using_comma_as_separator():
     output = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
-    assert output == 'foo-bar'
+    assert output == {
+        'name': 'x',
+        'attributes': {'a': 1, 'b': 2, 'c': 3},
+        'references': {},
+        'subnodes': ['foo-bar']
+    }
 
 
 def test_parsing_expression_with_multiple_children():
     output = eval('(kw :id 1, :title "foo" "bar" 34)')
-    assert output == ['bar', 34]
+    assert output == {
+        'name': 'kw',
+        'attributes': {'id': 1, 'title': 'foo'},
+        'references': {},
+        'subnodes': ['bar', 34]
+    }
 
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
     output = eval('(x "foo") (y (a 42))')
-    assert output[0] == 'foo'
-    assert output[1] == 42
+    a = {'name': 'a', 'attributes': {}, 'references': {}, 'subnodes': [42]}
+    assert output[0] == {
+        'name': 'x',
+        'attributes': {},
+        'references': {},
+        'subnodes': ['foo']
+    }
+    assert output[1] == {
+        'name': 'y',
+        'attributes': {},
+        'references': {'a': a},
+        'subnodes': [a]
+    }
+
+
+def test_parsing_expression_attributes():
+    output = eval('(person :id -6.45 :show true)')
+    assert output == {
+        'name': 'person',
+        'attributes': {'id': -6.45, 'show': True},
+        'references': {},
+        'subnodes': []
+    }
 
 
 def test_parsing_expression_with_a_list_as_child():
-    output = eval('(x (y 6)) (opts [3 x.y "str"])')
-    assert output[1] == [3, 6, "str"]
+    output = eval('(x (y 6)) (opts [4 x.y "foo"])')
+    assert output[1] == {
+        'name': 'opts',
+        'attributes': {},
+        'references': {},
+        'subnodes': [[4, {
+            'name': 'y',
+            'attributes': {},
+            'references': {},
+            'subnodes': [6]
+        }, 'foo']]
+    }
 
 
 def test_non_terminated_expression_raises_error():
@@ -112,10 +169,20 @@ def test_missing_file_parsing():
 def test_reading_environment_variable():
     os.environ['SAMPLE_VAR'] = 'sample_value'
     output = eval('(foo $ SAMPLE_VAR)')
-    assert output == 'sample_value'
+    assert output == {
+        'name': 'foo',
+        'attributes': {},
+        'references': {},
+        'subnodes': ['sample_value']
+    }
     del os.environ['SAMPLE_VAR']
 
 
 def test_reading_undefined_environment_variable():
     output = eval('(foo $ NON_VAR)')
-    assert output == ''
+    assert output == {
+        'name': 'foo',
+        'attributes': {},
+        'references': {},
+        'subnodes': ['']
+    }

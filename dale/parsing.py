@@ -2,6 +2,12 @@ from . import nodes
 from .exceptions import UnexpectedTokenError
 
 
+def text_range(first, last=None):
+    if last:
+        return first.index[0], last.index[1]
+    return first.index[0], first.index[1]
+
+
 class Parser:
     def __init__(self, stream):
         self.stream = stream
@@ -11,7 +17,7 @@ class Parser:
         while not self.stream.is_eof():
             if self.stream.is_current('('):
                 expression = self._parse_expression()
-                node.add(expression, ref=expression.name.value)
+                node.add(expression, alias=expression.name.value)
             else:
                 node.add(self._parse_value())
         return node
@@ -45,76 +51,90 @@ class Parser:
         return node
 
     def _parse_query(self):
-        source = None
-        self.stream.read('@')
+        node = self._create_node(nodes.QueryNode)
+        first = self.stream.read('@')
         if self.stream.is_current('name'):
-            source = self.stream.read('name')
-        query = self.stream.read('string')
-        return nodes.QueryNode(source, query)
+            node.source = self.stream.read('name')
+        node.query = self.stream.read('string')
+        node.text_range = text_range(first, node.query)
+        return node
 
     def _parse_file(self):
-        self.stream.read('<')
-        path = self.stream.read('string')
-        return nodes.FileNode(path)
+        node = self._create_node(nodes.FileNode)
+        first = self.stream.read('<')
+        node.path = self.stream.read('string')
+        node.text_range = text_range(first, node.path)
+        return node
 
     def _parse_env(self):
-        self.stream.read('$')
-        variable = self.stream.read('name')
-        return nodes.EnvNode(variable)
+        node = self._create_node(nodes.EnvNode)
+        first = self.stream.read('$')
+        node.variable = self.stream.read('name')
+        node.text_range = text_range(first, node.variable)
+        return node
 
     def _parse_list(self):
         node = self._create_node(nodes.ListNode)
-        self.stream.read('[')
+        first = self.stream.read('[')
         while not self.stream.is_current(']'):
             node.add(self._parse_value())
-        self.stream.read(']')
+        last = self.stream.read(']')
+        node.text_range = text_range(first, last)
         return node
 
     def _parse_reference(self):
         return ReferenceParser(self.stream).parse()
 
     def _parse_boolean(self):
-        value = self.stream.read('boolean')
-        return nodes.BooleanNode(value)
+        node = self._create_node(nodes.BooleanNode)
+        node.value = self.stream.read('boolean')
+        node.text_range = text_range(node.value)
+        return node
 
     def _parse_string(self):
-        value = self.stream.read('string')
-        return nodes.StringNode(value)
+        node = self._create_node(nodes.StringNode)
+        node.value = self.stream.read('string')
+        node.text_range = text_range(node.value)
+        return node
 
     def _parse_float(self):
-        value = self.stream.read('float')
-        return nodes.FloatNode(value)
+        node = self._create_node(nodes.FloatNode)
+        node.value = self.stream.read('float')
+        node.text_range = text_range(node.value)
+        return node
 
     def _parse_int(self):
-        value = self.stream.read('int')
-        return nodes.IntNode(value)
+        node = self._create_node(nodes.IntNode)
+        node.value = self.stream.read('int')
+        node.text_range = text_range(node.value)
+        return node
 
 
 class ReferenceParser(Parser):
     def parse(self):
         node = self._create_node(nodes.ReferenceNode)
-        node.add(self.stream.read('name'))
+        first, last = self.stream.read('name'), None
+        node.add(first)
         while self.stream.is_current('.'):
             self.stream.read('.')
-            node.add(self.stream.read('name'))
+            last = self.stream.read('name')
+            node.add(last)
+        node.text_range = text_range(first, last)
         return node
 
 
 class ExpressionParser(Parser):
     def parse(self):
-        self.stream.read('(')
-        name = self.stream.read('name')
-        attributes = self._parse_attributes()
-
-        node = nodes.ExpressionNode(name, attributes)
-
+        node = self._create_node(nodes.ExpressionNode)
+        first = self.stream.read('(')
+        node.name = self.stream.read('name')
+        node.attributes = self._parse_attributes()
         self._parse_subnodes(node)
-
-        self.stream.read(')')
-
+        last = self.stream.read(')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
-            self.stream.read('name', expected_value=name.value)
-            self.stream.read(')')
+            self.stream.read('name', expected_value=node.name.value)
+            last = self.stream.read(')')
+        node.text_range = text_range(first, last)
         return node
 
     def _parse_attributes(self):
@@ -132,6 +152,6 @@ class ExpressionParser(Parser):
                 break
             if self.stream.is_current('('):
                 expression = self._parse_expression()
-                node.add(expression, ref=expression.name.value)
+                node.add(expression, alias=expression.name.value)
             else:
                 node.add(self._parse_value())

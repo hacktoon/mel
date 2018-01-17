@@ -3,7 +3,9 @@ from .exceptions import UnknownReferenceError, FileError
 
 
 class BaseNode:
-    pass
+    def __init__(self):
+        self.text = ''
+        self.text_range = (0, 0)
 
 
 class Node(BaseNode):
@@ -11,10 +13,10 @@ class Node(BaseNode):
         self.subnodes = []
         self.references = {}
 
-    def add(self, node, ref=None):
+    def add(self, node, alias=None):
         self.subnodes.append(node)
-        if ref is not None:
-            self.references[ref] = node
+        if alias is not None:
+            self.references[alias] = node
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -27,17 +29,27 @@ class Node(BaseNode):
 
 
 class ExpressionNode(Node):
-    def __init__(self, name, attributes):
-        super().__init__()
-        self.name = name
-        self.attributes = attributes
-
     def eval(self, context):
-        return super().eval(context)
+        attributes = {
+            key: attr.eval(context)
+            for key, attr in self.attributes.items()
+        }
+        references = {
+            key: attr.eval(context)
+            for key, attr in self.references.items()
+        }
+        subnodes = [subnode.eval(context) for subnode in self.subnodes]
+        return {
+            'name': self.name.value,
+            'attributes': attributes,
+            'references': references,
+            'subnodes': subnodes
+        }
 
 
 class ListNode(BaseNode):
     def __init__(self):
+        super().__init__()
         self.items = []
 
     def add(self, item):
@@ -48,20 +60,11 @@ class ListNode(BaseNode):
 
 
 class QueryNode(BaseNode):
-    def __init__(self, source, query):
-        super().__init__()
-        self.source = source
-        self.query = query
-
     def eval(self, context):
         return self.query.value
 
 
 class FileNode(BaseNode):
-    def __init__(self, path):
-        super().__init__()
-        self.path = path
-
     def eval(self, context):
         try:
             return utils.read_file(self.path.value)
@@ -70,10 +73,6 @@ class FileNode(BaseNode):
 
 
 class EnvNode(BaseNode):
-    def __init__(self, variable):
-        super().__init__()
-        self.variable = variable
-
     def eval(self, context):
         return utils.read_environment(self.variable.value, '')
 
@@ -106,12 +105,8 @@ class ReferenceNode(BaseNode):
 
 
 class ValueNode(BaseNode):
-    def __init__(self, token):
-        super().__init__()
-        self.token = token
-
     def eval(self, context):
-        return self.token.value
+        return self.value.value
 
 
 class IntNode(ValueNode):
