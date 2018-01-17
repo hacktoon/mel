@@ -10,22 +10,22 @@ class BaseNode:
 
 class Node(BaseNode):
     def __init__(self):
-        self.subnodes = []
+        self.values = []
         self.references = {}
 
     def add(self, node, alias=None):
-        self.subnodes.append(node)
+        self.values.append(node)
         if alias is not None:
             self.references[alias] = node
 
     def __getitem__(self, key):
         if isinstance(key, str):
             return self.references[key]
-        return self.subnodes[key]
+        return self.values[key]
 
     def eval(self, context):
-        subnodes = [subnode.eval(context) for subnode in self.subnodes]
-        return subnodes[0] if len(subnodes) == 1 else subnodes
+        values = [value.eval(context) for value in self.values]
+        return values[0] if len(values) == 1 else values
 
 
 class ExpressionNode(Node):
@@ -38,12 +38,12 @@ class ExpressionNode(Node):
             key: attr.eval(context)
             for key, attr in self.references.items()
         }
-        subnodes = [subnode.eval(context) for subnode in self.subnodes]
+        values = [value.eval(context) for value in self.values]
         return {
             'name': self.name.value,
             'attributes': attributes,
             'references': references,
-            'subnodes': subnodes
+            'values': values
         }
 
 
@@ -79,6 +79,7 @@ class EnvNode(BaseNode):
 
 class ReferenceNode(BaseNode):
     def __init__(self):
+        super().__init__()
         self.names = []
 
     def add(self, name):

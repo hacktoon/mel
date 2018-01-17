@@ -27,7 +27,7 @@ def test_list_parsing():
         'name': 'a',
         'attributes': {},
         'references': {},
-        'subnodes': [5]
+        'values': [5]
     }
     assert output[1] == [1, 2.3, True, a, "str"]
 
@@ -58,7 +58,7 @@ def test_parsing_simple_expression():
         'name': 'name',
         'attributes': {'id': 1},
         'references': {},
-        'subnodes': ['foo']
+        'values': ['foo']
     }
 
 
@@ -68,7 +68,7 @@ def test_parsing_expression_with_named_ending():
         'name': 'object',
         'attributes': {'id': 1},
         'references': {},
-        'subnodes': ['foo', 3]
+        'values': ['foo', 3]
     }
 
 
@@ -83,7 +83,7 @@ def test_attributes_parsing_using_comma_as_separator():
         'name': 'x',
         'attributes': {'a': 1, 'b': 2, 'c': 3},
         'references': {},
-        'subnodes': ['foo-bar']
+        'values': ['foo-bar']
     }
 
 
@@ -93,24 +93,24 @@ def test_parsing_expression_with_multiple_children():
         'name': 'kw',
         'attributes': {'id': 1, 'title': 'foo'},
         'references': {},
-        'subnodes': ['bar', 34]
+        'values': ['bar', 34]
     }
 
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
     output = eval('(x "foo") (y (a 42))')
-    a = {'name': 'a', 'attributes': {}, 'references': {}, 'subnodes': [42]}
+    a = {'name': 'a', 'attributes': {}, 'references': {}, 'values': [42]}
     assert output[0] == {
         'name': 'x',
         'attributes': {},
         'references': {},
-        'subnodes': ['foo']
+        'values': ['foo']
     }
     assert output[1] == {
         'name': 'y',
         'attributes': {},
         'references': {'a': a},
-        'subnodes': [a]
+        'values': [a]
     }
 
 
@@ -120,7 +120,7 @@ def test_parsing_expression_attributes():
         'name': 'person',
         'attributes': {'id': -6.45, 'show': True},
         'references': {},
-        'subnodes': []
+        'values': []
     }
 
 
@@ -130,11 +130,11 @@ def test_parsing_expression_with_a_list_as_child():
         'name': 'opts',
         'attributes': {},
         'references': {},
-        'subnodes': [[4, {
+        'values': [[4, {
             'name': 'y',
             'attributes': {},
             'references': {},
-            'subnodes': [6]
+            'values': [6]
         }, 'foo']]
     }
 
@@ -173,7 +173,7 @@ def test_reading_environment_variable():
         'name': 'foo',
         'attributes': {},
         'references': {},
-        'subnodes': ['sample_value']
+        'values': ['sample_value']
     }
     del os.environ['SAMPLE_VAR']
 
@@ -184,5 +184,5 @@ def test_reading_undefined_environment_variable():
         'name': 'foo',
         'attributes': {},
         'references': {},
-        'subnodes': ['']
+        'values': ['']
     }
