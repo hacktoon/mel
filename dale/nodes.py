@@ -11,16 +11,16 @@ class BaseNode:
 class Node(BaseNode):
     def __init__(self):
         self.values = []
-        self.references = {}
+        self.refs = {}
 
     def add(self, node, alias=None):
         self.values.append(node)
         if alias is not None:
-            self.references[alias] = node
+            self.refs[alias] = node
 
     def __getitem__(self, key):
         if isinstance(key, str):
-            return self.references[key]
+            return self.refs[key]
         return self.values[key]
 
     def eval(self, context):
@@ -30,19 +30,19 @@ class Node(BaseNode):
 
 class ExpressionNode(Node):
     def eval(self, context):
-        attributes = {
+        attrs = {
             key: attr.eval(context)
-            for key, attr in self.attributes.items()
+            for key, attr in self.attrs.items()
         }
-        references = {
+        refs = {
             key: attr.eval(context)
-            for key, attr in self.references.items()
+            for key, attr in self.refs.items()
         }
         values = [value.eval(context) for value in self.values]
         return {
-            'name': self.name.value,
-            'attributes': attributes,
-            'references': references,
+            'id': self.id.value,
+            'attrs': attrs,
+            'refs': refs,
             'values': values
         }
 

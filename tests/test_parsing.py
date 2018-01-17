@@ -24,9 +24,9 @@ def eval(text, context=Context()):
 def test_list_parsing():
     output = eval('(a 5) [1, 2.3, true, a "str" ]')
     a = {
-        'name': 'a',
-        'attributes': {},
-        'references': {},
+        'id': 'a',
+        'attrs': {},
+        'refs': {},
         'values': [5]
     }
     assert output[1] == [1, 2.3, True, a, "str"]
@@ -55,9 +55,9 @@ def test_EOF_while_parsing_reference():
 def test_parsing_simple_expression():
     output = eval('(name :id 1 "foo")')
     assert output == {
-        'name': 'name',
-        'attributes': {'id': 1},
-        'references': {},
+        'id': 'name',
+        'attrs': {'id': 1},
+        'refs': {},
         'values': ['foo']
     }
 
@@ -65,9 +65,9 @@ def test_parsing_simple_expression():
 def test_parsing_expression_with_named_ending():
     output = eval('(object :id 1 "foo" 3 ) object)')
     assert output == {
-        'name': 'object',
-        'attributes': {'id': 1},
-        'references': {},
+        'id': 'object',
+        'attrs': {'id': 1},
+        'refs': {},
         'values': ['foo', 3]
     }
 
@@ -80,9 +80,9 @@ def test_parsing_expression_with_wrong_ending_name():
 def test_attributes_parsing_using_comma_as_separator():
     output = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
     assert output == {
-        'name': 'x',
-        'attributes': {'a': 1, 'b': 2, 'c': 3},
-        'references': {},
+        'id': 'x',
+        'attrs': {'a': 1, 'b': 2, 'c': 3},
+        'refs': {},
         'values': ['foo-bar']
     }
 
@@ -90,26 +90,26 @@ def test_attributes_parsing_using_comma_as_separator():
 def test_parsing_expression_with_multiple_children():
     output = eval('(kw :id 1, :title "foo" "bar" 34)')
     assert output == {
-        'name': 'kw',
-        'attributes': {'id': 1, 'title': 'foo'},
-        'references': {},
+        'id': 'kw',
+        'attrs': {'id': 1, 'title': 'foo'},
+        'refs': {},
         'values': ['bar', 34]
     }
 
 
 def test_parsing_consecutive_expressions_with_sub_expressions():
     output = eval('(x "foo") (y (a 42))')
-    a = {'name': 'a', 'attributes': {}, 'references': {}, 'values': [42]}
+    a = {'id': 'a', 'attrs': {}, 'refs': {}, 'values': [42]}
     assert output[0] == {
-        'name': 'x',
-        'attributes': {},
-        'references': {},
+        'id': 'x',
+        'attrs': {},
+        'refs': {},
         'values': ['foo']
     }
     assert output[1] == {
-        'name': 'y',
-        'attributes': {},
-        'references': {'a': a},
+        'id': 'y',
+        'attrs': {},
+        'refs': {'a': a},
         'values': [a]
     }
 
@@ -117,9 +117,9 @@ def test_parsing_consecutive_expressions_with_sub_expressions():
 def test_parsing_expression_attributes():
     output = eval('(person :id -6.45 :show true)')
     assert output == {
-        'name': 'person',
-        'attributes': {'id': -6.45, 'show': True},
-        'references': {},
+        'id': 'person',
+        'attrs': {'id': -6.45, 'show': True},
+        'refs': {},
         'values': []
     }
 
@@ -127,13 +127,13 @@ def test_parsing_expression_attributes():
 def test_parsing_expression_with_a_list_as_child():
     output = eval('(x (y 6)) (opts [4 x.y "foo"])')
     assert output[1] == {
-        'name': 'opts',
-        'attributes': {},
-        'references': {},
+        'id': 'opts',
+        'attrs': {},
+        'refs': {},
         'values': [[4, {
-            'name': 'y',
-            'attributes': {},
-            'references': {},
+            'id': 'y',
+            'attrs': {},
+            'refs': {},
             'values': [6]
         }, 'foo']]
     }
@@ -170,9 +170,9 @@ def test_reading_environment_variable():
     os.environ['SAMPLE_VAR'] = 'sample_value'
     output = eval('(foo $ SAMPLE_VAR)')
     assert output == {
-        'name': 'foo',
-        'attributes': {},
-        'references': {},
+        'id': 'foo',
+        'attrs': {},
+        'refs': {},
         'values': ['sample_value']
     }
     del os.environ['SAMPLE_VAR']
@@ -181,8 +181,8 @@ def test_reading_environment_variable():
 def test_reading_undefined_environment_variable():
     output = eval('(foo $ NON_VAR)')
     assert output == {
-        'name': 'foo',
-        'attributes': {},
-        'references': {},
+        'id': 'foo',
+        'attrs': {},
+        'refs': {},
         'values': ['']
     }

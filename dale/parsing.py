@@ -17,7 +17,7 @@ class Parser:
         while not self.stream.is_eof():
             if self.stream.is_current('('):
                 expression = self._parse_expression()
-                node.add(expression, alias=expression.name.value)
+                node.add(expression, alias=expression.id.value)
             else:
                 node.add(self._parse_value())
         return node
@@ -127,24 +127,24 @@ class ExpressionParser(Parser):
     def parse(self):
         node = self._create_node(nodes.ExpressionNode)
         first = self.stream.read('(')
-        node.name = self.stream.read('name')
-        node.attributes = self._parse_attributes()
+        node.id = self.stream.read('name')
+        node.attrs = self._parse_attributes()
         self._parse_subnodes(node)
         last = self.stream.read(')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
-            self.stream.read('name', expected_value=node.name.value)
+            self.stream.read('name', expected_value=node.id.value)
             last = self.stream.read(')')
         node.text_range = text_range(first, last)
         return node
 
     def _parse_attributes(self):
-        attributes = {}
+        attrs = {}
         while self.stream.is_current(':'):
             self.stream.read(':')
             attribute = self.stream.read('name')
             value = self._parse_value()
-            attributes[attribute.value] = value
-        return attributes
+            attrs[attribute.value] = value
+        return attrs
 
     def _parse_subnodes(self, node):
         while not self.stream.is_current(')'):
@@ -152,6 +152,6 @@ class ExpressionParser(Parser):
                 break
             if self.stream.is_current('('):
                 expression = self._parse_expression()
-                node.add(expression, alias=expression.name.value)
+                node.add(expression, alias=expression.id.value)
             else:
                 node.add(self._parse_value())
