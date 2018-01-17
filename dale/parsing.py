@@ -20,6 +20,7 @@ class Parser:
                 node.add(expression, alias=expression.id.value)
             else:
                 node.add(self._parse_value())
+        node.text_range = 0, len(self.stream.text)
         return node
 
     def _create_node(self, node_class):

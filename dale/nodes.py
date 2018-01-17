@@ -7,6 +7,10 @@ class BaseNode:
         self.text = ''
         self.text_range = (0, 0)
 
+    def __repr__(self):
+        first, last = self.text_range
+        return self.text[first: last]
+
 
 class Node(BaseNode):
     def __init__(self):
@@ -30,14 +34,8 @@ class Node(BaseNode):
 
 class ExpressionNode(Node):
     def eval(self, context):
-        attrs = {
-            key: attr.eval(context)
-            for key, attr in self.attrs.items()
-        }
-        refs = {
-            key: attr.eval(context)
-            for key, attr in self.refs.items()
-        }
+        attrs = {key: attr.eval(context) for key, attr in self.attrs.items()}
+        refs = {key: attr.eval(context) for key, attr in self.refs.items()}
         values = [value.eval(context) for value in self.values]
         return {
             'id': self.id.value,

@@ -14,9 +14,13 @@ from dale.exceptions import (
 )
 
 
-def eval(text, context=Context()):
+def create_tree(text):
     stream = TokenStream(text)
-    tree = Parser(stream).parse()
+    return Parser(stream).parse()
+
+
+def eval(text, context=Context()):
+    tree = create_tree(text)
     context.var('tree', tree)
     return tree.eval(context)
 
@@ -180,9 +184,19 @@ def test_reading_environment_variable():
 
 def test_reading_undefined_environment_variable():
     output = eval('(foo $ NON_VAR)')
-    assert output == {
-        'id': 'foo',
-        'attrs': {},
-        'refs': {},
-        'values': ['']
-    }
+    assert output == {'id': 'foo', 'attrs': {}, 'refs': {}, 'values': ['']}
+
+
+def test_value_node_repr_with_sub_expressions():
+    output = create_tree('"string"')
+    assert repr(output[0]) == '"string"'
+
+
+def test_expression_node_repr_returns_original_code():
+    output = create_tree('(foo "bar" 3 5)')
+    assert repr(output) == '(foo "bar" 3 5)'
+
+
+def test_node_repr_with_sub_expressions():
+    output = create_tree('(bar "example" (sub 20))')
+    assert repr(output[0]['sub']) == '(sub 20)'
