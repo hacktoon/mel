@@ -6,13 +6,23 @@ from dale.exceptions import DaleError
 from dale.exceptions.formatting import ErrorFormatter
 
 
+_evaluators = {}
+
+
+def evaluator(name):
+    def decorator(func):
+        _evaluators[name] = func
+    return decorator
+
+
 def eval(text, context=Context()):
     try:
         stream = TokenStream(text)
         tree = Parser(stream).parse()
 
         # put AST in global context
-        context.var('tree', tree)
+        context.tree = tree
+        context.evaluators = _evaluators
 
         return tree.eval(context)
     except DaleError as error:

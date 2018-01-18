@@ -34,15 +34,19 @@ class Node(BaseNode):
 
 class ExpressionNode(Node):
     def eval(self, context):
+        evaluator = context.evaluators.get('expression', lambda e, c: e)
+
+        id = self.id.value
         attrs = {key: attr.eval(context) for key, attr in self.attrs.items()}
         refs = {key: attr.eval(context) for key, attr in self.refs.items()}
         values = [value.eval(context) for value in self.values]
-        return {
-            'id': self.id.value,
+
+        return evaluator({
+            'id': id,
             'attrs': attrs,
             'refs': refs,
             'values': values
-        }
+        }, context)
 
 
 class ListNode(BaseNode):
@@ -90,8 +94,6 @@ class ReferenceNode(BaseNode):
             raise UnknownReferenceError(name)
 
     def eval(self, context):
-        tree = context.var('tree')
-
         def get_node(node, names):
             name = names[0]
             if len(names) == 1:
@@ -99,7 +101,7 @@ class ReferenceNode(BaseNode):
             node = self.read(node, name)
             return get_node(node, names[1:])
 
-        node = get_node(tree, self.names)
+        node = get_node(context.tree, self.names)
         return node.eval(context)
 
 

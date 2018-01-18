@@ -21,7 +21,7 @@ def create_tree(text):
 
 def eval(text, context=Context()):
     tree = create_tree(text)
-    context.var('tree', tree)
+    context.tree = tree
     return tree.eval(context)
 
 
@@ -200,3 +200,8 @@ def test_expression_node_repr_returns_original_code():
 def test_node_repr_with_sub_expressions():
     output = create_tree('(bar "example" (sub 20))')
     assert repr(output[0]['sub']) == '(sub 20)'
+
+
+def test_node_repr_with_file_value():
+    output = create_tree('(file < "example.txt")')
+    assert repr(output['file'][0]) == '< "example.txt"'
