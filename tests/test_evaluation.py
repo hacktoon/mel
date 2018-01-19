@@ -5,7 +5,7 @@ def test_html_tag_evaluator():
     @dale.evaluator('expression')
     def eval_expression(exp, context):
         tag_tpl = '<{0}{1}>{2}</{0}>'
-        attr_tpl = ' {}="{}"'
+        attr_tpl = '{}="{}"'
         attrs_pairs = exp['attrs'].items()
         attrs = ''
         if len(attrs_pairs):
@@ -13,5 +13,5 @@ def test_html_tag_evaluator():
             attrs = ' ' + ''.join(attrs)
         return tag_tpl.format(exp['id'], attrs, ' '.join(exp['values']))
 
-    output = dale.eval('(x "foo")')
-    assert output == '<x>foo</x>'
+    output = dale.eval('(x :id 3 "foo")')
+    assert output == '<x id="3">foo</x>'
