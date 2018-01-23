@@ -34,7 +34,7 @@ class Node(BaseNode):
 
 class ExpressionNode(Node):
     def eval(self, context):
-        evaluator = context.evaluators.get('expression', lambda e, c: e)
+        evaluator = context.evaluators.get('expression', lambda val, ctx: val)
 
         id = self.id.value
         attrs = {key: attr.eval(context) for key, attr in self.attrs.items()}
@@ -58,25 +58,33 @@ class ListNode(BaseNode):
         self.items.append(item)
 
     def eval(self, context):
-        return [item.eval(context) for item in self.items]
+        evaluator = context.evaluators.get('list', lambda val, ctx: val)
+        return evaluator([item.eval(context) for item in self.items], context)
 
 
 class QueryNode(BaseNode):
     def eval(self, context):
-        return self.query.value
+        evaluator = context.evaluators.get('query', lambda val, ctx: val)
+        return evaluator(self.query.value, context)
 
 
 class FileNode(BaseNode):
     def eval(self, context):
+        def default_evaluator(value, context):
+            return utils.read_file(value)
+        evaluator = context.evaluators.get('file', default_evaluator)
         try:
-            return utils.read_file(self.path.value)
+            return evaluator(self.path.value, context)
         except IOError as error:
             raise FileError(self.path, error)
 
 
 class EnvNode(BaseNode):
     def eval(self, context):
-        return utils.read_environment(self.variable.value, '')
+        def default_evaluator(value, context):
+            return utils.read_environment(value, '')
+        evaluator = context.evaluators.get('env', default_evaluator)
+        return evaluator(self.variable.value, context)
 
 
 class ReferenceNode(BaseNode):
@@ -107,7 +115,8 @@ class ReferenceNode(BaseNode):
 
 class ValueNode(BaseNode):
     def eval(self, context):
-        return self.token.value
+        evaluator = context.evaluators.get('env', lambda e, c: e)
+        return evaluator(self.token.value, context)
 
 
 class IntNode(ValueNode):
