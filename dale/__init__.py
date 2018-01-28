@@ -20,8 +20,9 @@ def eval(text, context=Context()):
         stream = TokenStream(text)
         tree = Parser(stream).parse()
 
-        # put AST in global context
+        context.stream = stream
         context.tree = tree
+        context.text = text
         context.evaluators = _evaluators
 
         return tree.eval(context)
