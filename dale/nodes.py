@@ -64,7 +64,9 @@ class ListNode(BaseNode):
 
 class QueryNode(BaseNode):
     def eval(self, context):
-        evaluator = context.evaluators.get('query', lambda val, ctx: val)
+        def default_evaluator(url, context):
+            return utils.request_url(url, default='', timeout=5)
+        evaluator = context.evaluators.get('query', default_evaluator)
         return evaluator(self.query.value, context)
 
 
