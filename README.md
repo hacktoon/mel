@@ -2,103 +2,18 @@
 
 # DALE
 
-Dale is an abbreviation of *Data Language*. Dale's purpose is to provide a uniform interface for building webapps through a tree-based structure.
+Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, attributes and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree-like languages using a common language.
+
+
+## Main objectives
+ * Provide a uniform interface for building webapps
+ * Build and represent different type of information
+ * Generate different outputs
 
 ---
 
-## Basic syntax
-
-### Types
-
-#### Numbers
-
-Integers and floats are supported as expected.
-
-```
-1
--7
-+99
-4.535
--0.9
-```
-
-Floats support scientific notation:
-
-```
--56.2e-5
-+0.33e+2
-0.7e5
-```
-
-
-#### Texts (strings)
-
-Texts can use double or single quotes as delimiters:
-
-```
-"this text uses double quotes"
-
-'and this text uses single quotes'
-```
-
-You can write a double-quote character `"` inside a double-quoted text by repeating the character `"`:
-
-```
-"She said ""Hello"" yesterday."
-```
-
-Texts also can span many lines:
-
-```
-"Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-
-when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-```
-
-
-#### Lists
-Lists can have different value types and are enclosed by square brackets:
-
-```
-[]
-
-[1, 2, 4]
-
-["foo", 55, "bar"]
-
-```
-
-Commas are optional to separate list items, but you need at least one whitespace to separate items:
-
-```
-[1  2  3]
-
-["foo"  5  10]
-```
-
-> Commas are ignored and treated as whitespace no matter where you put them in your code.
-
-#### Booleans
-
-```
-true
-
-false
-```
-
-
-### Comments
-
-Comments start with the `#` symbol. Anything after a `#` will be ignored until the end of line.
-
-```
-"A string"  # this is a comment
-
-# another comment
-```
-
+* [Basic syntax](docs/basic-syntax.md)
+* [Basic types](docs/basic-types.md)
 
 ---
 
