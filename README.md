@@ -2,7 +2,7 @@
 
 # DALE
 
-Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, attributes and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree-like languages using a common language.
+Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, attributes and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Main objectives
