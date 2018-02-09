@@ -1,0 +1,6 @@
+(person
+    :id 5
+    (name "John")
+    (surname "Doe")
+    (age 45)
+)
