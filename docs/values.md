@@ -2,9 +2,9 @@
 
 ---
 
-# Basic types
+# Values
 
-## Booleans
+## Boolean
 
 ```
 true
@@ -13,7 +13,7 @@ false
 ```
 
 
-## Texts (strings)
+## Text
 
 Texts can use double or single quotes as delimiters:
 
@@ -39,6 +39,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
 when an unknown printer took a galley of type and scrambled it to make a type specimen book."
 ```
 
+
 ## Numbers
 
 Integers and floats are supported as expected.
@@ -59,6 +60,30 @@ Floats support scientific notation:
 0.7e5
 ```
 
+Binary values are suffixed with `b`:
+
+```
+0b
+
+-10b
+
+1101010b
+
+001b
+```
+
+Octals are prefixed with `8x`:
+
+```
+8x0
+
+8x71
+
+8x55634
+
+-8x12
+```
+
 Hexadecimals start with `0x`:
 
 ```
@@ -69,86 +94,57 @@ Hexadecimals start with `0x`:
 0x334123
 ```
 
-Octals start with `8x`:
+Digital information values
 
 ```
-8x55634
-
-8x1
-
-8x0
-
-8x-12
-```
-
-
-### Numbers suffixes
-
-Bits are 0 or 1 suffixed with `b`:
-
-```
-0b
-
-10b
-
-1101010b
-
-001b
+1Kb      # 1 kilobit
+1Mb      # 1 megabit
+2KB      # 2 kilobytes
+11MB     # 11 megabytes
+5GB      # 5 gigabytes
 ```
 
 Time unit values have suffixes that identify its type:
 
 ```
-132ms  # 132 milliseconds
-1s     # a second
+132ms       # 132 milliseconds
+400ns       # 400 nanoseconds
+1s          # a second
+0s          # zero second
+-1s         # minus one second
 
-345s   # 345 seconds
-4m     # 4 minutes
-6h     # 6 hours
-```
+345s        # 345 seconds
+4m          # 4 minutes
+6h          # 6 hours
 
-
-Digital information values
-
-```
-1kb      # 1 kilobit
-1mb      # 1 megabit
-2kB      # 2 kilobytes
-11MB     # 11 megabytes
-5GB      # 5 gigabytes
-```
-
-Time values
-
-```
-3h4m7s   # a complete time value
-6m5s     # implicit hours means 0h
-6h5s     # as well as minutes
-10h4m    # and seconds
+3h4m7s      # a complete time value (must be within a compound value)
+-2h40m7ns   # minus two hours, 40 minutes and 7 nanoseconds
+6m5s        # implicit hours means 0h
+8h41s       # as well as minutes
+10h4m       # and seconds
 ```
 
 Date values
 
 ```
 14d   # 14 days
-5wk   # 5 weeks
 2mo   # 2 months
+52w   # 52 weeks
 1y    # one year
+-6y   # minus 6 years
 ```
 
-Measure and weight values
 
+Miscelany units values
 ```
-5mt    # 5 meters
-10km   # 10 kilometers
-4g     # 4 grams
-5kg    # 5 kilograms
-3t     # 3 tons
+34px   # pixels
+10em   # relative
 ```
 
 
 ## Lists
-Lists can have different value types and are enclosed by square brackets:
+
+Lists can have different values and are enclosed by square brackets:
 
 ```
 []
@@ -166,5 +162,3 @@ Commas are optional to separate list items, but you need at least one whitespace
 
 ["foo"  5  10]
 ```
-
-> Commas are ignored and treated as whitespace no matter where you put them in your code.

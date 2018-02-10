@@ -4,33 +4,52 @@
 
 Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
+
 ## Main objectives
  * Provide a uniform interface for building webapps
  * Build and represent different types of information
- * Automatize data generation to different outputs
+ * Automatize data generation with different outputs
 
 ---
 
-## Setup
+## Setup & run
 
 ### Dependencies
+
  * Python 3.x
  * Pip
  * GNU Make
- * Docker (optionally)
- 
-### Setup and run using Docker
+ * Docker (optional)
+
+It's recommended to use a virtual environment tool like [pyenv](https://github.com/pyenv/pyenv) and/or [pipenv](https://github.com/pypa/pipenv).
+
+
+### How to run
+
+```
+make install
+make test
+make inspect
+python cli.py examples/person.dl
+```
+
+
+### Using Docker
+
 ```
 docker build -t dale .
 docker run dale examples/thumbnail.dl
 ```
 
+
 ## Documentation
 
-* [Basic syntax](docs/basic-syntax.md)
-* [Basic types](docs/basic-types.md)
+ * [Syntax rules](docs/syntax-rules.md)
+ * [Values](docs/values.md)
+ * [Groups](docs/groups.md)
+ * [Modifiers](docs/modifiers.md)
 
 
 ## License
 
-Dale is distributed under the terms of the MIT license. See [LICENSE](LICENSE.md).
+Dale is distributed under the terms of the **MIT** license. See [LICENSE](LICENSE.md).
