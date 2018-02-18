@@ -9,10 +9,10 @@ Dale's syntax is based on a simple idea: a sequence of one or more values of any
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
-value    :=  text | number | boolean | list | group
-group    :=  '(' keyword? metadata? item+ ')'
-item     :=  keyword? value
-grammar  :=  item*
+value    =  text | number | boolean | list | group
+group    =  '(' keyword* metadata* item* ')'
+item     =  keyword? value
+grammar  =  item*
 ```
 
 

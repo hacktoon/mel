@@ -1,5 +1,6 @@
-(component :id "thumbnail"
-    (help "this is a component for thumbnails")
-    (page @db "/site/page[current]")
+(component :type "thumbnail"
+    (? "this is a component for thumbnails")
+
+    = page @ "/site/page[current]"
     (a (image :src "http://thumbnails.com/3444" :alt "A random image"))
 )component)

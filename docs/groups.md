@@ -4,7 +4,7 @@
 
 ---
 
-[in progress]
+Groups are composed of one or more values, zero or more keywords and zero or more
 
 ### Keywords
 
@@ -21,3 +21,5 @@ In the example above, `name` and `age` refer to the values `"Ringo"` and `12`, r
 ## Metadata
 
 ## Values
+
+

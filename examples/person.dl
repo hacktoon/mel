@@ -1,6 +1,7 @@
-(person
-    :id 5
-    (name "John")
-    (surname "Doe")
-    (age 45)
+(person                              # Let's define a "person" object.
+    :id 5                            # This object has an id equal to 5,
+    name "John"                      # a property "name" with value "John" and
+    surname "Doe"                    # a property "surname" with value "Doe".
+    (fullname @name ' ' @surname)    # Set "fullname" using defined properties.
+    age 45                           # Define the "age" property as 45.
 )
