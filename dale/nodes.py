@@ -33,19 +33,20 @@ class Node(BaseNode):
 
 
 class ExpressionNode(Node):
+    def _eval_items(self, kwargs, context):
+        return {key: attr.eval(context) for key, attr in kwargs.items()}
+
     def eval(self, context):
-        evaluator = context.evaluators.get('expression', lambda val, ctx: val)
+        def default_evaluator(value):
+            return value
 
-        id = self.id.value
-        attrs = {key: attr.eval(context) for key, attr in self.attrs.items()}
-        refs = {key: attr.eval(context) for key, attr in self.refs.items()}
-        values = [value.eval(context) for value in self.values]
-
+        evaluator = context.evaluators.get('expression', default_evaluator)
         return evaluator({
-            'id': id,
-            'attrs': attrs,
-            'refs': refs,
-            'values': values
+            'id': self.id.value,
+            'identifiers': self._eval_items(self.identifiers, context),
+            'attrs': self._eval_items(self.attrs, context),
+            'refs': self._eval_items(self.refs, context),
+            'values': [value.eval(context) for value in self.values]
         }, context)
 
 

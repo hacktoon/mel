@@ -37,7 +37,7 @@ def test_token_value_comparison(test_input, expected):
 
 
 def test_newline_and_comments_are_ignored():
-    tokens = tokenize('#comment \n 45')
+    tokens = tokenize('--comment \n 45')
     assert tokens[0].value == 45
 
 

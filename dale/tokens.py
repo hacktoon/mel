@@ -73,7 +73,7 @@ class WhitespaceToken(Token):
 
 class CommentToken(Token):
     id = 'comment'
-    regex = re.compile(r'#[^\n\r]*')
+    regex = re.compile(r'--[^\n\r]*')
     skip = True
 
 
@@ -86,6 +86,11 @@ class NameToken(Token):
 class DotToken(Token):
     id = '.'
     regex = re.compile(r'\.')
+
+
+class HashToken(Token):
+    id = '#'
+    regex = re.compile(r'#')
 
 
 class EnvToken(Token):

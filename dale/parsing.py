@@ -129,6 +129,7 @@ class ExpressionParser(Parser):
         node = self._create_node(nodes.ExpressionNode)
         first = self.stream.read('(')
         node.id = self.stream.read('name')
+        node.identifiers = self._parse_identifiers()
         node.attrs = self._parse_attributes()
         self._parse_subnodes(node)
         last = self.stream.read(')')
@@ -137,6 +138,14 @@ class ExpressionParser(Parser):
             last = self.stream.read(')')
         node.text_range = text_range(first, last)
         return node
+
+    def _parse_identifiers(self):
+        ids = {}
+        while self.stream.is_current('#'):
+            self.stream.read('#')
+            identifier = self.stream.read('name')
+            ids[identifier.value] = self._parse_value()
+        return ids
 
     def _parse_attributes(self):
         attrs = {}
