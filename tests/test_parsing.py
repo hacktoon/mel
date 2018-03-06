@@ -142,6 +142,12 @@ def test_parsing_expression_identifiers_and_attributes():
     }
 
 
+def test_parsing_expression_flags():
+    output = eval('(person !active)')
+    assert output['id'] == 'person'
+    assert 'active' in output['flags']
+
+
 def test_parsing_expression_with_a_list_as_child():
     output = eval('(x (y 6)) (opts [4 x.y "foo"])')
     assert output[1] == {

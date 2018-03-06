@@ -37,12 +37,13 @@ class ExpressionNode(Node):
         return {key: attr.eval(context) for key, attr in kwargs.items()}
 
     def eval(self, context):
-        def default_evaluator(value):
+        def default_evaluator(value, context):
             return value
 
         evaluator = context.evaluators.get('expression', default_evaluator)
         return evaluator({
             'id': self.id.value,
+            'flags': [flag.value for flag in self.flags],
             'identifiers': self._eval_items(self.identifiers, context),
             'attrs': self._eval_items(self.attrs, context),
             'refs': self._eval_items(self.refs, context),

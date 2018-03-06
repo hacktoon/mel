@@ -93,6 +93,11 @@ class HashToken(Token):
     regex = re.compile(r'#')
 
 
+class ExclamationToken(Token):
+    id = '!'
+    regex = re.compile(r'!')
+
+
 class EnvToken(Token):
     id = '$'
     regex = re.compile(r'\$')
