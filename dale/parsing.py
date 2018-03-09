@@ -16,8 +16,8 @@ class Parser:
         node = self._create_node(nodes.Node)
         while not self.stream.is_eof():
             if self.stream.is_current('('):
-                expression = self._parse_expression()
-                node.add(expression, alias=expression.id.value)
+                scope = self._parse_scope()
+                node.add(scope, alias=scope.name.value)
             else:
                 node.add(self._parse_value())
         node.text_range = 0, len(self.stream.text)
@@ -28,8 +28,8 @@ class Parser:
         node.text = self.stream.text
         return node
 
-    def _parse_expression(self):
-        return ExpressionParser(self.stream).parse()
+    def _parse_scope(self):
+        return ScopeParser(self.stream).parse()
 
     def _parse_value(self):
         parser_method = {
@@ -124,17 +124,17 @@ class ReferenceParser(Parser):
         return node
 
 
-class ExpressionParser(Parser):
+class ScopeParser(Parser):
     def parse(self):
-        node = self._create_node(nodes.ExpressionNode)
+        node = self._create_node(nodes.ScopeNode)
         first = self.stream.read('(')
-        node.id = self.stream.read('name')
+        node.name = self.stream.read('name')
         node.flags = self._parse_flags()
         node.attrs = self._parse_attributes()
-        self._parse_subnodes(node)
+        self._parse_values(node)
         last = self.stream.read(')')
         if self.stream.is_current('name') and self.stream.is_next(')'):
-            self.stream.read('name', expected_value=node.id.value)
+            self.stream.read('name', expected_value=node.name.value)
             last = self.stream.read(')')
         node.text_range = text_range(first, last)
         return node
@@ -155,12 +155,12 @@ class ExpressionParser(Parser):
             attrs[attribute.value] = value
         return attrs
 
-    def _parse_subnodes(self, node):
+    def _parse_values(self, node):
         while not self.stream.is_current(')'):
             if self.stream.is_eof():
                 break
             if self.stream.is_current('('):
-                expression = self._parse_expression()
-                node.add(expression, alias=expression.id.value)
+                scope = self._parse_scope()
+                node.add(scope, alias=scope.name.value)
             else:
                 node.add(self._parse_value())

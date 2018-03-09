@@ -32,7 +32,7 @@ class Node(BaseNode):
         return values[0] if len(values) == 1 else values
 
 
-class ExpressionNode(Node):
+class ScopeNode(Node):
     def _eval_items(self, kwargs, context):
         return {key: attr.eval(context) for key, attr in kwargs.items()}
 
@@ -40,9 +40,9 @@ class ExpressionNode(Node):
         def default_evaluator(value, context):
             return value
 
-        evaluator = context.evaluators.get('expression', default_evaluator)
+        evaluator = context.evaluators.get('scope', default_evaluator)
         return evaluator({
-            'id': self.id.value,
+            'name': self.name.value,
             'flags': [flag.value for flag in self.flags],
             'attrs': self._eval_items(self.attrs, context),
             'refs': self._eval_items(self.refs, context),
