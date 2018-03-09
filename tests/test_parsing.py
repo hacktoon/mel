@@ -29,8 +29,8 @@ def test_list_parsing():
     output = eval('(a 5) [1, 2.3, true, a "str" ]')
     a = {
         'id': 'a',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': [5]
     }
@@ -61,7 +61,7 @@ def test_parsing_simple_expression():
     output = eval('(name :id 1 "foo")')
     assert output == {
         'id': 'name',
-        'identifiers': {},
+        'flags': [],
         'attrs': {'id': 1},
         'refs': {},
         'values': ['foo']
@@ -72,7 +72,7 @@ def test_parsing_expression_with_named_ending():
     output = eval('(object :id 1 "foo" 3 ) object)')
     assert output == {
         'id': 'object',
-        'identifiers': {},
+        'flags': [],
         'attrs': {'id': 1},
         'refs': {},
         'values': ['foo', 3]
@@ -88,7 +88,7 @@ def test_attributes_parsing_using_comma_as_separator():
     output = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
     assert output == {
         'id': 'x',
-        'identifiers': {},
+        'flags': [],
         'attrs': {'a': 1, 'b': 2, 'c': 3},
         'refs': {},
         'values': ['foo-bar']
@@ -99,7 +99,7 @@ def test_parsing_expression_with_multiple_children():
     output = eval('(kw :id 1, :title "foo" "bar" 34)')
     assert output == {
         'id': 'kw',
-        'identifiers': {},
+        'flags': [],
         'attrs': {'id': 1, 'title': 'foo'},
         'refs': {},
         'values': ['bar', 34]
@@ -110,33 +110,33 @@ def test_parsing_consecutive_expressions_with_sub_expressions():
     output = eval('(x "foo") (y (a 42))')
     a = {
         'id': 'a',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': [42]
     }
     assert output[0] == {
         'id': 'x',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': ['foo']
     }
     assert output[1] == {
         'id': 'y',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {'a': a},
         'values': [a]
     }
 
 
 def test_parsing_expression_identifiers_and_attributes():
-    output = eval('(person #id 45 :weight 63.5 :show true)')
+    output = eval('(person :id 45 :weight 63.5 :show true)')
     assert output == {
         'id': 'person',
-        'identifiers': {'id': 45},
-        'attrs': {'weight': 63.5, 'show': True},
+        'flags': [],
+        'attrs': {'id': 45, 'weight': 63.5, 'show': True},
         'refs': {},
         'values': []
     }
@@ -148,17 +148,23 @@ def test_parsing_expression_flags():
     assert 'active' in output['flags']
 
 
+def test_parsing_multi_expression_flags():
+    output = eval('(person !active !woman)')
+    assert output['id'] == 'person'
+    assert 'active' in output['flags']
+
+
 def test_parsing_expression_with_a_list_as_child():
     output = eval('(x (y 6)) (opts [4 x.y "foo"])')
     assert output[1] == {
         'id': 'opts',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': [[4, {
             'id': 'y',
-            'identifiers': {},
             'attrs': {},
+            'flags': [],
             'refs': {},
             'values': [6]
         }, 'foo']]
@@ -197,8 +203,8 @@ def test_reading_environment_variable():
     output = eval('(foo $ SAMPLE_VAR)')
     assert output == {
         'id': 'foo',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': ['sample_value']
     }
@@ -209,8 +215,8 @@ def test_reading_undefined_environment_variable():
     output = eval('(foo $ NON_VAR)')
     assert output == {
         'id': 'foo',
-        'identifiers': {},
         'attrs': {},
+        'flags': [],
         'refs': {},
         'values': ['']
     }
