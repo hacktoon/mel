@@ -46,7 +46,7 @@ docker run dale examples/thumbnail.dl
 
  * [Syntax rules](docs/syntax-rules.md)
  * [Values](docs/values.md)
- * [Groups](docs/groups.md)
+ * [Scopes](docs/scopes.md)
  * [Modifiers](docs/modifiers.md)
 
 

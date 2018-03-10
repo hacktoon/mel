@@ -10,7 +10,7 @@ The general syntax rules can be (partially) written in [EBNF](https://tomassetti
 
 ```
 value    =  text | number | boolean | list | group
-group    =  '(' keyword* metadata* item* ')'
+scope    =  '('  ')'
 item     =  keyword? value
 grammar  =  item*
 ```

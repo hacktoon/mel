@@ -1,10 +1,10 @@
-# Groups
+# Scopes
 
 [Home](../README.md)
 
 ---
 
-Groups are composed of one or more values, zero or more keywords and zero or more
+Scopes are
 
 ### Keywords
 
