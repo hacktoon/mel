@@ -151,8 +151,7 @@ class ScopeParser(Parser):
         while self.stream.is_current(':'):
             self.stream.read(':')
             attribute = self.stream.read('name')
-            value = self._parse_value()
-            attrs[attribute.value] = value
+            attrs[attribute.value] = self._parse_value()
         return attrs
 
     def _parse_values(self, node):
