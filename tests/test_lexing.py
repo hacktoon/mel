@@ -22,8 +22,8 @@ def create_stream(text):
     ('false', False),
     ('-56', -56),
     ('45', 45),
-    ('(', '('),
-    (')', ')'),
+    ('{', '{'),
+    ('}', '}'),
     ('"string"', 'string'),
     ("'string'", 'string'),
     ("@", '@'),
@@ -108,11 +108,11 @@ def test_that_read_unexpected_token_raises_error():
 
 
 def test_stream_ends_with_eof_token():
-    stream = create_stream('(age 5)')
-    stream.read('(')
+    stream = create_stream('{age 5}')
+    stream.read('{')
     stream.read('name')
     assert not stream.is_eof()
     stream.read('int')
-    stream.read(')')
+    stream.read('}')
     assert stream.is_eof()
     assert stream.is_current('end of file')

@@ -26,7 +26,7 @@ def eval(text, context=Context()):
 
 
 def test_list_parsing():
-    output = eval('(a 5) [1, 2.3, true, a "str" ]')
+    output = eval('{a 5} [1, 2.3, true, a "str" ]')
     a = {
         'name': 'a',
         'attrs': {},
@@ -44,12 +44,12 @@ def test_EOF_while_parsing_list():
 
 def test_lists_cant_have_scope_values():
     with pytest.raises(UnexpectedTokenError):
-        eval('[(a 3)]')
+        eval('[{a 3}]')
 
 
 def test_parsing_unexpected_value_node():
     with pytest.raises(UnexpectedTokenError):
-        eval('(x :a :b)')
+        eval('{x :a :b}')
 
 
 def test_EOF_while_parsing_reference():
@@ -58,7 +58,7 @@ def test_EOF_while_parsing_reference():
 
 
 def test_parsing_simple_scope():
-    output = eval('(name :id 1 "foo")')
+    output = eval('{name :id 1 "foo"}')
     assert output == {
         'name': 'name',
         'flags': [],
@@ -69,7 +69,7 @@ def test_parsing_simple_scope():
 
 
 def test_parsing_scope_with_named_ending():
-    output = eval('(object :id 1 "foo" 3 ) object)')
+    output = eval('{object :id 1 "foo" 3 } object}')
     assert output == {
         'name': 'object',
         'flags': [],
@@ -81,11 +81,11 @@ def test_parsing_scope_with_named_ending():
 
 def test_parsing_scope_with_wrong_ending_name():
     with pytest.raises(UnexpectedTokenValueError):
-        eval('(start  \t "foo")end)')
+        eval('{start  \t "foo"}end}')
 
 
 def test_attributes_parsing_using_comma_as_separator():
-    output = eval('(x :a 1, :b 2, :c 3, "foo-bar")')
+    output = eval('{x :a 1, :b 2, :c 3, "foo-bar"}')
     assert output == {
         'name': 'x',
         'flags': [],
@@ -96,7 +96,7 @@ def test_attributes_parsing_using_comma_as_separator():
 
 
 def test_parsing_scope_with_multiple_children():
-    output = eval('(kw :id 1, :title "foo" "bar" 34)')
+    output = eval('{kw :id 1, :title "foo" "bar" 34}')
     assert output == {
         'name': 'kw',
         'flags': [],
@@ -107,7 +107,7 @@ def test_parsing_scope_with_multiple_children():
 
 
 def test_parsing_consecutive_scopes_with_sub_scopes():
-    output = eval('(x "foo") (y (a 42))')
+    output = eval('{x "foo"} {y {a 42}}')
     a = {
         'name': 'a',
         'attrs': {},
@@ -132,7 +132,7 @@ def test_parsing_consecutive_scopes_with_sub_scopes():
 
 
 def test_parsing_scope_identifiers_and_attributes():
-    output = eval('(person :id 45 :weight 63.5 :show true)')
+    output = eval('{person :id 45 :weight 63.5 :show true}')
     assert output == {
         'name': 'person',
         'flags': [],
@@ -143,19 +143,19 @@ def test_parsing_scope_identifiers_and_attributes():
 
 
 def test_parsing_scope_flags():
-    output = eval('(person !active)')
+    output = eval('{person !active}')
     assert output['name'] == 'person'
     assert 'active' in output['flags']
 
 
 def test_parsing_multi_scope_flags():
-    output = eval('(person !active !woman)')
+    output = eval('{person !active !woman}')
     assert output['name'] == 'person'
     assert 'active' in output['flags']
 
 
 def test_parsing_scope_with_a_list_as_child():
-    output = eval('(x (y 6)) (opts [4 x.y "foo"])')
+    output = eval('{x {y 6}} {opts [4 x.y "foo"]}')
     assert output[1] == {
         'name': 'opts',
         'attrs': {},
@@ -173,17 +173,17 @@ def test_parsing_scope_with_a_list_as_child():
 
 def test_non_terminated_scope_raises_error():
     with pytest.raises(UnexpectedTokenError):
-        eval('(test 4')
+        eval('{test 4')
 
 
 def test_unknown_single_reference():
     with pytest.raises(UnknownReferenceError):
-        eval('(test x)')
+        eval('{test x}')
 
 
 def test_unknown_chained_reference():
     with pytest.raises(UnknownReferenceError):
-        eval('(x 2) (test x.y)')
+        eval('{x 2} {test x.y}')
 
 
 def test_file_node_value_is_file_content(temporary_file):
@@ -200,7 +200,7 @@ def test_missing_file_parsing():
 
 def test_reading_environment_variable():
     os.environ['SAMPLE_VAR'] = 'sample_value'
-    output = eval('(foo $ SAMPLE_VAR)')
+    output = eval('{foo $ SAMPLE_VAR}')
     assert output == {
         'name': 'foo',
         'attrs': {},
@@ -212,7 +212,7 @@ def test_reading_environment_variable():
 
 
 def test_reading_undefined_environment_variable():
-    output = eval('(foo $ NON_VAR)')
+    output = eval('{foo $ NON_VAR}')
     assert output == {
         'name': 'foo',
         'attrs': {},
@@ -228,15 +228,15 @@ def test_value_node_repr_with_sub_scopes():
 
 
 def test_scope_node_repr_returns_original_code():
-    output = create_tree('(foo "bar" 3 5)')
-    assert repr(output) == '(foo "bar" 3 5)'
+    output = create_tree('{foo "bar" 3 5}')
+    assert repr(output) == '{foo "bar" 3 5}'
 
 
 def test_node_repr_with_sub_scopes():
-    output = create_tree('(bar "example" (sub 20))')
-    assert repr(output[0]['sub']) == '(sub 20)'
+    output = create_tree('{bar "example" {sub 20}}')
+    assert repr(output[0]['sub']) == '{sub 20}'
 
 
 def test_node_repr_with_file_value():
-    output = create_tree('(file < "example.txt")')
+    output = create_tree('{file < "example.txt"}')
     assert repr(output['file'][0]) == '< "example.txt"'

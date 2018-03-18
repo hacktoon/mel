@@ -98,12 +98,12 @@ class ExclamationToken(Token):
     regex = re.compile(r'!')
 
 
-class EnvToken(Token):
+class DollarToken(Token):
     id = '$'
     regex = re.compile(r'\$')
 
 
-class FileToken(Token):
+class LessThanToken(Token):
     id = '<'
     regex = re.compile('<')
 
@@ -111,6 +111,7 @@ class FileToken(Token):
 class AtToken(Token):
     id = '@'
     regex = re.compile('@')
+    suffix_regex = ''
 
 
 class ColonToken(Token):
@@ -118,14 +119,14 @@ class ColonToken(Token):
     regex = re.compile(':')
 
 
-class LeftParenthesisToken(Token):
-    id = '('
-    regex = re.compile(r'\(')
+class LeftBracesToken(Token):
+    id = '{'
+    regex = re.compile(r'\{')
 
 
-class RightParenthesisToken(Token):
-    id = ')'
-    regex = re.compile(r'\)')
+class RightBracesToken(Token):
+    id = '}'
+    regex = re.compile(r'\}')
 
 
 class LeftBracketToken(Token):

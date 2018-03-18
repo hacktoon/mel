@@ -13,5 +13,5 @@ def test_html_tag_evaluator():
             attrs = ' ' + ''.join(attrs)
         return tag_tpl.format(exp['name'], attrs, ' '.join(exp['values']))
 
-    output = dale.eval('(x :id 3 "foo")')
+    output = dale.eval('{x :id 3 "foo"}')
     assert output == '<x id="3">foo</x>'

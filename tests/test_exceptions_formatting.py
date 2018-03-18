@@ -17,11 +17,11 @@ def test_single_line_error_message_building():
 
 def test_multiple_lines_error_message_building():
     with pytest.raises(DaleError) as error:
-        dale.eval('(x 2)\n4&4\n33')
+        dale.eval('{x 2}\n4&4\n33')
     assert str(error.value) == (
         'Error at line 2, column 2.\n'
         'Invalid syntax.\n\n'
-        '1 |    (x 2)\n'
+        '1 |    {x 2}\n'
         '2 |    4&4\n'
         '--------^\n'
         '3 |    33\n'
