@@ -37,7 +37,7 @@ class Parser:
             '<': self._parse_file,
             '$': self._parse_env,
             '[': self._parse_list,
-            'name': self._parse_reference,
+            'name': self._parse_namespace,
             'boolean': self._parse_boolean,
             'string': self._parse_string,
             'float': self._parse_float,
@@ -83,8 +83,16 @@ class Parser:
         node.text_range = text_range(first, last)
         return node
 
-    def _parse_reference(self):
-        return ReferenceParser(self.stream).parse()
+    def _parse_namespace(self):
+        node = self._create_node(nodes.ReferenceNode)
+        first, last = self.stream.read('name'), None
+        node.add(first)
+        while self.stream.is_current('.'):
+            self.stream.read('.')
+            last = self.stream.read('name')
+            node.add(last)
+        node.text_range = text_range(first, last)
+        return node
 
     def _parse_boolean(self):
         node = self._create_node(nodes.BooleanNode)
@@ -108,19 +116,6 @@ class Parser:
         node = self._create_node(nodes.IntNode)
         node.token = self.stream.read('int')
         node.text_range = text_range(node.token)
-        return node
-
-
-class ReferenceParser(Parser):
-    def parse(self):
-        node = self._create_node(nodes.ReferenceNode)
-        first, last = self.stream.read('name'), None
-        node.add(first)
-        while self.stream.is_current('.'):
-            self.stream.read('.')
-            last = self.stream.read('name')
-            node.add(last)
-        node.text_range = text_range(first, last)
         return node
 
 
