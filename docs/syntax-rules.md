@@ -9,10 +9,17 @@ Dale's syntax is based on a simple idea: a sequence of one or more values of any
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
-value    =  text | number | boolean | list | group
-scope    =  '('  ')'
-item     =  keyword? value
-grammar  =  item*
+namespace     =  name ('.' name)*
+base_value    =  text | number | boolean | list | scope
+
+name_prefix   =  '!' namespace
+value_prefix  =  '$' namespace
+
+keyword       =  name_prefix?  namespace
+value         =  value_prefix? base_value
+
+scope         =  '{' keyword? attributes? value* '}'
+grammar       =  (keyword? attributes? value)*
 ```
 
 
@@ -36,7 +43,9 @@ or using commas and/or semicolons:
 
 ```
 name "Ringo";
-age 12, "About Ringo" [1; 2; 3]
+age 12;
+"About Ringo";
+[1; 2; 3]
 ```
 
 
@@ -60,20 +69,20 @@ A comment starts with the `#` symbol and ends at the end of the line. Comments a
 
 454
 
-true
+TRUE
 ```
 
 
-### Groups
+### Scopes
 
-You may want a keyword to identify more than one value. In this case, parentheses are used to define a [Group](groups.md), in which you can combine as many values as necessary. The parentheses are optional if there's only one value and no metadata.
+You may want a keyword to identify more than one value. In this case, parentheses are used to define a [Scope](scopes.md), in which you can combine as many values as necessary. The brackets are optional if there's only one value and no metadata.
 
 ```
 age 33                 # a keyword 'age' with a value '33'
 
-(age 33)               # the same as above
+{age 33}               # the same as above
 
-(numbers 33, 67, 90)   # three integers identified by the 'numbers' keyword
+{numbers 33, 67, 90}   # three integers identified by the 'numbers' keyword
 
-numbers [33, 67, 90]   # the same as above, but using a list (note the absence of parentheses)
+numbers [33, 67, 90]   # the same as above, but using a list (note the absence of brackets}
 ```
