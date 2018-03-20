@@ -4,22 +4,26 @@
 
 ---
 
-Dale's syntax is based on a simple idea: a sequence of one or more values of any type. [Values](values.md) must be separated by at least one whitespace and can have an optional keyword.
+Dale's syntax is based on a simple idea: a sequence of one or more values of any type. [Values](values.md) must be separated by at least one whitespace and can have an optional key.
 
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
 namespace     =  name ('.' name)*
-base_value    =  text | number | boolean | list | scope
+base-value    =  text | number | boolean | list | scope | ...
 
-name_prefix   =  '!' namespace
-value_prefix  =  '$' namespace
+meta-key      =  '!' namespace
+meta-value    =  '$' namespace
 
-keyword       =  name_prefix?  namespace
-value         =  value_prefix? base_value
+key           =  meta-key | meta-value | namespace
+attribute     =  ':' name value
+value         =  meta-value base-value | base-value
 
-scope         =  '{' keyword? attributes? value* '}'
-grammar       =  (keyword? attributes? value)*
+scope         =  '{' key? attribute* property+ '}' ( /1 '}' )?
+
+property      =  key? attribute* value
+
+dale          =  property*
 ```
 
 
