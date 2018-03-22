@@ -114,6 +114,16 @@ class AtToken(Token):
     suffix_regex = ''
 
 
+class TildeToken(Token):
+    id = '~'
+    regex = re.compile('~')
+
+
+class SlashToken(Token):
+    id = '/'
+    regex = re.compile('/')
+
+
 class ColonToken(Token):
     id = ':'
     regex = re.compile(':')
