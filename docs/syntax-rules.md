@@ -4,7 +4,7 @@
 
 ---
 
-Dale's syntax is based on a simple idea: a sequence of one or more values of any type. [Values](values.md) must be separated by at least one whitespace and can have an optional key.
+Dale's syntax is based on a simple idea: a sequence of one or more properties. [Values](values.md) must be separated by at least one whitespace and can have an optional key.
 
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
