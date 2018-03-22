@@ -67,7 +67,7 @@ class BooleanToken(Token):
 
 class WhitespaceToken(Token):
     id = 'whitespace'
-    regex = re.compile(r'[ ,\n\r\t\x0b\x0c]+')
+    regex = re.compile(r'[ ,;\n\r\t\x0b\x0c]+')
     skip = True
 
 
@@ -83,7 +83,7 @@ class NameToken(Token):
     priority = 1
 
 
-class DotToken(Token):
+class PeriodToken(Token):
     id = '.'
     regex = re.compile(r'\.')
 
@@ -93,9 +93,14 @@ class HashToken(Token):
     regex = re.compile(r'#')
 
 
-class ExclamationToken(Token):
+class ExclamationMarkToken(Token):
     id = '!'
     regex = re.compile(r'!')
+
+
+class QuestionMarkToken(Token):
+    id = '?'
+    regex = re.compile(r'\?')
 
 
 class DollarToken(Token):
@@ -119,9 +124,21 @@ class TildeToken(Token):
     regex = re.compile('~')
 
 
+class CaretToken(Token):
+    id = '^'
+    regex = re.compile(r'\^')
+
+
+class DoubleSlashToken(Token):
+    id = '//'
+    regex = re.compile(r'//')
+    priority = 2
+
+
 class SlashToken(Token):
     id = '/'
     regex = re.compile('/')
+    priority = 1
 
 
 class ColonToken(Token):
