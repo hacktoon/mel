@@ -84,7 +84,7 @@ class Parser:
         return node
 
     def _parse_namespace(self):
-        node = self._create_node(nodes.ReferenceNode)
+        node = self._create_node(nodes.NamespaceNode)
         first, last = self.stream.read('name'), None
         node.add(first)
         while self.stream.is_current('.'):

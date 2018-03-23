@@ -90,7 +90,7 @@ class EnvNode(BaseNode):
         return evaluator(self.variable.value, context)
 
 
-class ReferenceNode(BaseNode):
+class NamespaceNode(BaseNode):
     def __init__(self):
         super().__init__()
         self.names = []
