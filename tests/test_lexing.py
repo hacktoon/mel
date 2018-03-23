@@ -18,8 +18,8 @@ def create_stream(text):
     ('-.099999', -.099999),
     ('-0.75e10', -0.75e10),
     ('+1.45e-10', 1.45e-10),
-    ('true', True),
-    ('false', False),
+    ('TRUE', True),
+    ('FALSE', False),
     ('-56', -56),
     ('45', 45),
     ('{', '{'),
@@ -42,7 +42,7 @@ def test_newline_and_comments_are_ignored():
 
 
 def test_commas_are_treated_as_whitespace():
-    tokens = tokenize('222, 45  true')
+    tokens = tokenize('222, 45 TRUE')
     assert tokens[0].value == 222
     assert tokens[1].value == 45
     assert tokens[2].value is True

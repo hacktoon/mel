@@ -26,7 +26,7 @@ def eval(text, context=Context()):
 
 
 def test_list_parsing():
-    output = eval('{a 5} [1, 2.3, true, a "str" ]')
+    output = eval('{a 5} [1, 2.3, TRUE, a "str" ]')
     a = {
         'name': 'a',
         'attrs': {},
@@ -132,7 +132,7 @@ def test_parsing_consecutive_scopes_with_sub_scopes():
 
 
 def test_parsing_scope_identifiers_and_attributes():
-    output = eval('{person :id 45 :weight 63.5 :show true}')
+    output = eval('{person :id 45 :weight 63.5 :show TRUE}')
     assert output == {
         'name': 'person',
         'flags': [],

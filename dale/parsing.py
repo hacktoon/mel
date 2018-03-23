@@ -19,7 +19,7 @@ class Parser:
                 scope = self._parse_scope()
                 node.add(scope, alias=scope.name.value)
             else:
-                node.add(self._parse_value())
+                node.add(self._parse_base_value())
         node.text_range = 0, len(self.stream.text)
         return node
 
@@ -31,7 +31,7 @@ class Parser:
     def _parse_scope(self):
         return ScopeParser(self.stream).parse()
 
-    def _parse_value(self):
+    def _parse_base_value(self):
         parser_method = {
             '@': self._parse_query,
             '<': self._parse_file,
@@ -78,7 +78,7 @@ class Parser:
         node = self._create_node(nodes.ListNode)
         first = self.stream.read('[')
         while not self.stream.is_current(']'):
-            node.add(self._parse_value())
+            node.add(self._parse_base_value())
         last = self.stream.read(']')
         node.text_range = text_range(first, last)
         return node
@@ -126,7 +126,7 @@ class ScopeParser(Parser):
         node.name = self.stream.read('name')
         node.flags = self._parse_flags()
         node.attrs = self._parse_attributes()
-        self._parse_values(node)
+        self._parse_base_values(node)
         last = self.stream.read('}')
         if self.stream.is_current('name') and self.stream.is_next('}'):
             self.stream.read('name', expected_value=node.name.value)
@@ -146,10 +146,10 @@ class ScopeParser(Parser):
         while self.stream.is_current(':'):
             self.stream.read(':')
             attribute = self.stream.read('name')
-            attrs[attribute.value] = self._parse_value()
+            attrs[attribute.value] = self._parse_base_value()
         return attrs
 
-    def _parse_values(self, node):
+    def _parse_base_values(self, node):
         while not self.stream.is_current('}'):
             if self.stream.is_eof():
                 break
@@ -157,4 +157,4 @@ class ScopeParser(Parser):
                 scope = self._parse_scope()
                 node.add(scope, alias=scope.name.value)
             else:
-                node.add(self._parse_value())
+                node.add(self._parse_base_value())
