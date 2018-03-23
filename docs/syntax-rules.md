@@ -17,7 +17,7 @@ meta-value    =  '$' namespace
 
 key           =  meta-key | meta-value | namespace
 attribute     =  ':' name value
-value         =  meta-value base-value | base-value
+value         =  meta-value value | base-value
 
 scope         =  '{' key? attribute* property+ '}' ( /1 '}' )?
 
