@@ -4,12 +4,16 @@
 
 # Values
 
+## Constants
+
+
+
 ## Boolean
 
 ```
-true
+TRUE
 
-false
+FALSE
 ```
 
 

@@ -1,6 +1,4 @@
-(component :type "thumbnail"
+(Component :type "thumbnail"
     (? "this is a component for thumbnails")
-
-    = page @ "/site/page[current]"
-    (a (image :src "http://thumbnails.com/3444" :alt "A random image"))
-)component)
+    (A (Image :Src "http://thumbnails.com/3444" :Alt "A random image"))
+)Component)

@@ -9,19 +9,22 @@ Dale's syntax is based on a simple idea: a sequence of one or more properties. [
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
+key           =  [A-Z][_0-9a-zA-Z]*
+name          =  [a-z][_0-9a-zA-Z]*
+
+keyspace      =  key ('.' key)*
 namespace     =  name ('.' name)*
-base-value    =  text | number | boolean | list | scope | ...
 
-meta-key      =  '!' namespace
-meta-value    =  '$' namespace
+meta-value    =  '{' keyspace flag* attribute* property+ '}'
 
-key           =  meta-key | meta-value | namespace
-attribute     =  ':' name value
-value         =  meta-value value | base-value
+value         =  text | number | boolean | list | scope | meta-value | ...
 
-scope         =  '{' key? attribute* property+ '}' ( /1 '}' )?
+flag          =  '!' key value
+attribute     =  ':' key value
 
-property      =  key? attribute* value
+scope         =  '(' (keyspace)? flag* attribute* property+ ')' ( /1 ')' )?
+
+property      =  keyspace? flag* attribute* value
 
 dale          =  property*
 ```
@@ -32,44 +35,44 @@ dale          =  property*
 Tabs, spaces, newlines, commas and semicolons are considered whitespace and are important for separating tags and values. For example, the code below:
 
 ```
-name "Ringo"
-age 12
-"About Ringo" [1, 2, 3]
+Name "Ringo"
+Age 12
+"About Ringo" (1, 2, 3)
 ```
 
 can be rewritten in one line:
 
 ```
-name "Ringo" age 12 "About Ringo" [1 2 3]
+Name "Ringo" Age 12 "About Ringo" (1 2 3)
 ```
 
 or using commas and/or semicolons:
 
 ```
-name "Ringo";
-age 12;
+Name "Ringo";
+Age 12;
 "About Ringo";
-[1; 2; 3]
+(1; 2; 3)
 ```
 
 
 ## Comments
 
-A comment starts with the `#` symbol and ends at the end of the line. Comments are ignored by the parser and won't be interpreted.
+A comment starts with the `--` symbol and ends at the end of the line. Comments are ignored by the parser and won't be interpreted.
 
 ```
-"A string"   # this is a comment
+"A string"   -- this is a comment
 
-# another comment
+-- another comment
 ```
 
 
 ## Values
 
-[Values](values.md) are the main components of Dale as it is a sequence of values. Values can be modified and composed in [groups](groups.md).
+[Values](values.md) are the main components of Dale since it's a sequence of values. Values can be modified and composed in [scopes](scopes.md).
 
 ```
-"a text"
+'a text'
 
 454
 
@@ -82,11 +85,11 @@ TRUE
 You may want a keyword to identify more than one value. In this case, parentheses are used to define a [Scope](scopes.md), in which you can combine as many values as necessary. The brackets are optional if there's only one value and no metadata.
 
 ```
-age 33                 # a keyword 'age' with a value '33'
+Age 33                 -- a keyword 'age' with a value '33'
 
-{age 33}               # the same as above
+(Age 33)               -- the same as above
 
-{numbers 33, 67, 90}   # three integers identified by the 'numbers' keyword
+(Numbers 33, 67, 90)   -- three integers identified by the 'Numbers' keyword
 
-numbers [33, 67, 90]   # the same as above, but using a list (note the absence of brackets}
+Numbers (33, 67, 90)   -- the same as above, but using a list (note the absence of brackets}
 ```
