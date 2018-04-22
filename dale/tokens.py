@@ -83,6 +83,12 @@ class NameToken(Token):
     priority = 1
 
 
+class KeyToken(Token):
+    id = 'key'
+    regex = re.compile(r'[A-Z]\w*(-[_a-zA-Z]\w*)?')
+    priority = 1
+
+
 class PeriodToken(Token):
     id = '.'
     regex = re.compile(r'\.')
@@ -129,16 +135,16 @@ class CaretToken(Token):
     regex = re.compile(r'\^')
 
 
-class DoubleSlashToken(Token):
-    id = '//'
-    regex = re.compile(r'//')
-    priority = 2
-
-
 class SlashToken(Token):
     id = '/'
     regex = re.compile('/')
     priority = 1
+
+
+class DoubleSlashToken(Token):
+    id = '//'
+    regex = re.compile(r'//')
+    priority = 2
 
 
 class ColonToken(Token):
@@ -159,6 +165,16 @@ class RightBracesToken(Token):
 class LeftBracketToken(Token):
     id = '['
     regex = re.compile(r'\[')
+
+
+class LeftParenthesisToken(Token):
+    id = '('
+    regex = re.compile(r'\(')
+
+
+class RightParenthesisToken(Token):
+    id = ')'
+    regex = re.compile(r'\)')
 
 
 class RightBracketToken(Token):

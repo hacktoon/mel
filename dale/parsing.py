@@ -15,7 +15,7 @@ class Parser:
     def parse(self):
         node = self._create_node(nodes.Node)
         while not self.stream.is_eof():
-            if self.stream.is_current('{'):
+            if self.stream.is_current('('):
                 scope = self._parse_scope()
                 node.add(scope, alias=scope.name.value)
             else:
@@ -122,15 +122,15 @@ class Parser:
 class ScopeParser(Parser):
     def parse(self):
         node = self._create_node(nodes.ScopeNode)
-        first = self.stream.read('{')
+        first = self.stream.read('(')
         node.name = self.stream.read('name')
         node.flags = self._parse_flags()
         node.attrs = self._parse_attributes()
         self._parse_base_values(node)
-        last = self.stream.read('}')
-        if self.stream.is_current('name') and self.stream.is_next('}'):
+        last = self.stream.read(')')
+        if self.stream.is_current('name') and self.stream.is_next(')'):
             self.stream.read('name', expected_value=node.name.value)
-            last = self.stream.read('}')
+            last = self.stream.read(')')
         node.text_range = text_range(first, last)
         return node
 
@@ -150,10 +150,10 @@ class ScopeParser(Parser):
         return attrs
 
     def _parse_base_values(self, node):
-        while not self.stream.is_current('}'):
+        while not self.stream.is_current(')'):
             if self.stream.is_eof():
                 break
-            if self.stream.is_current('{'):
+            if self.stream.is_current('('):
                 scope = self._parse_scope()
                 node.add(scope, alias=scope.name.value)
             else:
