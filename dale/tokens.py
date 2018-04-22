@@ -122,12 +122,6 @@ class LessThanToken(Token):
 class AtToken(Token):
     id = '@'
     regex = re.compile('@')
-    suffix_regex = ''
-
-
-class TildeToken(Token):
-    id = '~'
-    regex = re.compile('~')
 
 
 class CaretToken(Token):
@@ -152,6 +146,16 @@ class ColonToken(Token):
     regex = re.compile(':')
 
 
+class LeftParenthesisToken(Token):
+    id = '('
+    regex = re.compile(r'\(')
+
+
+class RightParenthesisToken(Token):
+    id = ')'
+    regex = re.compile(r'\)')
+
+
 class LeftBracesToken(Token):
     id = '{'
     regex = re.compile(r'\{')
@@ -165,16 +169,6 @@ class RightBracesToken(Token):
 class LeftBracketToken(Token):
     id = '['
     regex = re.compile(r'\[')
-
-
-class LeftParenthesisToken(Token):
-    id = '('
-    regex = re.compile(r'\(')
-
-
-class RightParenthesisToken(Token):
-    id = ')'
-    regex = re.compile(r'\)')
 
 
 class RightBracketToken(Token):
