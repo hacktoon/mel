@@ -109,11 +109,6 @@ class QuestionMarkToken(Token):
     regex = re.compile(r'\?')
 
 
-class DollarToken(Token):
-    id = '$'
-    regex = re.compile(r'\$')
-
-
 class LessThanToken(Token):
     id = '<'
     regex = re.compile('<')

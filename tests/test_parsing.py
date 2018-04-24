@@ -198,6 +198,7 @@ def test_missing_file_parsing():
         eval('< "this_file_is_missing.jpg"')
 
 
+@pytest.mark.skip()
 def test_reading_environment_variable():
     os.environ['SAMPLE_VAR'] = 'sample_value'
     output = eval('(foo $ SAMPLE_VAR)')
@@ -211,6 +212,7 @@ def test_reading_environment_variable():
     del os.environ['SAMPLE_VAR']
 
 
+@pytest.mark.skip()
 def test_reading_undefined_environment_variable():
     output = eval('(foo $ NON_VAR)')
     assert output == {

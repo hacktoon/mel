@@ -35,8 +35,7 @@ class Parser:
         parser_method = {
             '@': self._parse_query,
             '<': self._parse_file,
-            '$': self._parse_env,
-            '[': self._parse_list,
+            '[': self._parse_filter,
             'name': self._parse_namespace,
             'boolean': self._parse_boolean,
             'string': self._parse_string,
@@ -74,7 +73,7 @@ class Parser:
         node.text_range = text_range(first, node.variable)
         return node
 
-    def _parse_list(self):
+    def _parse_filter(self):
         node = self._create_node(nodes.ListNode)
         first = self.stream.read('[')
         while not self.stream.is_current(']'):
