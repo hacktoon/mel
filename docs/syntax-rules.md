@@ -9,24 +9,23 @@ Dale's syntax is based on a simple idea: a sequence of one or more properties. [
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
-key           =  [A-Z][_0-9a-zA-Z]*
-name          =  [a-z][_0-9a-zA-Z]*
+literal          =  STRING | INT | FLOAT | BOOLEAN | FLAG | CONSTANT | RANGE
 
-keyspace      =  key ('.' key)*
-namespace     =  name ('.' name)*
+relative         =  '/' | '//' | '^' | '^^'
+prefix           =  '@' | '%' | '~' | '#' | '?'
+base-property    =  NAME | prefix NAME?
+property         =  base-property | '!' NAME? | '#' |
 
-meta-value    =  '{' keyspace flag* attribute* property+ '}'
+base-reference   =  pipeline | base-property pipeline?
+reference        =  base-reference ('.' property pipeline?)*
 
-value         =  text | number | boolean | list | scope | meta-value | ...
+value            =  literal | scope | relative? reference
+key              =  '!' | '#' | base-property ('.' property)*
 
-flag          =  '!' key value
-attribute     =  ':' key value
+pipeline         =  '{' (FLAG | range | scope | NAME | format)+ '}'
+scope            =  '(' key value+ ')'
 
-scope         =  '(' (keyspace)? flag* attribute* property+ ')' ( /1 ')' )?
-
-property      =  keyspace? flag* attribute* value
-
-dale          =  property*
+tree             =  value*
 ```
 
 
@@ -35,23 +34,26 @@ dale          =  property*
 Tabs, spaces, newlines, commas and semicolons are considered whitespace and are important for separating tags and values. For example, the code below:
 
 ```
-Name "Ringo"
-Age 12
+(name "Ringo")
+(age 12)
 "About Ringo" (1, 2, 3)
 ```
 
 can be rewritten in one line:
 
 ```
-Name "Ringo" Age 12 "About Ringo" (1 2 3)
+(name "Ringo") (age 12) "About Ringo" (1 2 3)
 ```
 
 or using commas and/or semicolons:
 
 ```
-Name "Ringo";
-Age 12;
+(name "Ringo");
+
+(age 12);
+
 "About Ringo";
+
 (1; 2; 3)
 ```
 
@@ -85,11 +87,7 @@ TRUE
 You may want a keyword to identify more than one value. In this case, parentheses are used to define a [Scope](scopes.md), in which you can combine as many values as necessary. The brackets are optional if there's only one value and no metadata.
 
 ```
-Age 33                 -- a keyword 'age' with a value '33'
+(age 33)               -- a keyword 'age' with a value '33'
 
-(Age 33)               -- the same as above
-
-(Numbers 33, 67, 90)   -- three integers identified by the 'Numbers' keyword
-
-Numbers (33, 67, 90)   -- the same as above, but using a list (note the absence of brackets}
+(numbers 33, 67, 90)   -- three integers identified by the 'numbers' keyword
 ```
