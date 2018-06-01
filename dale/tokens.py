@@ -67,7 +67,7 @@ class BooleanToken(Token):
 
 class WhitespaceToken(Token):
     id = 'whitespace'
-    regex = re.compile(r'[ ,;\n\r\t\x0b\x0c]+')
+    regex = re.compile(r'[ \t\x0b\x0c]+')
     skip = True
 
 
@@ -77,16 +77,14 @@ class CommentToken(Token):
     skip = True
 
 
+class NewlineToken(Token):
+    id = 'newline'
+    regex = re.compile(r'\r\n|\r|\n')
+
+
 class NameToken(Token):
     id = 'name'
     regex = re.compile(r'[_a-zA-Z]\w*(-[_a-zA-Z]\w*)?')
-    priority = 1
-
-
-class KeyToken(Token):
-    id = 'key'
-    regex = re.compile(r'[A-Z]\w*(-[_a-zA-Z]\w*)?')
-    priority = 1
 
 
 class PeriodToken(Token):
@@ -96,22 +94,22 @@ class PeriodToken(Token):
 
 class HashToken(Token):
     id = '#'
-    regex = re.compile(r'#')
+    regex = re.compile('#')
+
+
+class PercentToken(Token):
+    id = '%'
+    regex = re.compile('%')
 
 
 class ExclamationMarkToken(Token):
     id = '!'
-    regex = re.compile(r'!')
+    regex = re.compile('!')
 
 
 class QuestionMarkToken(Token):
     id = '?'
     regex = re.compile(r'\?')
-
-
-class LessThanToken(Token):
-    id = '<'
-    regex = re.compile('<')
 
 
 class AtToken(Token):
@@ -122,6 +120,13 @@ class AtToken(Token):
 class CaretToken(Token):
     id = '^'
     regex = re.compile(r'\^')
+    priority = 1
+
+
+class DoubleCaretToken(Token):
+    id = '^^'
+    regex = re.compile(r'\^\^')
+    priority = 2
 
 
 class SlashToken(Token):
