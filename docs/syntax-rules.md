@@ -9,23 +9,34 @@ Dale's syntax is based on a simple idea: a sequence of one or more properties. [
 The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
 
 ```
-literal          =  STRING | INT | FLOAT | BOOLEAN | FLAG | CONSTANT | RANGE
+dale            =  value*
 
-relative         =  '/' | '//' | '^' | '^^'
-prefix           =  '@' | '%' | '~' | '#' | '?'
-base-property    =  NAME | prefix NAME?
-property         =  base-property | '!' NAME? | '#' |
+scope           =  '(' key value* ')'
+metascope       =  '{' key value* '}'
+list            =  '[' value* ']'
 
-base-reference   =  pipeline | base-property pipeline?
-reference        =  base-reference ('.' property pipeline?)*
+key             =  reference | '!' | ':'
+value           =  literal | scope | metascope | reference | list
 
-value            =  literal | scope | relative? reference
-key              =  '!' | '#' | base-property ('.' property)*
+literal         =  NUMBER | STRING | BOOLEAN | RANGE
+reference       =  base-reference ('/' sub-reference)*
 
-pipeline         =  '{' (FLAG | range | scope | NAME | format)+ '}'
-scope            =  '(' key value+ ')'
+sub-reference   =  base-reference | flag | literal
 
-tree             =  value*
+base-reference  =  list | alias | attribute | format | uid | doc
+                   | NAME | METANAME
+
+flag            =  '!' NAME
+attribute       =  '@' NAME
+alias           =  '$' NAME
+format          =  '%' NAME
+uid             =  '#' NAME
+doc             =  '?' NAME?
+
+
+
+
+
 ```
 
 
