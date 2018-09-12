@@ -7,11 +7,12 @@
 Flags (or tags) are used to mark a property. Flags are keys that start with a `!` and don't expect values when declared. A flag value is always TRUE.
 
 ```
-(Person
-    !VIP
-    !Active
+(person
+    !vip
 
-    Name "Mary"
+    (#rg 457567567)
+    (#tel 5456567)
+    (name "Mary")
 )
 ```
 
@@ -19,9 +20,9 @@ Flags (or tags) are used to mark a property. Flags are keys that start with a `!
 Flags can be used to generate information like CSS classes. See below:
 
 ```
-(Title
-    !Active
-    !Bold
+(title
+    !active
+    !bold
 
     "content"
 )

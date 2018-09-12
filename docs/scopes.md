@@ -4,22 +4,42 @@
 
 ---
 
-Scopes are
-
-### Keywords
-
-Keywords can be used to identify one or more values. **A keyword, by default, identifies one, and only one value**.
+Scopes define a context for a sequence of values
+Scopes are values with sub-values, defined by a key, which is also a value. Consider the example:
 
 ```
-name "Ringo"
-age 12  "About Ringo"
+(name "Mary")
 ```
 
-In the example above, `name` and `age` refer to the values `"Ringo"` and `12`, respectively. The text `"About Ringo"` isn't associated to the `age` keyword; it's just another normal, non-identified value in the sequence. Non-identified values can be mixed with identified values.
+Scopes can be of two types: set and get.
+
+```
+(name "Mary")
+```
+
+## Set
 
 
-## Metadata
+
+## Get
+
+
+
+
+Here, `name` and `"Mary"` are values, with `name` being the key of this scope since it is the first value. It defines a relationship: `name` is equal to `"Mary"`.
+
+Scopes can have one or more values. The following example shows a scope with three values, one of then being a sub-scope defining the language as english, followed by two strings that together define the `name`:
+
+```
+(name (lang "en") "Mary" "Sue")
+```
+
+## Keys
+
+Keys are the first value in a scope, determining
+
 
 ## Values
 
+Scopes can have as many values as necessary.
 

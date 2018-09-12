@@ -1,71 +1,77 @@
-# Syntax rules
+ # Syntax rules
 
 [Home](../README.md)
 
 ---
 
-Dale's syntax is based on a simple idea: a sequence of one or more properties. [Values](values.md) must be separated by at least one whitespace and can have an optional key.
-
-The general syntax rules can be (partially) written in [EBNF](https://tomassetti.me/ebnf/):
+Dale's syntax is based on a simple idea: a sequence of values. The general rules can be (partially) written as:
 
 ```
-dale            =  value*
+dale        =  reference*
 
-scope           =  '(' key value* ')'
-metascope       =  '{' key value* '}'
-list            =  '[' value* ']'
+reference   =  value ('/' value)*
 
-key             =  reference | '!' | ':'
-value           =  literal | scope | metascope | reference | list
+value       =  literal | property | scope | class
 
-literal         =  NUMBER | STRING | BOOLEAN | RANGE
-reference       =  base-reference ('/' sub-reference)*
+literal     =  int | float | string | boolean
 
-sub-reference   =  base-reference | flag | literal
+property    =  tag | alias | attribute | format | uid | doc | name
+attribute   =  '@' name
+tag         =  '!' name
+alias       =  '~' name
+format      =  '%' name
+uid         =  '#' name
+doc         =  '?' name
 
-base-reference  =  list | alias | attribute | format | uid | doc
-                   | NAME | METANAME
-
-flag            =  '!' NAME
-attribute       =  '@' NAME
-alias           =  '$' NAME
-format          =  '%' NAME
-uid             =  '#' NAME
-doc             =  '?' NAME?
-
-
-
-
-
+scope       =  read-scope | write-scope | list-scope
+write-scope =  '(' reference+ ')'
+read-scope  =  '{' reference+ '}'
+list-scope  =  '[' reference* ']'
 ```
-
 
 ## Whitespace
 
-Tabs, spaces, newlines, commas and semicolons are considered whitespace and are important for separating tags and values. For example, the code below:
+Whitespace isn't significant, except for some cases like names followed by numbers, which may cause semantic errors:
 
 ```
-(name "Ringo")
+(foo 42)  -- a scope with a name `foo` followed by a number 42
+foo42   -- a name `foo42`
+```
+
+So there's no problem concatenating a string and a name, since the quote symbol act as a delimiter between a string and anything else:
+
+```
+"monty"python
+```
+
+Or typing scopes without any separation:
+
+```
+(person"john")(dog"rex")
+```
+
+Spaces, tabs, newlines, commas and semicolons are all considered whitespace and will be ignored. Consider the example:
+
+```
+(name "Bob")
 (age 12)
-"About Ringo" (1, 2, 3)
+(items ball fruit)
+"Description about Bob"
 ```
 
-can be rewritten in one line:
+It can be rewritten in one line:
 
 ```
-(name "Ringo") (age 12) "About Ringo" (1 2 3)
+(name "Bob") (age 12) (items ball fruit) "Description about Bob"
 ```
 
-or using commas and/or semicolons:
+or using commas ans semicolons:
 
 ```
-(name "Ringo");
-
-(age 12);
-
-"About Ringo";
-
-(1; 2; 3)
+(name "Bob", "Joe");
+(age 12),
+(items ball, fruit),
+"Description about Bob (Joe)";
 ```
 
 
@@ -74,31 +80,7 @@ or using commas and/or semicolons:
 A comment starts with the `--` symbol and ends at the end of the line. Comments are ignored by the parser and won't be interpreted.
 
 ```
-"A string"   -- this is a comment
+"A string"   -- this is a comment and (id 5) won't be interpreted
 
 -- another comment
-```
-
-
-## Values
-
-[Values](values.md) are the main components of Dale since it's a sequence of values. Values can be modified and composed in [scopes](scopes.md).
-
-```
-'a text'
-
-454
-
-TRUE
-```
-
-
-### Scopes
-
-You may want a keyword to identify more than one value. In this case, parentheses are used to define a [Scope](scopes.md), in which you can combine as many values as necessary. The brackets are optional if there's only one value and no metadata.
-
-```
-(age 33)               -- a keyword 'age' with a value '33'
-
-(numbers 33, 67, 90)   -- three integers identified by the 'numbers' keyword
 ```
