@@ -41,21 +41,22 @@ class TokenStream:
 
     def read(self, expected_token_id, expected_value=None):
         current_token = self.current()
-        if self.is_current(expected_token_id):
-            if expected_value:
-                if expected_value == current_token.value:
-                    self.index += 1
-                    return current_token
-                else:
-                    raise UnexpectedTokenValueError(
-                        current_token,
-                        expected_token_id,
-                        expected_value
-                    )
-            else:
+        if not self.is_current(expected_token_id):
+            raise UnexpectedTokenError(current_token, expected_token_id)
+
+        if expected_value:
+            if expected_value == current_token.value:
                 self.index += 1
                 return current_token
-        raise UnexpectedTokenError(current_token, expected_token_id)
+            else:
+                raise UnexpectedTokenValueError(
+                    current_token,
+                    expected_token_id,
+                    expected_value
+                )
+        else:
+            self.index += 1
+            return current_token
 
     def is_eof(self):
         return self.index >= len(self.tokens)
