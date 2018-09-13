@@ -1,7 +1,3 @@
-from . import utils
-from .exceptions import UnknownReferenceError, FileError
-
-
 class BaseNode:
     def __init__(self):
         self.text = ''
@@ -32,6 +28,31 @@ class Node(BaseNode):
         return values[0] if len(values) == 1 else values
 
 
+class ReferenceNode(BaseNode):
+    def __init__(self):
+        super().__init__()
+        self.names = []
+
+    def add(self, name):
+        self.names.append(name)
+
+    def read(self, node, name):
+        try:
+            return node[name.value]
+        except KeyError:
+
+    defeval(self, context):
+     def get_node(node, names):
+            name = names[0]
+            if len(names) == 1:
+                return self.read(node, name)
+            node = self.read(node, name)
+            return get_node(node, names[1:])
+
+        node = get_node(context.tree, self.names)
+        return node.eval(context)
+
+
 class ScopeNode(Node):
     def _eval_items(self, kwargs, context):
         return {key: attr.eval(context) for key, attr in kwargs.items()}
@@ -50,7 +71,15 @@ class ScopeNode(Node):
         }, context)
 
 
-class ListNode(BaseNode):
+class WriteScopeNode(Node):
+    pass
+
+
+class ReadScopeNode(Node):
+    pass
+
+
+class ListScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.items = []
@@ -63,76 +92,57 @@ class ListNode(BaseNode):
         return evaluator([item.eval(context) for item in self.items], context)
 
 
-class QueryNode(BaseNode):
+class PropertyNode(BaseNode):
     def eval(self, context):
-        def default_evaluator(url, context):
-            return utils.request_url(url, default='', timeout=5)
-        evaluator = context.evaluators.get('query', default_evaluator)
-        return evaluator(self.query.value, context)
-
-
-class FileNode(BaseNode):
-    def eval(self, context):
-        def default_evaluator(value, context):
-            return utils.read_file(value)
-        evaluator = context.evaluators.get('file', default_evaluator)
-        try:
-            return evaluator(self.path.value, context)
-        except IOError as error:
-            raise FileError(self.path, error)
-
-
-class EnvNode(BaseNode):
-    def eval(self, context):
-        def default_evaluator(value, context):
-            return utils.read_environment(value, '')
-        evaluator = context.evaluators.get('env', default_evaluator)
-        return evaluator(self.variable.value, context)
-
-
-class NamespaceNode(BaseNode):
-    def __init__(self):
-        super().__init__()
-        self.names = []
-
-    def add(self, name):
-        self.names.append(name)
-
-    def read(self, node, name):
-        try:
-            return node[name.value]
-        except KeyError:
-            raise UnknownReferenceError(name)
-
-    def eval(self, context):
-        def get_node(node, names):
-            name = names[0]
-            if len(names) == 1:
-                return self.read(node, name)
-            node = self.read(node, name)
-            return get_node(node, names[1:])
-
-        node = get_node(context.tree, self.names)
-        return node.eval(context)
-
-
-class ValueNode(BaseNode):
-    def eval(self, context):
-        evaluator = context.evaluators.get('env', lambda e, c: e)
+        node_name = self.__class__.__name__
+        default_eval = lambda evaluator, context: evaluator
+        evaluator = context.evaluators.get(node_name, default_eval)
         return evaluator(self.token.value, context)
 
 
-class IntNode(ValueNode):
+class UIDNode(PropertyNode):
     pass
 
 
-class FloatNode(ValueNode):
+class FlagNode(PropertyNode):
     pass
 
 
-class BooleanNode(ValueNode):
+class AttributeNode(PropertyNode):
     pass
 
 
-class StringNode(ValueNode):
+class FormatNode(PropertyNode):
+    pass
+
+
+class AliasNode(PropertyNode):
+    pass
+
+
+class DocNode(PropertyNode):
+    pass
+
+
+class LiteralNode(BaseNode):
+    def eval(self, context):
+        node_name = self.__class__.__name__
+        default_eval = lambda evaluator, context: evaluator
+        evaluator = context.evaluators.get(node_name, default_eval)
+        return evaluator(self.token.value, context)
+
+
+class IntNode(LiteralNode):
+    pass
+
+
+class FloatNode(LiteralNode):
+    pass
+
+
+class BooleanNode(LiteralNode):
+    pass
+
+
+class StringNode(LiteralNode):
         pass

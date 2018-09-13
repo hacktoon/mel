@@ -18,8 +18,8 @@ def create_stream(text):
     ('-.099999', -.099999),
     ('-0.75e10', -0.75e10),
     ('+1.45e-10', 1.45e-10),
-    ('TRUE', True),
-    ('FALSE', False),
+    ('True', True),
+    ('False', False),
     ('-56', -56),
     ('45', 45),
     ('(', '('),
@@ -29,20 +29,20 @@ def create_stream(text):
     ("@", '@'),
     (':', ':'),
     ('foo', 'foo'),
-    ('foo\n . bar', 'foo')
+    ('foo\n / bar', 'foo')
 ])
-def test_token_value_comparison(test_input, expected):
+def test_first_token_value(test_input, expected):
     tokens = tokenize(test_input)
     assert tokens[0].value == expected
 
 
-def test_newline_and_comments_are_ignored():
+def test_that_comments_are_ignored():
     tokens = tokenize('--comment \n 45')
     assert tokens[0].value == 45
 
 
 def test_commas_are_treated_as_whitespace():
-    tokens = tokenize('222, 45 TRUE')
+    tokens = tokenize('222, 45 True')
     assert tokens[0].value == 222
     assert tokens[1].value == 45
     assert tokens[2].value is True
@@ -81,24 +81,6 @@ def test_single_quoted_string_doesnt_allow_same_quote_symbol():
 def test_double_quoted_string_doesnt_allow_same_quote_symbol():
     with pytest.raises(InvalidSyntaxError):
         tokenize('"a quote \" "')
-
-
-def test_tokenize_attributes_tokens():
-    tokens = tokenize(r':foo "bar" :var "null"')
-    assert tokens[0].value == ':'
-    assert tokens[1].value == 'foo'
-    assert tokens[2].value == 'bar'
-    assert tokens[3].value == ':'
-    assert tokens[4].value == 'var'
-
-
-def test_tokenize_query_strings():
-    text = '@ "/data/query/", <"title.txt"'
-    tokens = tokenize(text)
-    assert tokens[0].value == '@'
-    assert tokens[1].value == '/data/query/'
-    assert tokens[2].value == '<'
-    assert tokens[3].value == 'title.txt'
 
 
 def test_that_read_unexpected_token_raises_error():
