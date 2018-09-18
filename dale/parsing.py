@@ -13,7 +13,7 @@ class Parser:
         self.stream = stream
 
     def parse(self):
-        node = self._create_node(nodes.Node)
+        node = self._create_node(nodes.RootNode)
         while not self.stream.is_eof():
             node.add(self._parse_reference())
         node.text_range = 0, len(self.stream.text)
@@ -39,6 +39,8 @@ class Parser:
             self._parse_literal,
             self._parse_property,
             self._parse_scope,
+            self._parse_query,
+            self._parse_list,
             self._parse_class
         ]
         for parser_method in parser_methods:
@@ -48,42 +50,6 @@ class Parser:
                 pass
         else:
             raise UnexpectedTokenError
-
-    def _parse_scope(self):
-        rules = {
-            '(': [')', nodes.WriteScopeNode],
-            '{': ['}', nodes.ReadScopeNode],
-            '[': [']', nodes.ListScopeNode]
-        }
-        first = self.stream.current()
-        if first.id not in rules:
-            expected_values = list(rules.keys())
-            raise UnexpectedTokenError(first, expected_values)
-
-        last_id, Node = rules[first.id]
-        node = self._create_node(Node)
-        first = self.stream.read(first.id)
-        while not self.stream.is_current(last_id):
-            node.add(self._parse_reference())
-        last = self.stream.read(last_id)
-        node.text_range = text_range(first, last)
-        return node
-
-    def _parse_property(self):
-        prefix_node_map = {
-            '#': nodes.UIDNode,
-            '!': nodes.FlagNode,
-            '@': nodes.AttributeNode,
-            '%': nodes.FormatNode,
-            '~': nodes.AliasNode,
-            '?': nodes.DocNode
-        }
-        prefix = self.stream.current()
-        Node = prefix_node_map.get(prefix.id, Node)
-        node = self._create_node(Node)
-        node.token = self.stream.read('name')
-        node.text_range = text_range(prefix, node.token)
-        return node
 
     def _parse_literal(self):
         literal_nodes = {
@@ -102,3 +68,53 @@ class Parser:
         node.token = literal_token
         node.text_range = text_range(literal_token)
         return node
+
+    def _parse_property(self):
+        prefix_node_map = {
+            '#': nodes.UIDNode,
+            '!': nodes.FlagNode,
+            '@': nodes.AttributeNode,
+            '%': nodes.FormatNode,
+            '~': nodes.AliasNode,
+            '?': nodes.DocNode
+        }
+        prefix = self.stream.current()
+        Node = prefix_node_map.get(prefix.id, nodes.PropertyNode)
+        node = self._create_node(Node)
+        node.name = self.stream.read('name')
+        node.text_range = text_range(prefix, node.name)
+        return node
+
+    def _parse_scope(self):
+        node = self._create_node(nodes.ScopeNode)
+        first = self.stream.read('(')
+        if not self.stream.is_current(')'):
+            node.key = self._parse_reference()
+        while not self.stream.is_current(')'):
+            node.add(self._parse_reference())
+        last = self.stream.read(')')
+        node.text_range = text_range(first, last)
+        return node
+
+    def _parse_query(self):
+        node = self._create_node(nodes.QueryNode)
+        first = self.stream.read('{')
+        if not self.stream.is_current('}'):
+            node.key = self._parse_reference()
+        while not self.stream.is_current('}'):
+            node.add(self._parse_reference())
+        last = self.stream.read('}')
+        node.text_range = text_range(first, last)
+        return node
+
+    def _parse_list(self):
+        node = self._create_node(nodes.ListNode)
+        first = self.stream.read('[')
+        while not self.stream.is_current(']'):
+            node.add(self._parse_reference())
+        last = self.stream.read(']')
+        node.text_range = text_range(first, last)
+        return node
+
+    def _parse_class(self):
+        pass
