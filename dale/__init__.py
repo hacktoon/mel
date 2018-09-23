@@ -17,7 +17,8 @@ def evaluator(name):
 
 def eval(text, context=Context()):
     try:
-        tree = Parser().parse(text)
+        stream = TokenStream(text)
+        tree = Parser(stream).parse()
         context.tree = tree
         context.text = text
         context.evaluators = _evaluators

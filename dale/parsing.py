@@ -13,7 +13,7 @@ class Parser:
         self.stream = stream
 
     def parse(self):
-        node = self._create_node(nodes.RootNode)
+        node = self._create_node(nodes.Node)
         while not self.stream.is_eof():
             node.add(self._parse_reference())
         node.text_range = 0, len(self.stream.text)
@@ -37,11 +37,10 @@ class Parser:
     def _parse_value(self):
         parser_methods = [
             self._parse_literal,
-            self._parse_property,
             self._parse_scope,
+            self._parse_property,
             self._parse_query,
-            self._parse_list,
-            self._parse_class
+            self._parse_list
         ]
         for parser_method in parser_methods:
             try:
@@ -58,15 +57,15 @@ class Parser:
             'float': nodes.FloatNode,
             'int': nodes.IntNode
         }
-        literal_token = self.stream.current()
-        if literal_token.id in literal_nodes:
-            Node = literal_nodes[literal_token.id]
-        else:
+        token = self.stream.current()
+        try:
+            Node = literal_nodes[token.id]
+        except KeyError:
             expected_values = list(literal_nodes.keys())
-            raise UnexpectedTokenError(literal_token, expected_values)
+            raise UnexpectedTokenError(token, expected_values)
         node = self._create_node(Node)
-        node.token = literal_token
-        node.text_range = text_range(literal_token)
+        node.token = token
+        node.text_range = text_range(token)
         return node
 
     def _parse_property(self):
@@ -79,7 +78,11 @@ class Parser:
             '?': nodes.DocNode
         }
         prefix = self.stream.current()
-        Node = prefix_node_map.get(prefix.id, nodes.PropertyNode)
+        try:
+            Node = prefix_node_map[prefix.id]
+            self.stream.read(prefix.id)
+        except KeyError:
+            Node = nodes.PropertyNode
         node = self._create_node(Node)
         node.name = self.stream.read('name')
         node.text_range = text_range(prefix, node.name)
@@ -88,7 +91,7 @@ class Parser:
     def _parse_scope(self):
         node = self._create_node(nodes.ScopeNode)
         first = self.stream.read('(')
-        if not self.stream.is_current(')'):
+        if not self.stream.is_current(')'):  # TODO: put this in __init__
             node.key = self._parse_reference()
         while not self.stream.is_current(')'):
             node.add(self._parse_reference())
@@ -115,6 +118,3 @@ class Parser:
         last = self.stream.read(']')
         node.text_range = text_range(first, last)
         return node
-
-    def _parse_class(self):
-        pass

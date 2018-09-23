@@ -3,56 +3,58 @@ def _default_evaluator(value, context):
     return value
 
 
-class BaseNode:
+class Node:
     def __init__(self):
         self.text = ''
-        self.text_range = (0, 0)
+        self.text_range = (0, 0)   # TODO change to Snippet class
+        self.nodes = []
+
+    def add(self, node):
+        self.nodes.append(node)
 
     def __repr__(self):
         first, last = self.text_range
         return self.text[first: last]
 
 
-class RootNode(BaseNode):
-    def __init__(self):
-        super().__init__()
-        self.nodes = []
+class ReferenceNode(Node):
+    def eval_scope(self, context):
+        pass
 
-    def add(self, node):
-        self.nodes.append(node)
-
-
-class ReferenceNode(RootNode):
     def eval(self, context):
         pass
 
 
-class ScopeNode(RootNode):
+class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = None
 
     def eval(self, context):
         evaluator = context.evaluators.get('ScopeNode', _default_evaluator)
-        values = [value.eval(context) for value in self.values]
-        return evaluator(values, context)
+        values = [node.eval(context) for node in self.nodes]
+        return evaluator(self.key, values, context)
 
 
-class QueryNode(ScopeNode):
+class QueryNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.key = None
+
     def eval(self, context):
         evaluator = context.evaluators.get('QueryNode', _default_evaluator)
-        values = [value.eval(context) for value in self.values]
-        return evaluator(values, context)
+        values = [node.eval(context) for node in self.nodes]
+        return evaluator(self.key, values, context)
 
 
-class ListNode(RootNode):
+class ListNode(Node):
     def eval(self, context):
         evaluator = context.evaluators.get('ListNode', _default_evaluator)
-        values = [value.eval(context) for value in self.values]
+        values = [node.eval(context) for node in self.nodes]
         return evaluator(values, context)
 
 
-class PropertyNode(BaseNode):
+class PropertyNode(Node):
     def __init__(self):
         super().__init__()
         self.name = None
@@ -87,7 +89,7 @@ class DocNode(PropertyNode):
     pass
 
 
-class LiteralNode(BaseNode):
+class LiteralNode(Node):
     def __init__(self):
         super().__init__()
         self.token = None

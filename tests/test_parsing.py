@@ -10,7 +10,8 @@ from dale.exceptions import (
 
 
 def create_tree(text):
-    return Parser().parse(text)
+    stream = TokenStream(text)
+    return Parser(stream).parse()
 
 
 def eval(text, context_class=Context):

@@ -11,7 +11,7 @@ dale        =  reference*
 
 reference   =  value ('/' value)*
 
-value       =  literal | property | scope | class
+value       =  literal | property | scope | query | list | class
 
 literal     =  int | float | string | boolean
 
@@ -23,10 +23,9 @@ format      =  '%' name
 uid         =  '#' name
 doc         =  '?' name
 
-scope       =  read-scope | write-scope | list-scope
-write-scope =  '(' reference+ ')'
-read-scope  =  '{' reference+ '}'
-list-scope  =  '[' reference* ']'
+scope       =  '(' reference+ ')'
+query       =  '{' reference+ '}'
+list        =  '[' reference* ']'
 ```
 
 ## Whitespace
