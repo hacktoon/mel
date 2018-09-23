@@ -10,16 +10,17 @@ from dale.exceptions import (
 
 
 def create_tree(text):
-    stream = TokenStream(text)
-    return Parser(stream).parse()
+    return Parser().parse(text)
 
 
-def eval(text, context=Context()):
-    tree = create_tree(text)
-    context.tree = tree
+def eval(text, context_class=Context):
+    context = context_class()
+    context.tree = create_tree(text)
     return tree.eval(context)
 
 
 def test_list_parsing():
-    output = eval('(a 5) [1, 2.3, True, a "str" ]')
+    context = Context()
+    context.tree = create_tree('(a 5) [1, 2.3, True, a "str" ]')
+    tree.eval(context)
     assert True
