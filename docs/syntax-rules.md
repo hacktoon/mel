@@ -11,11 +11,12 @@ dale        =  reference*
 
 reference   =  value ('/' value)*
 
-value       =  literal | property | scope | query | list | class
+value       =  literal | property | tag | alias | attribute | format |
+               uid | doc | scope | query | list | class
 
 literal     =  int | float | string | boolean
 
-property    =  tag | alias | attribute | format | uid | doc | name
+property    =  name
 attribute   =  '@' name
 tag         =  '!' name
 alias       =  '~' name

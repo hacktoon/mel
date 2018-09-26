@@ -6,14 +6,14 @@ def _default_evaluator(value, context):
 class Node:
     def __init__(self):
         self.text = ''
-        self.text_range = (0, 0)   # TODO change to Snippet class
+        self.index = (0, 0)       # TODO change to Snippet class
         self.nodes = []
 
     def add(self, node):
         self.nodes.append(node)
 
     def __repr__(self):
-        first, last = self.text_range
+        first, last = self.index
         return self.text[first: last]
 
 
@@ -73,7 +73,7 @@ class FlagNode(PropertyNode):
     pass
 
 
-class AttributeNode(PropertyNode):
+class AttributeNode(PropertyNode):   # TODO rename to MetaNode
     pass
 
 
