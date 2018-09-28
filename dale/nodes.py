@@ -6,11 +6,14 @@ def _default_evaluator(value, context):
 class Node:
     def __init__(self):
         self.text = ''
-        self.index = (0, 0)       # TODO change to Snippet class
+        self.index = (0, 0)
         self.nodes = []
 
     def add(self, node):
         self.nodes.append(node)
+
+    def eval(self, context):
+        pass
 
     def __repr__(self):
         first, last = self.index
@@ -31,7 +34,7 @@ class ScopeNode(Node):
         self.key = None
 
     def eval(self, context):
-        evaluator = context.evaluators.get('ScopeNode', _default_evaluator)
+        evaluator = context.evaluators.get('Scope', _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(self.key, values, context)
 
@@ -42,14 +45,14 @@ class QueryNode(Node):
         self.key = None
 
     def eval(self, context):
-        evaluator = context.evaluators.get('QueryNode', _default_evaluator)
+        evaluator = context.evaluators.get('Query', _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(self.key, values, context)
 
 
 class ListNode(Node):
     def eval(self, context):
-        evaluator = context.evaluators.get('ListNode', _default_evaluator)
+        evaluator = context.evaluators.get('List', _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(values, context)
 
