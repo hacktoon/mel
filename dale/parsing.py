@@ -1,5 +1,4 @@
 from . import nodes
-from .exceptions import UnexpectedTokenError
 
 
 def text_range(first, last=None):
