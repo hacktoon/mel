@@ -1,7 +1,7 @@
 import pytest
 
 from dale.lexing import Lexer, TokenStream
-from dale.exceptions import InvalidSyntaxError, UnexpectedTokenError
+from dale.exceptions import LexingError, UnexpectedTokenError
 
 
 def tokenize(text):
@@ -64,22 +64,22 @@ def test_tokenize_string_with_escaped_quotes_and_single_quotes():
 
 
 def test_name_tokens_cant_start_with_numbers():
-    with pytest.raises(InvalidSyntaxError):
+    with pytest.raises(LexingError):
         tokenize(r'42name')
 
 
 def test_non_terminated_string_throws_error():
-    with pytest.raises(InvalidSyntaxError):
+    with pytest.raises(LexingError):
         tokenize('" test ')
 
 
 def test_single_quoted_string_doesnt_allow_same_quote_symbol():
-    with pytest.raises(InvalidSyntaxError):
+    with pytest.raises(LexingError):
         tokenize('"a quote \" "')
 
 
 def test_double_quoted_string_doesnt_allow_same_quote_symbol():
-    with pytest.raises(InvalidSyntaxError):
+    with pytest.raises(LexingError):
         tokenize('"a quote \" "')
 
 

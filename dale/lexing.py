@@ -1,6 +1,6 @@
 from . import tokens
 from .exceptions import (
-    InvalidSyntaxError,
+    LexingError,
     UnexpectedTokenError,
     UnexpectedTokenValueError
 )
@@ -30,7 +30,7 @@ class Lexer:
             self.index += len(text)
             return token
         else:
-            raise InvalidSyntaxError(self.index)
+            raise LexingError(self.index)
 
 
 class TokenStream:
