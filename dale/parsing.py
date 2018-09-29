@@ -1,10 +1,5 @@
 from . import nodes
-
-
-def text_range(first, last=None):
-    if last:
-        return first.index[0], last.index[1]
-    return first.index[0], first.index[1]
+from .exceptions import ParsingError
 
 
 class Parser:
@@ -28,6 +23,8 @@ class Parser:
         while self.stream.is_current('/'):
             self.stream.read('/')
             last = self._parse_value()
+            if not last:
+                raise ParsingError()
             node.add(last)
         node.index = text_range(first, last)
         return node
@@ -135,3 +132,9 @@ class Parser:
         node = node_class()
         node.text = self.stream.text
         return node
+
+
+def text_range(first, last=None):
+    if last:
+        return first.index[0], last.index[1]
+    return first.index[0], first.index[1]

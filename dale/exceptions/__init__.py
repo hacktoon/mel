@@ -9,6 +9,11 @@ class LexingError(Error):
         self.index = index
 
 
+class ParsingError(Error):
+    def __init__(self):
+        super().__init__()
+
+
 class UnexpectedTokenError(Error):
     def __init__(self, token, expected_tokens=None):
         message = 'Found a {!r} token.\n'.format(token.id)
