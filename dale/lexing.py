@@ -58,14 +58,14 @@ class TokenStream:
             self.index += 1
             return current_token
 
+    def can_read(self, token_id):
+        return not self.is_eof() and self.is_current(token_id)
+
     def is_eof(self):
         return self.index >= len(self.tokens)
 
     def is_current(self, token_id):
         return self.current().id == token_id
-
-    def is_next(self, token_id):
-        return self.current(offset=1).id == token_id
 
     def current(self, offset=0):
         try:
