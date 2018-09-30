@@ -14,8 +14,6 @@ def eval(text, context_class=Context):
     return tree.eval(context)
 
 
-def test_basic_parsing():
-    context = Context()
-    context.tree = tree = create_tree('(a 5)')
-    tree.eval(context)
-    assert True
+def test_string_representation():
+    tree = create_tree('(a 5)')
+    assert str(tree) == '(a 5)'
