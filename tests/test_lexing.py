@@ -97,7 +97,7 @@ def test_stream_ends_with_eof_token():
     stream.read('int')
     stream.read(')')
     assert stream.is_eof()
-    assert stream.is_current('end of file')
+    assert stream.is_current('EOF')
 
 
 def test_can_read_stream_checks_eof():

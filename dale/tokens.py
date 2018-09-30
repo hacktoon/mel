@@ -159,5 +159,5 @@ class RightBracketToken(Token):
 
 
 class EOFToken(Token):
-    id = 'end of file'
+    id = 'EOF'
     regex = re.compile(r'\0')

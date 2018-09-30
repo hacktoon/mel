@@ -32,9 +32,9 @@ class Parser:
     def _parse_value(self):
         methods = [
             self._parse_literal,
-            self._parse_scope,
             self._parse_prefixed_property,
             self._parse_property,
+            self._parse_scope,
             self._parse_query,
             self._parse_list
         ]
@@ -55,8 +55,16 @@ class Parser:
         if token.id not in node_map:
             return
         node = self._create_node(node_map[token.id])
-        node.token = token
+        node.token = self.stream.read(token.id)
         node.index = text_range(token)
+        return node
+
+    def _parse_property(self):
+        if not self.stream.is_current('name'):
+            return
+        node = self._create_node(nodes.PropertyNode)
+        node.name = self.stream.read('name')
+        node.index = text_range(node.name)
         return node
 
     def _parse_prefixed_property(self):
@@ -75,14 +83,6 @@ class Parser:
         node = self._create_node(node_map[prefix.id])
         node.name = self.stream.read('name')
         node.index = text_range(prefix, node.name)
-        return node
-
-    def _parse_property(self):
-        if not self.stream.is_current('name'):
-            return
-        node = self._create_node(nodes.PropertyNode)
-        node.name = self.stream.read('name')
-        node.index = text_range(node.name)
         return node
 
     def _parse_scope(self):
