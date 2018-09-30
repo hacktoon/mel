@@ -15,9 +15,12 @@ class Node:
     def eval(self, context):
         pass
 
-    def __repr__(self):
+    def __str__(self):
         first, last = self.index
         return self.text[first: last]
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
 class ReferenceNode(Node):
