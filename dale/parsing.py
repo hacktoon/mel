@@ -20,7 +20,7 @@ class Parser:
         if not first:
             return
         node = self._create_node(nodes.ReferenceNode)
-        while self.stream.can_read('/'):
+        while self.stream.is_current('/'):
             self.stream.read('/')
             last = self._parse_value()
             if not last:
@@ -90,9 +90,8 @@ class Parser:
         if not self.stream.is_current('('):
             return
         first = self.stream.read('(')
-        if not self.stream.is_current(')'):
-            node.key = self._parse_reference()
-        while not self.stream.can_read(')'):
+        node.key = self._parse_reference()
+        while not self.stream.is_current(')') and not self.stream.is_eof():
             reference = self._parse_reference()
             if reference:
                 node.add(reference)
@@ -105,9 +104,8 @@ class Parser:
         if not self.stream.is_current('{'):
             return
         first = self.stream.read('{')
-        if not self.stream.is_current('}'):
-            node.key = self._parse_reference()
-        while not self.stream.can_read('}'):
+        node.key = self._parse_reference()
+        while not self.stream.is_current('}') and not self.stream.is_eof():
             reference = self._parse_reference()
             if reference:
                 node.add(reference)
@@ -120,7 +118,7 @@ class Parser:
         if not self.stream.is_current('['):
             return
         first = self.stream.read('[')
-        while not self.stream.can_read(']'):
+        while not self.stream.is_current(']') and not self.stream.is_eof():
             reference = self._parse_reference()
             if reference:
                 node.add(reference)

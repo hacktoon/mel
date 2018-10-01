@@ -98,14 +98,3 @@ def test_stream_ends_with_eof_token():
     stream.read(')')
     assert stream.is_eof()
     assert stream.is_current('EOF')
-
-
-def test_can_read_stream_checks_eof():
-    stream = create_stream("a 4 True")
-    assert stream.can_read('name')
-    stream.read('name')
-    assert stream.can_read('int')
-    stream.read('int')
-    assert stream.can_read('boolean')
-    stream.read('boolean')
-    assert not stream.can_read('boolean')

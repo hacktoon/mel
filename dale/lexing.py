@@ -58,9 +58,6 @@ class TokenStream:
             self.index += 1
             return current_token
 
-    def can_read(self, token_id):
-        return not self.is_eof() and self.is_current(token_id)
-
     def is_eof(self):
         return self.index >= len(self.tokens)
 
