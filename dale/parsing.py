@@ -1,5 +1,5 @@
 from . import nodes
-from .exceptions import ExpectedValueError
+from .exceptions import ExpectedValueError, UnexpectedTokenError
 
 
 def builder(node_class):
@@ -50,6 +50,8 @@ class Parser:
             reference = self.parse_reference()
             if reference:
                 node.add(reference)
+            elif not self.stream.is_eof():
+                raise UnexpectedTokenError(self.stream.current())
         if len(node.nodes) == 1:
             return node.nodes[0]
         return node

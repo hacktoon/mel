@@ -4,14 +4,14 @@ class Error(Exception):
 
 
 class LexingError(Error):
-    def __init__(self, index):
+    def __init__(self, index=None):
         super().__init__('Invalid syntax')
         self.index = index
 
 
 class UnexpectedTokenError(LexingError):
     def __init__(self, token, expected_tokens=None):
-        message = 'Found a {!r} token.\n'.format(token.id)
+        message = 'Unexpected {!r} token.\n'.format(token.id)
         if expected_tokens:
             message += 'Expected token(s): {!r}'.format(str(expected_tokens))
         super().__init__(message)
@@ -28,6 +28,10 @@ class UnexpectedTokenValueError(LexingError):
             message += ', with value(s): {!r}'.format(str(expected_values))
         super().__init__(message)
         self.index = token.index[0]
+
+
+class UnexpectedEOFError(LexingError):
+    pass
 
 
 class ParsingError(Error):

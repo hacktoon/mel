@@ -126,3 +126,8 @@ def test_simple_reference():
 def test_unexpected_finished_reference_error():
     with pytest.raises(ExpectedValueError):
         create_tree('name/')
+
+
+def test_unexpected_separator_error():
+    with pytest.raises(UnexpectedTokenError):
+        create_tree('/')
