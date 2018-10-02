@@ -15,6 +15,15 @@ def evaluator(name):
     return decorator
 
 
+def parse(text):
+    try:
+        stream = TokenStream(text)
+        return Parser(stream).parse()
+    except Error as error:
+        message = ErrorFormatter(text, error).format(lines_offset=4)
+        raise Error(message)
+
+
 def eval(text, context=Context()):
     try:
         stream = TokenStream(text)
