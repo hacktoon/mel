@@ -27,7 +27,12 @@ def test_one_sized_tree_returns_the_child_node():
     assert node.id == 'IntNode'
 
 
-def test_node_index():
+def test_node_with_many_child_nodes():
+    node = create_tree('(a) (@b 2) 223 "foo"/2')
+    assert len(node.nodes) == 4
+
+
+def test_node_children_index():
     node = create_tree('44 12')
     assert node.nodes[0].index == (0, 2)
     assert node.nodes[1].index == (3, 5)
@@ -35,12 +40,11 @@ def test_node_index():
 
 @pytest.mark.parametrize('test_input', [
     ('56.75 (a b)'),
-    ('-0.75'),
-    ('-.099999'),
+    ('!flag -0.75'),
+    ('#id -.099999'),
     ('-0.75e10/55 etc'),
     ('+1.45e-10'),
-    ('True'),
-    ('False'),
+    ('True  False'),
     ('"string"'),
     ("'string'"),
     ("@name 2"),
@@ -64,6 +68,23 @@ def test_object_representation(test_input, expected):
 
 
 #  SCOPE TESTS
+
+def test_empty_scope():
+    node = create_tree('()')
+    assert not node.key
+    assert len(node.nodes) == 0
+
+
+def test_nested_scopes():
+    node = create_tree('(a (b 2))')
+    assert str(node.nodes[0].key) == 'b'
+    assert str(node.nodes[0].nodes[0]) == '2'
+
+
+def test_scope_key_with_attribute_by_token_value():
+    node = create_tree('(a (@b 2))')
+    assert node.nodes[0].key.name.value == 'b'
+
 
 def test_unclosed_scope_raises_error():
     with pytest.raises(UnexpectedTokenError):
