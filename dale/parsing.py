@@ -9,34 +9,39 @@ class Parser:
     def parse(self):
         node = self._create_node(nodes.Node)
         while not self.stream.is_eof():
-            reference = self._parse_reference()
+            reference = self.parse_reference()
             if reference:
                 node.add(reference)
         node.index = 0, len(self.stream.text)
+        if len(node.nodes) == 1:
+            return node.nodes[0]
         return node
 
-    def _parse_reference(self):
-        first = last = self._parse_value()
+    def parse_reference(self):
+        first = last = self.parse_value()
         if not first:
             return
         node = self._create_node(nodes.ReferenceNode)
+        node.add(first)
         while self.stream.is_current('/'):
             self.stream.read('/')
-            last = self._parse_value()
+            last = self.parse_value()
             if not last:
                 raise ParsingError()
             node.add(last)
         node.index = text_range(first, last)
+        if len(node.nodes) == 1:
+            return node.nodes[0]
         return node
 
-    def _parse_value(self):
+    def parse_value(self):
         methods = [
-            self._parse_literal,
-            self._parse_prefixed_property,
-            self._parse_property,
-            self._parse_scope,
-            self._parse_query,
-            self._parse_list
+            self.parse_literal,
+            self.parse_prefixed_property,
+            self.parse_property,
+            self.parse_scope,
+            self.parse_query,
+            self.parse_list
         ]
         for method in methods:
             node = method()
@@ -44,7 +49,7 @@ class Parser:
                 return node
         return
 
-    def _parse_literal(self):
+    def parse_literal(self):
         node_map = {
             'boolean': nodes.BooleanNode,
             'string': nodes.StringNode,
@@ -59,7 +64,7 @@ class Parser:
         node.index = text_range(token)
         return node
 
-    def _parse_property(self):
+    def parse_property(self):
         if not self.stream.is_current('name'):
             return
         node = self._create_node(nodes.PropertyNode)
@@ -67,7 +72,7 @@ class Parser:
         node.index = text_range(node.name)
         return node
 
-    def _parse_prefixed_property(self):
+    def parse_prefixed_property(self):
         node_map = {
             '#': nodes.UIDNode,
             '!': nodes.FlagNode,
@@ -85,41 +90,41 @@ class Parser:
         node.index = text_range(prefix, node.name)
         return node
 
-    def _parse_scope(self):
+    def parse_scope(self):
         node = self._create_node(nodes.ScopeNode)
         if not self.stream.is_current('('):
             return
         first = self.stream.read('(')
-        node.key = self._parse_reference()
+        node.key = self.parse_reference()
         while not self.stream.is_current(')') and not self.stream.is_eof():
-            reference = self._parse_reference()
+            reference = self.parse_reference()
             if reference:
                 node.add(reference)
         last = self.stream.read(')')
         node.index = text_range(first, last)
         return node
 
-    def _parse_query(self):
+    def parse_query(self):
         node = self._create_node(nodes.QueryNode)
         if not self.stream.is_current('{'):
             return
         first = self.stream.read('{')
-        node.key = self._parse_reference()
+        node.key = self.parse_reference()
         while not self.stream.is_current('}') and not self.stream.is_eof():
-            reference = self._parse_reference()
+            reference = self.parse_reference()
             if reference:
                 node.add(reference)
         last = self.stream.read('}')
         node.index = text_range(first, last)
         return node
 
-    def _parse_list(self):
+    def parse_list(self):
         node = self._create_node(nodes.ListNode)
         if not self.stream.is_current('['):
             return
         first = self.stream.read('[')
         while not self.stream.is_current(']') and not self.stream.is_eof():
-            reference = self._parse_reference()
+            reference = self.parse_reference()
             if reference:
                 node.add(reference)
         last = self.stream.read(']')

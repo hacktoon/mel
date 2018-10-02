@@ -5,6 +5,7 @@ def _default_evaluator(value, context):
 
 class Node:
     def __init__(self):
+        self.id = self.__class__.__name__
         self.text = ''
         self.index = (0, 0)
         self.nodes = []
@@ -13,6 +14,7 @@ class Node:
         self.nodes.append(node)
 
     def eval(self, context):
+        # TODO: reserved for language use. Ex: ReferenceParser#scope
         pass
 
     def __str__(self):
@@ -20,7 +22,8 @@ class Node:
         return self.text[first: last]
 
     def __repr__(self):
-        return self.__class__.__name__
+        values = [str(n) for n in self.nodes]
+        return "{}({})".format(self.id, ' '.join(values))
 
 
 class ReferenceNode(Node):
@@ -28,7 +31,12 @@ class ReferenceNode(Node):
         pass
 
     def eval(self, context):
+        # TODO: reserved for language use. Ex: ReferenceParser#scope
         pass
+
+    def __repr__(self):
+        values = [str(n) for n in self.nodes]
+        return "{}({})".format(self.id, '/'.join(values))
 
 
 class ScopeNode(Node):
@@ -37,9 +45,14 @@ class ScopeNode(Node):
         self.key = None
 
     def eval(self, context):
-        evaluator = context.evaluators.get('Scope', _default_evaluator)
+        evaluator = context.evaluators.get(self.id, _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(self.key, values, context)
+
+    def __repr__(self):
+        values = [str(self.key)]
+        values.extend([str(n) for n in self.nodes])
+        return "{}({})".format(self.id, ' '.join(values))
 
 
 class QueryNode(Node):
@@ -48,16 +61,25 @@ class QueryNode(Node):
         self.key = None
 
     def eval(self, context):
-        evaluator = context.evaluators.get('Query', _default_evaluator)
+        evaluator = context.evaluators.get(self.id, _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(self.key, values, context)
+
+    def __repr__(self):
+        values = [str(self.key)]
+        values.extend([str(n) for n in self.nodes])
+        return "{}({})".format(self.id, ' '.join(values))
 
 
 class ListNode(Node):
     def eval(self, context):
-        evaluator = context.evaluators.get('List', _default_evaluator)
+        evaluator = context.evaluators.get(self.id, _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(values, context)
+
+    def __repr__(self):
+        values = [str(n) for n in self.nodes]
+        return "{}({})".format(self.id, ' '.join(values))
 
 
 class PropertyNode(Node):
@@ -66,8 +88,7 @@ class PropertyNode(Node):
         self.name = None
 
     def eval(self, context):
-        node_name = self.__class__.__name__
-        evaluator = context.evaluators.get(node_name, _default_evaluator)
+        evaluator = context.evaluators.get(self.id, _default_evaluator)
         return evaluator(self.name.value, context)
 
 
@@ -101,9 +122,12 @@ class LiteralNode(Node):
         self.token = None
 
     def eval(self, context):
-        node_name = self.__class__.__name__
-        evaluator = context.evaluators.get(node_name, _default_evaluator)
+        evaluator = context.evaluators.get(self.id, _default_evaluator)
         return evaluator(self.token.value, context)
+
+    def __repr__(self):
+        value = str(self.token.value)
+        return "{}({})".format(self.id, value)
 
 
 class IntNode(LiteralNode):
