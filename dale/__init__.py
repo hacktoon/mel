@@ -26,8 +26,7 @@ def parse(text):
 
 def eval(text, context=Context()):
     try:
-        stream = TokenStream(text)
-        tree = Parser(stream).parse()
+        tree = parse(text)
         context.tree = tree
         context.text = text
         context.evaluators = _evaluators
