@@ -1,5 +1,5 @@
 from . import nodes
-from .exceptions import ParsingError
+from .exceptions import ExpectedValueError
 
 
 class Parser:
@@ -27,7 +27,7 @@ class Parser:
             self.stream.read('/')
             last = self.parse_value()
             if not last:
-                raise ParsingError()
+                raise ExpectedValueError()
             node.add(last)
         node.index = text_range(first, last)
         if len(node.nodes) == 1:

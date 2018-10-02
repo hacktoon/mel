@@ -3,7 +3,7 @@ import pytest
 from dale.lexing import TokenStream
 from dale.parsing import Parser
 from dale.utils.context import Context
-from dale.exceptions import UnexpectedTokenError
+from dale.exceptions import ExpectedValueError, UnexpectedTokenError
 
 
 def create_tree(text):
@@ -109,3 +109,15 @@ def test_empty_list():
 def test_one_sized_list_node_always_returns_list():
     node = create_tree('[3]')
     assert node.id == 'ListNode'
+
+
+#  REFERENCE TESTS
+
+def test_simple_reference():
+    node = create_tree('name/6')
+    assert len(node.nodes) == 2
+
+
+def test_unexpected_finished_reference_error():
+    with pytest.raises(ExpectedValueError):
+        create_tree('name/')
