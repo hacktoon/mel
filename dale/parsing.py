@@ -2,11 +2,49 @@ from . import nodes
 from .exceptions import ExpectedValueError
 
 
+def builder(node_class):
+    def decorator(method):
+        def surrogate(self, *args):
+            first = self.stream.current()
+            node = self._create_node(node_class)
+            node = method(self, node)
+            if not node:
+                return
+            last = self.stream.current(-1)
+            node.index = text_range(first, last)
+            return node
+        return surrogate
+    return decorator
+
+
+def mapbuilder(node_map):
+    def decorator(method):
+        def surrogate(self, *args):
+            first = self.stream.current()
+            if first.id not in node_map:
+                return
+            node = self._create_node(node_map[first.id])
+            node = method(self, node)
+            if not node:
+                return
+            last = self.stream.current(-1)
+            node.index = text_range(first, last)
+            return node
+        return surrogate
+    return decorator
+
+
+def text_range(first, last=None):
+    if last:
+        return first.index[0], last.index[1]
+    return first.index[0], first.index[1]
+
+
 class Parser:
     def __init__(self, stream):
         self.stream = stream
 
-    @nodes.builder(nodes.Node)
+    @builder(nodes.Node)
     def parse(self, node):
         while not self.stream.is_eof():
             reference = self.parse_reference()
@@ -16,7 +54,7 @@ class Parser:
             return node.nodes[0]
         return node
 
-    @nodes.builder(nodes.ReferenceNode)
+    @builder(nodes.ReferenceNode)
     def parse_reference(self, node):
         first = last = self.parse_value()
         if not first:
@@ -47,7 +85,7 @@ class Parser:
                 return node
         return
 
-    @nodes.mapbuilder({
+    @mapbuilder({
         'boolean': nodes.BooleanNode,
         'string': nodes.StringNode,
         'float': nodes.FloatNode,
@@ -60,14 +98,14 @@ class Parser:
         node.token = self.stream.read(token.id)
         return node
 
-    @nodes.builder(nodes.PropertyNode)
+    @builder(nodes.PropertyNode)
     def parse_property(self, node):
         if not self.stream.is_current('name'):
             return
         node.name = self.stream.read('name')
         return node
 
-    @nodes.mapbuilder({
+    @mapbuilder({
         '#': nodes.UIDNode,
         '!': nodes.FlagNode,
         '@': nodes.AttributeNode,
@@ -83,7 +121,7 @@ class Parser:
         node.name = self.stream.read('name')
         return node
 
-    @nodes.builder(nodes.ScopeNode)
+    @builder(nodes.ScopeNode)
     def parse_scope(self, node):
         if not self.stream.is_current('('):
             return
@@ -96,7 +134,7 @@ class Parser:
         self.stream.read(')')
         return node
 
-    @nodes.builder(nodes.QueryNode)
+    @builder(nodes.QueryNode)
     def parse_query(self, node):
         if not self.stream.is_current('{'):
             return
@@ -109,7 +147,7 @@ class Parser:
         self.stream.read('}')
         return node
 
-    @nodes.builder(nodes.ListNode)
+    @builder(nodes.ListNode)
     def parse_list(self, node):
         if not self.stream.is_current('['):
             return
