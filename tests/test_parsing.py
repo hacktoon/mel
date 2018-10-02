@@ -22,12 +22,12 @@ def test_empty_input_string():
     assert node.id == 'Node'
 
 
-def test_one_sized_tree_returns_the_child_node():
+def test_one_sized_root_node_returns_its_child():
     node = create_tree('44')
     assert node.id == 'IntNode'
 
 
-def test_node_with_many_child_nodes():
+def test_root_node_with_many_child_nodes():
     node = create_tree('(a) (@b 2) 223 "foo"/2')
     assert len(node.nodes) == 4
 
@@ -58,7 +58,10 @@ def test_string_representation(test_input):
 @pytest.mark.parametrize('test_input, expected', [
     ('-215', 'IntNode(-215)'),
     ('56.75', 'FloatNode(56.75)'),
+    ('#id', 'UIDNode(id)'),
     ('(bar 42)', 'ScopeNode(bar 42)'),
+    ('[bar "etc"]', 'ListNode(bar "etc")'),
+    ('!active', 'FlagNode(active)'),
     ('bar/42', 'ReferenceNode(bar/42)'),
     ('bar/42 "text"', 'Node(bar/42 "text")'),
 ])
@@ -94,3 +97,15 @@ def test_unclosed_scope_raises_error():
 def test_scope_key_assumes_first_reference():
     node = create_tree('(foo 42)')
     assert str(node.key) == 'foo'
+
+
+#  LIST TESTS
+
+def test_empty_list():
+    node = create_tree('[]')
+    assert len(node.nodes) == 0
+
+
+def test_one_sized_list_node_always_returns_list():
+    node = create_tree('[3]')
+    assert node.id == 'ListNode'

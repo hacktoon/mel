@@ -37,8 +37,9 @@ def test_first_token_value(test_input, expected):
 
 
 def test_that_comments_are_ignored():
-    tokens = tokenize('--comment \n 45')
+    tokens = tokenize('--comment \n 45 --after')
     assert tokens[0].value == 45
+    assert len(tokens) == 1
 
 
 def test_commas_are_treated_as_whitespace():

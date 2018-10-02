@@ -91,6 +91,9 @@ class PropertyNode(Node):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
         return evaluator(self.name.value, context)
 
+    def __repr__(self):
+        return "{}({})".format(self.id, self.name.value)
+
 
 class UIDNode(PropertyNode):
     pass
@@ -119,7 +122,7 @@ class DocNode(PropertyNode):
 class LiteralNode(Node):
     def __init__(self):
         super().__init__()
-        self.token = None
+        self.token = None  # TODO: use Token
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
