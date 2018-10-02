@@ -11,7 +11,7 @@ def builder(node_class):
             if not node:
                 return
             last = self.stream.current(-1)
-            node.index = text_range(first, last)
+            node.index = first.index[0], last.index[1]
             return node
         return surrogate
     return decorator
@@ -28,16 +28,10 @@ def mapbuilder(node_map):
             if not node:
                 return
             last = self.stream.current(-1)
-            node.index = text_range(first, last)
+            node.index = first.index[0], last.index[1]
             return node
         return surrogate
     return decorator
-
-
-def text_range(first, last=None):
-    if last:
-        return first.index[0], last.index[1]
-    return first.index[0], first.index[1]
 
 
 class Parser:
