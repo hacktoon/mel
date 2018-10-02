@@ -38,6 +38,11 @@ def test_node_children_index():
     assert node.nodes[1].index == (3, 5)
 
 
+def test_list_index():
+    _list = create_tree('[1, 2]')
+    assert _list.index == (0, 6)
+
+
 @pytest.mark.parametrize('test_input', [
     ('56.75 (a b)'),
     ('!flag -0.75'),

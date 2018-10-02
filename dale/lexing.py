@@ -64,8 +64,8 @@ class TokenStream:
     def is_current(self, token_id):
         return self.current().id == token_id
 
-    def current(self):
+    def current(self, offset=0):
         try:
-            return self.tokens[self.index]
+            return self.tokens[self.index + offset]
         except IndexError:
             return tokens.EOFToken()

@@ -3,6 +3,44 @@ def _default_evaluator(value, context):
     return value
 
 
+def text_range(first, last=None):
+    if last:
+        return first.index[0], last.index[1]
+    return first.index[0], first.index[1]
+
+
+def builder(node_class):
+    def decorator(method):
+        def wrapper(self, *args):
+            node = self._create_node(node_class)
+            first = self.stream.current()
+            node = method(self, node)
+            if not node:
+                return
+            last = self.stream.current(-1)
+            node.index = text_range(first, last)
+            return node
+        return wrapper
+    return decorator
+
+
+def mapbuilder(node_map):
+    def decorator(method):
+        def wrapper(self, *args):
+            first = self.stream.current()
+            if first.id not in node_map:
+                return
+            node = self._create_node(node_map[first.id])
+            node = method(self, node)
+            if not node:
+                return
+            last = self.stream.current(-1)
+            node.index = text_range(first, last)
+            return node
+        return wrapper
+    return decorator
+
+
 class Node:
     def __init__(self):
         self.id = self.__class__.__name__
