@@ -17,6 +17,9 @@ class Node:
         # TODO: reserved for language use. Ex: ReferenceParser#scope
         pass
 
+    def __getitem__(self, index):
+        return self.nodes[index]
+
     def __str__(self):
         first, last = self.index
         return self.text[first: last]

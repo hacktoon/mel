@@ -34,8 +34,8 @@ def test_root_node_with_many_child_nodes():
 
 def test_node_children_index():
     node = create_tree('44 12')
-    assert node.nodes[0].index == (0, 2)
-    assert node.nodes[1].index == (3, 5)
+    assert node[0].index == (0, 2)
+    assert node[1].index == (3, 5)
 
 
 def test_list_index():
@@ -85,13 +85,13 @@ def test_empty_scope():
 
 def test_nested_scopes():
     node = create_tree('(a (b 2))')
-    assert str(node.nodes[0].key) == 'b'
-    assert str(node.nodes[0].nodes[0]) == '2'
+    assert str(node[0].key) == 'b'
+    assert str(node[0].nodes[0]) == '2'
 
 
 def test_scope_key_with_attribute_by_token_value():
     node = create_tree('(a (@b 2))')
-    assert node.nodes[0].key.name.value == 'b'
+    assert node[0].key.name.value == 'b'
 
 
 def test_unclosed_scope_raises_error():
