@@ -88,8 +88,6 @@ class Parser:
         'int': nodes.IntNode
     })
     def parse_literal(self, node):
-        if not node:
-            return
         token = self.stream.current()
         node.token = self.stream.read(token.id)
         return node
@@ -110,8 +108,6 @@ class Parser:
         '?': nodes.DocNode
     })
     def parse_prefixed_property(self, node):
-        if not node:
-            return
         prefix = self.stream.current()
         self.stream.read(prefix.id)
         node.name = self.stream.read('name')
