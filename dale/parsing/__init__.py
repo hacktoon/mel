@@ -2,17 +2,8 @@ from .. import nodes
 from ..exceptions import ExpectedValueError, UnexpectedTokenError
 
 from .decorators import builder, mapbuilder
-from .scopes import a
-
-
-class BaseParser:
-    def __init__(self, stream):
-        self.stream = stream
-
-    def _create_node(self, node_class):
-        node = node_class()
-        node.text = self.stream.text
-        return node
+from .scopes import ScopeParser
+from .base import BaseParser
 
 
 class Parser(BaseParser):
@@ -91,18 +82,8 @@ class Parser(BaseParser):
         node.name = self.stream.read('name')
         return node
 
-    @builder(nodes.ScopeNode)
-    def parse_scope(self, node):
-        if not self.stream.is_current('('):
-            return
-        self.stream.read('(')
-        node.key = self.parse_reference()
-        while not self.stream.is_current(')') and not self.stream.is_eof():
-            reference = self.parse_reference()
-            if reference:
-                node.add(reference)
-        self.stream.read(')')
-        return node
+    def parse_scope(self):
+        return ScopeParser(self).parse()
 
     @builder(nodes.QueryNode)
     def parse_query(self, node):
