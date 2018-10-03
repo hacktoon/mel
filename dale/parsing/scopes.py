@@ -15,9 +15,12 @@ class ScopeParser(BaseParser):
             return
         self.stream.read('(')
         node.key = self.parser.parse_reference()
+        self.parse_nodes(node)
+        self.stream.read(')')
+        return node
+
+    def parse_nodes(self, node):
         while not self.stream.is_current(')') and not self.stream.is_eof():
             reference = self.parser.parse_reference()
             if reference:
                 node.add(reference)
-        self.stream.read(')')
-        return node
