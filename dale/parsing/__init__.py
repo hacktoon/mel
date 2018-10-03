@@ -1,43 +1,21 @@
 from .. import nodes
 from ..exceptions import ExpectedValueError, UnexpectedTokenError
 
-
-def builder(node_class):
-    def decorator(method):
-        def surrogate(self, *args):
-            first = self.stream.current()
-            node = self._create_node(node_class)
-            node = method(self, node)
-            if not node:
-                return
-            last = self.stream.current(-1)
-            node.index = first.index[0], last.index[1]
-            return node
-        return surrogate
-    return decorator
+from .decorators import builder, mapbuilder
+from .scopes import a
 
 
-def mapbuilder(node_map):
-    def decorator(method):
-        def surrogate(self, *args):
-            first = self.stream.current()
-            if first.id not in node_map:
-                return
-            node = self._create_node(node_map[first.id])
-            node = method(self, node)
-            if not node:
-                return
-            last = self.stream.current(-1)
-            node.index = first.index[0], last.index[1]
-            return node
-        return surrogate
-    return decorator
-
-
-class Parser:
+class BaseParser:
     def __init__(self, stream):
         self.stream = stream
 
+    def _create_node(self, node_class):
+        node = node_class()
+        node.text = self.stream.text
+        return node
+
+
+class Parser(BaseParser):
     @builder(nodes.Node)
     def parse(self, node):
         while not self.stream.is_eof():
@@ -149,9 +127,4 @@ class Parser:
             if reference:
                 node.add(reference)
         self.stream.read(']')
-        return node
-
-    def _create_node(self, node_class):
-        node = node_class()
-        node.text = self.stream.text
         return node
