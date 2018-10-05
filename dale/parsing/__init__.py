@@ -15,8 +15,6 @@ class Parser(BaseParser):
                 node.add(reference)
             elif not self.stream.is_eof():
                 raise UnexpectedTokenError(self.stream.current())
-        if len(node.nodes) == 1:
-            return node.nodes[0]
         return node
 
     @builder(nodes.ReferenceNode)
@@ -31,8 +29,6 @@ class Parser(BaseParser):
             if not last:
                 raise ExpectedValueError()
             node.add(last)
-        if len(node.nodes) == 1:
-            return node.nodes[0]
         return node
 
     def parse_value(self):
