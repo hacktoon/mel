@@ -64,7 +64,7 @@ class Parser(BaseParser):
             '!': nodes.FlagNode,
             '@': nodes.AttributeNode,
             '%': nodes.FormatNode,
-            '~': nodes.AliasNode,
+            '$': nodes.VariableNode,
             '?': nodes.DocNode
         }
         prefix = self.stream.current()

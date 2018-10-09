@@ -98,9 +98,9 @@ class PercentToken(Token):
     regex = re.compile('%')
 
 
-class TildeToken(Token):
-    id = '~'
-    regex = re.compile('~')
+class DollarToken(Token):
+    id = '$'
+    regex = re.compile(r'\$')
 
 
 class ExclamationMarkToken(Token):

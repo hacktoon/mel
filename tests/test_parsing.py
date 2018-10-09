@@ -74,6 +74,7 @@ def test_string_representation(test_input):
     ('-215', 'IntNode(-215)'),
     ('56.75', 'FloatNode(56.75)'),
     ('#id', 'UIDNode(id)'),
+    ('$path', 'VariableNode(path)'),
     ('(bar 42)', 'ScopeNode(bar 42)'),
     ('[bar "etc"]', 'ListNode(bar "etc")'),
     ('!active', 'FlagNode(active)'),

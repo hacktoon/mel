@@ -114,7 +114,7 @@ class FormatNode(PropertyNode):
     pass
 
 
-class AliasNode(PropertyNode):
+class VariableNode(PropertyNode):
     pass
 
 

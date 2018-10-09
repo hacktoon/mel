@@ -9,7 +9,7 @@ Dale's syntax is based on a simple idea: a sequence of values. The general rules
 ```
 dale        =  value*
 
-value       =  literal | property | tag | alias | attribute | format |
+value       =  literal | property | flag | variable | attribute | format |
                uid | doc | scope | query | list | path
 
 literal     =  int | float | string | boolean
@@ -17,8 +17,8 @@ path        =  value ('/' value)*
 
 property    =  name
 attribute   =  '@' name
-tag         =  '!' name
-alias       =  '~' name
+flag        =  '!' name
+variable    =  '$' name
 format      =  '%' name
 uid         =  '#' name
 doc         =  '?' name
