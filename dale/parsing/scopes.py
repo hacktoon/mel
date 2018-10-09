@@ -1,7 +1,6 @@
 from .. import nodes
 
 from .base import BaseParser
-from .decorators import indexed
 
 
 class ScopeParser(BaseParser):
@@ -9,7 +8,6 @@ class ScopeParser(BaseParser):
         super().__init__(parser.stream)
         self.parser = parser
 
-    @indexed
     def parse(self):
         if not self.stream.is_current('('):
             return

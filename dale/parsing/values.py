@@ -2,7 +2,6 @@ from .. import nodes
 from ..exceptions import ExpectedValueError
 
 from .base import BaseParser
-from .decorators import indexed
 
 
 class ValueParser(BaseParser):
@@ -10,7 +9,6 @@ class ValueParser(BaseParser):
         super().__init__(parser.stream)
         self.parser = parser
 
-    @indexed
     def parse(self):
         base_value = self.parse_base_value()
         if not base_value or not self.stream.is_current('/'):

@@ -48,6 +48,11 @@ def test_list_index():
     assert _list.index == (0, 6)
 
 
+def test_scope_index():
+    scope = create_tree('(a 2)')
+    assert scope.index == (0, 5)
+
+
 @pytest.mark.parametrize('test_input', [
     ('56.75 (a b)'),
     ('!flag -0.75'),

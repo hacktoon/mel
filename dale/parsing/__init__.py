@@ -19,6 +19,7 @@ class Parser(BaseParser):
                 raise UnexpectedTokenError(self.stream.current())
         return node
 
+    @indexed
     def parse_value(self):
         return ValueParser(self).parse()
 
@@ -63,6 +64,7 @@ class Parser(BaseParser):
         node.name = self.stream.read('name')
         return node
 
+    @indexed
     def parse_scope(self):
         return ScopeParser(self).parse()
 
