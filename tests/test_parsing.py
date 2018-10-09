@@ -29,7 +29,7 @@ def test_empty_input_string():
 @pytest.mark.skip
 def test_one_sized_root_node_returns_its_child():
     node = create_tree('44')
-    assert node.id == 'IntNode'
+    assert node[0].id == 'IntNode'
 
 
 def test_root_node_with_many_child_nodes():
@@ -65,7 +65,6 @@ def test_string_representation(test_input):
     assert str(tree) == test_input
 
 
-@pytest.mark.skip
 @pytest.mark.parametrize('test_input, expected', [
     ('-215', 'IntNode(-215)'),
     ('56.75', 'FloatNode(56.75)'),
@@ -73,12 +72,11 @@ def test_string_representation(test_input):
     ('(bar 42)', 'ScopeNode(bar 42)'),
     ('[bar "etc"]', 'ListNode(bar "etc")'),
     ('!active', 'FlagNode(active)'),
-    ('bar/42', 'ReferenceNode(bar/42)'),
-    ('bar/42 "text"', 'Node(bar/42 "text")'),
+    ('bar/42', 'PathNode(bar/42)')
 ])
 def test_object_representation(test_input, expected):
     tree = create_tree(test_input)
-    assert repr(tree) == expected
+    assert repr(tree[0]) == expected
 
 
 #  SCOPE TESTS
@@ -93,16 +91,16 @@ def test_empty_scope():
 def test_nested_scopes():
     parser = create_parser('(a (b 2))')
     node = parser.parse_scope()
-    subscope = node[0][0]
+    subscope = node[0]
     assert str(node[0]) == '(b 2)'
-    assert str(subscope.key[0]) == 'b'
+    assert str(subscope.key) == 'b'
     assert str(subscope.nodes[0]) == '2'
 
 
 def test_scope_key_with_attribute_by_token_value():
     parser = create_parser('(a (@b 2))')
     node = parser.parse_scope()
-    assert node[0][0].key[0].name.value == 'b'
+    assert node[0].key.name.value == 'b'
 
 
 def test_unclosed_scope_raises_error():
@@ -134,7 +132,7 @@ def test_one_sized_list_node_always_returns_list():
 
 def test_simple_reference():
     parser = create_parser('name/6')
-    node = parser.parse_reference()
+    node = parser.parse_value()
     assert len(node.nodes) == 2
 
 

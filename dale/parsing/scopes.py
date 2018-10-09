@@ -15,13 +15,13 @@ class ScopeParser(BaseParser):
             return
         node = self._create_node(nodes.ScopeNode)
         self.stream.read('(')
-        node.key = self.parser.parse_reference()
+        node.key = self.parser.parse_value()
         self.parse_nodes(node)
         self.stream.read(')')
         return node
 
     def parse_nodes(self, node):
         while not self.stream.is_current(')') and not self.stream.is_eof():
-            reference = self.parser.parse_reference()
+            reference = self.parser.parse_value()
             if reference:
                 node.add(reference)

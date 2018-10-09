@@ -29,7 +29,7 @@ class Node:
         return "{}({})".format(self.id, ' '.join(values))
 
 
-class ReferenceNode(Node):
+class PathNode(Node):
     def eval_scope(self, context):
         pass
 
