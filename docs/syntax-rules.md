@@ -7,14 +7,13 @@
 Dale's syntax is based on a simple idea: a sequence of values. The general rules can be (partially) written as:
 
 ```
-dale        =  reference*
-
-reference   =  value ('/' value)*
+dale        =  value*
 
 value       =  literal | property | tag | alias | attribute | format |
-               uid | doc | scope | query | list | class
+               uid | doc | scope | query | list | path
 
 literal     =  int | float | string | boolean
+path        =  value ('/' value)*
 
 property    =  name
 attribute   =  '@' name
@@ -24,9 +23,9 @@ format      =  '%' name
 uid         =  '#' name
 doc         =  '?' name
 
-scope       =  '(' reference+ ')'
-query       =  '{' reference+ '}'
-list        =  '[' reference* ']'
+scope       =  '(' value+ ')'
+query       =  '{' value+ '}'
+list        =  '[' value* ']'
 ```
 
 ## Whitespace
