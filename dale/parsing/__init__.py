@@ -21,16 +21,16 @@ class Parser(BaseParser):
     @indexed
     def parse_reference(self):
         node = self._create_node(nodes.ReferenceNode)
-        first = last = self.parse_value()
-        if not first:
+        value = self.parse_value()
+        if not value:
             return
-        node.add(first)
+        node.add(value)
         while self.stream.is_current('/'):
             self.stream.read('/')
-            last = self.parse_value()
-            if not last:
+            value = self.parse_value()
+            if not value:
                 raise ExpectedValueError()
-            node.add(last)
+            node.add(value)
         return node
 
     def parse_value(self):
