@@ -25,7 +25,7 @@ class Node:
         return self.text[first: last]
 
     def __repr__(self):
-        values = [str(n) for n in self.nodes]
+        values = [str(n) for n in self.nodes if n]
         return "{}({})".format(self.id, ' '.join(values))
 
 
@@ -53,8 +53,8 @@ class ScopeNode(Node):
         return evaluator(self.key, values, context)
 
     def __repr__(self):
-        values = [str(self.key)]
-        values.extend([str(n) for n in self.nodes])
+        key = str(self.key) if self.key else ''
+        values = [key] + [str(n) for n in self.nodes if n]
         return "{}({})".format(self.id, ' '.join(values))
 
 
@@ -69,8 +69,8 @@ class QueryNode(Node):
         return evaluator(self.key, values, context)
 
     def __repr__(self):
-        values = [str(self.key)]
-        values.extend([str(n) for n in self.nodes])
+        key = str(self.key) if self.key else ''
+        values = [key] + [str(n) for n in self.nodes if n]
         return "{}({})".format(self.id, ' '.join(values))
 
 

@@ -86,6 +86,7 @@ def test_empty_scope():
     node = parser.parse_scope()
     assert not node.key
     assert len(node.nodes) == 0
+    assert repr(node) == 'ScopeNode()'
 
 
 def test_nested_scopes():
@@ -120,6 +121,7 @@ def test_empty_list():
     parser = create_parser('[]')
     node = parser.parse_list()
     assert len(node.nodes) == 0
+    assert repr(node) == 'ListNode()'
 
 
 def test_one_sized_list_node_always_returns_list():
