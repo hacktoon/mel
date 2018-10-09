@@ -26,12 +26,6 @@ def test_empty_input_string():
     assert node.id == 'Node'
 
 
-@pytest.mark.skip
-def test_one_sized_root_node_returns_its_child():
-    node = create_tree('44')
-    assert node[0].id == 'IntNode'
-
-
 def test_root_node_with_many_child_nodes():
     node = create_tree('(a) (@b 2) 223 "foo"/2')
     assert len(node.nodes) == 4
