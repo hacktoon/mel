@@ -23,7 +23,7 @@ def eval(text, context_class=Context):
 
 def test_empty_input_string():
     node = create_tree('')
-    assert node.id == 'Node'
+    assert node.id == 'root'
 
 
 def test_root_node_with_many_child_nodes():
@@ -65,14 +65,14 @@ def test_string_representation(test_input):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ('-215', 'IntNode(-215)'),
-    ('56.75', 'FloatNode(56.75)'),
-    ('#id', 'UIDNode(id)'),
-    ('$path', 'VariableNode(path)'),
-    ('(bar 42)', 'ScopeNode(bar 42)'),
-    ('[bar "etc"]', 'ListNode(bar "etc")'),
-    ('!active', 'FlagNode(active)'),
-    ('bar/42', 'PathNode(bar/42)')
+    ('-215', 'int(-215)'),
+    ('56.75', 'float(56.75)'),
+    ('#id', 'uid(id)'),
+    ('$path', 'variable(path)'),
+    ('(bar 42)', 'scope(bar 42)'),
+    ('[bar "etc"]', 'list(bar "etc")'),
+    ('!active', 'flag(active)'),
+    ('bar/42', 'path(bar/42)')
 ])
 def test_object_representation(test_input, expected):
     tree = create_tree(test_input)
@@ -86,7 +86,7 @@ def test_empty_scope():
     node = parser.parse_scope()
     assert not node.key
     assert len(node.nodes) == 0
-    assert repr(node) == 'ScopeNode()'
+    assert repr(node) == 'scope()'
 
 
 def test_nested_scopes():
@@ -121,13 +121,13 @@ def test_empty_list():
     parser = create_parser('[]')
     node = parser.parse_list()
     assert len(node.nodes) == 0
-    assert repr(node) == 'ListNode()'
+    assert repr(node) == 'list()'
 
 
 def test_one_sized_list_node_always_returns_list():
     parser = create_parser('[3]')
     node = parser.parse_list()
-    assert node.id == 'ListNode'
+    assert node.id == 'list'
 
 
 #  REFERENCE TESTS

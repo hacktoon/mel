@@ -21,7 +21,7 @@ def indexed(method):
 class Parser(BaseParser):
     @indexed
     def parse(self):
-        node = self._create_node(nodes.Node)
+        node = self._create_node(nodes.RootNode)
         while not self.stream.is_eof():
             reference = self.parse_value()
             if reference:

@@ -4,8 +4,9 @@ def _default_evaluator(value, context):
 
 
 class Node:
+    id = 'node'
+
     def __init__(self):
-        self.id = self.__class__.__name__
         self.text = ''
         self.index = (0, 0)
         self.nodes = []
@@ -29,7 +30,13 @@ class Node:
         return "{}({})".format(self.id, ' '.join(values))
 
 
+class RootNode(Node):
+    id = 'root'
+
+
 class PathNode(Node):
+    id = 'path'
+
     def eval_scope(self, context):
         pass
 
@@ -43,14 +50,21 @@ class PathNode(Node):
 
 
 class ScopeNode(Node):
+    id = 'scope'
+
     def __init__(self):
         super().__init__()
         self.key = None
+        self.flags = {}
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
         return evaluator(self.key, values, context)
+
+    def add_flag(self, flag):
+        self.add(flag)
+        self.flags[flag.name.value] = flag
 
     def __repr__(self):
         key = str(self.key) if self.key else ''
@@ -59,6 +73,8 @@ class ScopeNode(Node):
 
 
 class QueryNode(Node):
+    id = 'query'
+
     def __init__(self):
         super().__init__()
         self.key = None
@@ -75,6 +91,8 @@ class QueryNode(Node):
 
 
 class ListNode(Node):
+    id = 'list'
+
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
         values = [node.eval(context) for node in self.nodes]
@@ -99,27 +117,27 @@ class PropertyNode(Node):
 
 
 class UIDNode(PropertyNode):
-    pass
+    id = 'uid'
 
 
 class FlagNode(PropertyNode):
-    pass
+    id = 'flag'
 
 
 class AttributeNode(PropertyNode):   # TODO rename to MetaNode
-    pass
+    id = 'attribute'
 
 
 class FormatNode(PropertyNode):
-    pass
+    id = 'format'
 
 
 class VariableNode(PropertyNode):
-    pass
+    id = 'variable'
 
 
 class DocNode(PropertyNode):
-    pass
+    id = 'doc'
 
 
 class LiteralNode(Node):
@@ -137,16 +155,16 @@ class LiteralNode(Node):
 
 
 class IntNode(LiteralNode):
-    pass
+    id = 'int'
 
 
 class FloatNode(LiteralNode):
-    pass
+    id = 'float'
 
 
 class BooleanNode(LiteralNode):
-    pass
+    id = 'boolean'
 
 
 class StringNode(LiteralNode):
-        pass
+    id = 'string'
