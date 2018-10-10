@@ -36,6 +36,11 @@ def test_first_token_value(test_input, expected):
     assert tokens[0].value == expected
 
 
+def test_boolean_regex_word_boundary():
+    tokens = tokenize('TrueFalse')
+    assert tokens[0].value == 'TrueFalse'
+
+
 def test_that_comments_are_ignored():
     tokens = tokenize('--comment \n 45 --after')
     assert tokens[0].value == 45
