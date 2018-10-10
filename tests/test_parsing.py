@@ -28,7 +28,7 @@ def test_empty_input_string():
 
 def test_root_node_with_many_child_nodes():
     node = create_tree('(a) (@b 2) 223 "foo"/2')
-    assert len(node.nodes) == 4
+    assert len(node) == 4
 
 
 def test_node_children_index():
@@ -85,7 +85,7 @@ def test_empty_scope():
     parser = create_parser('()')
     node = parser.parse_scope()
     assert not node.key
-    assert len(node.nodes) == 0
+    assert len(node) == 0
     assert repr(node) == 'scope()'
 
 
@@ -120,7 +120,7 @@ def test_scope_key_assumes_first_reference():
 def test_empty_list():
     parser = create_parser('[]')
     node = parser.parse_list()
-    assert len(node.nodes) == 0
+    assert len(node) == 0
     assert repr(node) == 'list()'
 
 
@@ -135,7 +135,7 @@ def test_one_sized_list_node_always_returns_list():
 def test_simple_reference():
     parser = create_parser('name/6')
     node = parser.parse_value()
-    assert len(node.nodes) == 2
+    assert len(node) == 2
 
 
 def test_unexpected_finished_reference_error():

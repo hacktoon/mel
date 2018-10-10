@@ -21,6 +21,12 @@ class Node:
     def __getitem__(self, index):
         return self.nodes[index]
 
+    def __len__(self):
+        return len(self.nodes)
+
+    def __bool__(self):
+        return True
+
     def __str__(self):
         first, last = self.index
         return self.text[first: last]
