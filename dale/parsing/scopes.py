@@ -26,7 +26,12 @@ class ScopeParser(BaseParser):
             value = self.parser.parse_value()
             if not value:
                 break
-            self._add_property(scope, value)
+            self._add_value(scope, value)
 
-    def _add_property(self, scope, value):
+    def _add_value(self, scope, value):
+        # property_map = {
+        #     'id': '',
+        #     'flag': ''
+        # }
+        # if value.id in property_map:
         scope.add(value)

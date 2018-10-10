@@ -10,12 +10,12 @@ class ValueParser(BaseParser):
         self.parser = parser
 
     def parse(self):
-        base_value = self.parse_base_value()
+        base_value = self._parse_value()
         if not base_value or not self.stream.is_current('/'):
             return base_value
-        return self.parse_remaining_values(base_value)
+        return self._parse_path(base_value)
 
-    def parse_base_value(self):
+    def _parse_value(self):
         methods = [
             self.parser.parse_literal,
             self.parser.parse_prefixed_property,
@@ -30,13 +30,13 @@ class ValueParser(BaseParser):
                 return node
         return
 
-    def parse_remaining_values(self, base_value):
-        reference = self._create_node(nodes.PathNode)
-        reference.add(base_value)
+    def _parse_path(self, base_value):
+        path = self._create_node(nodes.PathNode)
+        path.add(base_value)
         while self.stream.is_current('/'):
             self.stream.read('/')
-            value = self.parse_base_value()
+            value = self._parse_value()
             if not value:
                 raise ExpectedValueError()
-            reference.add(value)
-        return reference
+            path.add(value)
+        return path
