@@ -10,8 +10,7 @@ upgrade:
 	pip install --upgrade pip -r requirements.txt
 
 inspect:
-	pycodestyle .
-	frosted -r .
+	flake8 .
 
 test:
 	pytest --color=yes --cov --durations=3 --no-cov-on-fail -vv
