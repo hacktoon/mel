@@ -2,7 +2,7 @@ from . import tokens
 from .exceptions import (
     LexingError,
     UnexpectedTokenError,
-    UnexpectedTokenValueError
+    UnexpectedTokenValueError,
 )
 
 
@@ -50,9 +50,7 @@ class TokenStream:
                 return current_token
             else:
                 raise UnexpectedTokenValueError(
-                    current_token,
-                    expected_token_id,
-                    expected_value
+                    current_token, expected_token_id, expected_value
                 )
         else:
             self.index += 1

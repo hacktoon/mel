@@ -12,6 +12,7 @@ _evaluators = {}
 def evaluator(name):
     def decorator(func):
         _evaluators[name] = func
+
     return decorator
 
 

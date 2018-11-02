@@ -1,13 +1,12 @@
-
 def _default_evaluator(value, context):
     return value
 
 
 class Node:
-    id = 'node'
+    id = "node"
 
     def __init__(self):
-        self.text = ''
+        self.text = ""
         self.index = (0, 0)
         self.nodes = []
 
@@ -29,19 +28,19 @@ class Node:
 
     def __str__(self):
         first, last = self.index
-        return self.text[first: last]
+        return self.text[first:last]
 
     def __repr__(self):
         values = [str(n) for n in self.nodes if n]
-        return "{}({})".format(self.id, ' '.join(values))
+        return "{}({})".format(self.id, " ".join(values))
 
 
 class RootNode(Node):
-    id = 'root'
+    id = "root"
 
 
 class PathNode(Node):
-    id = 'path'
+    id = "path"
 
     def eval_scope(self, context):
         pass
@@ -52,11 +51,11 @@ class PathNode(Node):
 
     def __repr__(self):
         values = [str(n) for n in self.nodes]
-        return "{}({})".format(self.id, '/'.join(values))
+        return "{}({})".format(self.id, "/".join(values))
 
 
 class ScopeNode(Node):
-    id = 'scope'
+    id = "scope"
 
     def __init__(self):
         super().__init__()
@@ -73,13 +72,13 @@ class ScopeNode(Node):
         self.flags[flag.name.value] = flag
 
     def __repr__(self):
-        key = str(self.key) if self.key else ''
+        key = str(self.key) if self.key else ""
         values = [key] + [str(n) for n in self.nodes if n]
-        return "{}({})".format(self.id, ' '.join(values))
+        return "{}({})".format(self.id, " ".join(values))
 
 
 class QueryNode(Node):
-    id = 'query'
+    id = "query"
 
     def __init__(self):
         super().__init__()
@@ -91,13 +90,13 @@ class QueryNode(Node):
         return evaluator(self.key, values, context)
 
     def __repr__(self):
-        key = str(self.key) if self.key else ''
+        key = str(self.key) if self.key else ""
         values = [key] + [str(n) for n in self.nodes if n]
-        return "{}({})".format(self.id, ' '.join(values))
+        return "{}({})".format(self.id, " ".join(values))
 
 
 class ListNode(Node):
-    id = 'list'
+    id = "list"
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
@@ -106,7 +105,7 @@ class ListNode(Node):
 
     def __repr__(self):
         values = [str(n) for n in self.nodes]
-        return "{}({})".format(self.id, ' '.join(values))
+        return "{}({})".format(self.id, " ".join(values))
 
 
 class PropertyNode(Node):
@@ -123,27 +122,27 @@ class PropertyNode(Node):
 
 
 class UIDNode(PropertyNode):
-    id = 'uid'
+    id = "uid"
 
 
 class FlagNode(PropertyNode):
-    id = 'flag'
+    id = "flag"
 
 
-class AttributeNode(PropertyNode):   # TODO rename to MetaNode
-    id = 'attribute'
+class AttributeNode(PropertyNode):  # TODO rename to MetaNode
+    id = "attribute"
 
 
 class FormatNode(PropertyNode):
-    id = 'format'
+    id = "format"
 
 
 class VariableNode(PropertyNode):
-    id = 'variable'
+    id = "variable"
 
 
 class DocNode(PropertyNode):
-    id = 'doc'
+    id = "doc"
 
 
 class LiteralNode(Node):
@@ -161,16 +160,16 @@ class LiteralNode(Node):
 
 
 class IntNode(LiteralNode):
-    id = 'int'
+    id = "int"
 
 
 class FloatNode(LiteralNode):
-    id = 'float'
+    id = "float"
 
 
 class BooleanNode(LiteralNode):
-    id = 'boolean'
+    id = "boolean"
 
 
 class StringNode(LiteralNode):
-    id = 'string'
+    id = "string"

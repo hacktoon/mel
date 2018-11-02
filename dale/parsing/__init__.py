@@ -15,6 +15,7 @@ def indexed(method):
         last = self.stream.current(-1)
         node.index = first.index[0], last.index[1]
         return node
+
     return surrogate
 
 
@@ -37,10 +38,10 @@ class Parser(BaseParser):
     @indexed
     def parse_literal(self):
         node_map = {
-            'boolean': nodes.BooleanNode,
-            'string': nodes.StringNode,
-            'float': nodes.FloatNode,
-            'int': nodes.IntNode
+            "boolean": nodes.BooleanNode,
+            "string": nodes.StringNode,
+            "float": nodes.FloatNode,
+            "int": nodes.IntNode,
         }
         token = self.stream.current()
         if token.id not in node_map:
@@ -51,28 +52,28 @@ class Parser(BaseParser):
 
     @indexed
     def parse_property(self):
-        if not self.stream.is_current('name'):
+        if not self.stream.is_current("name"):
             return
         node = self._create_node(nodes.PropertyNode)
-        node.name = self.stream.read('name')
+        node.name = self.stream.read("name")
         return node
 
     @indexed
     def parse_prefixed_property(self):
         node_map = {
-            '#': nodes.UIDNode,
-            '!': nodes.FlagNode,
-            '@': nodes.AttributeNode,
-            '%': nodes.FormatNode,
-            '$': nodes.VariableNode,
-            '?': nodes.DocNode
+            "#": nodes.UIDNode,
+            "!": nodes.FlagNode,
+            "@": nodes.AttributeNode,
+            "%": nodes.FormatNode,
+            "$": nodes.VariableNode,
+            "?": nodes.DocNode,
         }
         prefix = self.stream.current()
         if prefix.id not in node_map:
             return
         node = self._create_node(node_map[prefix.id])
         self.stream.read(prefix.id)
-        node.name = self.stream.read('name')
+        node.name = self.stream.read("name")
         return node
 
     @indexed
@@ -81,27 +82,27 @@ class Parser(BaseParser):
 
     @indexed
     def parse_query(self):
-        if not self.stream.is_current('{'):
+        if not self.stream.is_current("{"):
             return
         node = self._create_node(nodes.QueryNode)
-        self.stream.read('{')
+        self.stream.read("{")
         node.key = self.parse_value()
-        while not self.stream.is_current('}') and not self.stream.is_eof():
+        while not self.stream.is_current("}") and not self.stream.is_eof():
             reference = self.parse_value()
             if reference:
                 node.add(reference)
-        self.stream.read('}')
+        self.stream.read("}")
         return node
 
     @indexed
     def parse_list(self):
-        if not self.stream.is_current('['):
+        if not self.stream.is_current("["):
             return
         node = self._create_node(nodes.ListNode)
-        self.stream.read('[')
-        while not self.stream.is_current(']') and not self.stream.is_eof():
+        self.stream.read("[")
+        while not self.stream.is_current("]") and not self.stream.is_eof():
             reference = self.parse_value()
             if reference:
                 node.add(reference)
-        self.stream.read(']')
+        self.stream.read("]")
         return node

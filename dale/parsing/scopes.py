@@ -9,17 +9,20 @@ class ScopeParser(BaseParser):
         self.parser = parser
 
     def parse(self):
-        if not self.stream.is_current('('):
+        if not self.stream.is_current("("):
             return
         node = self._create_node(nodes.ScopeNode)
-        self.stream.read('(')
-        node.key = self.parser.parse_value()
+        self.stream.read("(")
+        self._parse_key(node)
         self._parse_values(node)
-        self.stream.read(')')
+        self.stream.read(")")
         return node
 
+    def _parse_key(self, node):
+        node.key = self.parser.parse_value()
+
     def _parse_values(self, scope):
-        parsing_scope = not self.stream.is_current(')')
+        parsing_scope = not self.stream.is_current(")")
         streaming = not self.stream.is_eof()
 
         while parsing_scope and streaming:
@@ -29,9 +32,4 @@ class ScopeParser(BaseParser):
             self._add_value(scope, value)
 
     def _add_value(self, scope, value):
-        # property_map = {
-        #     'id': '',
-        #     'flag': ''
-        # }
-        # if value.id in property_map:
         scope.add(value)

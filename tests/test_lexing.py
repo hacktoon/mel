@@ -12,43 +12,46 @@ def create_stream(text):
     return TokenStream(text)
 
 
-@pytest.mark.parametrize('test_input, expected', [
-    ('56.75', 56.75),
-    ('-0.75', -0.75),
-    ('-.099999', -.099999),
-    ('-0.75e10', -0.75e10),
-    ('+1.45e-10', 1.45e-10),
-    ('True', True),
-    ('False', False),
-    ('-56', -56),
-    ('45', 45),
-    ('(', '('),
-    (')', ')'),
-    ('"string"', 'string'),
-    ("'string'", 'string'),
-    ("@", '@'),
-    (':', ':'),
-    ('foo', 'foo'),
-    ('foo\n / bar', 'foo')
-])
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("56.75", 56.75),
+        ("-0.75", -0.75),
+        ("-.099999", -0.099999),
+        ("-0.75e10", -0.75e10),
+        ("+1.45e-10", 1.45e-10),
+        ("True", True),
+        ("False", False),
+        ("-56", -56),
+        ("45", 45),
+        ("(", "("),
+        (")", ")"),
+        ('"string"', "string"),
+        ("'string'", "string"),
+        ("@", "@"),
+        (":", ":"),
+        ("foo", "foo"),
+        ("foo\n / bar", "foo"),
+    ],
+)
 def test_first_token_value(test_input, expected):
     tokens = tokenize(test_input)
     assert tokens[0].value == expected
 
 
 def test_boolean_regex_word_boundary():
-    tokens = tokenize('TrueFalse')
-    assert tokens[0].value == 'TrueFalse'
+    tokens = tokenize("TrueFalse")
+    assert tokens[0].value == "TrueFalse"
 
 
 def test_that_comments_are_ignored():
-    tokens = tokenize('--comment \n 45 --after')
+    tokens = tokenize("--comment \n 45 --after")
     assert tokens[0].value == 45
     assert len(tokens) == 1
 
 
 def test_commas_are_treated_as_whitespace():
-    tokens = tokenize('222, 45 True')
+    tokens = tokenize("222, 45 True")
     assert tokens[0].value == 222
     assert tokens[1].value == 45
     assert tokens[2].value is True
@@ -56,11 +59,11 @@ def test_commas_are_treated_as_whitespace():
 
 def test_tokenize_string_with_newline():
     tokens = tokenize('"line one\nline two"')
-    assert tokens[0].value == 'line one\nline two'
+    assert tokens[0].value == "line one\nline two"
 
 
 def test_tokenize_string_with_escaped_quotes():
-    tokens = tokenize('"single \'escaped\'"')
+    tokens = tokenize("\"single 'escaped'\"")
     assert tokens[0].value == "single 'escaped'"
 
 
@@ -71,7 +74,7 @@ def test_tokenize_string_with_escaped_quotes_and_single_quotes():
 
 def test_name_tokens_cant_start_with_numbers():
     with pytest.raises(LexingError):
-        tokenize(r'42name')
+        tokenize(r"42name")
 
 
 def test_non_terminated_string_throws_error():
@@ -81,26 +84,26 @@ def test_non_terminated_string_throws_error():
 
 def test_single_quoted_string_doesnt_allow_same_quote_symbol():
     with pytest.raises(LexingError):
-        tokenize('"a quote \" "')
+        tokenize('"a quote " "')
 
 
 def test_double_quoted_string_doesnt_allow_same_quote_symbol():
     with pytest.raises(LexingError):
-        tokenize('"a quote \" "')
+        tokenize('"a quote " "')
 
 
 def test_that_read_unexpected_token_raises_error():
     stream = create_stream('"string"')
     with pytest.raises(UnexpectedTokenError):
-        stream.read('int')
+        stream.read("int")
 
 
 def test_stream_ends_with_eof_token():
-    stream = create_stream('(age 5)')
-    stream.read('(')
-    stream.read('name')
+    stream = create_stream("(age 5)")
+    stream.read("(")
+    stream.read("name")
     assert not stream.is_eof()
-    stream.read('int')
-    stream.read(')')
+    stream.read("int")
+    stream.read(")")
     assert stream.is_eof()
-    assert stream.is_current('EOF')
+    assert stream.is_current("EOF")
