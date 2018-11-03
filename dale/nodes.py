@@ -48,20 +48,17 @@ class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = None
-        self.properties = {  # TODO: get this from PropertyNode subclasses
-            "uid": {},
-            "flag": {},
-            "attribute": {},
-            "variable": {},
-            "doc": {},
-            "format": {},
-        }
+        self.properties = {P.id: dict() for P in PropertyNode.__subclasses__()}
 
     def add(self, value_node):
-        super().add(value_node)
         if value_node.id in self.properties.keys():
-            prop = self.properties[value_node.id]
-            prop[value_node.name] = value_node
+            self._set_property(value_node)
+        else:
+            super().add(value_node)
+
+    def _set_property(self, value_node):
+        prop = self.properties[value_node.id]
+        prop[value_node.name] = value_node
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
@@ -105,26 +102,32 @@ class PropertyNode(Node):
 
 class UIDNode(PropertyNode):
     id = "uid"
+    prefix = "#"
 
 
 class FlagNode(PropertyNode):
     id = "flag"
+    prefix = "!"
 
 
 class AttributeNode(PropertyNode):  # TODO rename to MetaNode
     id = "attribute"
+    prefix = "@"
 
 
 class FormatNode(PropertyNode):
     id = "format"
+    prefix = "%"
 
 
 class VariableNode(PropertyNode):
     id = "variable"
+    prefix = "$"
 
 
 class DocNode(PropertyNode):
     id = "doc"
+    prefix = "?"
 
 
 class LiteralNode(Node):
