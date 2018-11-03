@@ -1,4 +1,3 @@
-from .. import nodes
 from ..exceptions import ExpectedValueError
 
 from .base import BaseParser
@@ -10,10 +9,10 @@ class ValueParser(BaseParser):
         self.parser = parser
 
     def parse(self):
-        base_value = self._parse_value()
-        if not base_value or not self.stream.is_current("/"):
-            return base_value
-        return self._parse_path(base_value)
+        node = self._parse_value()
+        if node:
+            self._parse_chain(node)
+        return node
 
     def _parse_value(self):
         methods = [
@@ -30,13 +29,10 @@ class ValueParser(BaseParser):
                 return node
         return
 
-    def _parse_path(self, base_value):
-        path = self._create_node(nodes.PathNode)
-        path.add(base_value)
+    def _parse_chain(self, node):
         while self.stream.is_current("/"):
             self.stream.read("/")
             value = self._parse_value()
             if not value:
                 raise ExpectedValueError()
-            path.add(value)
-        return path
+            node.chain(value)

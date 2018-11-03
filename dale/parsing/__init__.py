@@ -24,9 +24,9 @@ class Parser(BaseParser):
     def parse(self):
         node = self._create_node(nodes.RootNode)
         while not self.stream.is_eof():
-            reference = self.parse_value()
-            if reference:
-                node.add(reference)
+            value = self.parse_value()
+            if value:
+                node.add(value)
             elif not self.stream.is_eof():
                 raise UnexpectedTokenError(self.stream.current())
         return node
@@ -73,7 +73,7 @@ class Parser(BaseParser):
             return
         node = self._create_node(node_map[prefix.id])
         self.stream.read(prefix.id)
-        node.name = self.stream.read("name")
+        node.name = self.stream.read("name").value
         return node
 
     @indexed

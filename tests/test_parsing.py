@@ -70,14 +70,13 @@ def test_string_representation(test_input):
 @pytest.mark.parametrize(
     "test_input, expected",
     [
-        ("-215", "int(-215)"),
-        ("56.75", "float(56.75)"),
-        ("#id", "uid(id)"),
-        ("$path", "variable(path)"),
-        ("(bar 42)", "scope(bar 42)"),
-        ('[bar "etc"]', 'list(bar "etc")'),
-        ("!active", "flag(active)"),
-        ("bar/42", "path(bar/42)"),
+        ("-215", "INT('-215')"),
+        ("56.75", "FLOAT('56.75')"),
+        ("#id", "UID('#id')"),
+        ("$path", "VARIABLE('$path')"),
+        ("(bar 42)", "SCOPE('(bar 42)')"),
+        ('[bar "etc"]', "LIST('[bar \"etc\"]')"),
+        ("!active", "FLAG('!active')"),
     ],
 )
 def test_object_representation(test_input, expected):
@@ -93,7 +92,7 @@ def test_empty_scope():
     node = parser.parse_scope()
     assert not node.key
     assert len(node) == 0
-    assert repr(node) == "scope()"
+    assert repr(node) == "SCOPE('()')"
 
 
 def test_nested_scopes():
@@ -108,7 +107,7 @@ def test_nested_scopes():
 def test_scope_key_with_attribute_by_token_value():
     parser = create_parser("(a (@b 2))")
     node = parser.parse_scope()
-    assert node[0].key.name.value == "b"
+    assert node[0].key.name == "b"
 
 
 def test_unclosed_scope_raises_error():
@@ -129,7 +128,7 @@ def test_empty_list():
     parser = create_parser("[]")
     node = parser.parse_list()
     assert len(node) == 0
-    assert repr(node) == "list()"
+    assert repr(node) == "LIST('[]')"
 
 
 def test_one_sized_list_node_always_returns_list():
@@ -138,16 +137,22 @@ def test_one_sized_list_node_always_returns_list():
     assert node.id == "list"
 
 
-#  REFERENCE TESTS
+#  CHAINED VALUES TESTS
 
 
-def test_simple_reference():
+def test_chained_value_repr():
+    parser = create_parser("abc/def")
+    value = parser.parse_value()
+    assert repr(value) == "PROPERTY('abc/def')"
+
+
+def test_chained_value_has_subvalue():
     parser = create_parser("name/6")
     node = parser.parse_value()
-    assert len(node) == 2
+    assert node._chain[0].id == "int"
 
 
-def test_unexpected_finished_reference_error():
+def test_unexpected_finished_chained_value_error():
     with pytest.raises(ExpectedValueError):
         create_tree("name/")
 
