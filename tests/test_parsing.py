@@ -87,6 +87,12 @@ def test_object_representation(test_input, expected):
 #  SCOPE TESTS
 
 
+def test_scope_key_assumes_first_value():
+    parser = create_parser("(foo 42)")
+    node = parser.parse_scope()
+    assert str(node.key) == "foo"
+
+
 def test_empty_scope():
     parser = create_parser("()")
     node = parser.parse_scope()
@@ -115,12 +121,6 @@ def test_unclosed_scope_raises_error():
         create_tree("(")
 
 
-def test_scope_key_assumes_first_reference():
-    parser = create_parser("(foo 42)")
-    node = parser.parse_scope()
-    assert str(node.key) == "foo"
-
-
 #  LIST TESTS
 
 
@@ -146,7 +146,15 @@ def test_chained_value_repr():
     assert repr(value) == "PROPERTY('abc/def')"
 
 
-def test_chained_value_has_subvalue():
+def test_chained_scope_attributes_length():
+    parser = create_parser("(foo 34)/def")
+    value = parser.parse_value()
+    assert repr(value) == "SCOPE('(foo 34)/def')"
+    assert len(value) == 1
+    assert len(value._chain) == 1
+
+
+def test_chained_value_subvalue():
     parser = create_parser("name/6")
     node = parser.parse_value()
     assert node._chain[0].id == "int"
