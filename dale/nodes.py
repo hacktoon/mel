@@ -17,8 +17,13 @@ class Node:
     def chain(self, node):
         self._chain.append(node)
 
+    def property_id(self):
+        return
+
+    def property_name(self):
+        return
+
     def eval(self, context):
-        # TODO: reserved for language use. Ex: ReferenceParser#scope
         pass
 
     def __getitem__(self, index):
@@ -50,15 +55,18 @@ class ScopeNode(Node):
         self.key = None
         self.properties = {P.id: dict() for P in PropertyNode.__subclasses__()}
 
-    def add(self, value_node):
-        if value_node.id in self.properties.keys():
-            self._set_property(value_node)
+    def add(self, node):
+        property_id = node.property_id()
+        if property_id in self.properties.keys():
+            self.properties[property_id][node.property_name()] = node
         else:
-            super().add(value_node)
+            super().add(node)
 
-    def _set_property(self, value_node):
-        prop = self.properties[value_node.id]
-        prop[value_node.name] = value_node
+    def property_id(self):
+        return self.key.id if self.key else None
+
+    def property_name(self):
+        return self.key.name if self.key else None
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
@@ -97,7 +105,18 @@ class PropertyNode(Node):
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
-        return evaluator(self.name.value, context)
+        return evaluator(self.name, context)
+
+
+class FlagNode(PropertyNode):
+    id = "flag"
+    prefix = "!"
+
+    def property_id(self):
+        return self.id
+
+    def property_name(self):
+        return self.name
 
 
 class UIDNode(PropertyNode):
@@ -105,12 +124,7 @@ class UIDNode(PropertyNode):
     prefix = "#"
 
 
-class FlagNode(PropertyNode):
-    id = "flag"
-    prefix = "!"
-
-
-class AttributeNode(PropertyNode):  # TODO rename to MetaNode
+class AttributeNode(PropertyNode):
     id = "attribute"
     prefix = "@"
 
@@ -133,11 +147,11 @@ class DocNode(PropertyNode):
 class LiteralNode(Node):
     def __init__(self):
         super().__init__()
-        self.token = None  # TODO: use Token
+        self.value = None  # TODO: use Token
 
     def eval(self, context):
         evaluator = context.evaluators.get(self.id, _default_evaluator)
-        return evaluator(self.token.value, context)
+        return evaluator(self.value, context)
 
 
 class IntNode(LiteralNode):

@@ -15,7 +15,6 @@ def indexed(method):
         last = self.stream.current(-1)
         node.index = first.index[0], last.index[1]
         return node
-
     return surrogate
 
 
@@ -47,7 +46,7 @@ class Parser(BaseParser):
         if token.id not in node_map:
             return
         node = self._create_node(node_map[token.id])
-        node.token = self.stream.read(token.id)
+        node.value = self.stream.read(token.id).value
         return node
 
     @indexed
@@ -55,7 +54,7 @@ class Parser(BaseParser):
         if not self.stream.is_current("name"):
             return
         node = self._create_node(nodes.PropertyNode)
-        node.name = self.stream.read("name")
+        node.name = self.stream.read("name").value
         return node
 
     @indexed

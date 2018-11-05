@@ -110,15 +110,27 @@ def test_nested_scopes():
     assert str(subscope.nodes[0]) == "2"
 
 
-def test_scope_key_with_attribute_by_token_value():
+def test_scope_key_with_attribute_property():
     parser = create_parser("(a (@b 2))")
     node = parser.parse_scope()
-    assert node[0].key.name == "b"
+    assert str(node.properties['attribute']['b']) == "(@b 2)"
 
 
 def test_unclosed_scope_raises_error():
     with pytest.raises(UnexpectedTokenError):
         create_tree("(")
+
+
+def test_scope_flag_property():
+    parser = create_parser("(foo !active)")
+    node = parser.parse_scope()
+    assert node.properties["flag"]["active"]
+
+
+def test_scope_uid_property():
+    parser = create_parser("(foo (#id 42))")
+    node = parser.parse_scope()
+    assert str(node.properties["uid"]["id"]) == "(#id 42)"
 
 
 #  LIST TESTS
