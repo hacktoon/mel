@@ -59,7 +59,14 @@ class Parser(BaseParser):
 
     @indexed
     def parse_prefixed_property(self):
-        prefix_map = {P.prefix: P for P in nodes.PropertyNode.__subclasses__()}
+        prefix_map = {
+            "#": nodes.UIDNode,
+            "!": nodes.FlagNode,
+            "@": nodes.AttributeNode,
+            "%": nodes.FormatNode,
+            "$": nodes.VariableNode,
+            "?": nodes.DocNode,
+        }
         prefix = self.stream.current()
         if prefix.id not in prefix_map:
             return

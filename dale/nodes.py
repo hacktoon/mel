@@ -83,12 +83,11 @@ class PropertyNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.name = None
+        self.name = ''
 
 
 class FlagNode(PropertyNode):
     id = "flag"
-    prefix = "!"
 
     def property_id(self):
         return self.id
@@ -99,33 +98,28 @@ class FlagNode(PropertyNode):
 
 class UIDNode(PropertyNode):
     id = "uid"
-    prefix = "#"
 
 
 class AttributeNode(PropertyNode):
     id = "attribute"
-    prefix = "@"
 
 
 class FormatNode(PropertyNode):
     id = "format"
-    prefix = "%"
 
 
 class VariableNode(PropertyNode):
     id = "variable"
-    prefix = "$"
 
 
 class DocNode(PropertyNode):
     id = "doc"
-    prefix = "?"
 
 
 class LiteralNode(Node):
     def __init__(self):
         super().__init__()
-        self.value = None  # TODO: use Token
+        self.value = None
 
 
 class IntNode(LiteralNode):

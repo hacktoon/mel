@@ -123,11 +123,6 @@ class SlashToken(Token):
     regex = re.compile("/")
 
 
-class ColonToken(Token):
-    id = ":"
-    regex = re.compile(":")
-
-
 class LeftParenthesisToken(Token):
     id = "("
     regex = re.compile(r"\(")

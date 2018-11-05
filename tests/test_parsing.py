@@ -105,7 +105,7 @@ def test_nested_scopes():
     parser = create_parser("(a (b 2))")
     node = parser.parse_scope()
     subscope = node[0]
-    assert str(node[0]) == "(b 2)"
+    assert str(subscope) == "(b 2)"
     assert str(subscope.key) == "b"
     assert str(subscope.nodes[0]) == "2"
 
