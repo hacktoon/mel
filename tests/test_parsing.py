@@ -116,6 +116,14 @@ def test_scope_key_with_attribute_property():
     assert str(node.properties['attribute']['b']) == "(@b 2)"
 
 
+def test_scope_property_values():
+    parser = create_parser("(foo (@bar 2, 4))")
+    node = parser.parse_scope()
+    attribute = node.properties['attribute']['bar']
+    assert str(attribute.nodes[0]) == "2"
+    assert str(attribute.nodes[1]) == "4"
+
+
 def test_unclosed_scope_raises_error():
     with pytest.raises(UnexpectedTokenError):
         create_tree("(")
