@@ -23,9 +23,6 @@ class Node:
     def property_name(self):
         return
 
-    def eval(self, context):
-        pass
-
     def __getitem__(self, index):
         return self.nodes[index]
 
@@ -68,11 +65,6 @@ class ScopeNode(Node):
     def property_name(self):
         return self.key.name if self.key else None
 
-    def eval(self, context):
-        evaluator = context.evaluators.get(self.id, _default_evaluator)
-        values = [node.eval(context) for node in self.nodes]
-        return evaluator(self.key, values, context)
-
 
 class QueryNode(Node):
     id = "query"
@@ -81,19 +73,9 @@ class QueryNode(Node):
         super().__init__()
         self.key = None
 
-    def eval(self, context):
-        evaluator = context.evaluators.get(self.id, _default_evaluator)
-        values = [node.eval(context) for node in self.nodes]
-        return evaluator(self.key, values, context)
-
 
 class ListNode(Node):
     id = "list"
-
-    def eval(self, context):
-        evaluator = context.evaluators.get(self.id, _default_evaluator)
-        values = [node.eval(context) for node in self.nodes]
-        return evaluator(values, context)
 
 
 class PropertyNode(Node):
@@ -102,10 +84,6 @@ class PropertyNode(Node):
     def __init__(self):
         super().__init__()
         self.name = None
-
-    def eval(self, context):
-        evaluator = context.evaluators.get(self.id, _default_evaluator)
-        return evaluator(self.name, context)
 
 
 class FlagNode(PropertyNode):
@@ -148,10 +126,6 @@ class LiteralNode(Node):
     def __init__(self):
         super().__init__()
         self.value = None  # TODO: use Token
-
-    def eval(self, context):
-        evaluator = context.evaluators.get(self.id, _default_evaluator)
-        return evaluator(self.value, context)
 
 
 class IntNode(LiteralNode):
