@@ -84,6 +84,55 @@ def test_object_representation(test_input, expected):
     assert repr(tree[0]) == expected
 
 
+#  LIST TESTS
+
+
+def test_empty_list():
+    parser = create_parser("[]")
+    node = parser.parse_list()
+    assert len(node) == 0
+    assert repr(node) == "LIST('[]')"
+
+
+def test_one_sized_list_node_always_returns_list():
+    parser = create_parser("[3]")
+    node = parser.parse_list()
+    assert node.id == "list"
+
+
+#  CHAINED VALUES TESTS
+
+
+def test_chained_value_repr():
+    parser = create_parser("abc/def")
+    value = parser.parse_value()
+    assert repr(value) == "PROPERTY('abc/def')"
+
+
+def test_chained_scope_attributes_length():
+    parser = create_parser("(foo 34)/def")
+    value = parser.parse_value()
+    assert repr(value) == "SCOPE('(foo 34)/def')"
+    assert len(value) == 1
+    assert len(value._chain) == 1
+
+
+def test_chained_value_subvalue():
+    parser = create_parser("name/6")
+    node = parser.parse_value()
+    assert node._chain[0].id == "int"
+
+
+def test_unexpected_finished_chained_value_error():
+    with pytest.raises(ExpectedValueError):
+        create_tree("name/")
+
+
+def test_unexpected_separator_error():
+    with pytest.raises(UnexpectedTokenError):
+        create_tree("/")
+
+
 #  SCOPE TESTS
 
 
@@ -148,50 +197,10 @@ def test_scope_uid_property():
     assert str(node.properties["uid"]["id"]) == "(#id 42)"
 
 
-#  LIST TESTS
+#  QUERY TESTS
 
 
-def test_empty_list():
-    parser = create_parser("[]")
-    node = parser.parse_list()
-    assert len(node) == 0
-    assert repr(node) == "LIST('[]')"
-
-
-def test_one_sized_list_node_always_returns_list():
-    parser = create_parser("[3]")
-    node = parser.parse_list()
-    assert node.id == "list"
-
-
-#  CHAINED VALUES TESTS
-
-
-def test_chained_value_repr():
-    parser = create_parser("abc/def")
-    value = parser.parse_value()
-    assert repr(value) == "PROPERTY('abc/def')"
-
-
-def test_chained_scope_attributes_length():
-    parser = create_parser("(foo 34)/def")
-    value = parser.parse_value()
-    assert repr(value) == "SCOPE('(foo 34)/def')"
-    assert len(value) == 1
-    assert len(value._chain) == 1
-
-
-def test_chained_value_subvalue():
-    parser = create_parser("name/6")
-    node = parser.parse_value()
-    assert node._chain[0].id == "int"
-
-
-def test_unexpected_finished_chained_value_error():
-    with pytest.raises(ExpectedValueError):
-        create_tree("name/")
-
-
-def test_unexpected_separator_error():
-    with pytest.raises(UnexpectedTokenError):
-        create_tree("/")
+def test_query_key_assumes_first_value():
+    parser = create_parser("{abc 42}")
+    node = parser.parse_query()
+    assert str(node.key) == "abc"

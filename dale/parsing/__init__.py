@@ -1,9 +1,9 @@
 from .. import nodes
 from ..exceptions import UnexpectedTokenError
 
-from .scopes import ScopeParser
-from .values import ValueParser
 from .base import BaseParser
+from .values import ValueParser
+from .scopes import ScopeParser, QueryParser
 
 
 def indexed(method):
@@ -81,17 +81,7 @@ class Parser(BaseParser):
 
     @indexed
     def parse_query(self):
-        if not self.stream.is_current("{"):
-            return
-        node = self._create_node(nodes.QueryNode)
-        self.stream.read("{")
-        node.key = self.parse_value()
-        while not self.stream.is_current("}") and not self.stream.is_eof():
-            reference = self.parse_value()
-            if reference:
-                node.add(reference)
-        self.stream.read("}")
-        return node
+        return QueryParser(self).parse()
 
     @indexed
     def parse_list(self):
