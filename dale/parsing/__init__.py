@@ -91,8 +91,9 @@ class Parser(BaseParser):
         node = self._create_node(nodes.ListNode)
         self.stream.read("[")
         while not self.stream.is_current("]") and not self.stream.is_eof():
-            reference = self.parse_value()
-            if reference:
-                node.add(reference)
+            value = self.parse_value()
+            if not value:
+                break
+            node.add(value)
         self.stream.read("]")
         return node

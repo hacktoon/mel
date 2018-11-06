@@ -25,9 +25,9 @@ class ScopeParser(BaseParser):
 
     def _parse_values(self, scope):
         end_symbol = self.delimiter_symbols[1]
-        parsing_scope = not self.stream.is_current(end_symbol)
-        streaming = not self.stream.is_eof()
-        while parsing_scope and streaming:
+        inside_scope = not self.stream.is_current(end_symbol)
+        not_eof = not self.stream.is_eof()
+        while inside_scope and not_eof:
             value = self.parser.parse_value()
             if not value:
                 break
