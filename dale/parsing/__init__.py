@@ -4,6 +4,7 @@ from ..exceptions import UnexpectedTokenError
 from .base import BaseParser
 from .values import ValueParser
 from .scopes import ScopeParser, QueryParser
+from .lists import ListParser
 
 
 def indexed(method):
@@ -86,14 +87,4 @@ class Parser(BaseParser):
 
     @indexed
     def parse_list(self):
-        if not self.stream.is_current("["):
-            return
-        node = self._create_node(nodes.ListNode)
-        self.stream.read("[")
-        while not self.stream.is_current("]") and not self.stream.is_eof():
-            value = self.parse_value()
-            if not value:
-                break
-            node.add(value)
-        self.stream.read("]")
-        return node
+        return ListParser(self).parse()
