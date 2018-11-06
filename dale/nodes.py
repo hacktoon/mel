@@ -66,12 +66,8 @@ class ScopeNode(Node):
         return self.key.name if self.key else None
 
 
-class QueryNode(Node):
+class QueryNode(ScopeNode):
     id = "query"
-
-    def __init__(self):
-        super().__init__()
-        self.key = None
 
 
 class ListNode(Node):
@@ -83,7 +79,7 @@ class PropertyNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.name = ''
+        self.name = ""
 
 
 class FlagNode(PropertyNode):

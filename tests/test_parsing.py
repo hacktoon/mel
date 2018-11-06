@@ -162,20 +162,20 @@ def test_nested_scopes():
 def test_scope_key_with_attribute_property():
     parser = create_parser("(a (@b 2))")
     node = parser.parse_scope()
-    assert str(node.properties['attribute']['b']) == "(@b 2)"
+    assert str(node.properties["attribute"]["b"]) == "(@b 2)"
 
 
 def test_scope_key_with_multi_properties():
     parser = create_parser("(foo (%bar 2) (#id 48764))")
     node = parser.parse_scope()
-    assert str(node.properties['format']['bar']) == "(%bar 2)"
-    assert str(node.properties['uid']['id']) == "(#id 48764)"
+    assert str(node.properties["format"]["bar"]) == "(%bar 2)"
+    assert str(node.properties["uid"]["id"]) == "(#id 48764)"
 
 
 def test_scope_property_values():
     parser = create_parser("(foo (@bar 2, 4))")
     node = parser.parse_scope()
-    attribute = node.properties['attribute']['bar']
+    attribute = node.properties["attribute"]["bar"]
     assert str(attribute.nodes[0]) == "2"
     assert str(attribute.nodes[1]) == "4"
 

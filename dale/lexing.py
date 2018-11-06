@@ -2,7 +2,7 @@ from . import tokens
 from .exceptions import (
     LexingError,
     UnexpectedTokenError,
-    UnexpectedTokenValueError,
+    UnexpectedTokenValueError
 )
 
 

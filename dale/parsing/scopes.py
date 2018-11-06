@@ -7,7 +7,7 @@ class ScopeParser(BaseParser):
         super().__init__(parser.stream)
         self.parser = parser
         self.node_class = ScopeNode
-        self.delimiter_symbols = ('(', ')')
+        self.delimiter_symbols = ("(", ")")
 
     def parse(self):
         start_symbol, end_symbol = self.delimiter_symbols
@@ -38,4 +38,4 @@ class QueryParser(ScopeParser):
     def __init__(self, parser):
         super().__init__(parser)
         self.node_class = QueryNode
-        self.delimiter_symbols = ('{', '}')
+        self.delimiter_symbols = ("{", "}")

@@ -15,6 +15,7 @@ def indexed(method):
         last = self.stream.current(-1)
         node.index = first.index[0], last.index[1]
         return node
+
     return surrogate
 
 
