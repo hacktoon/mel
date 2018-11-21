@@ -118,6 +118,16 @@ class AtToken(Token):
     regex = re.compile("@")
 
 
+class ColonToken(Token):
+    id = ":"
+    regex = re.compile(":")
+
+
+class AsteriskToken(Token):
+    id = "*"
+    regex = re.compile(r"\*")
+
+
 class SlashToken(Token):
     id = "/"
     regex = re.compile("/")
