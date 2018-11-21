@@ -17,7 +17,6 @@ class ValueParser(BaseParser):
     def _parse_value(self):
         methods = [
             self.parser.parse_literal,
-            self.parser.parse_prefixed_property,
             self.parser.parse_property,
             self.parser.parse_scope,
             self.parser.parse_query,

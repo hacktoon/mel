@@ -10,10 +10,9 @@ Dale's syntax is based on a simple idea: a sequence of values. The general rules
 dale        =  value*
 
 value       =  literal | property | flag | variable | attribute | format |
-               uid | doc | scope | query | list | path
+               uid | doc | scope | query | list
 
 literal     =  int | float | string | boolean
-path        =  value ('/' value)*
 
 property    =  name
 attribute   =  '@' name
@@ -23,8 +22,8 @@ format      =  '%' name
 uid         =  '#' name
 doc         =  '?' name
 
-scope       =  '(' value+ ')'
-query       =  '{' value+ '}'
+scope       =  '(' key value+ ')'
+query       =  '{' key value+ '}'
 list        =  '[' value* ']'
 ```
 

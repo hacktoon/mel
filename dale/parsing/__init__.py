@@ -3,6 +3,7 @@ from ..exceptions import UnexpectedTokenError
 
 from .base import BaseParser
 from .values import ValueParser
+from .properties import PropertyParser
 from .scopes import ScopeParser, QueryParser
 from .lists import ListParser
 
@@ -53,29 +54,7 @@ class Parser(BaseParser):
 
     @indexed
     def parse_property(self):
-        if not self.stream.is_current("name"):
-            return
-        node = self._create_node(nodes.PropertyNode)
-        node.name = self.stream.read("name").value
-        return node
-
-    @indexed
-    def parse_prefixed_property(self):
-        prefix_map = {
-            "#": nodes.UIDNode,
-            "!": nodes.FlagNode,
-            "@": nodes.AttributeNode,
-            "%": nodes.FormatNode,
-            "$": nodes.VariableNode,
-            "?": nodes.DocNode,
-        }
-        prefix = self.stream.current()
-        if prefix.id not in prefix_map:
-            return
-        node = self._create_node(prefix_map[prefix.id])
-        self.stream.read(prefix.id)
-        node.name = self.stream.read("name").value
-        return node
+        return PropertyParser(self).parse()
 
     @indexed
     def parse_scope(self):
