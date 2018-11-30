@@ -196,5 +196,3 @@ class LiteralParser(BaseParser):
         node = self._create_node(self.TOKEN_MAP[token.id])
         node.value = self.stream.read(token.id).value
         return node
-
-

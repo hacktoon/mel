@@ -198,9 +198,29 @@ def test_scope_flag_property():
 
 
 def test_scope_uid_property():
-    parser = create_parser("(foo (#id 42))")
+    parser = create_parser("(foo (#id 22))")
     node = parser.parse_scope()
-    assert str(node.uids["id"]) == "(#id 42)"
+    assert str(node.uids["id"]) == "(#id 22)"
+
+
+def test_scope_properties():
+    text = """
+    (object
+        !active
+        (#answer-code 42)
+        ($ref {!active})
+        (?help "A object")
+        (child {bar 2})
+        (%short child)
+    )
+    """
+    parser = create_parser(text)
+    node = parser.parse_scope()
+    assert node.flags["active"]
+    assert str(node.uids["answer-code"]) == "(#answer-code 42)"
+    assert str(node.children["child"]) == "(child {bar 2})"
+    assert str(node.docs["help"]) == '(?help "A object")'
+    assert str(node.variables["ref"]) == "($ref {!active})"
 
 
 #  QUERY TESTS

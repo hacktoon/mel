@@ -85,7 +85,7 @@ class ClassToken(Token):
 
 class NameToken(Token):
     id = "name"
-    regex = re.compile(r"[a-z]\w*")
+    regex = re.compile(r"[a-z]\w*(-[a-zA-Z]\w*)*")
 
 
 class HashToken(Token):
