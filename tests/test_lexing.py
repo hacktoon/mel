@@ -28,7 +28,6 @@ def create_stream(text):
         (")", ")"),
         ('"string"', "string"),
         ("'string'", "string"),
-        ("@", "@"),
         ("foo", "foo"),
         ("foo\n / bar", "foo"),
     ],

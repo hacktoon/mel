@@ -113,11 +113,6 @@ class QuestionMarkToken(Token):
     regex = re.compile(r"\?")
 
 
-class AtToken(Token):
-    id = "@"
-    regex = re.compile("@")
-
-
 class ColonToken(Token):
     id = ":"
     regex = re.compile(":")
