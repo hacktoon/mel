@@ -165,6 +165,12 @@ def test_scope_key_with_child():
     assert str(node.children["b"]) == "(b 2)"
 
 
+def test_scope_key_with_doc_child():
+    parser = create_parser("(bar (?help 'foo'))")
+    node = parser.parse_scope()
+    assert node.docs["help"][0].value == "foo"
+
+
 def test_scope_key_with_multi_properties():
     parser = create_parser("(foo (%bar 2) (#id 48764))")
     node = parser.parse_scope()

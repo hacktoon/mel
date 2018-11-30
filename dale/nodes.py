@@ -42,6 +42,7 @@ class ScopeNode(Node):
         self.properties = {}
         self.variables = {}
         self.formats = {}
+        self.docs = {}
         self.children = {}
 
     def __getitem__(self, index):
@@ -66,6 +67,8 @@ class ScopeNode(Node):
             self.flags[key_name] = node if len(node) else True
         if key_id == 'uid':
             self.uids[key_name] = node
+        if key_id == 'doc':
+            self.docs[key_name] = node
         if key_id == 'variable':
             self.variables[key_name] = node
         if key_id == 'format':
