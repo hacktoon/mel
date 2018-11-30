@@ -1,25 +1,6 @@
 from . import nodes
 from .exceptions import UnexpectedTokenError, ExpectedValueError
 
-from .nodes import ScopeNode, QueryNode, ListNode
-
-
-PROPERTY_PREFIX_MAP = {
-    "#": nodes.UIDNode,
-    "!": nodes.FlagNode,
-    "@": nodes.AttributeNode,
-    "%": nodes.FormatNode,
-    "$": nodes.VariableNode,
-    "?": nodes.DocNode,
-}
-
-NODE_MAP = {
-    "boolean": nodes.BooleanNode,
-    "string": nodes.StringNode,
-    "float": nodes.FloatNode,
-    "int": nodes.IntNode,
-}
-
 
 def indexed(method):
     def surrogate(self):
@@ -30,11 +11,10 @@ def indexed(method):
         last = self.stream.current(-1)
         node.index = first.index[0], last.index[1]
         return node
-
     return surrogate
 
 
-class Parser:
+class BaseParser:
     def __init__(self, stream):
         self.stream = stream
 
@@ -43,6 +23,8 @@ class Parser:
         node.text = self.stream.text
         return node
 
+
+class Parser(BaseParser):
     @indexed
     def parse(self):
         node = self._create_node(nodes.RootNode)
@@ -56,100 +38,30 @@ class Parser:
 
     @indexed
     def parse_value(self):
-        return ValueParser(self).parse()
+        return ValueParser(self.stream).parse()
 
     @indexed
     def parse_literal(self):
-        return LiteralParser(self).parse()
+        return LiteralParser(self.stream).parse()
 
     @indexed
     def parse_property(self):
-        return PropertyParser(self).parse()
+        return PropertyParser(self.stream).parse()
 
     @indexed
     def parse_scope(self):
-        return ScopeParser(self).parse()
+        return ScopeParser(self.stream).parse()
 
     @indexed
     def parse_query(self):
-        return QueryParser(self).parse()
+        return QueryParser(self.stream).parse()
 
     @indexed
     def parse_list(self):
-        return ListParser(self).parse()
-
-
-class ScopeParser(Parser):
-    def __init__(self, parser):
-        super().__init__(parser.stream)
-        self.parser = parser
-        self.node_class = ScopeNode
-        self.delimiter_tokens = "()"
-
-    def parse(self):
-        start_token, end_token = self.delimiter_tokens
-        if not self.stream.is_current(start_token):
-            return
-        node = self._create_node(self.node_class)
-        self.stream.read(start_token)
-        self._parse_key(node)
-        self._parse_values(node)
-        self.stream.read(end_token)
-        return node
-
-    def _parse_key(self, node):
-        node.key = self.parser.parse_value()
-
-    def _parse_values(self, scope):
-        end_token = self.delimiter_tokens[1]
-        inside_scope = not self.stream.is_current(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_scope and not_eof:
-            value = self.parser.parse_value()
-            if not value:
-                break
-            scope.add(value)
-
-
-class QueryParser(ScopeParser):
-    def __init__(self, parser):
-        super().__init__(parser)
-        self.node_class = QueryNode
-        self.delimiter_tokens = "{}"
-
-
-class ListParser(Parser):
-    def __init__(self, parser):
-        super().__init__(parser.stream)
-        self.parser = parser
-        self.delimiter_tokens = "[]"
-
-    def parse(self):
-        start_token, end_token = self.delimiter_tokens
-        if not self.stream.is_current(start_token):
-            return
-        node = self._create_node(ListNode)
-        self.stream.read(start_token)
-        self._parse_values(node)
-        self.stream.read(end_token)
-        return node
-
-    def _parse_values(self, node):
-        end_token = self.delimiter_tokens[1]
-        inside_list = not self.stream.is_current(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_list and not_eof:
-            value = self.parser.parse_value()
-            if not value:
-                break
-            node.add(value)
+        return ListParser(self.stream).parse()
 
 
 class ValueParser(Parser):
-    def __init__(self, parser):
-        super().__init__(parser.stream)
-        self.parser = parser
-
     def parse(self):
         node = self._parse_value()
         if node:
@@ -158,11 +70,11 @@ class ValueParser(Parser):
 
     def _parse_value(self):
         methods = [
-            self.parser.parse_literal,
-            self.parser.parse_property,
-            self.parser.parse_scope,
-            self.parser.parse_query,
-            self.parser.parse_list,
+            self.parse_literal,
+            self.parse_property,
+            self.parse_scope,
+            self.parse_query,
+            self.parse_list,
         ]
         for method in methods:
             node = method()
@@ -179,39 +91,109 @@ class ValueParser(Parser):
             node.chain(value)
 
 
-class PropertyParser(Parser):
-    def __init__(self, parser):
-        super().__init__(parser.stream)
-        self.parser = parser
+class ScopeParser(Parser):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_class = nodes.ScopeNode
+        self.delimiters = "()"
+
+    def parse(self):
+        start_token, end_token = self.delimiters
+        if not self.stream.is_current(start_token):
+            return
+        node = self._create_node(self.node_class)
+        self.stream.read(start_token)
+        self._parse_key(node)
+        self._parse_values(node)
+        self.stream.read(end_token)
+        return node
+
+    def _parse_key(self, node):
+        node.key = self.parse_value()
+
+    def _parse_values(self, scope):
+        end_token = self.delimiters[1]
+        inside_scope = not self.stream.is_current(end_token)
+        not_eof = not self.stream.is_eof()
+        while inside_scope and not_eof:
+            value = self.parse_value()
+            if not value:
+                break
+            scope.add(value)
+
+
+class QueryParser(ScopeParser):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.node_class = nodes.QueryNode
+        self.delimiters = "{}"
+
+
+class ListParser(Parser):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.delimiters = "[]"
+
+    def parse(self):
+        start_token, end_token = self.delimiters
+        if not self.stream.is_current(start_token):
+            return
+        node = self._create_node(nodes.ListNode)
+        self.stream.read(start_token)
+        self._parse_values(node)
+        self.stream.read(end_token)
+        return node
+
+    def _parse_values(self, node):
+        end_token = self.delimiters[1]
+        inside_list = not self.stream.is_current(end_token)
+        not_eof = not self.stream.is_eof()
+        while inside_list and not_eof:
+            value = self.parse_value()
+            if not value:
+                break
+            node.add(value)
+
+
+class PropertyParser(BaseParser):
+    PREFIX_MAP = {
+        "#": nodes.UIDNode,
+        "!": nodes.FlagNode,
+        "@": nodes.AttributeNode,
+        "%": nodes.FormatNode,
+        "$": nodes.VariableNode,
+        "?": nodes.DocNode,
+    }
 
     def parse(self):
         current = self.stream.current()
-        node_class = PROPERTY_PREFIX_MAP.get(current.id, nodes.PropertyNode)
-        if self._is_prefix(current):
+        node_class = nodes.PropertyNode
+        if current.id in self.PREFIX_MAP:
+            node_class = self.PREFIX_MAP[current.id]
             self.stream.read(current.id)
         elif not self.stream.is_current("name"):
             return
-        return self._build_node(node_class)
+        return self._parse_property(node_class)
 
-    def _is_prefix(self, prefix):
-        return prefix.id in PROPERTY_PREFIX_MAP
-
-    def _build_node(self, node_class):
+    def _parse_property(self, node_class):
         node = self._create_node(node_class)
         node.name = self.stream.read("name").value
         return node
 
 
-class LiteralParser(Parser):
-    def __init__(self, parser):
-        super().__init__(parser.stream)
-        self.parser = parser
+class LiteralParser(BaseParser):
+    TOKEN_MAP = {
+        "boolean": nodes.BooleanNode,
+        "string": nodes.StringNode,
+        "float": nodes.FloatNode,
+        "int": nodes.IntNode,
+    }
 
     def parse(self):
         token = self.stream.current()
-        if token.id not in NODE_MAP:
+        if token.id not in self.TOKEN_MAP:
             return
-        node = self._create_node(NODE_MAP[token.id])
+        node = self._create_node(self.TOKEN_MAP[token.id])
         node.value = self.stream.read(token.id).value
         return node
 
