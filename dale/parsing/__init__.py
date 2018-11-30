@@ -6,6 +6,7 @@ from .values import ValueParser
 from .properties import PropertyParser
 from .scopes import ScopeParser, QueryParser
 from .lists import ListParser
+from .literals import LiteralParser
 
 
 def indexed(method):
@@ -39,18 +40,7 @@ class Parser(BaseParser):
 
     @indexed
     def parse_literal(self):
-        node_map = {
-            "boolean": nodes.BooleanNode,
-            "string": nodes.StringNode,
-            "float": nodes.FloatNode,
-            "int": nodes.IntNode,
-        }
-        token = self.stream.current()
-        if token.id not in node_map:
-            return
-        node = self._create_node(node_map[token.id])
-        node.value = self.stream.read(token.id).value
-        return node
+        return LiteralParser(self).parse()
 
     @indexed
     def parse_property(self):
