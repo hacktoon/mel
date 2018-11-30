@@ -9,25 +9,6 @@ class Node:
         self.text = ""
         self.index = (0, 0)
         self._chain = []
-        self.nodes = []
-
-    def add(self, node):
-        self.nodes.append(node)
-
-    def chain(self, node):
-        self._chain.append(node)
-
-    def property_id(self):
-        return
-
-    def property_name(self):
-        return
-
-    def __getitem__(self, index):
-        return self.nodes[index]
-
-    def __len__(self):
-        return len(self.nodes)
 
     def __bool__(self):
         return True
@@ -39,9 +20,14 @@ class Node:
     def __repr__(self):
         return "{}('{}')".format(self.id.upper(), self)
 
+    def chain(self, node):
+        self._chain.append(node)
 
-class RootNode(Node):
-    id = "root"
+    def property_id(self):
+        return
+
+    def property_name(self):
+        return
 
 
 class ScopeNode(Node):
@@ -50,14 +36,40 @@ class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = None
-        self.properties = {P.id: dict() for P in PropertyNode.__subclasses__()}
+        self.values = []
+        self.flags = {}
+        self.uids = {}
+        self.properties = {}
+        self.variables = {}
+        self.formats = {}
+        self.children = {}
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+    def __len__(self):
+        return len(self.values)
 
     def add(self, node):
-        property_id = node.property_id()
-        if property_id in self.properties.keys():
-            self.properties[property_id][node.property_name()] = node
-        else:
-            super().add(node)
+        self.values.append(node)
+        if node.id == 'flag':
+            self.flags[node.property_name()] = True
+        if node.id == 'scope':
+            self._add_scope(node)
+
+    def _add_scope(self, node):
+        key_id = node.property_id()
+        key_name = node.property_name()
+        if key_id == 'property':
+            self.children[key_name] = node
+        if key_id == 'flag':
+            self.flags[key_name] = node if len(node) else True
+        if key_id == 'uid':
+            self.uids[key_name] = node
+        if key_id == 'variable':
+            self.variables[key_name] = node
+        if key_id == 'format':
+            self.formats[key_name] = node
 
     def property_id(self):
         return self.key.id if self.key else None
@@ -66,12 +78,29 @@ class ScopeNode(Node):
         return self.key.name if self.key else None
 
 
+class RootNode(ScopeNode):
+    id = "root"
+
+
 class QueryNode(ScopeNode):
     id = "query"
 
 
 class ListNode(Node):
     id = "list"
+
+    def __init__(self):
+        super().__init__()
+        self.values = []
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+    def __len__(self):
+        return len(self.values)
+
+    def add(self, node):
+        self.values.append(node)
 
 
 class PropertyNode(Node):

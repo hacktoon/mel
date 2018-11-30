@@ -27,7 +27,7 @@ def test_empty_input_string():
 
 
 def test_root_node_with_many_child_nodes():
-    node = create_tree('(a) (@b 2) 223 "foo"/2')
+    node = create_tree('(a) (b 2) 223 "foo"/2')
     assert len(node) == 4
 
 
@@ -58,7 +58,7 @@ def test_scope_index():
         ("True  False"),
         ('"string"'),
         ("'string'"),
-        ("@name 2"),
+        ("name 2"),
         ('?foo "test"'),
     ],
 )
@@ -156,28 +156,28 @@ def test_nested_scopes():
     subscope = node[0]
     assert str(subscope) == "(b 2)"
     assert str(subscope.key) == "b"
-    assert str(subscope.nodes[0]) == "2"
+    assert str(subscope[0]) == "2"
 
 
-def test_scope_key_with_attribute_property():
-    parser = create_parser("(a (@b 2))")
+def test_scope_key_with_child():
+    parser = create_parser("(a (b 2))")
     node = parser.parse_scope()
-    assert str(node.properties["attribute"]["b"]) == "(@b 2)"
+    assert str(node.children["b"]) == "(b 2)"
 
 
 def test_scope_key_with_multi_properties():
     parser = create_parser("(foo (%bar 2) (#id 48764))")
     node = parser.parse_scope()
-    assert str(node.properties["format"]["bar"]) == "(%bar 2)"
-    assert str(node.properties["uid"]["id"]) == "(#id 48764)"
+    assert str(node.formats["bar"]) == "(%bar 2)"
+    assert str(node.uids["id"]) == "(#id 48764)"
 
 
-def test_scope_property_values():
-    parser = create_parser("(foo (@bar 2, 4))")
+def test_scope_child_values():
+    parser = create_parser("(foo (bar 2, 4))")
     node = parser.parse_scope()
-    attribute = node.properties["attribute"]["bar"]
-    assert str(attribute.nodes[0]) == "2"
-    assert str(attribute.nodes[1]) == "4"
+    property = node.children["bar"]
+    assert str(property[0]) == "2"
+    assert str(property[1]) == "4"
 
 
 def test_unclosed_scope_raises_error():
@@ -188,13 +188,13 @@ def test_unclosed_scope_raises_error():
 def test_scope_flag_property():
     parser = create_parser("(foo !active)")
     node = parser.parse_scope()
-    assert node.properties["flag"]["active"]
+    assert node.flags["active"]
 
 
 def test_scope_uid_property():
     parser = create_parser("(foo (#id 42))")
     node = parser.parse_scope()
-    assert str(node.properties["uid"]["id"]) == "(#id 42)"
+    assert str(node.uids["id"]) == "(#id 42)"
 
 
 #  QUERY TESTS
