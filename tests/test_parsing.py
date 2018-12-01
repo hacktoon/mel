@@ -194,7 +194,7 @@ def test_unclosed_scope_raises_error():
 def test_scope_flag_property():
     parser = create_parser("(foo !active)")
     node = parser.parse_scope()
-    assert node.flags["active"]
+    assert str(node.flags["active"]) == "!active"
 
 
 def test_scope_uid_property():
@@ -206,7 +206,6 @@ def test_scope_uid_property():
 def test_scope_properties():
     text = """
     (object
-        !active
         (#answer-code 42)
         ($ref {!active})
         (?help "A object")
@@ -216,7 +215,6 @@ def test_scope_properties():
     """
     parser = create_parser(text)
     node = parser.parse_scope()
-    assert node.flags["active"]
     assert str(node.uids["answer-code"]) == "(#answer-code 42)"
     assert str(node.children["child"]) == "(child {bar 2})"
     assert str(node.docs["help"]) == '(?help "A object")'

@@ -54,7 +54,7 @@ class ScopeNode(Node):
     def add(self, node):
         self.values.append(node)
         if node.id == "flag":
-            self.flags[node.name] = True
+            self.flags[node.name] = node
         if node.id == "scope":
             self._add_scope(node)
 
@@ -65,7 +65,7 @@ class ScopeNode(Node):
         if key_id == "property":
             self.children[key_name] = node
         if key_id == "flag":
-            self.flags[key_name] = node if len(node) else True
+            self.flags[key_name] = node
         if key_id == "uid":
             self.uids[key_name] = node
         if key_id == "doc":
