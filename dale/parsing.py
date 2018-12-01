@@ -61,6 +61,12 @@ class Parser(BaseParser):
     def parse_list(self):
         return ListParser(self.stream).parse()
 
+    @indexed
+    def parse_wildcard(self):
+        if self.stream.is_current("*"):
+            self.stream.read("*")
+            return self._create_node(nodes.WildcardNode)
+
 
 class ValueParser(Parser):
     def parse(self):
@@ -76,6 +82,7 @@ class ValueParser(Parser):
             self.parse_scope,
             self.parse_query,
             self.parse_list,
+            self.parse_wildcard,
         ]
         for method in methods:
             node = method()
@@ -112,9 +119,6 @@ class ScopeParser(Parser):
     def _parse_key(self, node):
         if self.stream.is_current(":"):
             self.stream.read(":")
-        elif self.stream.is_current("*"):
-            self.stream.read("*")
-            node.key = nodes.WildcardNode()
         else:
             node.key = self.parse_value()
 
