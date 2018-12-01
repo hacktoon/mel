@@ -1,10 +1,12 @@
+PYTHON_DEBUGGER=pudb.set_trace
+
 install:
+ifdef DEV
+	pip install ipython pudb
+endif
 	cp scripts/pre-commit.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 	pip install -r requirements.txt
-
-install-dev: install
-	pip install ipython ipdb
 
 upgrade:
 	pip install --upgrade pip -r requirements.txt
@@ -12,9 +14,15 @@ upgrade:
 inspect:
 	flake8 .
 
+clean:
+	rm -rf __pycache__/
+
 test:
 	pytest --color=yes --cov --durations=3 --no-cov-on-fail -vv
 
 debug:
-	pytest -s
-
+ifdef TEST
+	PYTHONBREAKPOINT=$(PYTHON_DEBUGGER) pytest -sk $(TEST)
+else
+	PYTHONBREAKPOINT=$(PYTHON_DEBUGGER) pytest -s
+endif
