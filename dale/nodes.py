@@ -59,8 +59,9 @@ class ScopeNode(Node):
             self._add_scope(node)
 
     def _add_scope(self, node):
-        key_id = node.property_id()
-        key_name = node.property_name()
+        key_id = node.key.id if node.key else None
+        key_name = node.key.name if node.key else None
+
         if key_id == "property":
             self.children[key_name] = node
         if key_id == "flag":
@@ -73,12 +74,6 @@ class ScopeNode(Node):
             self.variables[key_name] = node
         if key_id == "format":
             self.formats[key_name] = node
-
-    def property_id(self):
-        return self.key.id if self.key else None
-
-    def property_name(self):
-        return self.key.name if self.key else None
 
 
 class AbstractScopeKeyNode(Node):
@@ -120,12 +115,6 @@ class PropertyNode(Node):
 
 class FlagNode(PropertyNode):
     id = "flag"
-
-    def property_id(self):
-        return self.id
-
-    def property_name(self):
-        return self.name
 
 
 class UIDNode(PropertyNode):
