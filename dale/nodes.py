@@ -67,9 +67,9 @@ class ScopeNode(Node):
             "variable": self.variables,
             "format": self.formats,
         }
-        key_id = node.key.id if node.key else None
-        key_name = node.key.name if node.key else None
-        key_map.get(key_id, {})[key_name] = node
+        key_id = node.key.id if node.key else ''
+        if key_id in key_map:
+            key_map[key_id][node.key.name] = node
 
 
 class WildcardNode(Node):
