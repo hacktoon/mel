@@ -23,11 +23,8 @@ class Node:
     def chain(self, node):
         self._chain.append(node)
 
-    def property_id(self):
-        return
-
-    def property_name(self):
-        return
+    def eval(self, context):
+        return {}
 
 
 class WildcardNode(Node):
