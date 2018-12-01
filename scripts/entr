@@ -1,3 +1,0 @@
-#!/bin/bash
-
-until ack -f --python | entr -d make test; do sleep 1; done

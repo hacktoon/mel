@@ -4,8 +4,9 @@ install:
 ifdef DEV
 	pip install ipython pudb
 endif
-	cp scripts/pre-commit.sh .git/hooks/pre-commit
+	cp bin/pre-commit.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
+	chmod +x bin/dale
 	pip install -r requirements.txt
 
 upgrade:
