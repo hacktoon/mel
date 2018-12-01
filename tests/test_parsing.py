@@ -55,7 +55,7 @@ def test_scope_index():
         ("#id -.099999"),
         ("-0.75e10/55 etc"),
         ("+1.45e-10"),
-        ("True  False"),
+        ("true  false"),
         ('"string"'),
         ("'string'"),
         ("name 2"),

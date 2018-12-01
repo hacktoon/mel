@@ -57,12 +57,12 @@ class IntToken(Token):
 
 class BooleanToken(Token):
     id = "boolean"
-    regex = re.compile(r"(True|False)\b")
+    regex = re.compile(r"(true|false)\b")
     priority = 3
 
     @property
     def value(self):
-        return {"True": True, "False": False}[self.match]
+        return {"true": True, "false": False}[self.match]
 
 
 class WhitespaceToken(Token):
