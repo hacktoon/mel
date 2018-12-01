@@ -53,25 +53,25 @@ class ScopeNode(Node):
 
     def add(self, node):
         self.values.append(node)
-        if node.id == 'flag':
+        if node.id == "flag":
             self.flags[node.property_name()] = True
-        if node.id == 'scope':
+        if node.id == "scope":
             self._add_scope(node)
 
     def _add_scope(self, node):
         key_id = node.property_id()
         key_name = node.property_name()
-        if key_id == 'property':
+        if key_id == "property":
             self.children[key_name] = node
-        if key_id == 'flag':
+        if key_id == "flag":
             self.flags[key_name] = node if len(node) else True
-        if key_id == 'uid':
+        if key_id == "uid":
             self.uids[key_name] = node
-        if key_id == 'doc':
+        if key_id == "doc":
             self.docs[key_name] = node
-        if key_id == 'variable':
+        if key_id == "variable":
             self.variables[key_name] = node
-        if key_id == 'format':
+        if key_id == "format":
             self.formats[key_name] = node
 
     def property_id(self):
@@ -79,6 +79,10 @@ class ScopeNode(Node):
 
     def property_name(self):
         return self.key.name if self.key else None
+
+
+class AbstractScopeKeyNode(Node):
+    id = "abstract-scope-key"
 
 
 class RootNode(ScopeNode):

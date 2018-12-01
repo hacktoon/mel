@@ -223,6 +223,26 @@ def test_scope_properties():
     assert str(node.variables["ref"]) == "($ref {!active})"
 
 
+def test_scope_null_key():
+    parser = create_parser("(: 'test')")
+    node = parser.parse_scope()
+    assert node.key is None
+
+
+def test_nested_scope_with_null_key():
+    parser = create_parser("(foo (: 56.7) )")
+    node = parser.parse_scope()
+    assert node[0].id == "scope"
+    assert node.children == {}
+
+
+def test_scope_with_abstract_key():
+    parser = create_parser("(* abc)")
+    node = parser.parse_scope()
+    assert node.id == "scope"
+    assert node.key.id == "abstract-scope-key"
+
+
 #  QUERY TESTS
 
 

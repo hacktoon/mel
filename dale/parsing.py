@@ -11,6 +11,7 @@ def indexed(method):
         last = self.stream.current(-1)
         node.index = first.index[0], last.index[1]
         return node
+
     return surrogate
 
 
@@ -109,7 +110,13 @@ class ScopeParser(Parser):
         return node
 
     def _parse_key(self, node):
-        node.key = self.parse_value()
+        if self.stream.is_current(":"):
+            self.stream.read(":")
+        elif self.stream.is_current("*"):
+            self.stream.read("*")
+            node.key = nodes.AbstractScopeKeyNode()
+        else:
+            node.key = self.parse_value()
 
     def _parse_values(self, scope):
         end_token = self.delimiters[1]
