@@ -39,7 +39,7 @@ class ScopeNode(Node):
         self.values = []
         self.flags = {}
         self.uids = {}
-        self.attributes = {}
+        self.properties = {}
         self.variables = {}
         self.formats = {}
         self.docs = {}
