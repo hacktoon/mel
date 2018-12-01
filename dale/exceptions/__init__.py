@@ -1,11 +1,16 @@
-class Error(Exception):
+class BaseError(Exception):
     pass
 
 
-class LexingError(Error):
+class LexingError(BaseError):
     def __init__(self, index=None):
         super().__init__("Invalid syntax")
         self.index = index
+
+
+class ParsingError(BaseError):
+    def __init__(self):
+        super().__init__()
 
 
 class UnexpectedTokenError(LexingError):
@@ -31,11 +36,6 @@ class UnexpectedTokenValueError(LexingError):
 
 class UnexpectedEOFError(LexingError):
     pass
-
-
-class ParsingError(Error):
-    def __init__(self):
-        super().__init__()
 
 
 class ExpectedValueError(ParsingError):
