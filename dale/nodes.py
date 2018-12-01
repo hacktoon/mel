@@ -30,6 +30,10 @@ class Node:
         return
 
 
+class WildcardNode(Node):
+    id = "wildcard"
+
+
 class ScopeNode(Node):
     id = "scope"
 
@@ -70,10 +74,6 @@ class ScopeNode(Node):
         key_id = node.key.id if node.key else ''
         if key_id in key_map:
             key_map[key_id][node.key.name] = node
-
-
-class WildcardNode(Node):
-    id = "wildcard"
 
 
 class RootNode(ScopeNode):
