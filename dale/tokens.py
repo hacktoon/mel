@@ -77,15 +77,9 @@ class CommentToken(Token):
     skip = True
 
 
-class ClassToken(Token):
-    id = "class"
-    regex = re.compile(r"[A-Z]\w*")
-    priority = 2
-
-
 class NameToken(Token):
     id = "name"
-    regex = re.compile(r"[a-z]\w*(-[a-zA-Z]\w*)*")
+    regex = re.compile(r"[_a-zA-Z]\w*(-\w+)*")
 
 
 class HashToken(Token):
