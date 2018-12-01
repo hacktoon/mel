@@ -1,7 +1,0 @@
-(Person                              -- Let's define a "person" object.
-    :Id 5                            -- This object has an id equal to 5,
-    Name "John"                      -- a property "name" with value "John" and
-    Surname "Doe"                    -- a property "surname" with value "Doe".
-    Age 45                           -- Define the "age" property as 45.
-    % (name ' ' surname)             -- Set default format using defined properties.
-)

@@ -1,4 +1,0 @@
-(Component :type "thumbnail"
-    (? "this is a component for thumbnails")
-    (A (Image :Src "http://thumbnails.com/3444" :Alt "A random image"))
-)Component)

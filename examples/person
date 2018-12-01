@@ -1,0 +1,7 @@
+(person                       -- Let's define a "person" object.
+    (#id 5)                   -- This object has an unique id equal to 5,
+    (name "John")             -- a property "name" with value "John" and
+    (surname "Doe")           -- a property "surname" with value "Doe".
+    (age 45)                  -- Define the "age" property as 45.
+    (%Text name ' ' surname)  -- Set default format using defined properties.
+)
