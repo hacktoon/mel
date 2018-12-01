@@ -7,24 +7,37 @@
 Dale's syntax is based on a simple idea: a sequence of values. The general rules can be (partially) written as:
 
 ```
-dale        =  value*
+root        =  value*
 
-value       =  literal | property | flag | variable | attribute | format |
-               uid | doc | scope | query | list
+value       =  ( literal
+               | property
+               | flag
+               | variable
+               | format
+               | uid
+               | doc
+               | scope
+               | query
+               | list
+               | wildcard
+               ) ('/' value)*
 
 literal     =  int | float | string | boolean
 
 property    =  name
-attribute   =  '@' name
 flag        =  '!' name
 variable    =  '$' name
 format      =  '%' name
 uid         =  '#' name
 doc         =  '?' name
 
-scope       =  '(' key value+ ')'
-query       =  '{' key value+ '}'
+scope       =  '(' key value* ')'
+query       =  '{' key value* '}'
 list        =  '[' value* ']'
+
+key         =  ':' | value
+
+wildcard    =  '*'
 ```
 
 ## Whitespace
