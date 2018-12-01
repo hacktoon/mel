@@ -59,25 +59,21 @@ class ScopeNode(Node):
             self._add_scope(node)
 
     def _add_scope(self, node):
+        key_map = {
+            "property": self.children,
+            "flag": self.flags,
+            "uid": self.uids,
+            "doc": self.docs,
+            "variable": self.variables,
+            "format": self.formats,
+        }
         key_id = node.key.id if node.key else None
         key_name = node.key.name if node.key else None
-
-        if key_id == "property":
-            self.children[key_name] = node
-        if key_id == "flag":
-            self.flags[key_name] = node
-        if key_id == "uid":
-            self.uids[key_name] = node
-        if key_id == "doc":
-            self.docs[key_name] = node
-        if key_id == "variable":
-            self.variables[key_name] = node
-        if key_id == "format":
-            self.formats[key_name] = node
+        key_map.get(key_id, {})[key_name] = node
 
 
-class AbstractScopeKeyNode(Node):
-    id = "abstract-scope-key"
+class WildcardNode(Node):
+    id = "wildcard"
 
 
 class RootNode(ScopeNode):

@@ -234,11 +234,11 @@ def test_nested_scope_with_null_key():
     assert node.children == {}
 
 
-def test_scope_with_abstract_key():
+def test_scope_with_wildcard_key():
     parser = create_parser("(* abc)")
     node = parser.parse_scope()
     assert node.id == "scope"
-    assert node.key.id == "abstract-scope-key"
+    assert node.key.id == "wildcard"
 
 
 #  QUERY TESTS

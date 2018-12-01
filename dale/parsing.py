@@ -114,7 +114,7 @@ class ScopeParser(Parser):
             self.stream.read(":")
         elif self.stream.is_current("*"):
             self.stream.read("*")
-            node.key = nodes.AbstractScopeKeyNode()
+            node.key = nodes.WildcardNode()
         else:
             node.key = self.parse_value()
 
