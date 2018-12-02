@@ -74,6 +74,7 @@ class ScopeNode(Node):
 
     def eval(self, context):
         return {
+            "id": self.id,
             "key": self.key.eval(context) if self.key else None,
             "values": [value.eval(context) for value in self.values]
         }
@@ -104,7 +105,10 @@ class ListNode(Node):
         self.values.append(node)
 
     def eval(self, context):
-        return [value.eval(context) for value in self.values]
+        return {
+            "id": self.id,
+            "values": [value.eval(context) for value in self.values]
+        }
 
 
 class PropertyNode(Node):
@@ -115,7 +119,10 @@ class PropertyNode(Node):
         self.name = ""
 
     def eval(self, context):
-        return self.name
+        return {
+            "id": self.id,
+            "name": self.name
+        }
 
 
 class FlagNode(PropertyNode):
@@ -148,7 +155,10 @@ class LiteralNode(Node):
         self.value = None
 
     def eval(self, context):
-        return self.value
+        return {
+            "id": self.id,
+            "value": self.value
+        }
 
 
 class IntNode(LiteralNode):
