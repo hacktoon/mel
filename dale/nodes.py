@@ -24,7 +24,7 @@ class Node:
         self._chain.append(node)
 
     def eval(self, context):
-        return {}
+        return None
 
 
 class WildcardNode(Node):
@@ -72,6 +72,12 @@ class ScopeNode(Node):
         if key_id in key_map:
             key_map[key_id][node.key.name] = node
 
+    def eval(self, context):
+        return {
+            "key": self.key.eval(context) if self.key else None,
+            "values": [value.eval(context) for value in self.values]
+        }
+
 
 class RootNode(ScopeNode):
     id = "root"
@@ -97,6 +103,9 @@ class ListNode(Node):
     def add(self, node):
         self.values.append(node)
 
+    def eval(self, context):
+        return [value.eval(context) for value in self.values]
+
 
 class PropertyNode(Node):
     id = "property"
@@ -104,6 +113,9 @@ class PropertyNode(Node):
     def __init__(self):
         super().__init__()
         self.name = ""
+
+    def eval(self, context):
+        return self.name
 
 
 class FlagNode(PropertyNode):
@@ -134,6 +146,9 @@ class LiteralNode(Node):
     def __init__(self):
         super().__init__()
         self.value = None
+
+    def eval(self, context):
+        return self.value
 
 
 class IntNode(LiteralNode):
