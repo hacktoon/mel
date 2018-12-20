@@ -26,7 +26,7 @@ class Lexer:
             self.index += len(text)
             return token
         else:
-            raise LexingError(self.index)
+            raise LexingError
 
 
 class TokenStream:

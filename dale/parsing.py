@@ -34,7 +34,7 @@ class Parser(BaseParser):
             if value:
                 node.add(value)
             elif not self.stream.is_eof():
-                raise UnexpectedTokenError(self.stream.current())
+                raise UnexpectedTokenError
         return node
 
     @indexed
@@ -95,7 +95,7 @@ class ValueParser(Parser):
             self.stream.read("/")
             value = self._parse_value()
             if not value:
-                raise ExpectedValueError()
+                raise ExpectedValueError
             node.chain(value)
 
 
