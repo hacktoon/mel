@@ -42,16 +42,14 @@ class TokenStream:
     def read(self, expected_token_id, expected_value=None):
         current_token = self.current()
         if not self.is_current(expected_token_id):
-            raise UnexpectedTokenError(current_token, expected_token_id)
+            raise UnexpectedTokenError(current_token)
 
         if expected_value:
             if expected_value == current_token.value:
                 self.index += 1
                 return current_token
             else:
-                raise UnexpectedTokenValueError(
-                    current_token, expected_token_id, expected_value
-                )
+                raise UnexpectedTokenValueError(current_token)
         else:
             self.index += 1
             return current_token
