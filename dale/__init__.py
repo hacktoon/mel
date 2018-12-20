@@ -12,7 +12,6 @@ _evaluators = {}
 def evaluator(name):
     def decorator(func):
         _evaluators[name] = func
-
     return decorator
 
 
@@ -31,8 +30,6 @@ def eval(text, context=Context()):
         context.tree = tree
         context.text = text
         context.evaluators = _evaluators
-
         return tree.eval(context)
     except BaseError as error:
-        message = ErrorFormatter(text, error).format(lines_offset=4)
-        raise BaseError(message)
+        raise error
