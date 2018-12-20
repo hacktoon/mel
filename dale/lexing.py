@@ -1,9 +1,5 @@
 from . import tokens
-from .exceptions import (
-    LexingError,
-    UnexpectedTokenError,
-    UnexpectedTokenValueError
-)
+from .exceptions import LexingError, UnexpectedTokenError
 
 
 class Lexer:
@@ -39,20 +35,12 @@ class TokenStream:
         self.text = text
         self.index = 0
 
-    def read(self, expected_token_id, expected_value=None):
+    def read(self, expected_token_id):
         current_token = self.current()
         if not self.is_current(expected_token_id):
-            raise UnexpectedTokenError(current_token)
-
-        if expected_value:
-            if expected_value == current_token.value:
-                self.index += 1
-                return current_token
-            else:
-                raise UnexpectedTokenValueError(current_token)
-        else:
-            self.index += 1
-            return current_token
+            raise UnexpectedTokenError
+        self.index += 1
+        return current_token
 
     def is_eof(self):
         return self.index >= len(self.tokens)

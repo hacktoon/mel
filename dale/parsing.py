@@ -204,6 +204,7 @@ class LiteralParser(BaseParser):
         token = self.stream.current()
         if token.id not in self.TOKEN_MAP:
             return
+        self.stream.read(token.id)
         node = self._create_node(self.TOKEN_MAP[token.id])
-        node.value = self.stream.read(token.id).value
+        node.value = token.value
         return node
