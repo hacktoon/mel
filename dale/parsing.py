@@ -1,5 +1,5 @@
 from . import nodes
-from .exceptions import UnexpectedTokenError, ExpectedValueError
+from .exceptions import UnexpectedTokenError, ValueChainError
 
 
 def indexed(method):
@@ -34,7 +34,8 @@ class Parser(BaseParser):
             if value:
                 node.add(value)
             elif not self.stream.is_eof():
-                raise UnexpectedTokenError
+                index = self.stream.current().index[0]
+                raise UnexpectedTokenError(index)
         return node
 
     @indexed
@@ -92,10 +93,10 @@ class ValueParser(Parser):
 
     def _parse_chain(self, node):
         while self.stream.is_current("/"):
-            self.stream.read("/")
+            sep = self.stream.read("/")
             value = self._parse_value()
             if not value:
-                raise ExpectedValueError
+                raise ValueChainError(sep.index[0])
             node.chain(value)
 
 

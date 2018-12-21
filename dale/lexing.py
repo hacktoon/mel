@@ -1,5 +1,5 @@
 from . import tokens
-from .exceptions import LexingError, UnexpectedTokenError
+from .exceptions import InvalidSyntaxError, UnexpectedTokenError
 
 
 class Lexer:
@@ -12,6 +12,9 @@ class Lexer:
         tokens = []
         while self.index < len(self.text):
             token = self._build_token()
+            if not token:
+                raise InvalidSyntaxError(self.index)
+            self.index += len(token)
             if not token.skip:
                 tokens.append(token)
         return tokens
@@ -21,12 +24,10 @@ class Lexer:
             match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
-            content = match.group(0)
             index = match.start(), match.end()
-            self.index += len(content)
-            return Token(content, index)
-        else:
-            raise LexingError
+            token = Token(match.group(0), index)
+            return token
+        return
 
 
 class TokenStream:
@@ -36,11 +37,11 @@ class TokenStream:
         self.index = 0
 
     def read(self, token_id=None):
-        current_token = self.current()
+        current = self.current()
         if token_id and not self.is_current(token_id):
-            raise UnexpectedTokenError
+            raise UnexpectedTokenError(current.index[0])
         self.index += 1
-        return current_token
+        return current
 
     def is_eof(self):
         return self.index >= len(self.tokens)

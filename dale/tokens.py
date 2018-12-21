@@ -20,6 +20,9 @@ class Token:
     def value(self):
         return self.text
 
+    def __len__(self):
+        return len(self.text)
+
     def __repr__(self):
         return self.text
 

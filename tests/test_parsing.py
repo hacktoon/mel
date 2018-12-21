@@ -3,7 +3,7 @@ import pytest
 from dale.lexing import TokenStream
 from dale.parsing import Parser
 from dale.utils.context import Context
-from dale.exceptions import ExpectedValueError, UnexpectedTokenError
+from dale.exceptions import ValueChainError, UnexpectedTokenError
 
 
 def create_parser(text):
@@ -124,7 +124,7 @@ def test_chained_value_subvalue():
 
 
 def test_unexpected_finished_chained_value_error():
-    with pytest.raises(ExpectedValueError):
+    with pytest.raises(ValueChainError):
         create_tree("name/")
 
 

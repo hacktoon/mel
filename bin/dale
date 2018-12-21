@@ -6,7 +6,7 @@ path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, path)
 
 import dale
-from dale.exceptions import BaseError
+from dale.exceptions import DaleError
 
 
 def _read_file(path):
@@ -29,7 +29,7 @@ def main():
     text = _read_file(path)
     try:
         print(dale.eval(text))
-    except BaseError as error:
+    except DaleError as error:
         sys.exit("File {!r}: \n\n{}".format(path, error))
 
 

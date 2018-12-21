@@ -2,7 +2,7 @@ from dale.lexing import TokenStream
 from dale.parsing import Parser
 
 from dale.utils.context import Context
-from dale.exceptions import BaseError
+from dale.exceptions import DaleError
 from dale.exceptions.formatting import ErrorFormatter
 
 
@@ -15,13 +15,21 @@ def evaluator(name):
     return decorator
 
 
+def lex(text):
+    try:
+        return TokenStream(text)
+    except DaleError as error:
+        message = ErrorFormatter(text, error).format()
+        raise DaleError(message)
+
+
 def parse(text):
     try:
         stream = TokenStream(text)
         return Parser(stream).parse()
-    except BaseError as error:
-        message = ErrorFormatter(text, error).format(lines_offset=4)
-        raise BaseError(message)
+    except DaleError as error:
+        message = ErrorFormatter(text, error).format()
+        raise DaleError(message)
 
 
 def eval(text, context=Context()):
@@ -31,5 +39,5 @@ def eval(text, context=Context()):
         context.text = text
         context.evaluators = _evaluators
         return tree.eval(context)
-    except BaseError as error:
+    except DaleError as error:
         raise error
