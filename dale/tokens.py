@@ -2,10 +2,8 @@ import re
 
 
 def classes():
-    token_types = []
-    for cls in Token.__subclasses__():
-        token_types.append(cls)
-    return sorted(token_types, key=lambda cls: cls.priority, reverse=True)
+    subclasses = Token.__subclasses__()
+    return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
 
 
 class Token:
@@ -14,16 +12,16 @@ class Token:
     skip = False
     priority = 0
 
-    def __init__(self, match="", index=None):
-        self.match = match
+    def __init__(self, text="", index=None):
+        self.text = text
         self.index = index or (0, 0)
 
     @property
     def value(self):
-        return self.match
+        return self.text
 
     def __repr__(self):
-        return self.match
+        return self.text
 
 
 class StringToken(Token):
@@ -32,7 +30,7 @@ class StringToken(Token):
 
     @property
     def value(self):
-        return self.match[1:-1]
+        return self.text[1:-1]
 
 
 class FloatToken(Token):
@@ -42,7 +40,7 @@ class FloatToken(Token):
 
     @property
     def value(self):
-        return float(self.match)
+        return float(self.text)
 
 
 class IntToken(Token):
@@ -52,17 +50,17 @@ class IntToken(Token):
 
     @property
     def value(self):
-        return int(self.match)
+        return int(self.text)
 
 
 class BooleanToken(Token):
     id = "boolean"
     regex = re.compile(r"(true|false)\b")
-    priority = 3
+    priority = 2
 
     @property
     def value(self):
-        return {"true": True, "false": False}[self.match]
+        return {"true": True, "false": False}[self.text]
 
 
 class WhitespaceToken(Token):

@@ -3,35 +3,35 @@ from .exceptions import LexingError, UnexpectedTokenError
 
 
 class Lexer:
-    def __init__(self):
+    def __init__(self, text):
         self.index = 0
+        self.text = text
+        self.token_classes = tokens.classes()
 
-    def tokenize(self, text):
-        _tokens = []
-        while self.index < len(text):
-            token = self._build_token(text)
-            if token.skip:
-                continue
-            _tokens.append(token)
-        return _tokens
+    def tokenize(self):
+        tokens = []
+        while self.index < len(self.text):
+            token = self._build_token()
+            if not token.skip:
+                tokens.append(token)
+        return tokens
 
-    def _build_token(self, text):
-        for Token in tokens.classes():
-            match = Token.regex.match(text, self.index)
+    def _build_token(self):
+        for Token in self.token_classes:
+            match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
-            text = match.group(0)
+            content = match.group(0)
             index = match.start(), match.end()
-            token = Token(text, index)
-            self.index += len(text)
-            return token
+            self.index += len(content)
+            return Token(content, index)
         else:
             raise LexingError
 
 
 class TokenStream:
     def __init__(self, text, lexer=Lexer):
-        self.tokens = lexer().tokenize(text)
+        self.tokens = lexer(text).tokenize()
         self.text = text
         self.index = 0
 
