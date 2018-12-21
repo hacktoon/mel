@@ -35,9 +35,9 @@ class TokenStream:
         self.text = text
         self.index = 0
 
-    def read(self, expected_token_id):
+    def read(self, token_id=None):
         current_token = self.current()
-        if not self.is_current(expected_token_id):
+        if token_id and not self.is_current(token_id):
             raise UnexpectedTokenError
         self.index += 1
         return current_token
