@@ -64,7 +64,7 @@ class Parser(BaseParser):
 
     @indexed
     def parse_wildcard(self):
-        if self.stream.is_current("*"):
+        if self.stream.is_next("*"):
             self.stream.read("*")
             return self._create_node(nodes.WildcardNode)
 
@@ -92,7 +92,7 @@ class ValueParser(Parser):
         return
 
     def _parse_chain(self, node):
-        while self.stream.is_current("/"):
+        while self.stream.is_next("/"):
             sep = self.stream.read("/")
             value = self._parse_value()
             if not value:
@@ -108,7 +108,7 @@ class ScopeParser(Parser):
 
     def parse(self):
         start_token, end_token = self.delimiters
-        if not self.stream.is_current(start_token):
+        if not self.stream.is_next(start_token):
             return
         node = self._create_node(self.node_class)
         self.stream.read(start_token)
@@ -118,14 +118,14 @@ class ScopeParser(Parser):
         return node
 
     def _parse_key(self, node):
-        if self.stream.is_current(":"):
+        if self.stream.is_next(":"):
             self.stream.read(":")
         else:
             node.key = self.parse_value()
 
     def _parse_values(self, scope):
         end_token = self.delimiters[1]
-        inside_scope = not self.stream.is_current(end_token)
+        inside_scope = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_scope and not_eof:
             value = self.parse_value()
@@ -148,7 +148,7 @@ class ListParser(Parser):
 
     def parse(self):
         start_token, end_token = self.delimiters
-        if not self.stream.is_current(start_token):
+        if not self.stream.is_next(start_token):
             return
         node = self._create_node(nodes.ListNode)
         self.stream.read(start_token)
@@ -158,7 +158,7 @@ class ListParser(Parser):
 
     def _parse_values(self, node):
         end_token = self.delimiters[1]
-        inside_list = not self.stream.is_current(end_token)
+        inside_list = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_list and not_eof:
             value = self.parse_value()
@@ -183,7 +183,7 @@ class PropertyParser(BaseParser):
         if current.id in self.PREFIX_MAP:
             node_class = self.PREFIX_MAP[current.id]
             self.stream.read(current.id)
-        elif not self.stream.is_current("name"):
+        elif not self.stream.is_next("name"):
             return
         return self._parse_property(node_class)
 

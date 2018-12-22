@@ -104,4 +104,4 @@ def test_stream_ends_with_eof_token():
     stream.read("int")
     stream.read(")")
     assert stream.is_eof()
-    assert stream.is_current("EOF")
+    assert stream.is_next("EOF")
