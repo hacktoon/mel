@@ -40,7 +40,7 @@ class ScopeNode(Node):
         self.values = []
         self.flags = {}
         self.uids = {}
-        self.properties = {}
+        self.attributes = {}
         self.variables = {}
         self.formats = {}
         self.docs = {}
@@ -70,6 +70,7 @@ class ScopeNode(Node):
             "flag": self.flags,
             "uid": self.uids,
             "doc": self.docs,
+            "attribute": self.attributes,
             "variable": self.variables,
             "format": self.formats,
         }
