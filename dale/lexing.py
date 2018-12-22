@@ -37,7 +37,7 @@ class TokenStream:
         self.index = 0
 
     def read(self, token_id=None):
-        current = self.current()
+        current = self.peek()
         if token_id and not self.is_current(token_id):
             raise UnexpectedTokenError(current.index[0])
         self.index += 1
@@ -47,9 +47,9 @@ class TokenStream:
         return self.index >= len(self.tokens)
 
     def is_current(self, token_id):
-        return self.current().id == token_id
+        return self.peek().id == token_id
 
-    def current(self, offset=0):
+    def peek(self, offset=0):
         try:
             return self.tokens[self.index + offset]
         except IndexError:

@@ -4,11 +4,11 @@ from .exceptions import UnexpectedTokenError, ValueChainError
 
 def indexed(method):
     def surrogate(self):
-        first = self.stream.current()
+        first = self.stream.peek()
         node = method(self)
         if not node:
             return
-        last = self.stream.current(-1)
+        last = self.stream.peek(-1)
         node.index = first.index[0], last.index[1]
         return node
 
@@ -34,7 +34,7 @@ class Parser(BaseParser):
             if value:
                 node.add(value)
             elif not self.stream.is_eof():
-                index = self.stream.current().index[0]
+                index = self.stream.peek().index[0]
                 raise UnexpectedTokenError(index)
         return node
 
@@ -178,7 +178,7 @@ class PropertyParser(BaseParser):
     }
 
     def parse(self):
-        current = self.stream.current()
+        current = self.stream.peek()
         node_class = nodes.PropertyNode
         if current.id in self.PREFIX_MAP:
             node_class = self.PREFIX_MAP[current.id]
@@ -202,7 +202,7 @@ class LiteralParser(BaseParser):
     }
 
     def parse(self):
-        token = self.stream.current()
+        token = self.stream.peek()
         if token.id not in self.TOKEN_MAP:
             return
         self.stream.read(token.id)
