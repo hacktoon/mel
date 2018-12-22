@@ -18,3 +18,9 @@ class ValueChainError(DaleError):
     def __init__(self, index):
         self.index = index
         super().__init__("A value is expected after a chain separator.")
+
+
+class NameNotFoundError(DaleError):
+    def __init__(self, index):
+        self.index = index
+        super().__init__("A name is expected after a property prefix.")

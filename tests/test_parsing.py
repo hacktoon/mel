@@ -3,7 +3,11 @@ import pytest
 from dale.lexing import TokenStream
 from dale.parsing import Parser
 from dale.utils.context import Context
-from dale.exceptions import ValueChainError, UnexpectedTokenError
+from dale.exceptions import (
+    ValueChainError,
+    UnexpectedTokenError,
+    NameNotFoundError
+)
 
 
 def create_parser(text):
@@ -248,3 +252,11 @@ def test_query_key_assumes_first_value():
     parser = create_parser("{abc 42}")
     node = parser.parse_query()
     assert str(node.key) == "abc"
+
+
+#  PROPERTY TESTS
+
+
+def test_name_not_found_after_prefix():
+    with pytest.raises(NameNotFoundError):
+        create_tree("(# )")

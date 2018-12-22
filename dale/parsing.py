@@ -1,5 +1,9 @@
 from . import nodes
-from .exceptions import UnexpectedTokenError, ValueChainError
+from .exceptions import (
+    UnexpectedTokenError,
+    ValueChainError,
+    NameNotFoundError
+)
 
 
 def indexed(method):
@@ -188,6 +192,8 @@ class PropertyParser(BaseParser):
         return self._parse_property(node_class)
 
     def _parse_property(self, node_class):
+        if not self.stream.is_next("name"):
+            raise NameNotFoundError(self.stream.peek().index[0])
         node = self._create_node(node_class)
         node.name = self.stream.read("name").value
         return node
