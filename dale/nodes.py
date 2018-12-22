@@ -60,6 +60,11 @@ class ScopeNode(Node):
             self._add_scope(node)
 
     def _add_scope(self, node):
+        """
+            Handle adding a scope as a value of a scope node.
+            Verify the type of the key node.
+            (a (b 2)) -- 'b' will be set as an attribute of 'a'
+        """
         key_map = {
             "property": self.children,
             "flag": self.flags,
