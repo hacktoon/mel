@@ -83,77 +83,82 @@ class NameToken(Token):
     regex = re.compile(r"[_a-zA-Z]\w*(-\w+)*")
 
 
-class AtToken(Token):
+class AttributePrefixToken(Token):
     id = "@"
     regex = re.compile("@")
 
 
-class HashToken(Token):
+class UidPrefixToken(Token):
     id = "#"
     regex = re.compile("#")
 
 
-class PercentToken(Token):
+class FormatPrefixToken(Token):
     id = "%"
     regex = re.compile("%")
 
 
-class DollarToken(Token):
+class VariablePrefixToken(Token):
     id = "$"
     regex = re.compile(r"\$")
 
 
-class ExclamationMarkToken(Token):
+class FlagPrefixToken(Token):
     id = "!"
     regex = re.compile("!")
 
 
-class QuestionMarkToken(Token):
+class DocPrefixToken(Token):
     id = "?"
     regex = re.compile(r"\?")
 
 
-class ColonToken(Token):
+class NullKeyToken(Token):
     id = ":"
     regex = re.compile(":")
 
 
-class AsteriskToken(Token):
+class WildcardToken(Token):
     id = "*"
     regex = re.compile(r"\*")
 
 
-class SlashToken(Token):
+class RangeToken(Token):
+    id = ".."
+    regex = re.compile(r"\.\.")
+
+
+class ChainToken(Token):
     id = "/"
     regex = re.compile("/")
 
 
-class LeftParenthesisToken(Token):
+class StartScopeToken(Token):
     id = "("
     regex = re.compile(r"\(")
 
 
-class RightParenthesisToken(Token):
+class EndScopeToken(Token):
     id = ")"
     regex = re.compile(r"\)")
 
 
-class LeftBracesToken(Token):
+class StartQueryToken(Token):
     id = "{"
     regex = re.compile(r"\{")
 
 
-class RightBracesToken(Token):
+class EndQueryToken(Token):
     id = "}"
     regex = re.compile(r"\}")
 
 
-class LeftBracketToken(Token):
+class StartListToken(Token):
     id = "["
     regex = re.compile(r"\[")
 
 
-class RightBracketToken(Token):
+class EndListToken(Token):
     id = "]"
     regex = re.compile(r"\]")
 

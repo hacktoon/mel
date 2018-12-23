@@ -215,3 +215,31 @@ class LiteralParser(BaseParser):
         node = self._create_node(self.TOKEN_MAP[token.id])
         node.value = token.value
         return node
+
+
+class NumberParser(BaseParser):
+    def parse(self):
+        if self.stream.is_next("float"):
+            node_class = nodes.FloatNode
+        elif self.stream.is_next("int"):
+            node_class = nodes.IntNode
+            if self.stream.peek(1).id == "..":
+                return RangeParser(self.stream).parse()
+        elif self.stream.is_next(".."):
+            return RangeParser(self.stream).parse()
+        else:
+            return
+        node = self._create_node(node_class)
+        node.value = self.stream.read().value
+        return node
+
+
+class RangeParser(BaseParser):
+    def parse(self):
+        node = self._create_node(nodes.RangeNode)
+        if self.stream.is_next("int"):
+            node.start = self.stream.read().value
+        self.stream.read('..')
+        if self.stream.is_next("int"):
+            node.end = self.stream.read("int").value
+        return node
