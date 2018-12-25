@@ -122,27 +122,27 @@ class PropertyNode(Node):
     id = "property"
 
 
-class FlagNode(PropertyNode):
+class FlagNode(Node):
     id = "flag"
 
 
-class UIDNode(PropertyNode):
+class UIDNode(Node):
     id = "uid"
 
 
-class AttributeNode(PropertyNode):
+class AttributeNode(Node):
     id = "attribute"
 
 
-class FormatNode(PropertyNode):
+class FormatNode(Node):
     id = "format"
 
 
-class VariableNode(PropertyNode):
+class VariableNode(Node):
     id = "variable"
 
 
-class DocNode(PropertyNode):
+class DocNode(Node):
     id = "doc"
 
 
