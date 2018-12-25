@@ -204,11 +204,11 @@ class PropertyParser(BaseParser):
     }
 
     def parse(self):
-        current = self.stream.peek()
+        next = self.stream.peek()
         node_class = nodes.PropertyNode
-        if current.id in self.PREFIX_MAP:
-            node_class = self.PREFIX_MAP[current.id]
-            self.stream.read(current.id)
+        if next.id in self.PREFIX_MAP:
+            node_class = self.PREFIX_MAP[next.id]
+            self.stream.read(next.id)
         elif not self.stream.is_next("name"):
             return
         return self._parse_property(node_class)
