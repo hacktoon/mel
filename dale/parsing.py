@@ -93,40 +93,6 @@ class Parser(BaseParser):
         return ListParser(self.stream).parse()
 
 
-class ValueParser(Parser):
-    def parse(self):
-        node = self._parse_value()
-        if node:
-            self._parse_chain(node)
-        return node
-
-    def _parse_value(self):
-        methods = [
-            self.parse_range,
-            self.parse_number,
-            self.parse_boolean,
-            self.parse_string,
-            self.parse_property,
-            self.parse_scope,
-            self.parse_query,
-            self.parse_list,
-            self.parse_wildcard,
-        ]
-        for method in methods:
-            node = method()
-            if node:
-                return node
-        return
-
-    def _parse_chain(self, node):
-        while self.stream.is_next("/"):
-            sep = self.stream.read("/")
-            value = self._parse_value()
-            if not value:
-                raise ValueChainError(sep.index[0])
-            node.chain(value)
-
-
 class ScopeParser(Parser):
     def __init__(self, *args):
         super().__init__(*args)
@@ -168,30 +134,38 @@ class QueryParser(ScopeParser):
         self.delimiters = "{}"
 
 
-class ListParser(Parser):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.delimiters = "[]"
-
+class ValueParser(Parser):
     def parse(self):
-        start_token, end_token = self.delimiters
-        if not self.stream.is_next(start_token):
-            return
-        node = self._create_node(nodes.ListNode)
-        self.stream.read(start_token)
-        self._parse_values(node)
-        self.stream.read(end_token)
+        node = self._parse_value()
+        if node:
+            self._parse_chain(node)
         return node
 
-    def _parse_values(self, node):
-        end_token = self.delimiters[1]
-        inside_list = not self.stream.is_next(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_list and not_eof:
-            value = self.parse_value()
+    def _parse_value(self):
+        methods = [
+            self.parse_range,
+            self.parse_number,
+            self.parse_boolean,
+            self.parse_string,
+            self.parse_property,
+            self.parse_scope,
+            self.parse_query,
+            self.parse_list,
+            self.parse_wildcard,
+        ]
+        for method in methods:
+            node = method()
+            if node:
+                return node
+        return
+
+    def _parse_chain(self, node):
+        while self.stream.is_next("/"):
+            sep = self.stream.read("/")
+            value = self._parse_value()
             if not value:
-                break
-            node.add(value)
+                raise ValueChainError(sep.index[0])
+            node.chain(value)
 
 
 class PropertyParser(BaseParser):
@@ -220,6 +194,32 @@ class PropertyParser(BaseParser):
         node = self._create_node(node_class)
         node.value = self.stream.read("name").value
         return node
+
+
+class ListParser(Parser):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.delimiters = "[]"
+
+    def parse(self):
+        start_token, end_token = self.delimiters
+        if not self.stream.is_next(start_token):
+            return
+        node = self._create_node(nodes.ListNode)
+        self.stream.read(start_token)
+        self._parse_values(node)
+        self.stream.read(end_token)
+        return node
+
+    def _parse_values(self, node):
+        end_token = self.delimiters[1]
+        inside_list = not self.stream.is_next(end_token)
+        not_eof = not self.stream.is_eof()
+        while inside_list and not_eof:
+            value = self.parse_value()
+            if not value:
+                break
+            node.add(value)
 
 
 class NumberParser(BaseParser):
