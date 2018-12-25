@@ -260,3 +260,46 @@ def test_query_key_assumes_first_value():
 def test_name_not_found_after_prefix():
     with pytest.raises(NameNotFoundError):
         create_tree("(# )")
+
+
+#  RANGE TESTS
+
+
+def test_range_type():
+    parser = create_parser("2..4")
+    node = parser.parse_number()
+    assert node.id == "range"
+
+
+def test_range_limit():
+    parser = create_parser("0..10")
+    node = parser.parse_number()
+    assert node[0] == 0
+    assert node[1] == 10
+
+
+def test_range_without_specific_end():
+    parser = create_parser("42..")
+    node = parser.parse_number()
+    assert node[0] == 42
+    assert node[1] is None
+
+
+def test_range_without_specific_start():
+    parser = create_parser("..33")
+    node = parser.parse_number()
+    assert node[0] is None
+    assert node[1] == 33
+
+
+def test_range_must_have_at_least_one_int():
+    with pytest.raises(UnexpectedTokenError):
+        create_tree("..")
+
+
+def test_range_only_accepts_integers():
+    parser = create_parser("3.4..")
+    node = parser.parse_number()
+    assert node.value == 3.4
+    with pytest.raises(UnexpectedTokenError):
+        parser.parse_number()

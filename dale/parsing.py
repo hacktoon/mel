@@ -240,10 +240,12 @@ class NumberParser(BaseParser):
 
 class RangeParser(BaseParser):
     def parse(self):
+        start = end = None
         node = self._create_node(nodes.RangeNode)
         if self.stream.is_next("int"):
-            node.start = self.stream.read().value
+            start = self.stream.read().value
         self.stream.read('..')
-        if not node.start or self.stream.is_next("int"):
-            node.end = self.stream.read("int").value
+        if not start or self.stream.is_next("int"):
+            end = self.stream.read("int").value
+        node.value = (start, end)
         return node
