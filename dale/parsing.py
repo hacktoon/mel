@@ -44,22 +44,18 @@ class Parser(BaseParser):
 
     @indexed
     def parse_string(self):
-        token = self.stream.peek()
-        if token.id != "string":
+        if not self.stream.is_next("string"):
             return
-        self.stream.read()
         node = self._create_node(nodes.StringNode)
-        node.value = token.value
+        node.value = self.stream.read().value
         return node
 
     @indexed
     def parse_boolean(self):
-        token = self.stream.peek()
-        if token.id != "boolean":
+        if not self.stream.is_next("boolean"):
             return
-        self.stream.read()
         node = self._create_node(nodes.BooleanNode)
-        node.value = token.value
+        node.value = self.stream.read().value
         return node
 
     @indexed
