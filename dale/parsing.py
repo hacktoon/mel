@@ -43,14 +43,6 @@ class Parser(BaseParser):
         return node
 
     @indexed
-    def parse_value(self):
-        return ValueParser(self.stream).parse()
-
-    @indexed
-    def parse_number(self):
-        return NumberParser(self.stream).parse()
-
-    @indexed
     def parse_string(self):
         token = self.stream.peek()
         if token.id != "string":
@@ -71,6 +63,24 @@ class Parser(BaseParser):
         return node
 
     @indexed
+    def parse_wildcard(self):
+        if self.stream.is_next("*"):
+            self.stream.read("*")
+            return self._create_node(nodes.WildcardNode)
+
+    @indexed
+    def parse_value(self):
+        return ValueParser(self.stream).parse()
+
+    @indexed
+    def parse_number(self):
+        return NumberParser(self.stream).parse()
+
+    @indexed
+    def parse_range(self):
+        return RangeParser(self.stream).parse()
+
+    @indexed
     def parse_property(self):
         return PropertyParser(self.stream).parse()
 
@@ -86,12 +96,6 @@ class Parser(BaseParser):
     def parse_list(self):
         return ListParser(self.stream).parse()
 
-    @indexed
-    def parse_wildcard(self):
-        if self.stream.is_next("*"):
-            self.stream.read("*")
-            return self._create_node(nodes.WildcardNode)
-
 
 class ValueParser(Parser):
     def parse(self):
@@ -102,6 +106,7 @@ class ValueParser(Parser):
 
     def _parse_value(self):
         methods = [
+            self.parse_range,
             self.parse_number,
             self.parse_boolean,
             self.parse_string,
@@ -223,14 +228,11 @@ class PropertyParser(BaseParser):
 
 class NumberParser(BaseParser):
     def parse(self):
-        if self.stream.is_next("float"):
+        current = self.stream.peek()
+        if current.id == "float":
             node_class = nodes.FloatNode
-        elif self.stream.is_next("int"):
+        elif current.id == "int":
             node_class = nodes.IntNode
-            if self.stream.peek(1).id == "..":
-                return RangeParser(self.stream).parse()
-        elif self.stream.is_next(".."):
-            return RangeParser(self.stream).parse()
         else:
             return
         node = self._create_node(node_class)
@@ -241,11 +243,18 @@ class NumberParser(BaseParser):
 class RangeParser(BaseParser):
     def parse(self):
         start = end = None
-        node = self._create_node(nodes.RangeNode)
-        if self.stream.is_next("int"):
-            start = self.stream.read().value
-        self.stream.read('..')
-        if not start or self.stream.is_next("int"):
+        current = self.stream.peek()
+        next = self.stream.peek(1)
+        if current.id == "..":
+            self.stream.read('..')
             end = self.stream.read("int").value
+        elif current.id == "int" and next.id == "..":
+            start = self.stream.read().value
+            self.stream.read("..")
+            if self.stream.is_next("int"):
+                end = self.stream.read("int").value
+        else:
+            return
+        node = self._create_node(nodes.RangeNode)
         node.value = (start, end)
         return node

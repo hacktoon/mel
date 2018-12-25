@@ -267,27 +267,27 @@ def test_name_not_found_after_prefix():
 
 def test_range_type():
     parser = create_parser("2..4")
-    node = parser.parse_number()
+    node = parser.parse_range()
     assert node.id == "range"
 
 
 def test_range_limit():
     parser = create_parser("0..10")
-    node = parser.parse_number()
+    node = parser.parse_range()
     assert node[0] == 0
     assert node[1] == 10
 
 
 def test_range_without_specific_end():
     parser = create_parser("42..")
-    node = parser.parse_number()
+    node = parser.parse_range()
     assert node[0] == 42
     assert node[1] is None
 
 
 def test_range_without_specific_start():
     parser = create_parser("..33")
-    node = parser.parse_number()
+    node = parser.parse_range()
     assert node[0] is None
     assert node[1] == 33
 
@@ -302,4 +302,4 @@ def test_range_only_accepts_integers():
     node = parser.parse_number()
     assert node.value == 3.4
     with pytest.raises(UnexpectedTokenError):
-        parser.parse_number()
+        parser.parse_range()
