@@ -9,7 +9,9 @@ Dale's syntax is based on a simple idea: a sequence of values. The general rules
 ```
 root        =  value*
 
-value       =  ( literal
+value       =  ( number
+               | string
+               | boolean
                | property
                | flag
                | variable
@@ -22,7 +24,7 @@ value       =  ( literal
                | wildcard
                ) ('/' value)*
 
-literal     =  int | float | string | boolean
+number      =  int | float | range
 
 property    =  name
 flag        =  '!' name
