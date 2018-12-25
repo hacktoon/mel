@@ -47,8 +47,28 @@ class Parser(BaseParser):
         return ValueParser(self.stream).parse()
 
     @indexed
-    def parse_literal(self):
-        return LiteralParser(self.stream).parse()
+    def parse_number(self):
+        return NumberParser(self.stream).parse()
+
+    @indexed
+    def parse_string(self):
+        token = self.stream.peek()
+        if token.id != "string":
+            return
+        self.stream.read()
+        node = self._create_node(nodes.StringNode)
+        node.value = token.value
+        return node
+
+    @indexed
+    def parse_boolean(self):
+        token = self.stream.peek()
+        if token.id != "boolean":
+            return
+        self.stream.read()
+        node = self._create_node(nodes.BooleanNode)
+        node.value = token.value
+        return node
 
     @indexed
     def parse_property(self):
@@ -82,7 +102,9 @@ class ValueParser(Parser):
 
     def _parse_value(self):
         methods = [
-            self.parse_literal,
+            self.parse_number,
+            self.parse_boolean,
+            self.parse_string,
             self.parse_property,
             self.parse_scope,
             self.parse_query,
@@ -196,24 +218,6 @@ class PropertyParser(BaseParser):
             raise NameNotFoundError(self.stream.peek().index[0])
         node = self._create_node(node_class)
         node.name = self.stream.read("name").value
-        return node
-
-
-class LiteralParser(BaseParser):
-    TOKEN_MAP = {
-        "boolean": nodes.BooleanNode,
-        "string": nodes.StringNode,
-        "float": nodes.FloatNode,
-        "int": nodes.IntNode,
-    }
-
-    def parse(self):
-        token = self.stream.peek()
-        if token.id not in self.TOKEN_MAP:
-            return
-        self.stream.read(token.id)
-        node = self._create_node(self.TOKEN_MAP[token.id])
-        node.value = token.value
         return node
 
 
