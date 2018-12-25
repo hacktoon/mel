@@ -8,6 +8,7 @@ class Node:
     def __init__(self):
         self.text = ""
         self.index = (0, 0)
+        self.value = None
         self._chain = []
 
     def __bool__(self):
@@ -55,7 +56,7 @@ class ScopeNode(Node):
     def add(self, node):
         self.values.append(node)
         if node.id == "flag":
-            self.flags[node.name] = node
+            self.flags[node.value] = node
         if node.id == "scope":
             self._add_scope(node)
 
@@ -76,7 +77,7 @@ class ScopeNode(Node):
         }
         key_id = node.key.id if node.key else ''
         if key_id in key_map:
-            key_map[key_id][node.key.name] = node
+            key_map[key_id][node.key.value] = node
 
     def eval(self, context):
         return {
@@ -99,36 +100,26 @@ class ListNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.values = []
+        self.value = []
 
     def __getitem__(self, index):
-        return self.values[index]
+        return self.value[index]
 
     def __len__(self):
-        return len(self.values)
+        return len(self.value)
 
     def add(self, node):
-        self.values.append(node)
+        self.value.append(node)
 
     def eval(self, context):
         return {
             "id": self.id,
-            "values": [value.eval(context) for value in self.values]
+            "value": [value.eval(context) for value in self.value]
         }
 
 
 class PropertyNode(Node):
     id = "property"
-
-    def __init__(self):
-        super().__init__()
-        self.name = ""
-
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
 
 
 class FlagNode(PropertyNode):
@@ -155,43 +146,28 @@ class DocNode(PropertyNode):
     id = "doc"
 
 
-class LiteralNode(Node):
-    def __init__(self):
-        super().__init__()
-        self.value = None
-
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "value": self.value
-        }
-
-
 class RangeNode(Node):
+    id = "range"
+
     def __init__(self):
         super().__init__()
-        self.start = None
-        self.end = None
+        self.value = (0, 0)
 
-    def eval(self, _):
-        return {
-            "id": self.id,
-            "start": self.start,
-            "end": self.end
-        }
+    def __getitem__(self, index):
+        return self.value[index]
 
 
-class IntNode(LiteralNode):
+class IntNode(Node):
     id = "int"
 
 
-class FloatNode(LiteralNode):
+class FloatNode(Node):
     id = "float"
 
 
-class BooleanNode(LiteralNode):
+class BooleanNode(Node):
     id = "boolean"
 
 
-class StringNode(LiteralNode):
+class StringNode(Node):
     id = "string"

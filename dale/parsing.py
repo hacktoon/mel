@@ -217,7 +217,7 @@ class PropertyParser(BaseParser):
         if not self.stream.is_next("name"):
             raise NameNotFoundError(self.stream.peek().index[0])
         node = self._create_node(node_class)
-        node.name = self.stream.read("name").value
+        node.value = self.stream.read("name").value
         return node
 
 
