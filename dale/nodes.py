@@ -167,6 +167,20 @@ class LiteralNode(Node):
         }
 
 
+class RangeNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.start = None
+        self.end = None
+
+    def eval(self, _):
+        return {
+            "id": self.id,
+            "start": self.start,
+            "end": self.end
+        }
+
+
 class IntNode(LiteralNode):
     id = "int"
 

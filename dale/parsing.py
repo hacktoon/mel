@@ -240,6 +240,6 @@ class RangeParser(BaseParser):
         if self.stream.is_next("int"):
             node.start = self.stream.read().value
         self.stream.read('..')
-        if self.stream.is_next("int"):
+        if not node.start or self.stream.is_next("int"):
             node.end = self.stream.read("int").value
         return node
