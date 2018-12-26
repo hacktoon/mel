@@ -94,10 +94,8 @@ class Parser(BaseParser):
 
 
 class ScopeParser(Parser):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.node_class = nodes.ScopeNode
-        self.delimiters = "()"
+    node_class = nodes.ScopeNode
+    delimiters = "()"
 
     def parse(self):
         start_token, end_token = self.delimiters
@@ -121,17 +119,35 @@ class ScopeParser(Parser):
         inside_scope = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_scope and not_eof:
-            value = self.parse_value()
+            value = self._parse_value()
             if not value:
                 break
             scope.add(value)
 
+    def _parse_value(self):
+        value = self.parse_value()
+        if not value:
+            return
+        relation = self._parse_relation(value)
+        if relation:
+            return relation
+        return value
+
+    def _parse_relation(self, base_value):
+        if not base_value.relation_key:
+            return
+        if not self.stream.is_next("="):
+            return
+        node = self._create_node(nodes.RelationNode)
+        node.target = base_value
+        node.relationship = self.stream.read()
+        node.value = self.parse_value()
+        return node
+
 
 class QueryParser(ScopeParser):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.node_class = nodes.QueryNode
-        self.delimiters = "{}"
+    node_class = nodes.QueryNode
+    delimiters = "{}"
 
 
 class ValueParser(Parser):
@@ -197,9 +213,7 @@ class PropertyParser(BaseParser):
 
 
 class ListParser(Parser):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.delimiters = "[]"
+    delimiters = "[]"
 
     def parse(self):
         start_token, end_token = self.delimiters
@@ -250,7 +264,7 @@ class RangeParser(BaseParser):
         current = self.stream.peek()
         next = self.stream.peek(1)
         if current.id == "..":
-            self.stream.read('..')
+            self.stream.read("..")
             end = self.stream.read("int").value
         elif current.id == "int" and next.id == "..":
             start = self.stream.read().value

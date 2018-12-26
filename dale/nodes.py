@@ -4,6 +4,7 @@ def _default_evaluator(value, context):
 
 class Node:
     id = "node"
+    relation_key = False
 
     def __init__(self):
         self.text = ""
@@ -59,13 +60,10 @@ class ScopeNode(Node):
             self.flags[node.value] = node
         if node.id == "scope":
             self._add_scope(node)
+        if node.id == "relation":
+            self._add_relation(node)
 
     def _add_scope(self, node):
-        """
-            Handle adding a scope as a value of a scope node.
-            Verify the type of the key node.
-            (a (b 2)) -- 'b' will be set as an attribute of 'a'
-        """
         key_map = {
             "property": self.children,
             "flag": self.flags,
@@ -78,6 +76,9 @@ class ScopeNode(Node):
         key_id = node.key.id if node.key else ''
         if key_id in key_map:
             key_map[key_id][node.key.value] = node
+
+    def _add_relation(self, node):
+        pass
 
     def eval(self, context):
         return {
@@ -93,6 +94,13 @@ class RootNode(ScopeNode):
 
 class QueryNode(ScopeNode):
     id = "query"
+
+    def __init__(self):
+        super().__init__()
+        self.relations = []
+
+    def _add_relation(self, node):
+        pass
 
 
 class ListNode(Node):
@@ -120,29 +128,30 @@ class ListNode(Node):
 
 class PropertyNode(Node):
     id = "property"
+    relation_key = True
 
 
-class FlagNode(Node):
+class FlagNode(PropertyNode):
     id = "flag"
 
 
-class UIDNode(Node):
+class UIDNode(PropertyNode):
     id = "uid"
 
 
-class AttributeNode(Node):
+class AttributeNode(PropertyNode):
     id = "attribute"
 
 
-class FormatNode(Node):
+class FormatNode(PropertyNode):
     id = "format"
 
 
-class VariableNode(Node):
+class VariableNode(PropertyNode):
     id = "variable"
 
 
-class DocNode(Node):
+class DocNode(PropertyNode):
     id = "doc"
 
 
@@ -171,3 +180,12 @@ class BooleanNode(Node):
 
 class StringNode(Node):
     id = "string"
+
+
+class RelationNode(Node):
+    id = "relation"
+
+    def __init__(self):
+        super().__init__()
+        self.target = None
+        self.relationship = None

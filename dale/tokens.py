@@ -113,6 +113,11 @@ class DocPrefixToken(Token):
     regex = re.compile(r"\?")
 
 
+class EqualsToken(Token):
+    id = "="
+    regex = re.compile("=")
+
+
 class NullKeyToken(Token):
     id = ":"
     regex = re.compile(":")
