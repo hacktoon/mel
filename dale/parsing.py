@@ -238,6 +238,14 @@ class NumberParser(BaseParser):
 
 class RangeParser(BaseParser):
     def parse(self):
+        _range = self._parse_range()
+        if not _range:
+            return
+        node = self._create_node(nodes.RangeNode)
+        node.value = _range
+        return node
+
+    def _parse_range(self):
         start = end = None
         current = self.stream.peek()
         next = self.stream.peek(1)
@@ -251,6 +259,4 @@ class RangeParser(BaseParser):
                 end = self.stream.read("int").value
         else:
             return
-        node = self._create_node(nodes.RangeNode)
-        node.value = (start, end)
-        return node
+        return (start, end)
