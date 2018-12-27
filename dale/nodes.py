@@ -57,23 +57,6 @@ class ScopeNode(Node):
     def add(self, node):
         self.values.append(node)
 
-    def _add_scope(self, node):
-        key_map = {
-            "property": self.children,
-            "flag": self.flags,
-            "uid": self.uids,
-            "doc": self.docs,
-            "attribute": self.attributes,
-            "variable": self.variables,
-            "format": self.formats,
-        }
-        key_id = node.key.id if node.key else ''
-        if key_id in key_map:
-            key_map[key_id][node.key.value] = node
-
-    def _add_relation(self, node):
-        pass
-
     def eval(self, context):
         return {
             "id": self.id,
@@ -92,9 +75,6 @@ class QueryNode(ScopeNode):
     def __init__(self):
         super().__init__()
         self.criteria = []
-
-    def _add_relation(self, node):
-        pass
 
 
 class ListNode(Node):
