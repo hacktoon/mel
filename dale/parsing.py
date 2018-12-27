@@ -119,10 +119,16 @@ class ScopeParser(Parser):
         inside_scope = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_scope and not_eof:
-            value = self._parse_value()
-            if not value:
+            value_node = self._parse_value()
+            if not value_node:
                 break
-            scope.add(value)
+            if value_node.id == "flag":
+                scope.flags[value_node.value] = value_node
+            if value_node.id == "scope":
+                scope._add_scope(value_node)
+            if value_node.id == "relation":
+                scope._add_relation(value_node)
+            scope.add(value_node)
 
     def _parse_value(self):
         value = self.parse_value()

@@ -56,12 +56,6 @@ class ScopeNode(Node):
 
     def add(self, node):
         self.values.append(node)
-        if node.id == "flag":
-            self.flags[node.value] = node
-        if node.id == "scope":
-            self._add_scope(node)
-        if node.id == "relation":
-            self._add_relation(node)
 
     def _add_scope(self, node):
         key_map = {
