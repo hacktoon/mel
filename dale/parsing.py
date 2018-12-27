@@ -93,7 +93,49 @@ class Parser(BaseParser):
         return ListParser(self.stream).parse()
 
 
-class ScopeParser(Parser):
+class BaseScopeParser(Parser):
+    # TODO: use this in root parser to parse values sequence
+    def _parse_value(self, scope):
+        value_node = self.parse_value()
+        if not value_node:
+            return
+        relation = self._parse_relation(value_node)
+        if relation:
+            return relation
+        if value_node.id == "flag":
+            scope.flags[value_node.value] = value_node
+        if value_node.id == "scope":
+            self._update_node_attributes(scope, value_node)
+        scope.add(value_node)
+        return value_node
+
+    def _parse_relation(self, base_value):
+        if not base_value.relation_key:
+            return
+        if not self.stream.is_next("="):
+            return
+        node = self._create_node(nodes.RelationNode)
+        node.target = base_value
+        node.relationship = self.stream.read()
+        node.value = self.parse_value()
+        return node
+
+    def _update_node_attributes(self, scope, value_node):
+        key_map = {
+            "property": scope.children,
+            "flag": scope.flags,
+            "uid": scope.uids,
+            "doc": scope.docs,
+            "attribute": scope.attributes,
+            "variable": scope.variables,
+            "format": scope.formats,
+        }
+        key_id = value_node.key.id if value_node.key else ''
+        if key_id in key_map:
+            key_map[key_id][value_node.key.value] = value_node
+
+
+class ScopeParser(BaseScopeParser):
     node_class = nodes.ScopeNode
     delimiters = "()"
 
@@ -119,51 +161,8 @@ class ScopeParser(Parser):
         inside_scope = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_scope and not_eof:
-            value_node = self._parse_value()
-            if not value_node:
+            if not self._parse_value(scope):
                 break
-            if value_node.id == "flag":
-                scope.flags[value_node.value] = value_node
-            if value_node.id == "scope":
-                self._update_node_attributes(scope, value_node)
-            if value_node.id == "relation":
-                pass
-                # self._update_node_relation()
-            scope.add(value_node)
-
-    def _update_node_attributes(self, scope, value_node):
-        key_map = {
-            "property": scope.children,
-            "flag": scope.flags,
-            "uid": scope.uids,
-            "doc": scope.docs,
-            "attribute": scope.attributes,
-            "variable": scope.variables,
-            "format": scope.formats,
-        }
-        key_id = value_node.key.id if value_node.key else ''
-        if key_id in key_map:
-            key_map[key_id][value_node.key.value] = value_node
-
-    def _parse_value(self):
-        value = self.parse_value()
-        if not value:
-            return
-        relation = self._parse_relation(value)
-        if relation:
-            return relation
-        return value
-
-    def _parse_relation(self, base_value):
-        if not base_value.relation_key:
-            return
-        if not self.stream.is_next("="):
-            return
-        node = self._create_node(nodes.RelationNode)
-        node.target = base_value
-        node.relationship = self.stream.read()
-        node.value = self.parse_value()
-        return node
 
 
 class QueryParser(ScopeParser):
