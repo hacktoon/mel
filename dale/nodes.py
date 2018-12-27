@@ -97,7 +97,7 @@ class QueryNode(ScopeNode):
 
     def __init__(self):
         super().__init__()
-        self.relations = []
+        self.criteria = []
 
     def _add_relation(self, node):
         pass
