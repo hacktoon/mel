@@ -32,37 +32,19 @@ class BaseParser:
 class Parser(BaseParser):
     @indexed
     def parse(self):
-        node = self._create_node(nodes.RootNode)
-        while not self.stream.is_eof():
-            value = self.parse_value()
-            if value:
-                node.add(value)
-            elif not self.stream.is_eof():
-                index = self.stream.peek().index[0]
-                raise UnexpectedTokenError(index)
-        return node
+        return RootParser(self.stream).parse()
 
     @indexed
     def parse_string(self):
-        if not self.stream.is_next("string"):
-            return
-        node = self._create_node(nodes.StringNode)
-        node.value = self.stream.read().value
-        return node
+        return StringParser(self.stream).parse()
 
     @indexed
     def parse_boolean(self):
-        if not self.stream.is_next("boolean"):
-            return
-        node = self._create_node(nodes.BooleanNode)
-        node.value = self.stream.read().value
-        return node
+        return BooleanParser(self.stream).parse()
 
     @indexed
     def parse_wildcard(self):
-        if self.stream.is_next("*"):
-            self.stream.read("*")
-            return self._create_node(nodes.WildcardNode)
+        return WildcardParser(self.stream).parse()
 
     @indexed
     def parse_value(self):
@@ -135,6 +117,19 @@ class BaseScopeParser(Parser):
             key_map[key_id][value_node.key.value] = value_node
 
 
+class RootParser(BaseScopeParser):
+    def parse(self):
+        node = self._create_node(nodes.RootNode)
+        while not self.stream.is_eof():
+            value = self.parse_value()
+            if value:
+                node.add(value)
+            elif not self.stream.is_eof():
+                index = self.stream.peek().index[0]
+                raise UnexpectedTokenError(index)
+        return node
+
+
 class ScopeParser(BaseScopeParser):
     node_class = nodes.ScopeNode
     delimiters = "()"
@@ -168,6 +163,30 @@ class ScopeParser(BaseScopeParser):
 class QueryParser(ScopeParser):
     node_class = nodes.QueryNode
     delimiters = "{}"
+
+
+class ListParser(Parser):
+    delimiters = "[]"
+
+    def parse(self):
+        start_token, end_token = self.delimiters
+        if not self.stream.is_next(start_token):
+            return
+        node = self._create_node(nodes.ListNode)
+        self.stream.read(start_token)
+        self._parse_values(node)
+        self.stream.read(end_token)
+        return node
+
+    def _parse_values(self, node):
+        end_token = self.delimiters[1]
+        inside_list = not self.stream.is_next(end_token)
+        not_eof = not self.stream.is_eof()
+        while inside_list and not_eof:
+            value = self.parse_value()
+            if not value:
+                break
+            node.add(value)
 
 
 class ValueParser(Parser):
@@ -232,30 +251,6 @@ class PropertyParser(BaseParser):
         return node
 
 
-class ListParser(Parser):
-    delimiters = "[]"
-
-    def parse(self):
-        start_token, end_token = self.delimiters
-        if not self.stream.is_next(start_token):
-            return
-        node = self._create_node(nodes.ListNode)
-        self.stream.read(start_token)
-        self._parse_values(node)
-        self.stream.read(end_token)
-        return node
-
-    def _parse_values(self, node):
-        end_token = self.delimiters[1]
-        inside_list = not self.stream.is_next(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_list and not_eof:
-            value = self.parse_value()
-            if not value:
-                break
-            node.add(value)
-
-
 class NumberParser(BaseParser):
     def parse(self):
         current = self.stream.peek()
@@ -294,3 +289,28 @@ class RangeParser(BaseParser):
         else:
             return
         return (start, end)
+
+
+class StringParser(BaseParser):
+    def parse(self):
+        if not self.stream.is_next("string"):
+            return
+        node = self._create_node(nodes.StringNode)
+        node.value = self.stream.read().value
+        return node
+
+
+class BooleanParser(BaseParser):
+    def parse(self):
+        if not self.stream.is_next("boolean"):
+            return
+        node = self._create_node(nodes.BooleanNode)
+        node.value = self.stream.read().value
+        return node
+
+
+class WildcardParser(BaseParser):
+    def parse(self):
+        if self.stream.is_next("*"):
+            self.stream.read("*")
+            return self._create_node(nodes.WildcardNode)
