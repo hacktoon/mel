@@ -109,13 +109,13 @@ class BaseScopeParser(Parser):
         scope.add(value_node)
         return value_node
 
-    def _parse_relation(self, base_value):
-        if not base_value.relation_key:
+    def _parse_relation(self, target):
+        if not target.relation_key:
             return
         if not self.stream.is_next("="):
             return
         node = self._create_node(nodes.RelationNode)
-        node.target = base_value
+        node.target = target
         node.relationship = self.stream.read()
         node.value = self.parse_value()
         return node
