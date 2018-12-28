@@ -40,10 +40,6 @@ class Parser:
         node.text = self.stream.text
         return node
 
-    @indexed
-    def parse(self):
-        return RootParser(self.stream).parse()
-
     def __getattr__(self, attr_name):
         if not attr_name.startswith("parse_"):
             raise AttributeError("Invalid parsing method.")
@@ -52,6 +48,10 @@ class Parser:
             raise AttributeError("Invalid parsing id.")
         parser_class = self.PARSER_MAP[parser_id]
         return parser_class(self.stream).parse
+
+    @indexed
+    def parse(self):
+        return RootParser(self.stream).parse()
 
 
 class BaseScopeParser(Parser):
@@ -239,6 +239,8 @@ class RelationParser(Parser):
     @indexed
     def parse(self):
         target = self.parse_property()
+        if not target:
+            return
         if not self.stream.is_next("="):
             return
         node = self._create_node(nodes.RelationNode)
