@@ -19,19 +19,9 @@ def indexed(method):
     return surrogate
 
 
-class BaseParser:
+class Parser:
     def __init__(self, stream):
         self.stream = stream
-
-    def _create_node(self, node_class):
-        node = node_class()
-        node.text = self.stream.text
-        return node
-
-
-class Parser(BaseParser):
-    def __init__(self, stream):
-        super().__init__(stream)
         self.PARSER_MAP = {
             "string": StringParser,
             "boolean": BooleanParser,
@@ -44,6 +34,11 @@ class Parser(BaseParser):
             "query": QueryParser,
             "list": ListParser,
         }
+
+    def _create_node(self, node_class):
+        node = node_class()
+        node.text = self.stream.text
+        return node
 
     @indexed
     def parse(self):
@@ -211,7 +206,7 @@ class ValueParser(Parser):
             node.chain(value)
 
 
-class PropertyParser(BaseParser):
+class PropertyParser(Parser):
     PREFIX_MAP = {
         "#": nodes.UIDNode,
         "!": nodes.FlagNode,
@@ -240,7 +235,20 @@ class PropertyParser(BaseParser):
         return node
 
 
-class NumberParser(BaseParser):
+class RelationParser(Parser):
+    @indexed
+    def parse(self):
+        target = self.parse_property()
+        if not self.stream.is_next("="):
+            return
+        node = self._create_node(nodes.RelationNode)
+        node.target = target
+        node.relationship = self.stream.read()
+        node.value = self.parse_value()
+        return node
+
+
+class NumberParser(Parser):
     @indexed
     def parse(self):
         current = self.stream.peek()
@@ -255,7 +263,7 @@ class NumberParser(BaseParser):
         return node
 
 
-class RangeParser(BaseParser):
+class RangeParser(Parser):
     @indexed
     def parse(self):
         _range = self._parse_range()
@@ -282,7 +290,7 @@ class RangeParser(BaseParser):
         return (start, end)
 
 
-class StringParser(BaseParser):
+class StringParser(Parser):
     @indexed
     def parse(self):
         if not self.stream.is_next("string"):
@@ -292,7 +300,7 @@ class StringParser(BaseParser):
         return node
 
 
-class BooleanParser(BaseParser):
+class BooleanParser(Parser):
     @indexed
     def parse(self):
         if not self.stream.is_next("boolean"):
@@ -302,7 +310,7 @@ class BooleanParser(BaseParser):
         return node
 
 
-class WildcardParser(BaseParser):
+class WildcardParser(Parser):
     @indexed
     def parse(self):
         if self.stream.is_next("*"):
