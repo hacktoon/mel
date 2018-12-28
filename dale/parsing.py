@@ -71,15 +71,7 @@ class BaseScopeParser(Parser):
         return value_node
 
     def _parse_relation(self, target):
-        if not target.relation_key:
-            return
-        if not self.stream.is_next("="):
-            return
-        node = self._create_node(nodes.RelationNode)
-        node.target = target
-        node.relationship = self.stream.read()
-        node.value = self.parse_value()
-        return node
+        return RelationParser(self.stream).parse()
 
     def _update_property_map(self, scope, value_node):
         key_map = {
