@@ -152,7 +152,7 @@ class ScopeParser(BaseScopeParser):
 
     def _parse_key(self, node):
         if self.stream.is_next(":"):
-            self.stream.read(":")
+            self.stream.read()
         else:
             node.key = self.parse_value()
 
