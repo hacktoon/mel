@@ -105,7 +105,7 @@ class BaseScopeParser(Parser):
         if value_node.id == "flag":
             scope.flags[value_node.value] = value_node
         if value_node.id == "scope":
-            self._update_node_attributes(scope, value_node)
+            self._update_property_map(scope, value_node)
         scope.add(value_node)
         return value_node
 
@@ -120,7 +120,7 @@ class BaseScopeParser(Parser):
         node.value = self.parse_value()
         return node
 
-    def _update_node_attributes(self, scope, value_node):
+    def _update_property_map(self, scope, value_node):
         key_map = {
             "property": scope.children,
             "flag": scope.flags,
