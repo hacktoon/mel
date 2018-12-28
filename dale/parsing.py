@@ -30,49 +30,33 @@ class BaseParser:
 
 
 class Parser(BaseParser):
+    def __init__(self, stream):
+        super().__init__(stream)
+        self.PARSER_MAP = {
+            "string": StringParser,
+            "boolean": BooleanParser,
+            "wildcard": WildcardParser,
+            "value": ValueParser,
+            "number": NumberParser,
+            "range": RangeParser,
+            "property": PropertyParser,
+            "scope": ScopeParser,
+            "query": QueryParser,
+            "list": ListParser,
+        }
+
     @indexed
     def parse(self):
         return RootParser(self.stream).parse()
 
-    @indexed
-    def parse_string(self):
-        return StringParser(self.stream).parse()
-
-    @indexed
-    def parse_boolean(self):
-        return BooleanParser(self.stream).parse()
-
-    @indexed
-    def parse_wildcard(self):
-        return WildcardParser(self.stream).parse()
-
-    @indexed
-    def parse_value(self):
-        return ValueParser(self.stream).parse()
-
-    @indexed
-    def parse_number(self):
-        return NumberParser(self.stream).parse()
-
-    @indexed
-    def parse_range(self):
-        return RangeParser(self.stream).parse()
-
-    @indexed
-    def parse_property(self):
-        return PropertyParser(self.stream).parse()
-
-    @indexed
-    def parse_scope(self):
-        return ScopeParser(self.stream).parse()
-
-    @indexed
-    def parse_query(self):
-        return QueryParser(self.stream).parse()
-
-    @indexed
-    def parse_list(self):
-        return ListParser(self.stream).parse()
+    def __getattr__(self, attr_name):
+        if not attr_name.startswith("parse_"):
+            raise AttributeError("Invalid parsing method.")
+        parser_id = attr_name.replace("parse_", "")
+        if parser_id not in self.PARSER_MAP:
+            raise AttributeError("Invalid parsing id.")
+        parser_class = self.PARSER_MAP[parser_id]
+        return parser_class(self.stream).parse
 
 
 class BaseScopeParser(Parser):
@@ -118,6 +102,7 @@ class BaseScopeParser(Parser):
 
 
 class RootParser(BaseScopeParser):
+    @indexed
     def parse(self):
         node = self._create_node(nodes.RootNode)
         while not self.stream.is_eof():
@@ -134,6 +119,7 @@ class ScopeParser(BaseScopeParser):
     node_class = nodes.ScopeNode
     delimiters = "()"
 
+    @indexed
     def parse(self):
         start_token, end_token = self.delimiters
         if not self.stream.is_next(start_token):
@@ -168,6 +154,7 @@ class QueryParser(ScopeParser):
 class ListParser(Parser):
     delimiters = "[]"
 
+    @indexed
     def parse(self):
         start_token, end_token = self.delimiters
         if not self.stream.is_next(start_token):
@@ -190,6 +177,7 @@ class ListParser(Parser):
 
 
 class ValueParser(Parser):
+    @indexed
     def parse(self):
         node = self._parse_value()
         if node:
@@ -233,6 +221,7 @@ class PropertyParser(BaseParser):
         "?": nodes.DocNode,
     }
 
+    @indexed
     def parse(self):
         next = self.stream.peek()
         node_class = nodes.PropertyNode
@@ -252,6 +241,7 @@ class PropertyParser(BaseParser):
 
 
 class NumberParser(BaseParser):
+    @indexed
     def parse(self):
         current = self.stream.peek()
         if current.id == "float":
@@ -266,6 +256,7 @@ class NumberParser(BaseParser):
 
 
 class RangeParser(BaseParser):
+    @indexed
     def parse(self):
         _range = self._parse_range()
         if not _range:
@@ -279,19 +270,20 @@ class RangeParser(BaseParser):
         current = self.stream.peek()
         next = self.stream.peek(1)
         if current.id == "..":
-            self.stream.read("..")
+            self.stream.read()
             end = self.stream.read("int").value
         elif current.id == "int" and next.id == "..":
             start = self.stream.read().value
             self.stream.read("..")
             if self.stream.is_next("int"):
-                end = self.stream.read("int").value
+                end = self.stream.read().value
         else:
             return
         return (start, end)
 
 
 class StringParser(BaseParser):
+    @indexed
     def parse(self):
         if not self.stream.is_next("string"):
             return
@@ -301,6 +293,7 @@ class StringParser(BaseParser):
 
 
 class BooleanParser(BaseParser):
+    @indexed
     def parse(self):
         if not self.stream.is_next("boolean"):
             return
@@ -310,7 +303,9 @@ class BooleanParser(BaseParser):
 
 
 class WildcardParser(BaseParser):
+    @indexed
     def parse(self):
         if self.stream.is_next("*"):
-            self.stream.read("*")
+            self.stream.read()
             return self._create_node(nodes.WildcardNode)
+        return
