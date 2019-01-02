@@ -19,7 +19,7 @@ def indexed(method):
     return surrogate
 
 
-class Parser:
+class BaseParser:
     def __init__(self, stream):
         self.stream = stream
         self.PARSER_MAP = {
@@ -49,12 +49,14 @@ class Parser:
         parser_class = self.PARSER_MAP[parser_id]
         return parser_class(self.stream).parse
 
+
+class Parser(BaseParser):
     @indexed
     def parse(self):
         return RootParser(self.stream).parse()
 
 
-class BaseScopeParser(Parser):
+class StructParser(BaseParser):
     # TODO: use this in root parser to parse values sequence
     def _parse_value(self, scope):
         value_node = self.parse_value()
@@ -88,7 +90,7 @@ class BaseScopeParser(Parser):
             key_map[key_id][value_node.key.value] = value_node
 
 
-class RootParser(BaseScopeParser):
+class RootParser(StructParser):
     @indexed
     def parse(self):
         node = self._create_node(nodes.RootNode)
@@ -102,7 +104,7 @@ class RootParser(BaseScopeParser):
         return node
 
 
-class ScopeParser(BaseScopeParser):
+class ScopeParser(StructParser):
     node_class = nodes.ScopeNode
     delimiters = "()"
 
@@ -138,7 +140,7 @@ class QueryParser(ScopeParser):
     delimiters = "{}"
 
 
-class ListParser(Parser):
+class ListParser(BaseParser):
     delimiters = "[]"
 
     @indexed
@@ -163,7 +165,7 @@ class ListParser(Parser):
             node.add(value)
 
 
-class ValueParser(Parser):
+class ValueParser(BaseParser):
     @indexed
     def parse(self):
         node = self._parse_value()
@@ -198,7 +200,7 @@ class ValueParser(Parser):
             node.chain(value)
 
 
-class PropertyParser(Parser):
+class PropertyParser(BaseParser):
     PREFIX_MAP = {
         "#": nodes.UIDNode,
         "!": nodes.FlagNode,
@@ -227,7 +229,7 @@ class PropertyParser(Parser):
         return node
 
 
-class RelationParser(Parser):
+class RelationParser(BaseParser):
     @indexed
     def parse(self):
         target = self.parse_property()
@@ -242,7 +244,7 @@ class RelationParser(Parser):
         return node
 
 
-class NumberParser(Parser):
+class NumberParser(BaseParser):
     @indexed
     def parse(self):
         current = self.stream.peek()
@@ -257,7 +259,7 @@ class NumberParser(Parser):
         return node
 
 
-class RangeParser(Parser):
+class RangeParser(BaseParser):
     @indexed
     def parse(self):
         _range = self._parse_range()
@@ -284,7 +286,7 @@ class RangeParser(Parser):
         return (start, end)
 
 
-class StringParser(Parser):
+class StringParser(BaseParser):
     @indexed
     def parse(self):
         if not self.stream.is_next("string"):
@@ -294,7 +296,7 @@ class StringParser(Parser):
         return node
 
 
-class BooleanParser(Parser):
+class BooleanParser(BaseParser):
     @indexed
     def parse(self):
         if not self.stream.is_next("boolean"):
@@ -304,7 +306,7 @@ class BooleanParser(Parser):
         return node
 
 
-class WildcardParser(Parser):
+class WildcardParser(BaseParser):
     @indexed
     def parse(self):
         if self.stream.is_next("*"):
