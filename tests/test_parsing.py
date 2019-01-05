@@ -210,7 +210,7 @@ def test_scope_uid_property():
 def test_scope_properties():
     text = """
     (object
-        (#answer-code 42)
+        (#answer_code 42)
         ($ref {!active})
         (?help "A object")
         (child {bar 2})
@@ -219,7 +219,7 @@ def test_scope_properties():
     """
     parser = create_parser(text)
     node = parser.parse_scope()
-    assert str(node.uids["answer-code"]) == "(#answer-code 42)"
+    assert str(node.uids["answer_code"]) == "(#answer_code 42)"
     assert str(node.children["child"]) == "(child {bar 2})"
     assert str(node.docs["help"]) == '(?help "A object")'
     assert str(node.variables["ref"]) == "($ref {!active})"

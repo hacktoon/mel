@@ -80,7 +80,7 @@ class CommentToken(Token):
 
 class NameToken(Token):
     id = "name"
-    regex = re.compile(r"[_a-zA-Z]\w*(-\w+)*")
+    regex = re.compile(r"[_a-zA-Z]\w*")
 
 
 class AttributePrefixToken(Token):
