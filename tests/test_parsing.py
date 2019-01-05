@@ -30,11 +30,6 @@ def test_empty_input_string():
     assert node.id == "root"
 
 
-def test_root_node_with_many_child_nodes():
-    node = create_tree('(a) (b 2) 223 "foo"/2')
-    assert len(node) == 4
-
-
 def test_node_children_index():
     node = create_tree("44 12")
     assert node[0].index == (0, 2)
@@ -113,18 +108,10 @@ def test_chained_value_repr():
     assert repr(value) == "PROPERTY('abc/def')"
 
 
-def test_chained_scope_attributes_length():
-    parser = create_parser("(foo 34)/def")
-    value = parser.parse_value()
-    assert repr(value) == "SCOPE('(foo 34)/def')"
-    assert len(value) == 1
-    assert len(value._chain) == 1
-
-
 def test_chained_value_subvalue():
     parser = create_parser("name/6")
     node = parser.parse_value()
-    assert node._chain[0].id == "int"
+    assert node._nodes[0].id == "int"
 
 
 def test_unexpected_finished_chained_value_error():
@@ -150,7 +137,6 @@ def test_empty_scope():
     parser = create_parser("()")
     node = parser.parse_scope()
     assert not node.key
-    assert len(node) == 0
     assert repr(node) == "SCOPE('()')"
 
 
@@ -166,7 +152,7 @@ def test_nested_scopes():
 def test_scope_key_with_child():
     parser = create_parser("(a (b 2))")
     node = parser.parse_scope()
-    assert str(node.children["b"]) == "(b 2)"
+    assert str(node.properties["b"]) == "(b 2)"
 
 
 def test_scope_key_with_doc_child():
@@ -185,7 +171,7 @@ def test_scope_key_with_multi_properties():
 def test_scope_child_values():
     parser = create_parser("(foo (bar 2, 4))")
     node = parser.parse_scope()
-    property = node.children["bar"]
+    property = node.properties["bar"]
     assert str(property[0]) == "2"
     assert str(property[1]) == "4"
 
@@ -220,7 +206,7 @@ def test_scope_properties():
     parser = create_parser(text)
     node = parser.parse_scope()
     assert str(node.uids["answer_code"]) == "(#answer_code 42)"
-    assert str(node.children["child"]) == "(child {bar 2})"
+    assert str(node.properties["child"]) == "(child {bar 2})"
     assert str(node.docs["help"]) == '(?help "A object")'
     assert str(node.variables["ref"]) == "($ref {!active})"
 
@@ -235,7 +221,7 @@ def test_nested_scope_with_null_key():
     parser = create_parser("(foo (: 56.7) )")
     node = parser.parse_scope()
     assert node[0].id == "scope"
-    assert node.children == {}
+    assert node.properties == {}
 
 
 def test_scope_with_wildcard_key():

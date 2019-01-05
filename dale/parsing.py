@@ -57,7 +57,12 @@ class Parser(BaseParser):
 
 
 class StructParser(BaseParser):
-    # TODO: use this in root parser to parse values sequence
+    def _parse_key(self, node):
+        if self.stream.is_next(":"):
+            self.stream.read()
+        else:
+            node.key = self.parse_value()
+
     def _parse_value(self, scope):
         value_node = self.parse_value()
         if not value_node:
@@ -77,11 +82,10 @@ class StructParser(BaseParser):
 
     def _update_property_map(self, scope, value_node):
         key_map = {
-            "property": scope.children,
+            "property": scope.properties,
             "flag": scope.flags,
             "uid": scope.uids,
             "doc": scope.docs,
-            "attribute": scope.attributes,
             "variable": scope.variables,
             "format": scope.formats,
         }
@@ -119,12 +123,6 @@ class ScopeParser(StructParser):
         self._parse_values(node)
         self.stream.read(end_token)
         return node
-
-    def _parse_key(self, node):
-        if self.stream.is_next(":"):
-            self.stream.read()
-        else:
-            node.key = self.parse_value()
 
     def _parse_values(self, scope):
         end_token = self.delimiters[1]
@@ -197,14 +195,13 @@ class ValueParser(BaseParser):
             value = self._parse_value()
             if not value:
                 raise ValueChainError(sep.index[0])
-            node.chain(value)
+            node.add(value)
 
 
 class PropertyParser(BaseParser):
     PREFIX_MAP = {
         "#": nodes.UIDNode,
         "!": nodes.FlagNode,
-        "@": nodes.AttributeNode,
         "%": nodes.FormatNode,
         "$": nodes.VariableNode,
         "?": nodes.DocNode,

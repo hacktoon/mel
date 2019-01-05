@@ -4,13 +4,11 @@ def _default_evaluator(value, context):
 
 class Node:
     id = "node"
-    relation_key = False
 
     def __init__(self):
+        self._nodes = []
         self.text = ""
         self.index = (0, 0)
-        self.value = None
-        self._chain = []
 
     def __bool__(self):
         return True
@@ -22,11 +20,17 @@ class Node:
     def __repr__(self):
         return "{}('{}')".format(self.id.upper(), self)
 
-    def chain(self, node):
-        self._chain.append(node)
+    def __getitem__(self, index):
+        return self._nodes[index]
+
+    def add(self, node):
+        self._nodes.append(node)
 
     def eval(self, context):
-        return None
+        return {
+            "id": self.id,
+            "nodes": [node.eval(context) for node in self._nodes]
+        }
 
 
 class WildcardNode(Node):
@@ -39,29 +43,18 @@ class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = None
-        self.values = []
         self.flags = {}
         self.uids = {}
-        self.attributes = {}
+        self.properties = {}
         self.variables = {}
         self.formats = {}
         self.docs = {}
-        self.children = {}
-
-    def __getitem__(self, index):
-        return self.values[index]
-
-    def __len__(self):
-        return len(self.values)
-
-    def add(self, node):
-        self.values.append(node)
 
     def eval(self, context):
         return {
             "id": self.id,
             "key": self.key.eval(context) if self.key else None,
-            "values": [value.eval(context) for value in self.values]
+            "nodes": [node.eval(context) for node in self._nodes]
         }
 
 
@@ -80,29 +73,12 @@ class QueryNode(ScopeNode):
 class ListNode(Node):
     id = "list"
 
-    def __init__(self):
-        super().__init__()
-        self.value = []
-
-    def __getitem__(self, index):
-        return self.value[index]
-
     def __len__(self):
-        return len(self.value)
-
-    def add(self, node):
-        self.value.append(node)
-
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "value": [value.eval(context) for value in self.value]
-        }
+        return len(self._nodes)
 
 
 class PropertyNode(Node):
     id = "property"
-    relation_key = True
 
 
 class FlagNode(PropertyNode):
@@ -111,10 +87,6 @@ class FlagNode(PropertyNode):
 
 class UIDNode(PropertyNode):
     id = "uid"
-
-
-class AttributeNode(PropertyNode):
-    id = "attribute"
 
 
 class FormatNode(PropertyNode):
@@ -140,19 +112,25 @@ class RangeNode(Node):
         return self.value[index]
 
 
-class IntNode(Node):
+class LiteralNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.value = None
+
+
+class IntNode(LiteralNode):
     id = "int"
 
 
-class FloatNode(Node):
+class FloatNode(LiteralNode):
     id = "float"
 
 
-class BooleanNode(Node):
+class BooleanNode(LiteralNode):
     id = "boolean"
 
 
-class StringNode(Node):
+class StringNode(LiteralNode):
     id = "string"
 
 
