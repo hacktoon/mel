@@ -211,10 +211,11 @@ def test_scope_properties():
     assert str(node.variables["ref"]) == "($ref {!active})"
 
 
-def test_scope_null_key():
+def test_null_scope_key():
     parser = create_parser("(: 'test')")
     node = parser.parse_scope()
-    assert node.key is None
+    assert repr(node.key) == "NULL('')"
+    assert str(node.key) == ""
 
 
 def test_nested_scope_with_null_key():

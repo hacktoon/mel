@@ -63,7 +63,7 @@ class ScopeNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = None
+        self.key = NullNode()
         self.flags = {}
         self.uids = {}
         self.properties = {}
