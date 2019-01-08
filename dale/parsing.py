@@ -71,7 +71,7 @@ class StructParser(BaseParser):
         if relation:
             return relation
         if value_node.id == "flag":
-            scope.flags[value_node.name] = value_node
+            scope.attributes["flag"][value_node.name] = value_node
         if value_node.id == "scope":
             self._update_property_map(scope, value_node)
         scope.add(value_node)
@@ -81,17 +81,9 @@ class StructParser(BaseParser):
         return RelationParser(self.stream).parse()
 
     def _update_property_map(self, scope, value_node):
-        key_map = {
-            "property": scope.properties,
-            "flag": scope.flags,
-            "uid": scope.uids,
-            "doc": scope.docs,
-            "variable": scope.variables,
-            "format": scope.formats,
-        }
         key_id = value_node.key.id if value_node.key else ''
-        if key_id in key_map:
-            key_map[key_id][value_node.key.name] = value_node
+        if key_id in scope.attributes:
+            scope.attributes[key_id][value_node.key.name] = value_node
 
 
 class RootParser(StructParser):

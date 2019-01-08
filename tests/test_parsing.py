@@ -152,26 +152,26 @@ def test_nested_scopes():
 def test_scope_key_with_child():
     parser = create_parser("(a (b 2))")
     node = parser.parse_scope()
-    assert str(node.properties["b"]) == "(b 2)"
+    assert str(node.attributes["property"]["b"]) == "(b 2)"
 
 
 def test_scope_key_with_doc_child():
     parser = create_parser("(bar (?help 'foo'))")
     node = parser.parse_scope()
-    assert node.docs["help"][0].value == "foo"
+    assert node.attributes["doc"]["help"][0].value == "foo"
 
 
 def test_scope_key_with_multi_properties():
     parser = create_parser("(foo (%bar 2) (#id 48764))")
     node = parser.parse_scope()
-    assert str(node.formats["bar"]) == "(%bar 2)"
-    assert str(node.uids["id"]) == "(#id 48764)"
+    assert str(node.attributes["format"]["bar"]) == "(%bar 2)"
+    assert str(node.attributes["uid"]["id"]) == "(#id 48764)"
 
 
 def test_scope_child_values():
     parser = create_parser("(foo (bar 2, 4))")
     node = parser.parse_scope()
-    property = node.properties["bar"]
+    property = node.attributes["property"]["bar"]
     assert str(property[0]) == "2"
     assert str(property[1]) == "4"
 
@@ -184,13 +184,13 @@ def test_unclosed_scope_raises_error():
 def test_scope_flag_property():
     parser = create_parser("(foo !active)")
     node = parser.parse_scope()
-    assert str(node.flags["active"]) == "!active"
+    assert str(node.attributes["flag"]["active"]) == "!active"
 
 
 def test_scope_uid_property():
     parser = create_parser("(foo (#id 22))")
     node = parser.parse_scope()
-    assert str(node.uids["id"]) == "(#id 22)"
+    assert str(node.attributes["uid"]["id"]) == "(#id 22)"
 
 
 def test_scope_properties():
@@ -205,10 +205,11 @@ def test_scope_properties():
     """
     parser = create_parser(text)
     node = parser.parse_scope()
-    assert str(node.uids["answer_code"]) == "(#answer_code 42)"
-    assert str(node.properties["child"]) == "(child {bar 2})"
-    assert str(node.docs["help"]) == '(?help "A object")'
-    assert str(node.variables["ref"]) == "($ref {!active})"
+    attrs = node.attributes
+    assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
+    assert str(attrs["property"]["child"]) == "(child {bar 2})"
+    assert str(attrs["doc"]["help"]) == '(?help "A object")'
+    assert str(attrs["variable"]["ref"]) == "($ref {!active})"
 
 
 def test_null_scope_key():
