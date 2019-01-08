@@ -71,7 +71,7 @@ class StructParser(BaseParser):
         if relation:
             return relation
         if value_node.id == "flag":
-            scope.flags[value_node.value] = value_node
+            scope.flags[value_node.name] = value_node
         if value_node.id == "scope":
             self._update_property_map(scope, value_node)
         scope.add(value_node)
@@ -91,7 +91,7 @@ class StructParser(BaseParser):
         }
         key_id = value_node.key.id if value_node.key else ''
         if key_id in key_map:
-            key_map[key_id][value_node.key.value] = value_node
+            key_map[key_id][value_node.key.name] = value_node
 
 
 class RootParser(StructParser):
@@ -222,7 +222,7 @@ class PropertyParser(BaseParser):
         if not self.stream.is_next("name"):
             raise NameNotFoundError(self.stream.peek().index[0])
         node = self._create_node(node_class)
-        node.value = self.stream.read("name").value
+        node.name = self.stream.read("name").value
         return node
 
 

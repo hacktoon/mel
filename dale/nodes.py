@@ -98,6 +98,10 @@ class ListNode(Node):
 class PropertyNode(Node):
     id = "property"
 
+    def __init__(self):
+        super().__init__()
+        self.name = ""
+
 
 class FlagNode(PropertyNode):
     id = "flag"
