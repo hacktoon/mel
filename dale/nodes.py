@@ -72,12 +72,12 @@ class ScopeNode(Node):
             "format": {},
             "doc": {},
         }
-        self.flags = {}
-        self.uids = {}
-        self.properties = {}
-        self.variables = {}
-        self.formats = {}
-        self.docs = {}
+        self.children = {}
+
+    def _add_scope(self, scope):
+        if scope.key.id in self.attributes:
+            self.attributes[scope.key.id][scope.key.name] = scope
+        self._nodes.append(scope)
 
     def eval(self, context):
         return {

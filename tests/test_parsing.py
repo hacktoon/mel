@@ -223,7 +223,7 @@ def test_nested_scope_with_null_key():
     parser = create_parser("(foo (: 56.7) )")
     node = parser.parse_scope()
     assert node[0].id == "scope"
-    assert node.properties == {}
+    assert node.attributes["property"] == {}
 
 
 def test_scope_with_wildcard_key():
