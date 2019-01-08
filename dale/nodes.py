@@ -41,7 +41,7 @@ class Node:
         }
 
 
-class NullNode:
+class NullNode(Node):
     id = "null"
 
     def __bool__(self):
