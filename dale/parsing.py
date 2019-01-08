@@ -70,8 +70,6 @@ class StructParser(BaseParser):
         relation = self._parse_relation(value_node)
         if relation:
             return relation
-        if value_node.id == "flag":
-            scope.attributes["flag"][value_node.name] = value_node
         scope.add(value_node)
         return value_node
 

@@ -75,7 +75,6 @@ def test_string_representation(test_input):
         ("$path", "VARIABLE('$path')"),
         ("(bar 42)", "SCOPE('(bar 42)')"),
         ('[bar "etc"]', "LIST('[bar \"etc\"]')"),
-        ("!active", "FLAG('!active')"),
     ],
 )
 def test_object_representation(test_input, expected):

@@ -74,6 +74,9 @@ class ScopeNode(Node):
         }
         self.children = {}
 
+    def _add_flag(self, node):
+        self.attributes[node.id][node.name] = node
+
     def _add_scope(self, scope):
         if scope.key.id in self.attributes:
             self.attributes[scope.key.id][scope.key.name] = scope
