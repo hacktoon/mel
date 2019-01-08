@@ -13,6 +13,9 @@ class Node:
     def __bool__(self):
         return True
 
+    def __len__(self):
+        return len(self._nodes)
+
     def __str__(self):
         first, last = self.index
         return self.text[first:last]
@@ -31,6 +34,19 @@ class Node:
             "id": self.id,
             "nodes": [node.eval(context) for node in self._nodes]
         }
+
+
+class NullNode:
+    id = "null"
+
+    def __bool__(self):
+        return False
+
+    def __str__(self):
+        return ""
+
+    def eval(self, context):
+        return
 
 
 class WildcardNode(Node):
@@ -72,9 +88,6 @@ class QueryNode(ScopeNode):
 
 class ListNode(Node):
     id = "list"
-
-    def __len__(self):
-        return len(self._nodes)
 
 
 class PropertyNode(Node):
