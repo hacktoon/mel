@@ -27,7 +27,12 @@ class Node:
         return self._nodes[index]
 
     def add(self, node):
-        self._nodes.append(node)
+        method_name = "_add_" + node.id
+        if hasattr(self, method_name):
+            method = getattr(self, method_name)
+            method(node)
+        else:
+            self._nodes.append(node)
 
     def eval(self, context):
         return {
