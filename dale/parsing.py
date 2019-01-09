@@ -14,6 +14,7 @@ def indexed(method):
             return
         last = self.stream.peek(-1)
         node.index = first.index[0], last.index[1]
+        node.text = self.stream.text
         return node
 
     return surrogate
@@ -34,11 +35,6 @@ class BaseParser:
             "query": QueryParser,
             "list": ListParser,
         }
-
-    def _create_node(self, node_class):
-        node = node_class()
-        node.text = self.stream.text
-        return node
 
     def __getattr__(self, attr_name):
         if not attr_name.startswith("parse_"):
@@ -110,7 +106,7 @@ class StructParser(BaseParser):
 class RootParser(StructParser):
     @indexed
     def parse(self):
-        node = self._create_node(nodes.RootNode)
+        node = nodes.RootNode()
         self._parse_objects(node)
         if not self.stream.is_eof():
             index = self.stream.peek().index[0]
@@ -127,7 +123,7 @@ class ScopeParser(StructParser):
         start_token, end_token = self.delimiters
         if not self.stream.is_next(start_token):
             return
-        node = self._create_node(self.node_class)
+        node = self.node_class()
         self.stream.read(start_token)
         self._parse_key(node)
         self._parse_objects(node)
@@ -154,7 +150,7 @@ class ListParser(BaseParser):
         start_token, end_token = self.delimiters
         if not self.stream.is_next(start_token):
             return
-        node = self._create_node(nodes.ListNode)
+        node = nodes.ListNode()
         self.stream.read(start_token)
         self._parse_items(node)
         self.stream.read(end_token)
@@ -181,18 +177,17 @@ class NameParser(BaseParser):
     @indexed
     def parse(self):
         next = self.stream.peek()
-        node_class = nodes.NameNode
+        node = nodes.NameNode()
         if next.id in self.PREFIX_MAP:
-            node_class = self.PREFIX_MAP[next.id]
+            node = self.PREFIX_MAP[next.id]()
             self.stream.read(next.id)
         elif not self.stream.is_next("name"):
             return
-        return self._parse_name(node_class)
+        return self._parse_name(node)
 
-    def _parse_name(self, node_class):
+    def _parse_name(self, node):
         if not self.stream.is_next("name"):
             raise NameNotFoundError(self.stream.peek().index[0])
-        node = self._create_node(node_class)
         node.name = self.stream.read("name").value
         return node
 
@@ -205,7 +200,7 @@ class RelationParser(BaseParser):
             return
         if not self.stream.is_next("="):
             return
-        node = self._create_node(nodes.RelationNode)
+        node = nodes.RelationNode()
         node.target = target
         node.relationship = self.stream.read()
         node.value = self.parse_object()
@@ -217,12 +212,11 @@ class NumberParser(BaseParser):
     def parse(self):
         current = self.stream.peek()
         if current.id == "float":
-            node_class = nodes.FloatNode
+            node = nodes.FloatNode()
         elif current.id == "int":
-            node_class = nodes.IntNode
+            node = nodes.IntNode()
         else:
             return
-        node = self._create_node(node_class)
         node.value = self.stream.read().value
         return node
 
@@ -233,7 +227,7 @@ class RangeParser(BaseParser):
         _range = self._parse_range()
         if not _range:
             return
-        node = self._create_node(nodes.RangeNode)
+        node = nodes.RangeNode()
         node.value = _range
         return node
 
@@ -259,7 +253,7 @@ class StringParser(BaseParser):
     def parse(self):
         if not self.stream.is_next("string"):
             return
-        node = self._create_node(nodes.StringNode)
+        node = nodes.StringNode()
         node.value = self.stream.read().value
         return node
 
@@ -269,7 +263,7 @@ class BooleanParser(BaseParser):
     def parse(self):
         if not self.stream.is_next("boolean"):
             return
-        node = self._create_node(nodes.BooleanNode)
+        node = nodes.BooleanNode()
         node.value = self.stream.read().value
         return node
 
@@ -279,5 +273,5 @@ class WildcardParser(BaseParser):
     def parse(self):
         if self.stream.is_next("*"):
             self.stream.read()
-            return self._create_node(nodes.WildcardNode)
+            return nodes.WildcardNode()
         return
