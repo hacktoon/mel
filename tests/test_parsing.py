@@ -89,7 +89,6 @@ def test_empty_list():
     parser = create_parser("[]")
     node = parser.parse_list()
     assert len(node) == 0
-    assert repr(node) == "LIST('[]')"
 
 
 def test_one_sized_list_node_always_returns_list():
@@ -136,7 +135,7 @@ def test_empty_scope():
     parser = create_parser("()")
     node = parser.parse_scope()
     assert not node.key
-    assert repr(node) == "SCOPE('()')"
+    assert len(node) == 0
 
 
 def test_scope_key_with_child():
@@ -205,8 +204,7 @@ def test_scope_properties():
 def test_null_scope_key():
     parser = create_parser("(: 'test')")
     node = parser.parse_scope()
-    assert repr(node.key) == "NULL('')"
-    assert str(node.key) == ""
+    assert not node.key
 
 
 def test_nested_scope_with_null_key():
