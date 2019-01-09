@@ -177,12 +177,14 @@ class NameParser(BaseParser):
     @indexed
     def parse(self):
         next = self.stream.peek()
-        node = nodes.NameNode()
         if next.id in self.PREFIX_MAP:
             node = self.PREFIX_MAP[next.id]()
             self.stream.read(next.id)
-        elif not self.stream.is_next("name"):
-            return
+        else:
+            if self.stream.is_next("name"):
+                node = nodes.NameNode()
+            else:
+                return
         return self._parse_name(node)
 
     def _parse_name(self, node):
