@@ -286,7 +286,7 @@ def test_range_must_have_at_least_one_int():
 
 def test_range_only_accepts_integers():
     parser = create_parser("3.4..")
-    node = parser.parse_number()
+    node = parser.parse_float()
     assert node.value == 3.4
     with pytest.raises(UnexpectedTokenError):
         parser.parse_range()

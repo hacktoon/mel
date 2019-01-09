@@ -27,7 +27,8 @@ class BaseParser:
             "boolean": BooleanParser,
             "wildcard": WildcardParser,
             "object": ObjectParser,
-            "number": NumberParser,
+            "float": FloatParser,
+            "int": IntParser,
             "range": RangeParser,
             "name": NameParser,
             "flag": FlagParser,
@@ -67,7 +68,8 @@ class ObjectParser(BaseParser):
     def _parse_object(self):
         methods = [
             self.parse_range,
-            self.parse_number,
+            self.parse_float,
+            self.parse_int,
             self.parse_boolean,
             self.parse_string,
             self.parse_name,
@@ -241,16 +243,22 @@ class RelationParser(BaseParser):
         return node
 
 
-class NumberParser(BaseParser):
+class FloatParser(BaseParser):
     @indexed
     def parse(self):
-        current = self.stream.peek()
-        if current.id == "float":
-            node = nodes.FloatNode()
-        elif current.id == "int":
-            node = nodes.IntNode()
-        else:
+        if not self.stream.is_next("float"):
             return
+        node = nodes.FloatNode()
+        node.value = self.stream.read().value
+        return node
+
+
+class IntParser(BaseParser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next("int"):
+            return
+        node = nodes.IntNode()
         node.value = self.stream.read().value
         return node
 
