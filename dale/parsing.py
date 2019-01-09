@@ -94,12 +94,6 @@ class ObjectParser(BaseParser):
 
 
 class StructParser(BaseParser):
-    def _parse_key(self, node):
-        if self.stream.is_next(":"):
-            self.stream.read()
-        else:
-            node.key = self.parse_object()
-
     def _parse_objects(self, scope):
         while True:
             obj = self._parse_object(scope)
@@ -146,6 +140,12 @@ class ScopeParser(StructParser):
         self._parse_objects(node)
         self.stream.read(end_token)
         return node
+
+    def _parse_key(self, node):
+        if self.stream.is_next(":"):
+            self.stream.read()
+        else:
+            node.key = self.parse_object()
 
 
 class QueryParser(ScopeParser):
