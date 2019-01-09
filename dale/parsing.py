@@ -105,13 +105,7 @@ class StructParser(BaseParser):
         obj = self.parse_object()
         if not obj:
             return
-        relation = self._parse_relation(obj)
-        if relation:
-            return relation
         return obj
-
-    def _parse_relation(self, target):
-        return RelationParser(self.stream).parse()
 
 
 class RootParser(StructParser):
@@ -145,7 +139,7 @@ class ScopeParser(StructParser):
         if self.stream.is_next(":"):
             self.stream.read()
         else:
-            node.key = self.parse_object()
+            node.key = self._parse_object()
 
 
 class QueryParser(ScopeParser):
