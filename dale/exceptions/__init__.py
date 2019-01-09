@@ -18,9 +18,3 @@ class SubNodeError(DaleError):
     def __init__(self, index):
         self.index = index
         super().__init__("An object is expected after a slash.")
-
-
-class NameNotFoundError(DaleError):
-    def __init__(self, index):
-        self.index = index
-        super().__init__("A name is expected after a property prefix.")

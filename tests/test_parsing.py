@@ -6,7 +6,6 @@ from dale.utils.context import Context
 from dale.exceptions import (
     SubNodeError,
     UnexpectedTokenError,
-    NameNotFoundError
 )
 
 
@@ -246,7 +245,7 @@ def test_query_key_assumes_first_value():
 
 
 def test_name_not_found_after_prefix():
-    with pytest.raises(NameNotFoundError):
+    with pytest.raises(UnexpectedTokenError):
         create_tree("(# )")
 
 

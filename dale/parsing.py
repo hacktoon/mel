@@ -2,7 +2,6 @@ from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
     SubNodeError,
-    NameNotFoundError
 )
 
 
@@ -31,6 +30,12 @@ class BaseParser:
             "number": NumberParser,
             "range": RangeParser,
             "name": NameParser,
+            "flag": FlagParser,
+            "attribute": AttributeParser,
+            "uid": UIDParser,
+            "variable": VariableParser,
+            "format": FormatParser,
+            "doc": DocParser,
             "scope": ScopeParser,
             "query": QueryParser,
             "list": ListParser,
@@ -66,6 +71,12 @@ class ObjectParser(BaseParser):
             self.parse_boolean,
             self.parse_string,
             self.parse_name,
+            self.parse_flag,
+            self.parse_attribute,
+            self.parse_uid,
+            self.parse_variable,
+            self.parse_format,
+            self.parse_doc,
             self.parse_scope,
             self.parse_query,
             self.parse_list,
@@ -165,33 +176,54 @@ class ListParser(BaseParser):
 
 
 class NameParser(BaseParser):
-    PREFIX_MAP = {
-        "#": nodes.UIDNode,
-        "!": nodes.FlagNode,
-        "%": nodes.FormatNode,
-        "@": nodes.AttributeNode,
-        "$": nodes.VariableNode,
-        "?": nodes.DocNode,
-    }
-
     @indexed
     def parse(self):
-        next = self.stream.peek()
-        if next.id in self.PREFIX_MAP:
-            node = self.PREFIX_MAP[next.id]()
-            self.stream.read(next.id)
-        else:
-            if self.stream.is_next("name"):
-                node = nodes.NameNode()
-            else:
-                return
-        return self._parse_name(node)
-
-    def _parse_name(self, node):
         if not self.stream.is_next("name"):
-            raise NameNotFoundError(self.stream.peek().index[0])
+            return
+        node = nodes.NameNode()
         node.name = self.stream.read("name").value
         return node
+
+
+class PrefixedNameParser(BaseParser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.prefix):
+            return
+        self.stream.read()
+        node = self.node_class()
+        node.name = self.stream.read("name").value
+        return node
+
+
+class AttributeParser(PrefixedNameParser):
+    prefix = "@"
+    node_class = nodes.AttributeNode
+
+
+class FlagParser(PrefixedNameParser):
+    prefix = "!"
+    node_class = nodes.FlagNode
+
+
+class UIDParser(PrefixedNameParser):
+    prefix = "#"
+    node_class = nodes.UIDNode
+
+
+class VariableParser(PrefixedNameParser):
+    prefix = "$"
+    node_class = nodes.VariableNode
+
+
+class FormatParser(PrefixedNameParser):
+    prefix = "%"
+    node_class = nodes.FormatNode
+
+
+class DocParser(PrefixedNameParser):
+    prefix = "?"
+    node_class = nodes.DocNode
 
 
 class RelationParser(BaseParser):
