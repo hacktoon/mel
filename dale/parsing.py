@@ -26,7 +26,7 @@ class BaseParser:
             "string": StringParser,
             "boolean": BooleanParser,
             "wildcard": WildcardParser,
-            "value": ValueParser,
+            "object": ObjectParser,
             "number": NumberParser,
             "range": RangeParser,
             "name": NameParser,
@@ -61,17 +61,17 @@ class StructParser(BaseParser):
         if self.stream.is_next(":"):
             self.stream.read()
         else:
-            node.key = self.parse_value()
+            node.key = self.parse_object()
 
-    def _parse_value(self, scope):
-        value_node = self.parse_value()
-        if not value_node:
+    def _parse_object(self, scope):
+        obj = self.parse_object()
+        if not obj:
             return
-        relation = self._parse_relation(value_node)
+        relation = self._parse_relation(obj)
         if relation:
             return relation
-        scope.add(value_node)
-        return value_node
+        scope.add(obj)
+        return obj
 
     def _parse_relation(self, target):
         return RelationParser(self.stream).parse()
@@ -82,9 +82,9 @@ class RootParser(StructParser):
     def parse(self):
         node = self._create_node(nodes.RootNode)
         while not self.stream.is_eof():
-            value = self.parse_value()
-            if value:
-                node.add(value)
+            obj = self.parse_object()
+            if obj:
+                node.add(obj)
             elif not self.stream.is_eof():
                 index = self.stream.peek().index[0]
                 raise UnexpectedTokenError(index)
@@ -103,16 +103,16 @@ class ScopeParser(StructParser):
         node = self._create_node(self.node_class)
         self.stream.read(start_token)
         self._parse_key(node)
-        self._parse_values(node)
+        self._parse_objects(node)
         self.stream.read(end_token)
         return node
 
-    def _parse_values(self, scope):
+    def _parse_objects(self, scope):
         end_token = self.delimiters[1]
         inside_scope = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_scope and not_eof:
-            if not self._parse_value(scope):
+            if not self._parse_object(scope):
                 break
 
 
@@ -131,30 +131,30 @@ class ListParser(BaseParser):
             return
         node = self._create_node(nodes.ListNode)
         self.stream.read(start_token)
-        self._parse_values(node)
+        self._parse_objects(node)
         self.stream.read(end_token)
         return node
 
-    def _parse_values(self, node):
+    def _parse_objects(self, node):
         end_token = self.delimiters[1]
         inside_list = not self.stream.is_next(end_token)
         not_eof = not self.stream.is_eof()
         while inside_list and not_eof:
-            value = self.parse_value()
-            if not value:
+            obj = self.parse_object()
+            if not obj:
                 break
-            node.add(value)
+            node.add(obj)
 
 
-class ValueParser(BaseParser):
+class ObjectParser(BaseParser):
     @indexed
     def parse(self):
-        node = self._parse_value()
+        node = self._parse_object()
         if node:
             self._parse_chain(node)
         return node
 
-    def _parse_value(self):
+    def _parse_object(self):
         methods = [
             self.parse_range,
             self.parse_number,
@@ -175,10 +175,10 @@ class ValueParser(BaseParser):
     def _parse_chain(self, node):
         while self.stream.is_next("/"):
             separator = self.stream.read()
-            value = self._parse_value()
-            if not value:
+            obj = self._parse_object()
+            if not obj:
                 raise ValueChainError(separator.index[0])
-            node.add(value)
+            node.add(obj)
 
 
 class NameParser(BaseParser):
@@ -221,7 +221,7 @@ class RelationParser(BaseParser):
         node = self._create_node(nodes.RelationNode)
         node.target = target
         node.relationship = self.stream.read()
-        node.value = self.parse_value()
+        node.value = self.parse_object()
         return node
 
 

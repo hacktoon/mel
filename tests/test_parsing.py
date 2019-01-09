@@ -102,13 +102,13 @@ def test_one_sized_list_node_always_returns_list():
 
 def test_chained_value_repr():
     parser = create_parser("abc/def")
-    value = parser.parse_value()
+    value = parser.parse_object()
     assert value.id == "name"
 
 
 def test_chained_value_subvalue():
     parser = create_parser("name/6")
-    node = parser.parse_value()
+    node = parser.parse_object()
     assert node._nodes[0].id == "int"
 
 
