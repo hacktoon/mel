@@ -26,7 +26,6 @@ class BaseParser:
             "string": StringParser,
             "boolean": BooleanParser,
             "wildcard": WildcardParser,
-            "object": ObjectParser,
             "float": FloatParser,
             "int": IntParser,
             "range": RangeParser,
@@ -42,24 +41,7 @@ class BaseParser:
             "list": ListParser,
         }
 
-    def __getattr__(self, attr_name):
-        if not attr_name.startswith("parse_"):
-            raise AttributeError("Invalid parsing method.")
-        parser_id = attr_name.replace("parse_", "")
-        if parser_id not in self.PARSER_MAP:
-            raise AttributeError("Invalid parsing id.")
-        parser_class = self.PARSER_MAP[parser_id]
-        return parser_class(self.stream).parse
-
-
-class Parser(BaseParser):
-    @indexed
-    def parse(self):
-        return RootParser(self.stream).parse()
-
-
-class ObjectParser(BaseParser):
-    def parse(self):
+    def parse_object(self):
         node = self._parse_object()
         if node:
             self._parse_subnode(node)
@@ -94,11 +76,26 @@ class ObjectParser(BaseParser):
         if not self.stream.is_next("/"):
             return
         separator = self.stream.read()
-        obj = self._parse_object()
+        obj = self.parse_object()
         if not obj:
             raise SubNodeError(separator.index[0])
         node.add(obj)
         self._parse_subnode(obj)
+
+    def __getattr__(self, attr_name):
+        if not attr_name.startswith("parse_"):
+            raise AttributeError("Invalid parsing method.")
+        parser_id = attr_name.replace("parse_", "")
+        if parser_id not in self.PARSER_MAP:
+            raise AttributeError("Invalid parsing id.")
+        parser_class = self.PARSER_MAP[parser_id]
+        return parser_class(self.stream).parse
+
+
+class Parser(BaseParser):
+    @indexed
+    def parse(self):
+        return RootParser(self.stream).parse()
 
 
 class StructParser:
@@ -118,20 +115,14 @@ class StructParser:
         if self.stream.is_next(":"):
             self.stream.read()
         else:
-            node.key = self._parse_object()
+            node.key = self.parse_object()
 
     def _parse_objects(self, scope):
         while True:
-            obj = self._parse_object()
+            obj = self.parse_object()
             if not obj:
                 break
             scope.add(obj)
-
-    def _parse_object(self):
-        obj = self.parse_object()
-        if not obj:
-            return
-        return obj
 
 
 class RootParser(BaseParser, StructParser):
