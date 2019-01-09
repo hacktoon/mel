@@ -96,12 +96,12 @@ class ObjectParser(BaseParser):
 class StructParser(BaseParser):
     def _parse_objects(self, scope):
         while True:
-            obj = self._parse_object(scope)
+            obj = self._parse_object()
             if not obj:
                 break
             scope.add(obj)
 
-    def _parse_object(self, scope):
+    def _parse_object(self):
         obj = self.parse_object()
         if not obj:
             return
