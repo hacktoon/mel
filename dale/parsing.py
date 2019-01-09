@@ -228,21 +228,6 @@ class DocParser(BaseParser, PrefixedNameParser):
     node_class = nodes.DocNode
 
 
-class RelationParser(BaseParser):
-    @indexed
-    def parse(self):
-        target = self.parse_name()
-        if not target:
-            return
-        if not self.stream.is_next("="):
-            return
-        node = nodes.RelationNode()
-        node.target = target
-        node.relationship = self.stream.read()
-        node.value = self.parse_object()
-        return node
-
-
 class FloatParser(BaseParser):
     @indexed
     def parse(self):
