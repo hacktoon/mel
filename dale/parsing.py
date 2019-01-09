@@ -56,6 +56,43 @@ class Parser(BaseParser):
         return RootParser(self.stream).parse()
 
 
+class ObjectParser(BaseParser):
+    @indexed
+    def parse(self):
+        node = self._parse_object()
+        if node:
+            self._parse_subnode(node)
+        return node
+
+    def _parse_object(self):
+        methods = [
+            self.parse_range,
+            self.parse_number,
+            self.parse_boolean,
+            self.parse_string,
+            self.parse_name,
+            self.parse_scope,
+            self.parse_query,
+            self.parse_list,
+            self.parse_wildcard,
+        ]
+        for method in methods:
+            node = method()
+            if node:
+                return node
+        return
+
+    def _parse_subnode(self, node):
+        if not self.stream.is_next("/"):
+            return
+        separator = self.stream.read()
+        obj = self._parse_object()
+        if not obj:
+            raise SubNodeError(separator.index[0])
+        node.add(obj)
+        self._parse_subnode(obj)
+
+
 class StructParser(BaseParser):
     def _parse_key(self, node):
         if self.stream.is_next(":"):
@@ -129,53 +166,16 @@ class ListParser(BaseParser):
             return
         node = self._create_node(nodes.ListNode)
         self.stream.read(start_token)
-        self._parse_objects(node)
+        self._parse_items(node)
         self.stream.read(end_token)
         return node
 
-    def _parse_objects(self, node):
+    def _parse_items(self, node):
         while True:
             obj = self.parse_object()
             if not obj:
                 break
             node.add(obj)
-
-
-class ObjectParser(BaseParser):
-    @indexed
-    def parse(self):
-        node = self._parse_object()
-        if node:
-            self._parse_subnode(node)
-        return node
-
-    def _parse_object(self):
-        methods = [
-            self.parse_range,
-            self.parse_number,
-            self.parse_boolean,
-            self.parse_string,
-            self.parse_name,
-            self.parse_scope,
-            self.parse_query,
-            self.parse_list,
-            self.parse_wildcard,
-        ]
-        for method in methods:
-            node = method()
-            if node:
-                return node
-        return
-
-    def _parse_subnode(self, node):
-        if not self.stream.is_next("/"):
-            return
-        separator = self.stream.read()
-        obj = self._parse_object()
-        if not obj:
-            raise SubNodeError(separator.index[0])
-        node.add(obj)
-        self._parse_subnode(obj)
 
 
 class NameParser(BaseParser):
