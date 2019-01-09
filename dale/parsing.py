@@ -136,10 +136,7 @@ class ListParser(BaseParser):
         return node
 
     def _parse_objects(self, node):
-        end_token = self.delimiters[1]
-        inside_list = not self.stream.is_next(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_list and not_eof:
+        while True:
             obj = self.parse_object()
             if not obj:
                 break
