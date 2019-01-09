@@ -4,7 +4,7 @@ from dale.lexing import TokenStream
 from dale.parsing import Parser
 from dale.utils.context import Context
 from dale.exceptions import (
-    ValueChainError,
+    SubNodeError,
     UnexpectedTokenError,
     NameNotFoundError
 )
@@ -113,7 +113,7 @@ def test_chained_value_subvalue():
 
 
 def test_unexpected_finished_chained_value_error():
-    with pytest.raises(ValueChainError):
+    with pytest.raises(SubNodeError):
         create_tree("name/")
 
 

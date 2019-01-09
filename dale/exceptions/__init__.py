@@ -14,10 +14,10 @@ class UnexpectedTokenError(DaleError):
         super().__init__("This token is not expected here.")
 
 
-class ValueChainError(DaleError):
+class SubNodeError(DaleError):
     def __init__(self, index):
         self.index = index
-        super().__init__("A value is expected after a chain separator.")
+        super().__init__("An object is expected after a slash.")
 
 
 class NameNotFoundError(DaleError):

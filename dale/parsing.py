@@ -1,7 +1,7 @@
 from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
-    ValueChainError,
+    SubNodeError,
     NameNotFoundError
 )
 
@@ -151,7 +151,7 @@ class ObjectParser(BaseParser):
     def parse(self):
         node = self._parse_object()
         if node:
-            self._parse_chain(node)
+            self._parse_subnode(node)
         return node
 
     def _parse_object(self):
@@ -172,13 +172,15 @@ class ObjectParser(BaseParser):
                 return node
         return
 
-    def _parse_chain(self, node):
-        while self.stream.is_next("/"):
-            separator = self.stream.read()
-            obj = self._parse_object()
-            if not obj:
-                raise ValueChainError(separator.index[0])
-            node.add(obj)
+    def _parse_subnode(self, node):
+        if not self.stream.is_next("/"):
+            return
+        separator = self.stream.read()
+        obj = self._parse_object()
+        if not obj:
+            raise SubNodeError(separator.index[0])
+        node.add(obj)
+        self._parse_subnode(obj)
 
 
 class NameParser(BaseParser):
