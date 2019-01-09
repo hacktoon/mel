@@ -70,7 +70,6 @@ class StructParser(BaseParser):
         relation = self._parse_relation(obj)
         if relation:
             return relation
-        scope.add(obj)
         return obj
 
     def _parse_relation(self, target):
@@ -108,12 +107,11 @@ class ScopeParser(StructParser):
         return node
 
     def _parse_objects(self, scope):
-        end_token = self.delimiters[1]
-        inside_scope = not self.stream.is_next(end_token)
-        not_eof = not self.stream.is_eof()
-        while inside_scope and not_eof:
-            if not self._parse_object(scope):
+        while True:
+            obj = self._parse_object(scope)
+            if not obj:
                 break
+            scope.add(obj)
 
 
 class QueryParser(ScopeParser):
