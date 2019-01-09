@@ -57,7 +57,6 @@ class Parser(BaseParser):
 
 
 class ObjectParser(BaseParser):
-    @indexed
     def parse(self):
         node = self._parse_object()
         if node:
