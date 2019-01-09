@@ -101,36 +101,7 @@ class ObjectParser(BaseParser):
         self._parse_subnode(obj)
 
 
-class StructParser(BaseParser):
-    def _parse_objects(self, scope):
-        while True:
-            obj = self._parse_object()
-            if not obj:
-                break
-            scope.add(obj)
-
-    def _parse_object(self):
-        obj = self.parse_object()
-        if not obj:
-            return
-        return obj
-
-
-class RootParser(StructParser):
-    @indexed
-    def parse(self):
-        node = nodes.RootNode()
-        self._parse_objects(node)
-        if not self.stream.is_eof():
-            index = self.stream.peek().index[0]
-            raise UnexpectedTokenError(index)
-        return node
-
-
-class ScopeParser(StructParser):
-    node_class = nodes.ScopeNode
-    delimiters = "()"
-
+class StructParser:
     @indexed
     def parse(self):
         start_token, end_token = self.delimiters
@@ -149,8 +120,37 @@ class ScopeParser(StructParser):
         else:
             node.key = self._parse_object()
 
+    def _parse_objects(self, scope):
+        while True:
+            obj = self._parse_object()
+            if not obj:
+                break
+            scope.add(obj)
 
-class QueryParser(ScopeParser):
+    def _parse_object(self):
+        obj = self.parse_object()
+        if not obj:
+            return
+        return obj
+
+
+class RootParser(BaseParser, StructParser):
+    @indexed
+    def parse(self):
+        node = nodes.RootNode()
+        self._parse_objects(node)
+        if not self.stream.is_eof():
+            index = self.stream.peek().index[0]
+            raise UnexpectedTokenError(index)
+        return node
+
+
+class ScopeParser(BaseParser, StructParser):
+    node_class = nodes.ScopeNode
+    delimiters = "()"
+
+
+class QueryParser(BaseParser, StructParser):
     node_class = nodes.QueryNode
     delimiters = "{}"
 
