@@ -142,13 +142,21 @@ def test_empty_scope():
     assert len(node) == 0
 
 
-def test_scope_key_with_child():
+def test_scope_children():
+    parser = create_parser("(a (b 2) 4 'etc')")
+    node = parser.parse_scope()
+    assert str(node[0]) == "(b 2)"
+    assert str(node[1]) == "4"
+    assert str(node[2]) == "'etc'"
+
+
+def test_scope_key_with_attribute():
     parser = create_parser("(a (@b 2))")
     node = parser.parse_scope()
     assert str(node.attributes["attribute"]["b"]) == "(@b 2)"
 
 
-def test_scope_key_with_doc_child():
+def test_scope_key_with_doc():
     parser = create_parser("(bar (?help 'foo'))")
     node = parser.parse_scope()
     assert node.attributes["doc"]["help"][0].value == "foo"
