@@ -97,19 +97,23 @@ def test_one_sized_list_node_always_returns_list():
     assert node.id == "list"
 
 
-#  CHAINED VALUES TESTS
+#  SUBNODE TESTS
 
 
-def test_chained_value_repr():
-    parser = create_parser("abc/def")
-    value = parser.parse_object()
-    assert value.id == "name"
+def test_path_creates_subnode():
+    parser = create_parser("abc/$def")
+    _object = parser.parse_object()
+    assert _object.id == "name"
+    assert _object[0].id == "variable"
 
 
-def test_chained_value_subvalue():
-    parser = create_parser("name/6")
-    node = parser.parse_object()
-    assert node._nodes[0].id == "int"
+def test_bigger_subnode_path():
+    parser = create_parser("abc/$def/#pid/!active")
+    _object = parser.parse_object()
+    assert _object.id == "name"
+    assert _object[0].id == "variable"
+    assert _object[0][0].id == "uid"
+    assert _object[0][0][0].id == "flag"
 
 
 def test_unexpected_finished_chained_value_error():
