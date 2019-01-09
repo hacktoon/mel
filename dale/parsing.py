@@ -185,7 +185,7 @@ class NameParser(BaseParser):
         return node
 
 
-class PrefixedNameParser(BaseParser):
+class PrefixedNameParser:
     @indexed
     def parse(self):
         if not self.stream.is_next(self.prefix):
@@ -196,32 +196,32 @@ class PrefixedNameParser(BaseParser):
         return node
 
 
-class AttributeParser(PrefixedNameParser):
+class AttributeParser(BaseParser, PrefixedNameParser):
     prefix = "@"
     node_class = nodes.AttributeNode
 
 
-class FlagParser(PrefixedNameParser):
+class FlagParser(BaseParser, PrefixedNameParser):
     prefix = "!"
     node_class = nodes.FlagNode
 
 
-class UIDParser(PrefixedNameParser):
+class UIDParser(BaseParser, PrefixedNameParser):
     prefix = "#"
     node_class = nodes.UIDNode
 
 
-class VariableParser(PrefixedNameParser):
+class VariableParser(BaseParser, PrefixedNameParser):
     prefix = "$"
     node_class = nodes.VariableNode
 
 
-class FormatParser(PrefixedNameParser):
+class FormatParser(BaseParser, PrefixedNameParser):
     prefix = "%"
     node_class = nodes.FormatNode
 
 
-class DocParser(PrefixedNameParser):
+class DocParser(BaseParser, PrefixedNameParser):
     prefix = "?"
     node_class = nodes.DocNode
 
