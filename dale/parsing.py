@@ -29,7 +29,7 @@ class BaseParser:
             "value": ValueParser,
             "number": NumberParser,
             "range": RangeParser,
-            "property": PropertyParser,
+            "name": NameParser,
             "scope": ScopeParser,
             "query": QueryParser,
             "list": ListParser,
@@ -160,7 +160,7 @@ class ValueParser(BaseParser):
             self.parse_number,
             self.parse_boolean,
             self.parse_string,
-            self.parse_property,
+            self.parse_name,
             self.parse_scope,
             self.parse_query,
             self.parse_list,
@@ -174,18 +174,19 @@ class ValueParser(BaseParser):
 
     def _parse_chain(self, node):
         while self.stream.is_next("/"):
-            sep = self.stream.read("/")
+            separator = self.stream.read()
             value = self._parse_value()
             if not value:
-                raise ValueChainError(sep.index[0])
+                raise ValueChainError(separator.index[0])
             node.add(value)
 
 
-class PropertyParser(BaseParser):
+class NameParser(BaseParser):
     PREFIX_MAP = {
         "#": nodes.UIDNode,
         "!": nodes.FlagNode,
         "%": nodes.FormatNode,
+        "@": nodes.AttributeNode,
         "$": nodes.VariableNode,
         "?": nodes.DocNode,
     }
@@ -193,15 +194,15 @@ class PropertyParser(BaseParser):
     @indexed
     def parse(self):
         next = self.stream.peek()
-        node_class = nodes.PropertyNode
+        node_class = nodes.NameNode
         if next.id in self.PREFIX_MAP:
             node_class = self.PREFIX_MAP[next.id]
             self.stream.read(next.id)
         elif not self.stream.is_next("name"):
             return
-        return self._parse_property(node_class)
+        return self._parse_name(node_class)
 
-    def _parse_property(self, node_class):
+    def _parse_name(self, node_class):
         if not self.stream.is_next("name"):
             raise NameNotFoundError(self.stream.peek().index[0])
         node = self._create_node(node_class)
@@ -212,7 +213,7 @@ class PropertyParser(BaseParser):
 class RelationParser(BaseParser):
     @indexed
     def parse(self):
-        target = self.parse_property()
+        target = self.parse_name()
         if not target:
             return
         if not self.stream.is_next("="):

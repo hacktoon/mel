@@ -67,7 +67,7 @@ class ScopeNode(Node):
         self.attributes = {
             "flag": {},
             "uid": {},
-            "property": {},
+            "attribute": {},
             "variable": {},
             "format": {},
             "doc": {},
@@ -80,7 +80,8 @@ class ScopeNode(Node):
     def _add_scope(self, scope):
         if scope.key.id in self.attributes:
             self.attributes[scope.key.id][scope.key.name] = scope
-        self._nodes.append(scope)
+        else:
+            self._nodes.append(scope)
 
     def eval(self, context):
         return {
@@ -106,31 +107,35 @@ class ListNode(Node):
     id = "list"
 
 
-class PropertyNode(Node):
-    id = "property"
+class NameNode(Node):
+    id = "name"
 
     def __init__(self):
         super().__init__()
         self.name = ""
 
 
-class FlagNode(PropertyNode):
+class AttributeNode(NameNode):
+    id = "attribute"
+
+
+class FlagNode(NameNode):
     id = "flag"
 
 
-class UIDNode(PropertyNode):
+class UIDNode(NameNode):
     id = "uid"
 
 
-class FormatNode(PropertyNode):
+class FormatNode(NameNode):
     id = "format"
 
 
-class VariableNode(PropertyNode):
+class VariableNode(NameNode):
     id = "variable"
 
 
-class DocNode(PropertyNode):
+class DocNode(NameNode):
     id = "doc"
 
 

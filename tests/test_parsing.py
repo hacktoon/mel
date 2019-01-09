@@ -104,7 +104,7 @@ def test_one_sized_list_node_always_returns_list():
 def test_chained_value_repr():
     parser = create_parser("abc/def")
     value = parser.parse_value()
-    assert repr(value) == "PROPERTY('abc/def')"
+    assert value.id == "name"
 
 
 def test_chained_value_subvalue():
@@ -139,19 +139,10 @@ def test_empty_scope():
     assert repr(node) == "SCOPE('()')"
 
 
-def test_nested_scopes():
-    parser = create_parser("(a (b 2))")
-    node = parser.parse_scope()
-    subscope = node[0]
-    assert str(subscope) == "(b 2)"
-    assert str(subscope.key) == "b"
-    assert str(subscope[0]) == "2"
-
-
 def test_scope_key_with_child():
-    parser = create_parser("(a (b 2))")
+    parser = create_parser("(a (@b 2))")
     node = parser.parse_scope()
-    assert str(node.attributes["property"]["b"]) == "(b 2)"
+    assert str(node.attributes["attribute"]["b"]) == "(@b 2)"
 
 
 def test_scope_key_with_doc_child():
@@ -168,9 +159,9 @@ def test_scope_key_with_multi_properties():
 
 
 def test_scope_child_values():
-    parser = create_parser("(foo (bar 2, 4))")
+    parser = create_parser("(foo (@bar 2, 4))")
     node = parser.parse_scope()
-    property = node.attributes["property"]["bar"]
+    property = node.attributes["attribute"]["bar"]
     assert str(property[0]) == "2"
     assert str(property[1]) == "4"
 
@@ -198,7 +189,7 @@ def test_scope_properties():
         (#answer_code 42)
         ($ref {!active})
         (?help "A object")
-        (child {bar 2})
+        (@child {bar 2})
         (%short child)
     )
     """
@@ -206,7 +197,7 @@ def test_scope_properties():
     node = parser.parse_scope()
     attrs = node.attributes
     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
-    assert str(attrs["property"]["child"]) == "(child {bar 2})"
+    assert str(attrs["attribute"]["child"]) == "(@child {bar 2})"
     assert str(attrs["doc"]["help"]) == '(?help "A object")'
     assert str(attrs["variable"]["ref"]) == "($ref {!active})"
 
@@ -222,7 +213,7 @@ def test_nested_scope_with_null_key():
     parser = create_parser("(foo (: 56.7) )")
     node = parser.parse_scope()
     assert node[0].id == "scope"
-    assert node.attributes["property"] == {}
+    assert node.attributes["attribute"] == {}
 
 
 def test_scope_with_wildcard_key():
@@ -241,7 +232,7 @@ def test_query_key_assumes_first_value():
     assert str(node.key) == "abc"
 
 
-#  PROPERTY TESTS
+#  ATTRIBUTE TESTS
 
 
 def test_name_not_found_after_prefix():

@@ -83,6 +83,11 @@ class NameToken(Token):
     regex = re.compile(r"[_a-zA-Z]\w*")
 
 
+class AttributePrefixToken(Token):
+    id = "@"
+    regex = re.compile("@")
+
+
 class UidPrefixToken(Token):
     id = "#"
     regex = re.compile("#")
