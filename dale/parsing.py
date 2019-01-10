@@ -7,7 +7,7 @@ from .exceptions import (
 )
 
 
-def indexed(method):
+def subparser(method):
     def surrogate(self):
         first = self.stream.peek()
         node = method(self)
@@ -73,7 +73,7 @@ class BaseParser:
 
 
 class Parser(BaseParser):
-    @indexed
+    @subparser
     def parse(self):
         node = nodes.RootNode()
         self.parse_objects(node)
@@ -83,13 +83,13 @@ class Parser(BaseParser):
         return node
 
     """
-        StructParser -----------------------------
+    StructParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_scope(self):
         return self._parse_struct("()", nodes.ScopeNode)
 
-    @indexed
+    @subparser
     def parse_query(self):
         return self._parse_struct("{}", nodes.QueryNode)
 
@@ -111,9 +111,9 @@ class Parser(BaseParser):
             node.key = self.parse_object()
 
     """
-        ListParser -----------------------------
+    ListParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_list(self):
         start_token, end_token = "[]"
         if not self.stream.is_next(start_token):
@@ -132,9 +132,9 @@ class Parser(BaseParser):
             node.add(obj)
 
     """
-        NameParser -----------------------------
+    NameParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_name(self):
         if not self.stream.is_next("name"):
             return
@@ -143,29 +143,29 @@ class Parser(BaseParser):
         return node
 
     """
-        PrefixedNameParser -----------------------------
+    PrefixedNameParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_attribute(self):
         return self._parse_prefixed_name("@", nodes.AttributeNode)
 
-    @indexed
+    @subparser
     def parse_flag(self):
         return self._parse_prefixed_name("!", nodes.FlagNode)
 
-    @indexed
+    @subparser
     def parse_uid(self):
         return self._parse_prefixed_name("#", nodes.UIDNode)
 
-    @indexed
+    @subparser
     def parse_variable(self):
         return self._parse_prefixed_name("$", nodes.VariableNode)
 
-    @indexed
+    @subparser
     def parse_format(self):
         return self._parse_prefixed_name("%", nodes.FormatNode)
 
-    @indexed
+    @subparser
     def parse_doc(self):
         return self._parse_prefixed_name("?", nodes.DocNode)
 
@@ -178,10 +178,10 @@ class Parser(BaseParser):
         return node
 
     """
-        RangeParser -----------------------------
+    RangeParser -----------------------------
     """
     #@priority(2)
-    @indexed
+    @subparser
     def parse_range(self):
         _range = self._parse_range_values()
         if not _range:
@@ -207,21 +207,21 @@ class Parser(BaseParser):
         return (start, end)
 
     """
-        LiteralParser -----------------------------
+    LiteralParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_int(self):
         return self._parse_literal(nodes.IntNode)
 
-    @indexed
+    @subparser
     def parse_float(self):
         return self._parse_literal(nodes.FloatNode)
 
-    @indexed
+    @subparser
     def parse_string(self):
         return self._parse_literal(nodes.StringNode)
 
-    @indexed
+    @subparser
     def parse_boolean(self):
         return self._parse_literal(nodes.BooleanNode)
 
@@ -233,9 +233,9 @@ class Parser(BaseParser):
         return node
 
     """
-        WildcardParser -----------------------------
+    WildcardParser -----------------------------
     """
-    @indexed
+    @subparser
     def parse_wildcard(self):
         if self.stream.is_next("*"):
             self.stream.read()
