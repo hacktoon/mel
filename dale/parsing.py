@@ -63,15 +63,14 @@ class BaseParser:
                 break
             node.add(obj)
 
-    def __getattr__(self, attr_name):
-        if not attr_name.startswith("parse_"):
-            raise AttributeError("Invalid parsing method.")
-        parser_id = attr_name.replace("parse_", "")
-        subparsers = class_map()
-        if parser_id not in subparsers:
-            raise AttributeError("Invalid parsing id.")
-        parser_class = subparsers[parser_id]
-        return parser_class(self.stream).parse
+    def __getattr__(self, name):
+        parser_id = name.replace("parse_", "")
+        _class_map = class_map()
+        if not name.startswith("parse_") or parser_id not in _class_map:
+            raise AttributeError("Invalid parsing method '%s'." % name)
+        parser_class = _class_map[parser_id]
+        parser_obj = parser_class(self.stream)
+        return parser_obj.parse
 
 
 class Parser(BaseParser):
