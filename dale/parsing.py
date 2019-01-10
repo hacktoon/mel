@@ -215,28 +215,6 @@ class DocParser(BaseParser, PrefixedNameParser):
     node_class = nodes.DocNode
 
 
-class FloatParser(BaseParser):
-    priority = 1
-
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("float"):
-            return
-        node = nodes.FloatNode()
-        node.value = self.stream.read().value
-        return node
-
-
-class IntParser(BaseParser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("int"):
-            return
-        node = nodes.IntNode()
-        node.value = self.stream.read().value
-        return node
-
-
 class RangeParser(BaseParser):
     priority = 2
 
@@ -264,6 +242,28 @@ class RangeParser(BaseParser):
         else:
             return
         return (start, end)
+
+
+class FloatParser(BaseParser):
+    priority = 1
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next("float"):
+            return
+        node = nodes.FloatNode()
+        node.value = self.stream.read().value
+        return node
+
+
+class IntParser(BaseParser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next("int"):
+            return
+        node = nodes.IntNode()
+        node.value = self.stream.read().value
+        return node
 
 
 class StringParser(BaseParser):
