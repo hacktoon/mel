@@ -6,12 +6,6 @@ from .exceptions import (
     SubNodeError,
 )
 
-@functools.lru_cache()
-def class_map():
-    subclasses = [s for s in BaseParser.__subclasses__() if s.node_class]
-    subclasses = sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
-    return {cls.node_class.id: cls for cls in subclasses}
-
 
 def indexed(method):
     def surrogate(self):
@@ -28,16 +22,30 @@ def indexed(method):
 
 
 class BaseParser:
-    priority = 0
-    node_class = None
-
     def __init__(self, stream):
         self.stream = stream
+        self.subparsers = {}
 
     def parse_object(self):
-        parser_ids = class_map().keys()
         node = None
-        for parser_id in parser_ids:
+        for parser_id in [
+                "range",
+                "float",
+                "int",
+                "string",
+                "boolean",
+                "name",
+                "flag",
+                "attribute",
+                "uid",
+                "variable",
+                "format",
+                "doc",
+                "wildcard",
+                "list",
+                "scope",
+                "query",
+            ]:
             method = getattr(self, "parse_" + parser_id)
             node = method()
             if node:
@@ -63,15 +71,6 @@ class BaseParser:
                 break
             node.add(obj)
 
-    def __getattr__(self, name):
-        parser_id = name.replace("parse_", "")
-        _class_map = class_map()
-        if not name.startswith("parse_") or parser_id not in _class_map:
-            raise AttributeError("Invalid parsing method '%s'." % name)
-        parser_class = _class_map[parser_id]
-        parser_obj = parser_class(self.stream)
-        return parser_obj.parse
-
 
 class Parser(BaseParser):
     @indexed
@@ -83,127 +82,115 @@ class Parser(BaseParser):
             raise UnexpectedTokenError(index)
         return node
 
-
-class StructParser:
+    """
+        StructParser -----------------------------
+    """
     @indexed
-    def parse(self):
-        start_token, end_token = self.delimiters
+    def parse_scope(self):
+        return self._parse_struct("()", nodes.ScopeNode)
+
+    @indexed
+    def parse_query(self):
+        return self._parse_struct("{}", nodes.QueryNode)
+
+    def _parse_struct(self, delimiters, node_class):
+        start_token, end_token = delimiters
         if not self.stream.is_next(start_token):
             return
-        node = self.node_class()
+        node = node_class()
         self.stream.read(start_token)
-        self._parse_key(node)
+        self._parse_struct_key(node)
         self.parse_objects(node)
         self.stream.read(end_token)
         return node
 
-    def _parse_key(self, node):
+    def _parse_struct_key(self, node):
         if self.stream.is_next(":"):
             self.stream.read()
         else:
             node.key = self.parse_object()
 
-
-class ScopeParser(BaseParser, StructParser):
-    node_class = nodes.ScopeNode
-    delimiters = "()"
-
-
-class QueryParser(BaseParser, StructParser):
-    node_class = nodes.QueryNode
-    delimiters = "{}"
-
-
-class ListParser(BaseParser):
-    node_class = nodes.ListNode
-    delimiters = "[]"
-
+    """
+        ListParser -----------------------------
+    """
     @indexed
-    def parse(self):
-        start_token, end_token = self.delimiters
+    def parse_list(self):
+        start_token, end_token = "[]"
         if not self.stream.is_next(start_token):
             return
-        node = self.node_class()
+        node = nodes.ListNode()
         self.stream.read(start_token)
-        self._parse_items(node)
+        self._parse_list_items(node)
         self.stream.read(end_token)
         return node
 
-    def _parse_items(self, node):
+    def _parse_list_items(self, node):
         while True:
             obj = self.parse_object()
             if not obj:
                 break
             node.add(obj)
 
-
-class NameParser(BaseParser):
-    node_class = nodes.NameNode
-
+    """
+        NameParser -----------------------------
+    """
     @indexed
-    def parse(self):
+    def parse_name(self):
         if not self.stream.is_next("name"):
             return
-        node = self.node_class()
+        node = nodes.NameNode()
         node.name = self.stream.read("name").value
         return node
 
-
-class PrefixedNameParser:
+    """
+        PrefixedNameParser -----------------------------
+    """
     @indexed
-    def parse(self):
-        if not self.stream.is_next(self.prefix):
+    def parse_attribute(self):
+        return self._parse_prefixed_name("@", nodes.AttributeNode)
+
+    @indexed
+    def parse_flag(self):
+        return self._parse_prefixed_name("!", nodes.FlagNode)
+
+    @indexed
+    def parse_uid(self):
+        return self._parse_prefixed_name("#", nodes.UIDNode)
+
+    @indexed
+    def parse_variable(self):
+        return self._parse_prefixed_name("$", nodes.VariableNode)
+
+    @indexed
+    def parse_format(self):
+        return self._parse_prefixed_name("%", nodes.FormatNode)
+
+    @indexed
+    def parse_doc(self):
+        return self._parse_prefixed_name("?", nodes.DocNode)
+
+    def _parse_prefixed_name(self, prefix, node_class):
+        if not self.stream.is_next(prefix):
             return
         self.stream.read()
-        node = self.node_class()
+        node = node_class()
         node.name = self.stream.read("name").value
         return node
 
-
-class AttributeParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.AttributeNode
-    prefix = "@"
-
-
-class FlagParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.FlagNode
-    prefix = "!"
-
-
-class UIDParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.UIDNode
-    prefix = "#"
-
-
-class VariableParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.VariableNode
-    prefix = "$"
-
-
-class FormatParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.FormatNode
-    prefix = "%"
-
-
-class DocParser(BaseParser, PrefixedNameParser):
-    node_class = nodes.DocNode
-    prefix = "?"
-
-
-class RangeParser(BaseParser):
-    node_class = nodes.RangeNode
-    priority = 2
-
+    """
+        RangeParser -----------------------------
+    """
+    #@priority(2)
     @indexed
-    def parse(self):
-        _range = self._parse_range()
+    def parse_range(self):
+        _range = self._parse_range_values()
         if not _range:
             return
         node = nodes.RangeNode()
         node.value = _range
         return node
 
-    def _parse_range(self):
+    def _parse_range_values(self):
         start = end = None
         current = self.stream.peek()
         next = self.stream.peek(1)
@@ -219,40 +206,38 @@ class RangeParser(BaseParser):
             return
         return (start, end)
 
-
-class LiteralParser:
+    """
+        LiteralParser -----------------------------
+    """
     @indexed
-    def parse(self):
-        if not self.stream.is_next(self.node_class.id):
+    def parse_int(self):
+        return self._parse_literal(nodes.IntNode)
+
+    @indexed
+    def parse_float(self):
+        return self._parse_literal(nodes.FloatNode)
+
+    @indexed
+    def parse_string(self):
+        return self._parse_literal(nodes.StringNode)
+
+    @indexed
+    def parse_boolean(self):
+        return self._parse_literal(nodes.BooleanNode)
+
+    def _parse_literal(self, node_class):
+        if not self.stream.is_next(node_class.id):
             return
-        node = self.node_class()
+        node = node_class()
         node.value = self.stream.read().value
         return node
 
-
-class FloatParser(BaseParser, LiteralParser):
-    node_class = nodes.FloatNode
-    priority = 1
-
-
-class IntParser(BaseParser, LiteralParser):
-    node_class = nodes.IntNode
-
-
-class StringParser(BaseParser, LiteralParser):
-    node_class = nodes.StringNode
-
-
-class BooleanParser(BaseParser, LiteralParser):
-    node_class = nodes.BooleanNode
-
-
-class WildcardParser(BaseParser):
-    node_class = nodes.WildcardNode
-
+    """
+        WildcardParser -----------------------------
+    """
     @indexed
-    def parse(self):
+    def parse_wildcard(self):
         if self.stream.is_next("*"):
             self.stream.read()
-            return self.node_class()
+            return nodes.WildcardNode()
         return
