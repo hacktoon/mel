@@ -26,6 +26,13 @@ class BaseParser:
         self.stream = stream
         self.subparsers = {}
 
+    def parse_objects(self, node):
+        while True:
+            obj = self.parse_object()
+            if not obj:
+                break
+            node.add(obj)
+
     def parse_object(self):
         node = None
         for parser_id in [
@@ -63,13 +70,6 @@ class BaseParser:
             raise SubNodeError(separator.index[0])
         node.add(obj)
         self._parse_subnode(obj)
-
-    def parse_objects(self, node):
-        while True:
-            obj = self.parse_object()
-            if not obj:
-                break
-            node.add(obj)
 
 
 class Parser(BaseParser):
