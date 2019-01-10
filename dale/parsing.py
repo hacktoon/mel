@@ -10,6 +10,10 @@ def classes():
     return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
 
 
+def get_class_map():
+    return {parser.node_class.id: parser for parser in classes()}
+
+
 def indexed(method):
     def surrogate(self):
         first = self.stream.peek()
