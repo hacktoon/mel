@@ -20,6 +20,9 @@ def indexed(method):
 
 
 class BaseParser:
+    priority = 0
+    metaparser = False
+
     def __init__(self, stream):
         self.stream = stream
         self.PARSER_MAP = {
@@ -97,6 +100,8 @@ class BaseParser:
 
 
 class Parser(BaseParser):
+    metaparser = True
+
     @indexed
     def parse(self):
         node = nodes.RootNode()
@@ -211,6 +216,8 @@ class DocParser(BaseParser, PrefixedNameParser):
 
 
 class FloatParser(BaseParser):
+    priority = 1
+
     @indexed
     def parse(self):
         if not self.stream.is_next("float"):
@@ -231,6 +238,8 @@ class IntParser(BaseParser):
 
 
 class RangeParser(BaseParser):
+    priority = 2
+
     @indexed
     def parse(self):
         _range = self._parse_range()
