@@ -1,17 +1,16 @@
+import functools
+
 from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
     SubNodeError,
 )
 
-
-def classes():
+@functools.lru_cache()
+def class_map():
     subclasses = [s for s in BaseParser.__subclasses__() if s.node_class]
-    return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
-
-
-def get_class_map():
-    return {parser.node_class.id: parser for parser in classes()}
+    subclasses = sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
+    return {cls.node_class.id: cls for cls in subclasses}
 
 
 def indexed(method):
@@ -34,29 +33,12 @@ class BaseParser:
 
     def __init__(self, stream):
         self.stream = stream
-        self.PARSER_MAP = get_class_map()
 
     def parse_object(self):
-        methods = [
-            self.parse_range,
-            self.parse_float,
-            self.parse_int,
-            self.parse_boolean,
-            self.parse_string,
-            self.parse_name,
-            self.parse_flag,
-            self.parse_attribute,
-            self.parse_uid,
-            self.parse_variable,
-            self.parse_format,
-            self.parse_doc,
-            self.parse_scope,
-            self.parse_query,
-            self.parse_list,
-            self.parse_wildcard,
-        ]
+        parser_ids = class_map().keys()
         node = None
-        for method in methods:
+        for parser_id in parser_ids:
+            method = getattr(self, "parse_" + parser_id)
             node = method()
             if node:
                 break
@@ -85,9 +67,10 @@ class BaseParser:
         if not attr_name.startswith("parse_"):
             raise AttributeError("Invalid parsing method.")
         parser_id = attr_name.replace("parse_", "")
-        if parser_id not in self.PARSER_MAP:
+        subparsers = class_map()
+        if parser_id not in subparsers:
             raise AttributeError("Invalid parsing id.")
-        parser_class = self.PARSER_MAP[parser_id]
+        parser_class = subparsers[parser_id]
         return parser_class(self.stream).parse
 
 

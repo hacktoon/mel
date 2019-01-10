@@ -1,6 +1,8 @@
 import re
+import functools
 
 
+@functools.lru_cache()
 def classes():
     subclasses = Token.__subclasses__()
     return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
