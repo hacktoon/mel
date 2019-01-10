@@ -34,24 +34,7 @@ class BaseParser:
 
     def __init__(self, stream):
         self.stream = stream
-        self.PARSER_MAP = {
-            "string": StringParser,
-            "boolean": BooleanParser,
-            "wildcard": WildcardParser,
-            "float": FloatParser,
-            "int": IntParser,
-            "range": RangeParser,
-            "name": NameParser,
-            "flag": FlagParser,
-            "attribute": AttributeParser,
-            "uid": UIDParser,
-            "variable": VariableParser,
-            "format": FormatParser,
-            "doc": DocParser,
-            "scope": ScopeParser,
-            "query": QueryParser,
-            "list": ListParser,
-        }
+        self.PARSER_MAP = get_class_map()
 
     def parse_object(self):
         methods = [
