@@ -99,7 +99,12 @@ class BaseParser:
 class Parser(BaseParser):
     @indexed
     def parse(self):
-        return RootParser(self.stream).parse()
+        node = nodes.RootNode()
+        self.parse_objects(node)
+        if not self.stream.is_eof():
+            index = self.stream.peek().index[0]
+            raise UnexpectedTokenError(index)
+        return node
 
 
 class StructParser:
@@ -120,17 +125,6 @@ class StructParser:
             self.stream.read()
         else:
             node.key = self.parse_object()
-
-
-class RootParser(BaseParser, StructParser):
-    @indexed
-    def parse(self):
-        node = nodes.RootNode()
-        self.parse_objects(node)
-        if not self.stream.is_eof():
-            index = self.stream.peek().index[0]
-            raise UnexpectedTokenError(index)
-        return node
 
 
 class ScopeParser(BaseParser, StructParser):
