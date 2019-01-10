@@ -6,7 +6,7 @@ from .exceptions import (
 
 
 def classes():
-    subclasses = [s for s in BaseParser.__subclasses__()]
+    subclasses = [s for s in BaseParser.__subclasses__() if s.node_class]
     return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
 
 
@@ -251,53 +251,31 @@ class RangeParser(BaseParser):
         return (start, end)
 
 
-class FloatParser(BaseParser):
+class LiteralParser:
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.node_class.id):
+            return
+        node = self.node_class()
+        node.value = self.stream.read().value
+        return node
+
+
+class FloatParser(BaseParser, LiteralParser):
     node_class = nodes.FloatNode
     priority = 1
 
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("float"):
-            return
-        node = self.node_class()
-        node.value = self.stream.read().value
-        return node
 
-
-class IntParser(BaseParser):
+class IntParser(BaseParser, LiteralParser):
     node_class = nodes.IntNode
 
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("int"):
-            return
-        node = self.node_class()
-        node.value = self.stream.read().value
-        return node
 
-
-class StringParser(BaseParser):
+class StringParser(BaseParser, LiteralParser):
     node_class = nodes.StringNode
 
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("string"):
-            return
-        node = self.node_class()
-        node.value = self.stream.read().value
-        return node
 
-
-class BooleanParser(BaseParser):
+class BooleanParser(BaseParser, LiteralParser):
     node_class = nodes.BooleanNode
-
-    @indexed
-    def parse(self):
-        if not self.stream.is_next("boolean"):
-            return
-        node = self.node_class()
-        node.value = self.stream.read().value
-        return node
 
 
 class WildcardParser(BaseParser):
