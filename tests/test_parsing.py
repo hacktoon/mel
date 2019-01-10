@@ -52,7 +52,7 @@ def test_scope_index():
         ("!flag -0.75"),
         ("#id -.099999"),
         ("-0.75e10/55 etc"),
-        ("+1.45e-10"),
+        ("1.45e-10"),
         ("true  false"),
         ('"string"'),
         ("'string'"),

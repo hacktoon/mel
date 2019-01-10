@@ -38,7 +38,7 @@ class StringToken(Token):
 
 class FloatToken(Token):
     id = "float"
-    regex = re.compile(r"[-+]?\d*\.\d+([eE][-+]?\d+)?\b")
+    regex = re.compile(r"-?\d*\.\d+([eE][-+]?\d+)?\b")
     priority = 2
 
     @property
@@ -48,7 +48,7 @@ class FloatToken(Token):
 
 class IntToken(Token):
     id = "int"
-    regex = re.compile(r"[-+]?\d+\b")
+    regex = re.compile(r"-?\d+\b")
     priority = 1
 
     @property
