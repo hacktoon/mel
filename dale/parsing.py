@@ -42,12 +42,6 @@ class BaseParser:
         }
 
     def parse_object(self):
-        node = self._parse_object()
-        if node:
-            self._parse_subnode(node)
-        return node
-
-    def _parse_object(self):
         methods = [
             self.parse_range,
             self.parse_float,
@@ -66,11 +60,14 @@ class BaseParser:
             self.parse_list,
             self.parse_wildcard,
         ]
+        node = None
         for method in methods:
             node = method()
             if node:
-                return node
-        return
+                break
+        if node:
+            self._parse_subnode(node)
+        return node
 
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):
@@ -81,6 +78,13 @@ class BaseParser:
             raise SubNodeError(separator.index[0])
         node.add(obj)
         self._parse_subnode(obj)
+
+    def parse_objects(self, node):
+        while True:
+            obj = self.parse_object()
+            if not obj:
+                break
+            node.add(obj)
 
     def __getattr__(self, attr_name):
         if not attr_name.startswith("parse_"):
@@ -107,7 +111,7 @@ class StructParser:
         node = self.node_class()
         self.stream.read(start_token)
         self._parse_key(node)
-        self._parse_objects(node)
+        self.parse_objects(node)
         self.stream.read(end_token)
         return node
 
@@ -117,19 +121,12 @@ class StructParser:
         else:
             node.key = self.parse_object()
 
-    def _parse_objects(self, scope):
-        while True:
-            obj = self.parse_object()
-            if not obj:
-                break
-            scope.add(obj)
-
 
 class RootParser(BaseParser, StructParser):
     @indexed
     def parse(self):
         node = nodes.RootNode()
-        self._parse_objects(node)
+        self.parse_objects(node)
         if not self.stream.is_eof():
             index = self.stream.peek().index[0]
             raise UnexpectedTokenError(index)
