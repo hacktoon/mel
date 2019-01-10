@@ -5,6 +5,11 @@ from .exceptions import (
 )
 
 
+def classes():
+    subclasses = [s for s in BaseParser.__subclasses__()]
+    return sorted(subclasses, key=lambda cls: cls.priority, reverse=True)
+
+
 def indexed(method):
     def surrogate(self):
         first = self.stream.peek()
@@ -21,7 +26,7 @@ def indexed(method):
 
 class BaseParser:
     priority = 0
-    metaparser = False
+    node_class = None
 
     def __init__(self, stream):
         self.stream = stream
@@ -100,8 +105,6 @@ class BaseParser:
 
 
 class Parser(BaseParser):
-    metaparser = True
-
     @indexed
     def parse(self):
         node = nodes.RootNode()
@@ -143,6 +146,7 @@ class QueryParser(BaseParser, StructParser):
 
 
 class ListParser(BaseParser):
+    node_class = nodes.ListNode
     delimiters = "[]"
 
     @indexed
@@ -150,7 +154,7 @@ class ListParser(BaseParser):
         start_token, end_token = self.delimiters
         if not self.stream.is_next(start_token):
             return
-        node = nodes.ListNode()
+        node = self.node_class()
         self.stream.read(start_token)
         self._parse_items(node)
         self.stream.read(end_token)
@@ -165,11 +169,13 @@ class ListParser(BaseParser):
 
 
 class NameParser(BaseParser):
+    node_class = nodes.NameNode
+
     @indexed
     def parse(self):
         if not self.stream.is_next("name"):
             return
-        node = nodes.NameNode()
+        node = self.node_class()
         node.name = self.stream.read("name").value
         return node
 
@@ -186,36 +192,37 @@ class PrefixedNameParser:
 
 
 class AttributeParser(BaseParser, PrefixedNameParser):
-    prefix = "@"
     node_class = nodes.AttributeNode
+    prefix = "@"
 
 
 class FlagParser(BaseParser, PrefixedNameParser):
-    prefix = "!"
     node_class = nodes.FlagNode
+    prefix = "!"
 
 
 class UIDParser(BaseParser, PrefixedNameParser):
-    prefix = "#"
     node_class = nodes.UIDNode
+    prefix = "#"
 
 
 class VariableParser(BaseParser, PrefixedNameParser):
-    prefix = "$"
     node_class = nodes.VariableNode
+    prefix = "$"
 
 
 class FormatParser(BaseParser, PrefixedNameParser):
-    prefix = "%"
     node_class = nodes.FormatNode
+    prefix = "%"
 
 
 class DocParser(BaseParser, PrefixedNameParser):
-    prefix = "?"
     node_class = nodes.DocNode
+    prefix = "?"
 
 
 class RangeParser(BaseParser):
+    node_class = nodes.RangeNode
     priority = 2
 
     @indexed
@@ -245,51 +252,60 @@ class RangeParser(BaseParser):
 
 
 class FloatParser(BaseParser):
+    node_class = nodes.FloatNode
     priority = 1
 
     @indexed
     def parse(self):
         if not self.stream.is_next("float"):
             return
-        node = nodes.FloatNode()
+        node = self.node_class()
         node.value = self.stream.read().value
         return node
 
 
 class IntParser(BaseParser):
+    node_class = nodes.IntNode
+
     @indexed
     def parse(self):
         if not self.stream.is_next("int"):
             return
-        node = nodes.IntNode()
+        node = self.node_class()
         node.value = self.stream.read().value
         return node
 
 
 class StringParser(BaseParser):
+    node_class = nodes.StringNode
+
     @indexed
     def parse(self):
         if not self.stream.is_next("string"):
             return
-        node = nodes.StringNode()
+        node = self.node_class()
         node.value = self.stream.read().value
         return node
 
 
 class BooleanParser(BaseParser):
+    node_class = nodes.BooleanNode
+
     @indexed
     def parse(self):
         if not self.stream.is_next("boolean"):
             return
-        node = nodes.BooleanNode()
+        node = self.node_class()
         node.value = self.stream.read().value
         return node
 
 
 class WildcardParser(BaseParser):
+    node_class = nodes.WildcardNode
+
     @indexed
     def parse(self):
         if self.stream.is_next("*"):
             self.stream.read()
-            return nodes.WildcardNode()
+            return self.node_class()
         return
