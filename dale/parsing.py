@@ -220,11 +220,11 @@ class Parser:
     """
     LiteralParser -----------------------------
     """
-    @MetaParser.subparser(priority=1, hints="float")
+    @MetaParser.subparser(hints="float")
     def parse_float(self):
         return self._parse_literal(nodes.FloatNode)
 
-    @MetaParser.subparser(hints="int")
+    @MetaParser.subparser(priority=1, hints="int")
     def parse_int(self):
         return self._parse_literal(nodes.IntNode)
 
