@@ -72,26 +72,8 @@ class Parser:
 
     def parse_object(self):
         node = None
-        for parser_id in [
-            "range",
-            "float",
-            "int",
-            "string",
-            "boolean",
-            "name",
-            "flag",
-            "attribute",
-            "uid",
-            "variable",
-            "format",
-            "doc",
-            "wildcard",
-            "list",
-            "scope",
-            "query",
-        ]:
-            method = getattr(self, "parse_" + parser_id)
-            node = method()
+        for method in self._guess_subparsers():
+            node = method(self)
             if node:
                 break
         if node:
@@ -264,7 +246,7 @@ class Parser:
     """
     WildcardParser -----------------------------
     """
-    @MetaParser.subparser(hints="wirldcard")
+    @MetaParser.subparser(hints="*")
     def parse_wildcard(self):
         if self.stream.is_next("*"):
             self.stream.read()
