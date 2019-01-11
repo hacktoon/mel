@@ -45,9 +45,8 @@ class MetaParser:
             return surrogate
         return decorator
 
-    def subparsers(self):
-        token_id = self.parser.stream.peek().id
-        return self._hints[token_id]
+    def get_parsers_for(self, hint):
+        return self._hints[hint]
 
 
 class Parser:
@@ -98,6 +97,10 @@ class Parser:
         if node:
             self._parse_subnode(node)
         return node
+
+    def _get_parsers(self):
+        hint = self.stream.peek().id
+        return self.meta.get_parsers_for(hint)
 
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):
