@@ -35,14 +35,16 @@ class _MetaParser:
         self.__init__hints()
 
     def __init__hints(self):
-        def sort_parsers(parsers):
+        def sort_by_priority(parsers):
             return sorted(parsers, key=lambda p: p._priority, reverse=True)
 
         for method in self.parser.__class__.__dict__.values():
             if not hasattr(method, "_subparser") or method._root:
                 continue
             for token_id in method._hints:
-                self._hints[token_id].append(method)
+                hints = self._hints[token_id]
+                hints.append(method)
+                self._hints[token_id] = sort_by_priority(hints)
 
     def subparsers(self):
         token_id = self.parser.stream.peek().id
@@ -50,9 +52,9 @@ class _MetaParser:
 
 
 class Parser:
-    def __init__(self, stream):
+    def __init__(self, stream, metaparser=_MetaParser):
         self.stream = stream
-        self.meta = _MetaParser(self)
+        self.meta = metaparser(self)
 
     @_MetaParser_builder(root=True)
     def parse(self):
