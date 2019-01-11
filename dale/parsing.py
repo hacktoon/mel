@@ -18,14 +18,15 @@ class MetaParser:
         def is_subparser(method):
             return hasattr(method, "_subparser") and not method._root
 
-        all_methods = self.parser.__class__.__dict__.values()
-        parsers = [m for m in all_methods if is_subparser(m)]
+        attrs = self.parser.__class__.__dict__.values()
+        parsers = [attr for attr in attrs if is_subparser(attr)]
         parsers.sort(key=lambda p: p._priority, reverse=True)
+
         for parser in parsers:
             for token_id in parser._hints:
                 self._hints[token_id].append(parser)
 
-    def guess_subparsers(self, hint):
+    def get_subparsers_by_hint(self, hint):
         return self._hints[hint]
 
     @staticmethod
@@ -80,16 +81,14 @@ class Parser:
 
     def parse_object(self):
         node = None
-        for method in self._guess_subparsers():
-            node = method(self)
-            if node:
-                self._parse_subnode(node)
-                break
-        return node
-
-    def _guess_subparsers(self):
         hint = self.stream.peek().id
-        return self.meta.guess_subparsers(hint)
+        for parser in self.meta.get_subparsers_by_hint(hint):
+            node = parser(self)
+            if not node:
+                continue
+            self._parse_subnode(node)
+            break
+        return node
 
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):
