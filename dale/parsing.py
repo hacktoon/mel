@@ -29,7 +29,18 @@ class MetaParser:
         return self._hints[hint]
 
     @staticmethod
-    def subparser(hints=None, priority=0, root=False):
+    def subparser(root=False, hints=None, priority=0):
+        def mark_subparser(method):
+            method._subparser = True
+            method._priority = priority
+            method._root = root
+            method._hints = []
+            if isinstance(hints, list):
+                method._hints = hints
+            elif isinstance(hints, str):
+                method._hints = [hints]
+            return method
+
         def decorator(method):
             @wraps(method)
             def surrogate(parser):
@@ -41,11 +52,7 @@ class MetaParser:
                 node.index = first.index[0], last.index[1]
                 node.text = parser.stream.text
                 return node
-            surrogate._subparser = True
-            surrogate._priority = priority
-            surrogate._root = root
-            surrogate._hints = hints if isinstance(hints, list) else [hints]
-            return surrogate
+            return mark_subparser(surrogate)
         return decorator
 
 
@@ -192,7 +199,7 @@ class Parser:
     """
     RangeParser -----------------------------
     """
-    @MetaParser.subparser(priority=2, hints=["int", ".."])
+    @MetaParser.subparser(hints=["int", ".."], priority=2)
     def parse_range(self):
         _range = self._parse_range_values()
         if not _range:
@@ -224,7 +231,7 @@ class Parser:
     def parse_float(self):
         return self._parse_literal(nodes.FloatNode)
 
-    @MetaParser.subparser(priority=1, hints="int")
+    @MetaParser.subparser(hints="int", priority=1)
     def parse_int(self):
         return self._parse_literal(nodes.IntNode)
 
