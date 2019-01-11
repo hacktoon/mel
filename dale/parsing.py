@@ -30,17 +30,6 @@ class MetaParser:
 
     @staticmethod
     def subparser(root=False, hints=None, priority=0):
-        def mark_subparser(method):
-            method._subparser = True
-            method._priority = priority
-            method._root = root
-            method._hints = []
-            if isinstance(hints, list):
-                method._hints = hints
-            elif isinstance(hints, str):
-                method._hints = [hints]
-            return method
-
         def decorator(method):
             @wraps(method)
             def surrogate(parser):
@@ -53,6 +42,18 @@ class MetaParser:
                 node.text = parser.stream.text
                 return node
             return mark_subparser(surrogate)
+
+        def mark_subparser(method):
+            method._subparser = True
+            method._priority = priority
+            method._root = root
+            method._hints = []
+            if isinstance(hints, list):
+                method._hints = hints
+            elif isinstance(hints, str):
+                method._hints = [hints]
+            return method
+
         return decorator
 
 
