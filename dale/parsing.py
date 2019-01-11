@@ -1,4 +1,4 @@
-import functools
+from collections import defaultdict
 
 from . import nodes
 from .exceptions import (
@@ -7,24 +7,61 @@ from .exceptions import (
 )
 
 
-def subparser(method):
-    def surrogate(self):
-        first = self.stream.peek()
-        node = method(self)
-        if not node:
-            return
-        last = self.stream.peek(-1)
-        node.index = first.index[0], last.index[1]
-        node.text = self.stream.text
-        return node
+def _MetaParser_builder(hints=None, priority=0, root=False):
+    def decorator(method):
+        def surrogate(parser):
+            first = parser.stream.peek()
+            node = method(parser)
+            if not node:
+                return
+            last = parser.stream.peek(-1)
+            node.index = first.index[0], last.index[1]
+            node.text = parser.stream.text
+            return node
+        surrogate._subparser = True
+        surrogate.__name__ = method.__name__
+        surrogate._priority = priority
+        surrogate._root = root
+        surrogate._hints = hints if isinstance(hints, list) else [hints]
+        return surrogate
+    return decorator
 
-    return surrogate
+
+class _MetaParser:
+    def __init__(self, parser):
+        self.parser = parser
+        self._hints = defaultdict(list)
+
+        self.__init__hints()
+
+    def __init__hints(self):
+        def sort_parsers(parsers):
+            return sorted(parsers, key=lambda p: p._priority, reverse=True)
+
+        for method in self.parser.__class__.__dict__.values():
+            if not hasattr(method, "_subparser") or method._root:
+                continue
+            for token_id in method._hints:
+                self._hints[token_id].append(method)
+
+    def subparsers(self):
+        token_id = self.parser.stream.peek().id
+        return self._hints[token_id]
 
 
-class BaseParser:
+class Parser:
     def __init__(self, stream):
         self.stream = stream
-        self.subparsers = {}
+        self.meta = _MetaParser(self)
+
+    @_MetaParser_builder(root=True)
+    def parse(self):
+        node = nodes.RootNode()
+        self.parse_objects(node)
+        if not self.stream.is_eof():
+            index = self.stream.peek().index[0]
+            raise UnexpectedTokenError(index)
+        return node
 
     def parse_objects(self, node):
         while True:
@@ -36,23 +73,23 @@ class BaseParser:
     def parse_object(self):
         node = None
         for parser_id in [
-                "range",
-                "float",
-                "int",
-                "string",
-                "boolean",
-                "name",
-                "flag",
-                "attribute",
-                "uid",
-                "variable",
-                "format",
-                "doc",
-                "wildcard",
-                "list",
-                "scope",
-                "query",
-            ]:
+            "range",
+            "float",
+            "int",
+            "string",
+            "boolean",
+            "name",
+            "flag",
+            "attribute",
+            "uid",
+            "variable",
+            "format",
+            "doc",
+            "wildcard",
+            "list",
+            "scope",
+            "query",
+        ]:
             method = getattr(self, "parse_" + parser_id)
             node = method()
             if node:
@@ -71,25 +108,14 @@ class BaseParser:
         node.add(obj)
         self._parse_subnode(obj)
 
-
-class Parser(BaseParser):
-    @subparser
-    def parse(self):
-        node = nodes.RootNode()
-        self.parse_objects(node)
-        if not self.stream.is_eof():
-            index = self.stream.peek().index[0]
-            raise UnexpectedTokenError(index)
-        return node
-
     """
     StructParser -----------------------------
     """
-    @subparser
+    @_MetaParser_builder(hints="(")
     def parse_scope(self):
         return self._parse_struct("()", nodes.ScopeNode)
 
-    @subparser
+    @_MetaParser_builder(hints="{")
     def parse_query(self):
         return self._parse_struct("{}", nodes.QueryNode)
 
@@ -113,7 +139,7 @@ class Parser(BaseParser):
     """
     ListParser -----------------------------
     """
-    @subparser
+    @_MetaParser_builder(hints="[")
     def parse_list(self):
         start_token, end_token = "[]"
         if not self.stream.is_next(start_token):
@@ -134,7 +160,7 @@ class Parser(BaseParser):
     """
     NameParser -----------------------------
     """
-    @subparser
+    @_MetaParser_builder(hints="name")
     def parse_name(self):
         if not self.stream.is_next("name"):
             return
@@ -145,27 +171,27 @@ class Parser(BaseParser):
     """
     PrefixedNameParser -----------------------------
     """
-    @subparser
+    @_MetaParser_builder(hints="@")
     def parse_attribute(self):
         return self._parse_prefixed_name("@", nodes.AttributeNode)
 
-    @subparser
+    @_MetaParser_builder(hints="!")
     def parse_flag(self):
         return self._parse_prefixed_name("!", nodes.FlagNode)
 
-    @subparser
+    @_MetaParser_builder(hints="#")
     def parse_uid(self):
         return self._parse_prefixed_name("#", nodes.UIDNode)
 
-    @subparser
+    @_MetaParser_builder(hints="$")
     def parse_variable(self):
         return self._parse_prefixed_name("$", nodes.VariableNode)
 
-    @subparser
+    @_MetaParser_builder(hints="%")
     def parse_format(self):
         return self._parse_prefixed_name("%", nodes.FormatNode)
 
-    @subparser
+    @_MetaParser_builder(hints="?")
     def parse_doc(self):
         return self._parse_prefixed_name("?", nodes.DocNode)
 
@@ -180,8 +206,7 @@ class Parser(BaseParser):
     """
     RangeParser -----------------------------
     """
-    #@priority(2)
-    @subparser
+    @_MetaParser_builder(priority=2, hints=["int", ".."])
     def parse_range(self):
         _range = self._parse_range_values()
         if not _range:
@@ -209,19 +234,19 @@ class Parser(BaseParser):
     """
     LiteralParser -----------------------------
     """
-    @subparser
-    def parse_int(self):
-        return self._parse_literal(nodes.IntNode)
-
-    @subparser
+    @_MetaParser_builder(priority=1, hints="float")
     def parse_float(self):
         return self._parse_literal(nodes.FloatNode)
 
-    @subparser
+    @_MetaParser_builder(hints="int")
+    def parse_int(self):
+        return self._parse_literal(nodes.IntNode)
+
+    @_MetaParser_builder(hints="string")
     def parse_string(self):
         return self._parse_literal(nodes.StringNode)
 
-    @subparser
+    @_MetaParser_builder(hints="boolean")
     def parse_boolean(self):
         return self._parse_literal(nodes.BooleanNode)
 
@@ -235,7 +260,7 @@ class Parser(BaseParser):
     """
     WildcardParser -----------------------------
     """
-    @subparser
+    @_MetaParser_builder(hints="wirldcard")
     def parse_wildcard(self):
         if self.stream.is_next("*"):
             self.stream.read()
