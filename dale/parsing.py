@@ -82,9 +82,8 @@ class Parser:
         for method in self._guess_subparsers():
             node = method(self)
             if node:
+                self._parse_subnode(node)
                 break
-        if node:
-            self._parse_subnode(node)
         return node
 
     def _guess_subparsers(self):
