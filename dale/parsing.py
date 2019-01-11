@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import wraps
 
 from . import nodes
 from .exceptions import (
@@ -29,6 +30,7 @@ class MetaParser:
     @staticmethod
     def builder(hints=None, priority=0, root=False):
         def decorator(method):
+            @wraps(method)
             def surrogate(parser):
                 first = parser.stream.peek()
                 node = method(parser)
