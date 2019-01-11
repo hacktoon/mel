@@ -24,9 +24,7 @@ def eval(text, context_class=Context):
     return tree.eval(context)
 
 
-def test_empty_input_string():
-    node = create_tree("")
-    assert node.id == "root"
+#  METAPARSER TESTS
 
 
 def test_node_children_index():
@@ -43,6 +41,14 @@ def test_list_index():
 def test_scope_index():
     scope = create_tree("(a 2)")
     assert scope.index == (0, 5)
+
+
+#  REPR TESTS
+
+
+def test_empty_input_string():
+    node = create_tree("")
+    assert node.id == "root"
 
 
 @pytest.mark.parametrize(
