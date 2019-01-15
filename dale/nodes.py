@@ -64,7 +64,7 @@ class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.attributes = {
+        self.attributes = {  # TODO: rename to props
             "flag": {},
             "uid": {},
             "attribute": {},

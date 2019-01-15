@@ -14,32 +14,36 @@ def create_parser(text):
     return Parser(stream)
 
 
-def create_tree(text):
+def parse(text):
     return create_parser(text).parse()
+
+
+def parse_one(text):
+    return create_parser(text).parse()[0]
 
 
 def eval(text, context_class=Context):
     context = context_class()
-    context.tree = tree = create_tree(text)
+    context.tree = tree = parse(text)
     return tree.eval(context)
 
 
-#  METAPARSER TESTS
+#  NODE INDEX TESTS
 
 
 def test_node_children_index():
-    node = create_tree("44 12")
+    node = parse("44 12")
     assert node[0].index == (0, 2)
     assert node[1].index == (3, 5)
 
 
 def test_list_index():
-    _list = create_tree("[1, 2]")
-    assert _list.index == (0, 6)
+    node = parse("[1, 2]")
+    assert node.index == (0, 6)
 
 
 def test_scope_index():
-    scope = create_tree("(a 2)")
+    scope = parse("(a 2)")
     assert scope.index == (0, 5)
 
 
@@ -47,8 +51,9 @@ def test_scope_index():
 
 
 def test_empty_input_string():
-    node = create_tree("")
+    node = parse("")
     assert node.id == "root"
+    assert len(node) == 0
 
 
 @pytest.mark.parametrize(
@@ -67,7 +72,7 @@ def test_empty_input_string():
     ],
 )
 def test_string_representation(test_input):
-    tree = create_tree(test_input)
+    tree = parse(test_input)
     assert str(tree) == test_input
 
 
@@ -83,119 +88,122 @@ def test_string_representation(test_input):
     ],
 )
 def test_object_representation(test_input, expected):
-    tree = create_tree(test_input)
-    assert repr(tree[0]) == expected
+    node = parse_one(test_input)
+    assert repr(node) == expected
 
 
 #  LIST TESTS
 
 
 def test_empty_list():
-    parser = create_parser("[]")
-    node = parser.parse_list()
+    node = parse_one("[]")
     assert len(node) == 0
 
 
-def test_one_sized_list_node_always_returns_list():
-    parser = create_parser("[3]")
-    node = parser.parse_list()
+def test_list_id():
+    node = parse_one("[2, 4]")
     assert node.id == "list"
+
+
+def test_one_sized_list():
+    node = parse_one("[3]")
+    assert len(node) == 1
+
+
+def test_multi_sized_list():
+    node = parse_one("[3 @name $cache]")
+    assert len(node) == 3
 
 
 #  SUBNODE TESTS
 
 
 def test_path_creates_subnode():
-    parser = create_parser("abc/$def")
-    _object = parser.parse_object()
-    assert _object.id == "name"
-    assert _object[0].id == "variable"
+    node = parse_one("abc/$def")
+    assert node.id == "name"
+    assert node[0].id == "variable"
 
 
 def test_bigger_subnode_path():
-    parser = create_parser("abc/$def/#pid/!active")
-    _object = parser.parse_object()
-    assert _object.id == "name"
-    assert _object[0].id == "variable"
-    assert _object[0][0].id == "uid"
-    assert _object[0][0][0].id == "flag"
+    node = parse_one("abc/$def/#pid/!active")
+    assert node.id == "name"
+    assert node[0].id == "variable"
+    assert node[0][0].id == "uid"
+    assert node[0][0][0].id == "flag"
 
 
 def test_unexpected_finished_chained_value_error():
     with pytest.raises(SubNodeError):
-        create_tree("name/")
+        parse("name/")
 
 
 def test_unexpected_separator_error():
     with pytest.raises(UnexpectedTokenError):
-        create_tree("/")
+        parse("/")
 
 
 #  SCOPE TESTS
 
 
-def test_scope_key_assumes_first_value():
-    parser = create_parser("(foo 42)")
-    node = parser.parse_scope()
-    assert str(node.key) == "foo"
-
-
 def test_empty_scope():
-    parser = create_parser("()")
-    node = parser.parse_scope()
+    node = parse_one("()")
     assert not node.key
     assert len(node) == 0
 
 
-def test_scope_children():
-    parser = create_parser("(a (b 2) 4 'etc')")
-    node = parser.parse_scope()
+def test_scope_with_key_and_no_value():
+    node = parse_one("(a)")
+    assert str(node.key) == "a"
+    assert len(node) == 0
+
+
+def test_scope_key_assumes_first_value():
+    node = parse_one("(foo 42)")
+    assert str(node.key) == "foo"
+
+
+def test_scope_with_many_values():
+    node = parse_one("(a (b 2) 4 'etc')")
     assert str(node[0]) == "(b 2)"
     assert str(node[1]) == "4"
     assert str(node[2]) == "'etc'"
 
 
 def test_scope_key_with_attribute():
-    parser = create_parser("(a (@b 2))")
-    node = parser.parse_scope()
+    node = parse_one("(a (@b 2))")
     assert str(node.attributes["attribute"]["b"]) == "(@b 2)"
 
 
 def test_scope_key_with_doc():
-    parser = create_parser("(bar (?help 'foo'))")
-    node = parser.parse_scope()
+    node = parse_one("(bar (?help 'foo'))")
     assert node.attributes["doc"]["help"][0].value == "foo"
 
 
 def test_scope_key_with_multi_properties():
-    parser = create_parser("(foo (%bar 2) (#id 48764))")
-    node = parser.parse_scope()
+    node = parse_one("(foo (%bar 2) (#id 48764))")
     assert str(node.attributes["format"]["bar"]) == "(%bar 2)"
     assert str(node.attributes["uid"]["id"]) == "(#id 48764)"
 
 
 def test_scope_child_values():
-    parser = create_parser("(foo (@bar 2, 4))")
-    node = parser.parse_scope()
-    property = node.attributes["attribute"]["bar"]
-    assert str(property[0]) == "2"
-    assert str(property[1]) == "4"
+    node = parse_one("(foo (@bar 2, 4))")
+    attr = node.attributes["attribute"]["bar"]
+    assert str(attr[0]) == "2"
+    assert str(attr[1]) == "4"
 
 
 def test_unclosed_scope_raises_error():
     with pytest.raises(UnexpectedTokenError):
-        create_tree("(")
+        parse("(")
 
 
 def test_scope_flag_property():
-    parser = create_parser("(foo !active)")
-    node = parser.parse_scope()
+    node = parse_one("(foo !active)")
     assert str(node.attributes["flag"]["active"]) == "!active"
 
 
 def test_scope_uid_property():
-    parser = create_parser("(foo (#id 22))")
-    node = parser.parse_scope()
+    node = parse_one("(foo (#id 22))")
     assert str(node.attributes["uid"]["id"]) == "(#id 22)"
 
 
@@ -209,31 +217,28 @@ def test_scope_properties():
         (%short child)
     )
     """
-    parser = create_parser(text)
-    node = parser.parse_scope()
+    node = parse_one(text)
     attrs = node.attributes
     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
     assert str(attrs["attribute"]["child"]) == "(@child {bar 2})"
     assert str(attrs["doc"]["help"]) == '(?help "A object")'
     assert str(attrs["variable"]["ref"]) == "($ref {!active})"
+    assert str(attrs["format"]["short"]) == "(%short child)"
 
 
 def test_null_scope_key():
-    parser = create_parser("(: 'test')")
-    node = parser.parse_scope()
+    node = parse_one("(: 'test')")
     assert not node.key
 
 
 def test_nested_scope_with_null_key():
-    parser = create_parser("(foo (: 56.7) )")
-    node = parser.parse_scope()
-    assert node[0].id == "scope"
+    node = parse_one("(foo (: 56.7) )")
+    assert node.id == "scope"
     assert node.attributes["attribute"] == {}
 
 
 def test_scope_with_wildcard_key():
-    parser = create_parser("(* abc)")
-    node = parser.parse_scope()
+    node = parse_one("(* abc)")
     assert node.id == "scope"
     assert node.key.id == "wildcard"
 
@@ -242,57 +247,50 @@ def test_scope_with_wildcard_key():
 
 
 def test_query_key_assumes_first_value():
-    parser = create_parser("{abc 42}")
-    node = parser.parse_query()
+    node = parse_one("{abc 42}")
     assert str(node.key) == "abc"
+    assert node[0].value == 42
 
 
-#  ATTRIBUTE TESTS
+#  PROPERTIES TESTS
 
 
 def test_name_not_found_after_prefix():
     with pytest.raises(UnexpectedTokenError):
-        create_tree("(# )")
+        parse("(# )")
 
 
 #  RANGE TESTS
 
 
-def test_range_type():
-    parser = create_parser("2..4")
-    node = parser.parse_range()
+def test_range_id():
+    node = parse_one("2..4")
     assert node.id == "range"
 
 
 def test_range_limit():
-    parser = create_parser("0..10")
-    node = parser.parse_range()
+    node = parse_one("0..10")
     assert node[0] == 0
     assert node[1] == 10
 
 
 def test_range_without_specific_end():
-    parser = create_parser("42..")
-    node = parser.parse_range()
+    node = parse_one("42..")
     assert node[0] == 42
     assert node[1] is None
 
 
 def test_range_without_specific_start():
-    parser = create_parser("..33")
-    node = parser.parse_range()
+    node = parse_one("..33")
     assert node[0] is None
     assert node[1] == 33
 
 
 def test_range_must_have_at_least_one_int():
     with pytest.raises(UnexpectedTokenError):
-        create_tree("..")
+        parse("..")
 
 
 def test_range_only_accepts_integers():
-    parser = create_parser("3.4..")
-    node = parser.parse_float()
-    assert node.value == 3.4
     with pytest.raises(UnexpectedTokenError):
-        parser.parse_range()
+        parse("3.4..")
