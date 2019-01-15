@@ -269,9 +269,9 @@ def test_range_id():
 
 
 def test_range_limit():
-    node = parse_one("0..10")
+    node = parse_one("0..-10")
     assert node[0] == 0
-    assert node[1] == 10
+    assert node[1] == -10
 
 
 def test_range_without_specific_end():
