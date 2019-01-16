@@ -192,7 +192,7 @@ class DocParser(PrefixedNameParser):
 class RangeParser(Parser):
     node = nodes.RangeNode
     hints = ["int", ".."]
-    priority = 2
+    priority = 1
 
     @indexed
     def parse(self):
@@ -238,7 +238,6 @@ class FloatParser(LiteralParser):
 class IntParser(LiteralParser):
     node = nodes.IntNode
     hints = ["int"]
-    priority = 1
 
 
 class StringParser(LiteralParser):
