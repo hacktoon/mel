@@ -25,7 +25,6 @@ def indexed(method):
 class Parser:
     subparsers = defaultdict(list)
     priority = 0
-    meta = False
     hints = []
 
     def __init__(self, stream):
