@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/hacktoon/dale.svg?branch=master)](https://travis-ci.org/hacktoon/dale)
-
 # DALE
 
 Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
@@ -8,7 +6,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 ## Main objectives
  * Provide a uniform interface for building webapps
  * Build and represent different types of information
- * Automatize data generation with different outputs
+ * Automate data generation for different formats
 
 ---
 
@@ -16,7 +14,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 
 ### Dependencies
 
- * Python 3.x
+ * Python 3.6+
  * Pip
  * GNU Make
  * Docker (optional)
