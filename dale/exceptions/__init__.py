@@ -14,6 +14,12 @@ class UnexpectedTokenError(DaleError):
         super().__init__("This token is not expected here.")
 
 
+class UnexpectedEOFError(DaleError):
+    def __init__(self, index):
+        self.index = index
+        super().__init__("Reached end of text while parsing.")
+
+
 class SubNodeError(DaleError):
     def __init__(self, index):
         self.index = index

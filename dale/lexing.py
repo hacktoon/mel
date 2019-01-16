@@ -1,5 +1,9 @@
 from . import tokens
-from .exceptions import InvalidSyntaxError, UnexpectedTokenError
+from .exceptions import (
+    InvalidSyntaxError,
+    UnexpectedTokenError,
+    UnexpectedEOFError
+)
 
 
 class Lexer:
@@ -39,6 +43,8 @@ class TokenStream:
     def read(self, token_id=None):
         current = self.peek()
         if token_id and not self.is_next(token_id):
+            if self.is_eof():
+                raise UnexpectedEOFError(self.index)
             raise UnexpectedTokenError(current.index[0])
         self.index += 1
         return current
