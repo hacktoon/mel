@@ -62,10 +62,9 @@ class Parser:
         hint = self.stream.peek().id
         for parser in self.get_parsers(hint):
             node = parser.parse()
-            if not node:
-                continue
-            self._parse_subnode(node)
-            break
+            if node:
+                self._parse_subnode(node)
+                break
         return node
 
     def _parse_subnode(self, node):
