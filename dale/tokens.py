@@ -120,6 +120,34 @@ class EqualsToken(Token):
     regex = re.compile("=")
 
 
+class DifferentToken(Token):
+    id = "!="
+    regex = re.compile("!=")
+    priority = 1
+
+
+class GreaterThanToken(Token):
+    id = ">"
+    regex = re.compile(">")
+
+
+class GreaterThanEqualToken(Token):
+    id = ">="
+    regex = re.compile(">=")
+    priority = 1
+
+
+class LessThanToken(Token):
+    id = "<"
+    regex = re.compile("<")
+
+
+class LessThanEqualToken(Token):
+    id = "<="
+    regex = re.compile("<=")
+    priority = 1
+
+
 class NullKeyToken(Token):
     id = ":"
     regex = re.compile(":")
