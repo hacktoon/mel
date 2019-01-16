@@ -50,6 +50,12 @@ def test_scope_index():
 #  REPR TESTS
 
 
+def test_whitespace_only():
+    node = parse("   ,,,\n  , , \t ")
+    assert node.id == "root"
+    assert len(node) == 0
+
+
 def test_empty_input_string():
     node = parse("")
     assert node.id == "root"
