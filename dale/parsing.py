@@ -145,7 +145,7 @@ class NameParser(Parser):
 class PrefixedNameParser(Parser):
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.prefix):
+        if not self.stream.is_next(self.hints[0]):
             return
         self.stream.read()
         node = self.node()
@@ -156,37 +156,31 @@ class PrefixedNameParser(Parser):
 class AttributeParser(PrefixedNameParser):
     node = nodes.AttributeNode
     hints = ["@"]
-    prefix = "@"
 
 
 class FlagParser(PrefixedNameParser):
     node = nodes.FlagNode
     hints = ["!"]
-    prefix = "!"
 
 
 class UIDParser(PrefixedNameParser):
     node = nodes.UIDNode
     hints = ["#"]
-    prefix = "#"
 
 
 class VariableParser(PrefixedNameParser):
     node = nodes.VariableNode
     hints = ["$"]
-    prefix = "$"
 
 
 class FormatParser(PrefixedNameParser):
     node = nodes.FormatNode
     hints = ["%"]
-    prefix = "%"
 
 
 class DocParser(PrefixedNameParser):
     node = nodes.DocNode
     hints = ["?"]
-    prefix = "?"
 
 
 class RangeParser(Parser):
