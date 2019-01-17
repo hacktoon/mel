@@ -30,11 +30,6 @@ class Parser:
     def __init__(self, stream):
         self.stream = stream
 
-    @classmethod
-    def __init_subclass__(cls):
-        for hint in cls.hints:
-            Parser.subparsers[hint].append(cls)
-
     @functools.lru_cache()
     def get_parsers(self, hint):
         classes = Parser.subparsers[hint]
@@ -44,7 +39,7 @@ class Parser:
     @indexed
     def parse(self):
         node = nodes.RootNode()
-        self.parse_objects(node)
+        self.parse_expressions(node)
         if not self.stream.is_eof():
             token = self.stream.peek()
             raise UnexpectedTokenError(token.index[0])
@@ -65,7 +60,8 @@ class Parser:
     def parse_object(self):
         node = None
         token = self.stream.peek()
-        for parser in self.get_parsers(token.id):
+        for cls in ObjectParser.subparsers[token.id]:
+            parser = cls(self.stream)
             node = parser.parse()
             if node:
                 self._parse_subnode(node)
@@ -92,6 +88,13 @@ class Parser:
             if node:
                 return node
         return
+
+    def parse_expressions(self, node):
+        while True:
+            exp = self.parse_expression()
+            if not exp:
+                break
+            node.add(exp)
 
     def parse_objects(self, node):
         while True:
@@ -128,7 +131,12 @@ class EqualParser(RelationParser):
 
 
 class ObjectParser(Parser):
-    pass
+    subparsers = defaultdict(list)
+
+    @classmethod
+    def __init_subclass__(cls):
+        for hint in cls.hints:
+            ObjectParser.subparsers[hint].append(cls)
 
 
 class StructParser(ObjectParser):
@@ -139,7 +147,7 @@ class StructParser(ObjectParser):
         node = self.node()
         self.stream.read(start_id)
         self._parse_key(node)
-        self.parse_objects(node)
+        self.parse_expressions(node)
         self.stream.read(end_id)
         return node
 
