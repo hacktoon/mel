@@ -16,8 +16,6 @@ class Lexer:
         tokens = []
         while self.index < len(self.text):
             token = self._build_token()
-            if not token:
-                raise InvalidSyntaxError(self.index)
             self.index += len(token)
             if not token.skip:
                 tokens.append(token)
@@ -31,7 +29,7 @@ class Lexer:
             index = match.start(), match.end()
             token = Token(match.group(0), index)
             return token
-        return
+        raise InvalidSyntaxError(self.index)
 
 
 class TokenStream:
