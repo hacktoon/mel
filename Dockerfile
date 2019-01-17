@@ -1,12 +1,9 @@
 FROM python:3.6
 
 WORKDIR  /app
-
 COPY . /app
 
 RUN pip install --upgrade pip
-RUN pip install pipenv
-RUN pipenv install --system --deploy --ignore-pipfile
+RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "/app/cli.py"]
-
+ENTRYPOINT ["python", "/app/bin/dale"]
