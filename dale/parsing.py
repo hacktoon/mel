@@ -23,7 +23,6 @@ def indexed(method):
 
 
 class Parser:
-    subparsers = defaultdict(list)
     priority = 0
     hints = []
 
@@ -31,8 +30,8 @@ class Parser:
         self.stream = stream
 
     @functools.lru_cache()
-    def get_parsers(self, hint):
-        classes = Parser.subparsers[hint]
+    def get_subparsers(self, parser, hint):
+        classes = parser.subparsers[hint]
         sorted_cls = sorted(classes, key=lambda p: p.priority, reverse=True)
         return [cls(self.stream) for cls in sorted_cls]
 
@@ -60,8 +59,8 @@ class Parser:
     def parse_object(self):
         node = None
         token = self.stream.peek()
-        for cls in ObjectParser.subparsers[token.id]:
-            parser = cls(self.stream)
+        subparsers = self.get_subparsers(ObjectParser, token.id)
+        for parser in subparsers:
             node = parser.parse()
             if node:
                 self._parse_subnode(node)
@@ -81,9 +80,8 @@ class Parser:
     @indexed
     def parse_relation(self):
         token = self.stream.peek()
-        for cls in RelationParser.subparsers[token.id]:
-            # TODO cache parser
-            parser = cls(self.stream)
+        subparsers = self.get_subparsers(RelationParser, token.id)
+        for parser in subparsers:
             node = parser.parse()
             if node:
                 return node
@@ -155,7 +153,7 @@ class StructParser(ObjectParser):
         if self.stream.is_next(":"):
             self.stream.read()
         else:
-            node.key = self.parse_object() or nodes.NullNode()
+            node.key = self.parse_expression() or nodes.NullNode()
 
 
 class ScopeParser(StructParser):
