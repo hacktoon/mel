@@ -330,12 +330,14 @@ def test_range_only_accepts_integers():
 # RELATION TESTS
 
 
-def test_equal_relation_attributes():
-    node = parse_one("name = 'john'")
-    assert node.key.name == "name"
-    assert node.value.value == "john"
+def test_root_equal_relation_attributes():
+    root = parse("name = 'john'")
+    relation = root.props["attribute"]["name"]
+    assert relation.value.value == "john"
 
 
-def test_scope_relation_key():
+def test_scope_relation_attributes():
     node = parse_one("(person name = 'john')")
     assert node.key.name == "person"
+    relation = node.props["attribute"]["name"]
+    assert relation.value.value == "john"

@@ -83,6 +83,13 @@ class ScopeNode(Node):
         else:
             self._nodes.append(scope)
 
+    def _add_equal(self, relation):
+        if not relation.key:
+            self._nodes.append(relation)
+            return
+        key = "attribute" if relation.key.id == "name" else relation.key.id
+        self.props[key][relation.key.name] = relation
+
     def eval(self, context):
         return {
             "id": self.id,
