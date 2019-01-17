@@ -4,42 +4,37 @@
 
 ---
 
-Dale's syntax is based on a simple idea: a sequence of values. The general rules can be (partially) written as:
+Dale's syntax is based on a simple idea: a sequence of objects. The general rules can be (partially) written as:
 
 ```
-root        =  value*
+root          =  expression*
 
-value       =  ( number
-               | string
-               | boolean
-               | property
-               | flag
-               | variable
-               | format
-               | uid
-               | doc
-               | scope
-               | query
-               | list
-               | wildcard
-               ) ('/' value)*
+expression    =  relation | object
 
-number      =  int | float | range
+relation      =  object? sign object
+sign          =  "=" | "!=" | ">" | "<" | ">=" | "<="
 
-property    =  name
-flag        =  '!' name
-variable    =  '$' name
-format      =  '%' name
-uid         =  '#' name
-doc         =  '?' name
+object        =  object-list ('/' object)
+object-list   =  range | literal | name | prefixed-name | struct | list | wildcard
 
-scope       =  '(' key value* ')'
-query       =  '{' key value* '}'
-list        =  '[' value* ']'
+literal       =  int | float | string | boolean
 
-key         =  ':' | value
+prefixed-name =  flag | attribute | uid | variable | format | doc
+flag          =  '!' name
+attribute     =  '@' name
+uid           =  '#' name
+variable      =  '$' name
+format        =  '%' name
+doc           =  '?' name
 
-wildcard    =  '*'
+struct        =  scope | query
+scope         =  '(' key expression* ')'
+query         =  '{' key expression* '}'
+key           =  ':' | object
+
+list          =  '[' object* ']'
+
+wildcard      =  '*'
 ```
 
 ## Whitespace

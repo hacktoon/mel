@@ -1,15 +1,22 @@
+# Objects
+
 [Home](../README.md)
 
 ---
 
-# Values
+Objects are any kind of self-contained value, like structs, names and literals.
+
 
 ## Booleans
 
-```
-TRUE
+Booleans are reserved names and are written in lowercase:
 
-FALSE
+```
+true
+false
+(active true)
+(active false)
+
 ```
 
 
@@ -23,12 +30,6 @@ Strings can use double or single quotes as delimiters:
 'and this string uses single quotes'
 ```
 
-You can write a double-quote character `"` inside a double-quoted string by repeating the character `"`:
-
-```
-"She said ""Hello"" yesterday."
-```
-
 Strings also can span many lines:
 
 ```
@@ -40,17 +41,16 @@ when an unknown printer took a galley of type and scrambled it to make a type sp
 ```
 
 
-## Numbers
-
-Integers and floats are supported as expected.
+## Integers
 
 ```
+0
 1
 -7
 +99
-4.535
--0.9
 ```
+
+## Floats
 
 Floats support scientific notation:
 
@@ -63,14 +63,20 @@ Floats support scientific notation:
 
 ## Ranges
 
-Ranges are used to filter data.
+Ranges are used to represent a interval of integers or indexes.
 
 ```
-5:10     -- from 5 to 10
+5..10     -- from 5 to 10
 
--9:0
+-9..0     -- from -9 to 0
 
--20:     -- from -20 to last -- the last 20 items
+-20..     -- starting from -20
 
-:-20     -- from 0 to -20
+..-20     -- from 0 to -20
+```
+
+The more common use for ranges are filtering items in lists:
+
+```
+movies/0..5   -- lists the first 4 movies
 ```

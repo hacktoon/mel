@@ -69,7 +69,7 @@ def test_scope_index():
 
 
 def test_whitespace_only():
-    node = parse("   ,,,\n  , , \t ")
+    node = parse("   ,,,\n ; , ;, \t ")
     assert node.id == "root"
     assert len(node) == 0
 

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hacktoon/dale.svg?branch=master)](https://travis-ci.org/hacktoon/dale)
+
 # DALE
 
 Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
@@ -28,7 +30,7 @@ It's recommended to use a virtual environment tool like [pyenv](https://github.c
 make install
 make test
 make inspect
-python cli.py examples/person.dl
+./bin/dale examples/person.dl
 ```
 
 
@@ -43,10 +45,14 @@ docker run dale examples/thumbnail.dl
 ## Documentation
 
  * [Syntax rules](docs/syntax-rules.md)
- * [Keys](docs/keys.md)
- * [Values](docs/values.md)
- * [Scopes](docs/scopes.md)
- * [Modifiers](docs/modifiers.md)
+ * [Objects](docs/objects.md)
+    * [Literals](docs/literals.md)
+    * [Names](docs/names.md)
+    * [Lists](docs/lists.md)
+    * [Ranges](docs/structs.md)
+    * [Structs](docs/structs.md)
+ * [Relations](docs/relations.md)
+ * [Examples](docs/examples.md)
 
 
 ## License

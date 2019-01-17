@@ -70,7 +70,7 @@ class BooleanToken(Token):
 
 class WhitespaceToken(Token):
     id = "whitespace"
-    regex = re.compile(r"[\s,\x0b\x0c]+")
+    regex = re.compile(r"[\s,;\x0b\x0c]+")
     skip = True
 
 
