@@ -16,7 +16,7 @@ inspect:
 	flake8 .
 
 clean:
-	rm -rf __pycache__/
+	find . -name '__pycache__' -exec rm -rf {} +
 
 test:
 	pytest --color=yes --cov --durations=3 --no-cov-on-fail -vv

@@ -12,7 +12,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 
 ---
 
-## Setup & run
+## Install
 
 ### Dependencies
 
@@ -23,16 +23,19 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 
 It's recommended to use a virtual environment tool like [pyenv](https://github.com/pyenv/pyenv) and/or [pipenv](https://github.com/pypa/pipenv).
 
-
-### How to run
-
 ```
 make install
 make test
 make inspect
-./bin/dale examples/person.dl
 ```
 
+## How to run
+
+### Using system's Python
+
+```
+./bin/dale examples/person.dl
+```
 
 ### Using Docker
 
