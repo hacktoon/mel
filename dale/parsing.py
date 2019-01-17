@@ -111,10 +111,7 @@ class RelationParser(Parser):
             RelationParser.subparsers[hint].append(cls)
 
     def parse(self):
-        token = self.stream.peek()
-        if not self.stream.is_next(token.id):
-            return
-        self.stream.read()
+        token = self.stream.read(self.hints[0])
         obj = self.parse_object()
         if not obj:
             raise UnexpectedTokenError(token.index[0])
@@ -165,8 +162,6 @@ class ObjectParser(Parser):
 class StructParser(ObjectParser):
     def parse(self):
         start_id, end_id = self.delimiters
-        if not self.stream.is_next(start_id):
-            return
         node = self.node()
         self.stream.read(start_id)
         self._parse_key(node)
@@ -200,8 +195,6 @@ class ListParser(ObjectParser):
 
     def parse(self):
         start_id, end_id = self.delimiters
-        if not self.stream.is_next(start_id):
-            return
         node = self.node()
         self.stream.read(start_id)
         self.parse_objects(node)
@@ -214,8 +207,6 @@ class NameParser(ObjectParser):
     hints = ["name"]
 
     def parse(self):
-        if not self.stream.is_next("name"):
-            return
         node = self.node()
         node.name = self.stream.read("name").value
         return node
@@ -223,9 +214,7 @@ class NameParser(ObjectParser):
 
 class PrefixedNameParser(ObjectParser):
     def parse(self):
-        if not self.stream.is_next(self.hints[0]):
-            return
-        self.stream.read()
+        self.stream.read(self.hints[0])
         node = self.node()
         node.name = self.stream.read("name").value
         return node
@@ -293,10 +282,9 @@ class RangeParser(ObjectParser):
 
 class LiteralParser(ObjectParser):
     def parse(self):
-        if not self.stream.is_next(self.node.id):
-            return
         node = self.node()
-        node.value = self.stream.read().value
+        token = self.stream.read(self.hints[0])
+        node.value = token.value
         return node
 
 
@@ -320,12 +308,6 @@ class BooleanParser(LiteralParser):
     hints = ["boolean"]
 
 
-class WildcardParser(ObjectParser):
+class WildcardParser(LiteralParser):
     node = nodes.WildcardNode
     hints = ["*"]
-
-    def parse(self):
-        if self.stream.is_next("*"):
-            self.stream.read()
-            return self.node()
-        return

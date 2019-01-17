@@ -15,9 +15,9 @@ relation      =  object? sign object
 sign          =  "=" | "!=" | ">" | "<" | ">=" | "<="
 
 object        =  object-list ('/' object)
-object-list   =  range | literal | name | prefixed-name | struct | list | wildcard
+object-list   =  struct | list | range | literal | name | prefixed-name
 
-literal       =  int | float | string | boolean
+literal       =  int | float | string | boolean | wildcard
 
 prefixed-name =  flag | attribute | uid | variable | format | doc
 flag          =  '!' name

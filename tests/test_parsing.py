@@ -36,6 +36,7 @@ def test_parser_any_relation():
     parser = create_parser("answer = 42")
     assert parser.parse_object()
     assert parser.parse_relation()
+    assert not parser.parse_relation()
     assert not parser.parse_object()
 
 
@@ -44,6 +45,18 @@ def test_parser_two_consecutive_expressions():
     assert parser.parse_expression()
     assert parser.parse_expression()
     assert not parser.parse_expression()
+
+
+def test_parser_incomplete_relation():
+    parser = create_parser("=")
+    with pytest.raises(UnexpectedTokenError):
+        parser.parse_relation()
+
+
+def test_parser_invalid_relation():
+    parser = create_parser("==")
+    with pytest.raises(UnexpectedTokenError):
+        parser.parse_relation()
 
 
 #  NODE INDEX TESTS
