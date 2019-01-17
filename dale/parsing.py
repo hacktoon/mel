@@ -50,6 +50,7 @@ class Parser:
             raise UnexpectedTokenError(token.index[0])
         return node
 
+    @indexed
     def parse_expression(self):
         obj = self.parse_object()
         if not obj:
@@ -60,6 +61,7 @@ class Parser:
             return relation
         return obj
 
+    @indexed
     def parse_object(self):
         node = None
         token = self.stream.peek()
@@ -69,26 +71,6 @@ class Parser:
                 self._parse_subnode(node)
                 break
         return node
-
-    @indexed
-    def parse_relation(self):
-        node = None
-        token = self.stream.peek()
-        for cls in RelationParser.subparsers[token.id]:
-            # TODO cache parser
-            parser = cls(self.stream)
-            node = parser.parse()
-            if node:
-                return node
-            raise UnexpectedTokenError(token.index[0])
-        return node
-
-    def parse_objects(self, node):
-        while True:
-            obj = self.parse_object()
-            if not obj:
-                break
-            node.add(obj)
 
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):
@@ -100,6 +82,24 @@ class Parser:
         node.add(obj)
         self._parse_subnode(obj)
 
+    @indexed
+    def parse_relation(self):
+        token = self.stream.peek()
+        for cls in RelationParser.subparsers[token.id]:
+            # TODO cache parser
+            parser = cls(self.stream)
+            node = parser.parse()
+            if node:
+                return node
+        return
+
+    def parse_objects(self, node):
+        while True:
+            obj = self.parse_object()
+            if not obj:
+                break
+            node.add(obj)
+
 
 class RelationParser(Parser):
     subparsers = defaultdict(list)
@@ -109,7 +109,6 @@ class RelationParser(Parser):
         for hint in cls.hints:
             RelationParser.subparsers[hint].append(cls)
 
-    @indexed
     def parse(self):
         token = self.stream.peek()
         if not self.stream.is_next(token.id):
@@ -133,7 +132,6 @@ class ObjectParser(Parser):
 
 
 class StructParser(ObjectParser):
-    @indexed
     def parse(self):
         start_id, end_id = self.delimiters
         if not self.stream.is_next(start_id):
@@ -169,7 +167,6 @@ class ListParser(ObjectParser):
     delimiters = "[]"
     hints = ["["]
 
-    @indexed
     def parse(self):
         start_id, end_id = self.delimiters
         if not self.stream.is_next(start_id):
@@ -185,7 +182,6 @@ class NameParser(ObjectParser):
     node = nodes.NameNode
     hints = ["name"]
 
-    @indexed
     def parse(self):
         if not self.stream.is_next("name"):
             return
@@ -195,7 +191,6 @@ class NameParser(ObjectParser):
 
 
 class PrefixedNameParser(ObjectParser):
-    @indexed
     def parse(self):
         if not self.stream.is_next(self.hints[0]):
             return
@@ -240,7 +235,6 @@ class RangeParser(ObjectParser):
     hints = ["int", ".."]
     priority = 1
 
-    @indexed
     def parse(self):
         range = self._parse_range()
         if not range:
@@ -267,7 +261,6 @@ class RangeParser(ObjectParser):
 
 
 class LiteralParser(ObjectParser):
-    @indexed
     def parse(self):
         if not self.stream.is_next(self.node.id):
             return
@@ -300,7 +293,6 @@ class WildcardParser(ObjectParser):
     node = nodes.WildcardNode
     hints = ["*"]
 
-    @indexed
     def parse(self):
         if self.stream.is_next("*"):
             self.stream.read()
