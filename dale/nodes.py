@@ -64,7 +64,7 @@ class ScopeNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.attributes = {  # TODO: rename to props
+        self.props = {
             "flag": {},
             "uid": {},
             "attribute": {},
@@ -75,11 +75,11 @@ class ScopeNode(Node):
         self.children = {}
 
     def _add_flag(self, node):
-        self.attributes[node.id][node.name] = node
+        self.props[node.id][node.name] = node
 
     def _add_scope(self, scope):
-        if scope.key.id in self.attributes:
-            self.attributes[scope.key.id][scope.key.name] = scope
+        if scope.key.id in self.props:
+            self.props[scope.key.id][scope.key.name] = scope
         else:
             self._nodes.append(scope)
 
@@ -175,8 +175,8 @@ class StringNode(LiteralNode):
 class RelationNode(Node):
     def __init__(self):
         super().__init__()
-        self.key = None
-        self.value = None
+        self.key = NullNode()
+        self.value = NullNode()
 
 
 class EqualNode(RelationNode):
