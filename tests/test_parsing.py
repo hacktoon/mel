@@ -2,7 +2,6 @@ import pytest
 
 from dale.lexing import TokenStream
 from dale.parsing import Parser
-from dale.utils.context import Context
 from dale.exceptions import (
     SubNodeError,
     UnexpectedTokenError,
@@ -19,14 +18,8 @@ def parse(text):
     return create_parser(text).parse()
 
 
-def parse_one(text):
+def parse_object(text):
     return create_parser(text).parse()[0]
-
-
-def eval(text, context_class=Context):
-    context = context_class()
-    context.tree = tree = parse(text)
-    return tree.eval(context)
 
 
 #  PARSER TESTS
@@ -119,7 +112,7 @@ def test_string_representation(test_input):
     ],
 )
 def test_object_representation(test_input, expected):
-    node = parse_one(test_input)
+    node = parse_object(test_input)
     assert repr(node) == expected
 
 
@@ -127,22 +120,22 @@ def test_object_representation(test_input, expected):
 
 
 def test_empty_list():
-    node = parse_one("[]")
+    node = parse_object("[]")
     assert len(node) == 0
 
 
 def test_list_id():
-    node = parse_one("[2, 4]")
+    node = parse_object("[2, 4]")
     assert node.id == "list"
 
 
 def test_one_sized_list():
-    node = parse_one("[3]")
+    node = parse_object("[3]")
     assert len(node) == 1
 
 
 def test_multi_sized_list():
-    node = parse_one("[3 @name $cache]")
+    node = parse_object("[3 @name $cache]")
     assert len(node) == 3
 
 
@@ -150,13 +143,13 @@ def test_multi_sized_list():
 
 
 def test_path_creates_subnode():
-    node = parse_one("abc/$def")
+    node = parse_object("abc/$def")
     assert node.id == "name"
     assert node[0].id == "variable"
 
 
 def test_bigger_subnode_path():
-    node = parse_one("abc/$def/#pid/!active")
+    node = parse_object("abc/$def/#pid/!active")
     assert node.id == "name"
     assert node[0].id == "variable"
     assert node[0][0].id == "uid"
@@ -177,47 +170,47 @@ def test_unexpected_separator_error():
 
 
 def test_empty_scope():
-    node = parse_one("()")
+    node = parse_object("()")
     assert not node.key
     assert len(node) == 0
 
 
 def test_scope_with_key_and_no_value():
-    node = parse_one("(a)")
+    node = parse_object("(a)")
     assert str(node.key) == "a"
     assert len(node) == 0
 
 
 def test_scope_key_assumes_first_value():
-    node = parse_one("(foo 42)")
+    node = parse_object("(foo 42)")
     assert str(node.key) == "foo"
 
 
 def test_scope_with_many_values():
-    node = parse_one("(a (b 2) 4 'etc')")
+    node = parse_object("(a (b 2) 4 'etc')")
     assert str(node[0]) == "(b 2)"
     assert str(node[1]) == "4"
     assert str(node[2]) == "'etc'"
 
 
 def test_scope_key_with_attribute():
-    node = parse_one("(a (@b 2))")
+    node = parse_object("(a (@b 2))")
     assert str(node.props["attribute"]["b"]) == "(@b 2)"
 
 
 def test_scope_key_with_doc():
-    node = parse_one("(bar (?help 'foo'))")
+    node = parse_object("(bar (?help 'foo'))")
     assert node.props["doc"]["help"][0].value == "foo"
 
 
 def test_scope_key_with_multi_properties():
-    node = parse_one("(foo (%bar 2) (#id 48764))")
+    node = parse_object("(foo (%bar 2) (#id 48764))")
     assert str(node.props["format"]["bar"]) == "(%bar 2)"
     assert str(node.props["uid"]["id"]) == "(#id 48764)"
 
 
 def test_scope_child_values():
-    node = parse_one("(foo (@bar 2, 4))")
+    node = parse_object("(foo (@bar 2, 4))")
     attr = node.props["attribute"]["bar"]
     assert str(attr[0]) == "2"
     assert str(attr[1]) == "4"
@@ -229,12 +222,12 @@ def test_unclosed_scope_raises_error():
 
 
 def test_scope_flag_property():
-    node = parse_one("(foo !active)")
+    node = parse_object("(foo !active)")
     assert str(node.props["flag"]["active"]) == "!active"
 
 
 def test_scope_uid_property():
-    node = parse_one("(foo (#id 22))")
+    node = parse_object("(foo (#id 22))")
     assert str(node.props["uid"]["id"]) == "(#id 22)"
 
 
@@ -248,7 +241,7 @@ def test_scope_properties():
         (%short child)
     )
     """
-    node = parse_one(text)
+    node = parse_object(text)
     attrs = node.props
     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
     assert str(attrs["attribute"]["child"]) == "(@child {bar 2})"
@@ -258,18 +251,18 @@ def test_scope_properties():
 
 
 def test_null_scope_key():
-    node = parse_one("(: 'test')")
+    node = parse_object("(: 'test')")
     assert not node.key
 
 
 def test_nested_scope_with_null_key():
-    node = parse_one("(foo (: 56.7) )")
+    node = parse_object("(foo (: 56.7) )")
     assert node.id == "scope"
     assert node.props["attribute"] == {}
 
 
 def test_scope_with_wildcard_key():
-    node = parse_one("(* abc)")
+    node = parse_object("(* abc)")
     assert node.id == "scope"
     assert node.key.id == "wildcard"
 
@@ -278,7 +271,7 @@ def test_scope_with_wildcard_key():
 
 
 def test_query_key_assumes_first_value():
-    node = parse_one("{abc 42}")
+    node = parse_object("{abc 42}")
     assert str(node.key) == "abc"
     assert node[0].value == 42
 
@@ -295,24 +288,24 @@ def test_name_not_found_after_prefix():
 
 
 def test_range_id():
-    node = parse_one("2..4")
+    node = parse_object("2..4")
     assert node.id == "range"
 
 
 def test_range_limit():
-    node = parse_one("0..-10")
+    node = parse_object("0..-10")
     assert node[0] == 0
     assert node[1] == -10
 
 
 def test_range_without_specific_end():
-    node = parse_one("42..")
+    node = parse_object("42..")
     assert node[0] == 42
     assert node[1] is None
 
 
 def test_range_without_specific_start():
-    node = parse_one("..33")
+    node = parse_object("..33")
     assert node[0] is None
     assert node[1] == 33
 
@@ -337,7 +330,7 @@ def test_root_equal_relation_attributes():
 
 
 def test_scope_relation_attributes():
-    node = parse_one("(person name = 'john')")
+    node = parse_object("(person name = 'john')")
     assert node.key.name == "person"
     relation = node.props["attribute"]["name"]
     assert relation.value.value == "john"
