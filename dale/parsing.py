@@ -72,18 +72,15 @@ class Parser:
 
     @indexed
     def parse_relation(self):
-        id_map = {
-            "=": nodes.EqualNode
-        }
+        node = None
         token = self.stream.peek()
-        if token.id not in id_map:
-            return
-        self.stream.read()
-        node = id_map[token.id]()
-        obj = self.parse_object()
-        if not obj:
-            raise UnexpectedTokenError()
-        node.value = obj
+        for cls in RelationParser.subparsers[token.id]:
+            # TODO cache parser
+            parser = cls(self.stream)
+            node = parser.parse()
+            if node:
+                return node
+            raise UnexpectedTokenError(token.index[0])
         return node
 
     def parse_objects(self, node):
@@ -104,7 +101,38 @@ class Parser:
         self._parse_subnode(obj)
 
 
-class StructParser(Parser):
+class RelationParser(Parser):
+    subparsers = defaultdict(list)
+
+    @classmethod
+    def __init_subclass__(cls):
+        for hint in cls.hints:
+            RelationParser.subparsers[hint].append(cls)
+
+    @indexed
+    def parse(self):
+        token = self.stream.peek()
+        if not self.stream.is_next(token.id):
+            return
+        self.stream.read()
+        obj = self.parse_object()
+        if not obj:
+            raise UnexpectedTokenError(token.index[0])
+        node = self.node()
+        node.value = obj
+        return node
+
+
+class EqualParser(RelationParser):
+    node = nodes.EqualNode
+    hints = ["="]
+
+
+class ObjectParser(Parser):
+    pass
+
+
+class StructParser(ObjectParser):
     @indexed
     def parse(self):
         start_id, end_id = self.delimiters
@@ -136,7 +164,7 @@ class QueryParser(StructParser):
     hints = ["{"]
 
 
-class ListParser(Parser):
+class ListParser(ObjectParser):
     node = nodes.ListNode
     delimiters = "[]"
     hints = ["["]
@@ -153,7 +181,7 @@ class ListParser(Parser):
         return node
 
 
-class NameParser(Parser):
+class NameParser(ObjectParser):
     node = nodes.NameNode
     hints = ["name"]
 
@@ -166,7 +194,7 @@ class NameParser(Parser):
         return node
 
 
-class PrefixedNameParser(Parser):
+class PrefixedNameParser(ObjectParser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.hints[0]):
@@ -207,7 +235,7 @@ class DocParser(PrefixedNameParser):
     hints = ["?"]
 
 
-class RangeParser(Parser):
+class RangeParser(ObjectParser):
     node = nodes.RangeNode
     hints = ["int", ".."]
     priority = 1
@@ -238,7 +266,7 @@ class RangeParser(Parser):
         return (start, end)
 
 
-class LiteralParser(Parser):
+class LiteralParser(ObjectParser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.node.id):
@@ -268,7 +296,7 @@ class BooleanParser(LiteralParser):
     hints = ["boolean"]
 
 
-class WildcardParser(Parser):
+class WildcardParser(ObjectParser):
     node = nodes.WildcardNode
     hints = ["*"]
 
