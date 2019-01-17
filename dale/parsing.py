@@ -128,6 +128,31 @@ class EqualParser(RelationParser):
     hints = ["="]
 
 
+class DifferentParser(RelationParser):
+    node = nodes.DifferentNode
+    hints = ["!="]
+
+
+class GreaterThanParser(RelationParser):
+    node = nodes.GreaterThanNode
+    hints = [">"]
+
+
+class GreaterThanEqualParser(RelationParser):
+    node = nodes.GreaterThanEqualNode
+    hints = [">="]
+
+
+class LessThanParser(RelationParser):
+    node = nodes.LessThanNode
+    hints = ["<"]
+
+
+class LessThanEqualParser(RelationParser):
+    node = nodes.LessThanEqualNode
+    hints = ["<="]
+
+
 class ObjectParser(Parser):
     subparsers = defaultdict(list)
 

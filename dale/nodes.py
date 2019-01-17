@@ -181,3 +181,23 @@ class RelationNode(Node):
 
 class EqualNode(RelationNode):
     id = "equal"
+
+
+class DifferentNode(RelationNode):
+    id = "different"
+
+
+class GreaterThanNode(RelationNode):
+    id = "greater_than"
+
+
+class GreaterThanEqualNode(RelationNode):
+    id = "greater_than_equal"
+
+
+class LessThanNode(RelationNode):
+    id = "less_than"
+
+
+class LessThanEqualNode(RelationNode):
+    id = "less_than_equal"
