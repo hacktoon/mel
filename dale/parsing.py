@@ -51,14 +51,14 @@ class Parser:
         return node
 
     def parse_expression(self):
-        pass
-
-    def parse_objects(self, node):
-        while True:
-            obj = self.parse_object()
-            if not obj:
-                break
-            node.add(obj)
+        obj = self.parse_object()
+        if not obj:
+            return
+        relation = self.parse_relation()
+        if relation:
+            relation.key = obj
+            return relation
+        return obj
 
     def parse_object(self):
         node = None
@@ -70,14 +70,28 @@ class Parser:
                 break
         return node
 
-    def parse_symbol(self):
-        # SignToken.id_map
+    @indexed
+    def parse_relation(self):
+        id_map = {
+            "=": nodes.EqualNode
+        }
         token = self.stream.peek()
-        if token.id in ["="]:
-            self.stream.read()
+        if token.id not in id_map:
             return
-        else:
-            return
+        self.stream.read()
+        node = id_map[token.id]()
+        obj = self.parse_object()
+        if not obj:
+            raise UnexpectedTokenError()
+        node.value = obj
+        return node
+
+    def parse_objects(self, node):
+        while True:
+            obj = self.parse_object()
+            if not obj:
+                break
+            node.add(obj)
 
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):

@@ -173,9 +173,11 @@ class StringNode(LiteralNode):
 
 
 class RelationNode(Node):
-    id = "relation"
-
     def __init__(self):
         super().__init__()
-        self.target = None
-        self.relationship = None
+        self.key = None
+        self.value = None
+
+
+class EqualNode(RelationNode):
+    id = "equal"
