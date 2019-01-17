@@ -15,13 +15,13 @@ class Lexer:
     def tokenize(self):
         tokens = []
         while self.index < len(self.text):
-            token = self._build_token()
+            token = self.lex()
             self.index += len(token)
             if not token.skip:
                 tokens.append(token)
         return tokens
 
-    def _build_token(self):
+    def lex(self):
         for Token in self.token_classes:
             match = Token.regex.match(self.text, self.index)
             if not match:
