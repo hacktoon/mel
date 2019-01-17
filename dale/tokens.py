@@ -22,11 +22,38 @@ class Token:
     def value(self):
         return self.text
 
+    @property
+    def newline(self):
+        return
+
     def __len__(self):
         return len(self.text)
 
     def __repr__(self):
         return self.text
+
+
+class WhitespaceToken(Token):
+    id = "whitespace"
+    regex = re.compile(r"([^\S\n\r]|;|,)+")
+    skip = True
+
+
+class NewlineToken(Token):
+    id = "newline"
+    regex = re.compile(r"\r|\r?\n")
+    skip = True
+
+    @property
+    def newline(self):
+        return True
+
+
+class CommentToken(Token):
+    id = "comment"
+    regex = re.compile(r"--[^\n\r]*")
+    priority = 2
+    skip = True
 
 
 class StringToken(Token):
@@ -36,6 +63,10 @@ class StringToken(Token):
     @property
     def value(self):
         return self.text[1:-1]
+
+    @property
+    def newline(self):
+        return re.search(r"\r|\r?\n", self.value)
 
 
 class FloatToken(Token):
@@ -65,19 +96,6 @@ class BooleanToken(Token):
     @property
     def value(self):
         return {"true": True, "false": False}[self.text]
-
-
-class WhitespaceToken(Token):
-    id = "whitespace"
-    regex = re.compile(r"[\s,;\x0b\x0c]+")
-    skip = True
-
-
-class CommentToken(Token):
-    id = "comment"
-    regex = re.compile(r"--[^\n\r]*")
-    priority = 2
-    skip = True
 
 
 class NameToken(Token):
