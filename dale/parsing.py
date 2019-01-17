@@ -46,9 +46,12 @@ class Parser:
         node = nodes.RootNode()
         self.parse_objects(node)
         if not self.stream.is_eof():
-            index = self.stream.peek().index[0]
-            raise UnexpectedTokenError(index)
+            token = self.stream.peek()
+            raise UnexpectedTokenError(token.index[0])
         return node
+
+    def parse_expression(self):
+        pass
 
     def parse_objects(self, node):
         while True:
@@ -59,21 +62,30 @@ class Parser:
 
     def parse_object(self):
         node = None
-        hint = self.stream.peek().id
-        for parser in self.get_parsers(hint):
+        token = self.stream.peek()
+        for parser in self.get_parsers(token.id):
             node = parser.parse()
             if node:
                 self._parse_subnode(node)
                 break
         return node
 
+    def parse_symbol(self):
+        # SignToken.id_map
+        token = self.stream.peek()
+        if token.id in ["="]:
+            self.stream.read()
+            return
+        else:
+            return
+
     def _parse_subnode(self, node):
         if not self.stream.is_next("/"):
             return
-        separator = self.stream.read()
+        token = self.stream.read("/")
         obj = self.parse_object()
         if not obj:
-            raise SubNodeError(separator.index[0])
+            raise SubNodeError(token.index[0])
         node.add(obj)
         self._parse_subnode(obj)
 
@@ -81,14 +93,14 @@ class Parser:
 class StructParser(Parser):
     @indexed
     def parse(self):
-        start_token, end_token = self.delimiters
-        if not self.stream.is_next(start_token):
+        start_id, end_id = self.delimiters
+        if not self.stream.is_next(start_id):
             return
         node = self.node()
-        self.stream.read(start_token)
+        self.stream.read(start_id)
         self._parse_key(node)
         self.parse_objects(node)
-        self.stream.read(end_token)
+        self.stream.read(end_id)
         return node
 
     def _parse_key(self, node):
@@ -117,13 +129,13 @@ class ListParser(Parser):
 
     @indexed
     def parse(self):
-        start_token, end_token = self.delimiters
-        if not self.stream.is_next(start_token):
+        start_id, end_id = self.delimiters
+        if not self.stream.is_next(start_id):
             return
         node = self.node()
-        self.stream.read(start_token)
+        self.stream.read(start_id)
         self.parse_objects(node)
-        self.stream.read(end_token)
+        self.stream.read(end_id)
         return node
 
 
@@ -188,21 +200,21 @@ class RangeParser(Parser):
 
     @indexed
     def parse(self):
-        _range = self._parse_range()
-        if not _range:
+        range = self._parse_range()
+        if not range:
             return
         node = self.node()
-        node.value = _range
+        node.value = range
         return node
 
     def _parse_range(self):
         start = end = None
-        current = self.stream.peek()
-        next = self.stream.peek(1)
-        if current.id == "..":
+        token = self.stream.peek()
+        next_token = self.stream.peek(1)
+        if token.id == "..":
             self.stream.read()
             end = self.stream.read("int").value
-        elif current.id == "int" and next.id == "..":
+        elif token.id == "int" and next_token.id == "..":
             start = self.stream.read().value
             self.stream.read("..")
             if self.stream.is_next("int"):
