@@ -41,7 +41,7 @@ class StringToken(Token):
 class FloatToken(Token):
     id = "float"
     regex = re.compile(r"-?\d*\.\d+([eE][-+]?\d+)?\b")
-    priority = 2
+    priority = 1
 
     @property
     def value(self):
@@ -51,7 +51,6 @@ class FloatToken(Token):
 class IntToken(Token):
     id = "int"
     regex = re.compile(r"-?\d+\b")
-    priority = 1
 
     @property
     def value(self):
@@ -61,7 +60,7 @@ class IntToken(Token):
 class BooleanToken(Token):
     id = "boolean"
     regex = re.compile(r"(true|false)\b")
-    priority = 2
+    priority = 1
 
     @property
     def value(self):
@@ -77,6 +76,7 @@ class WhitespaceToken(Token):
 class CommentToken(Token):
     id = "comment"
     regex = re.compile(r"--[^\n\r]*")
+    priority = 2
     skip = True
 
 
