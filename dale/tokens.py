@@ -43,12 +43,12 @@ class Token:
         return self.text[start:end]
 
 
-class EOFToken(Token):
-    id = "EOF"
+class NullToken(Token):
+    id = "null"
     regex = re.compile(r"\0")
 
-    def __init__(self):
-        super().__init__("", (0, 0))
+    def __init__(self, text="", index=None):
+        super().__init__(text, index or (0, 0))
 
 
 class WhitespaceToken(Token):

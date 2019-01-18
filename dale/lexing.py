@@ -23,7 +23,6 @@ class Lexer:
         return _tokens
 
     def lex(self):
-        token = tokens.EOFToken()
         for Token in tokens.subclasses():
             match = Token.regex.match(self.text, self.index)
             if not match:
@@ -32,7 +31,14 @@ class Lexer:
             token.line = self.line
             token.column = self.column
             return token
+        token = self._build_null_token()
         raise InvalidSyntaxError(token)
+
+    def _build_null_token(self):
+        token = tokens.NullToken(self.text, (self.index,) * 2)
+        token.line = self.line
+        token.column = self.column
+        return token
 
     def _update_counters(self, token):
         self.index += len(token)
@@ -70,4 +76,5 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            return tokens.EOFToken()
+            index = (self.index,) * 2
+            return tokens.NullToken(index=index)

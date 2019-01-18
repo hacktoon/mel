@@ -151,4 +151,4 @@ def test_stream_ends_with_eof_token():
     stream.read(tokens.IntToken)
     stream.read(tokens.EndScopeToken)
     assert stream.is_eof()
-    assert stream.is_next(tokens.EOFToken)
+    assert stream.is_next(tokens.NullToken)
