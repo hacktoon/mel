@@ -1,5 +1,6 @@
 import pytest
 
+from dale import tokens
 from dale.lexing import Lexer, TokenStream
 from dale.exceptions import InvalidSyntaxError, UnexpectedTokenError
 
@@ -32,9 +33,24 @@ def create_stream(text):
         ("foo\n / bar", "foo"),
     ],
 )
-def test_first_token_value(test_input, expected):
+def test_token_value_attribute(test_input, expected):
     tokens = tokenize(test_input)
     assert tokens[0].value == expected
+
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("42", "TOKEN('42')"),
+        ("true", "TOKEN('true')"),
+        ("#", "TOKEN('#')"),
+        ('"string"', "TOKEN('\"string\"')"),
+        ("foo", "TOKEN('foo')"),
+    ],
+)
+def test_token_repr(test_input, expected):
+    tokens = tokenize(test_input)
+    assert repr(tokens[0]) == expected
 
 
 def test_boolean_regex_word_boundary():
@@ -117,15 +133,15 @@ def test_double_quoted_string_doesnt_allow_same_quote_symbol():
 def test_that_read_unexpected_token_raises_error():
     stream = create_stream('"string"')
     with pytest.raises(UnexpectedTokenError):
-        stream.read("int")
+        stream.read(tokens.IntToken)
 
 
 def test_stream_ends_with_eof_token():
     stream = create_stream("(age 5)")
-    stream.read("(")
-    stream.read("name")
+    stream.read(tokens.StartScopeToken)
+    stream.read(tokens.NameToken)
     assert not stream.is_eof()
-    stream.read("int")
-    stream.read(")")
+    stream.read(tokens.IntToken)
+    stream.read(tokens.EndScopeToken)
     assert stream.is_eof()
-    assert stream.is_next("EOF")
+    assert stream.is_next(tokens.EOFToken)

@@ -26,11 +26,20 @@ class Token:
     def newline(self):
         return
 
+    def __eq__(self, token):
+        return self.id == token.id
+
+    def __hash__(self):
+        return super().__hash__()
+
     def __len__(self):
         return len(self.text)
 
-    def __repr__(self):
+    def __str__(self):
         return self.text
+
+    def __repr__(self):
+        return "TOKEN({!r})".format(str(self))
 
 
 class WhitespaceToken(Token):
@@ -108,7 +117,7 @@ class AttributePrefixToken(Token):
     regex = re.compile("@")
 
 
-class UidPrefixToken(Token):
+class UIDPrefixToken(Token):
     id = "#"
     regex = re.compile("#")
 
@@ -181,7 +190,7 @@ class RangeToken(Token):
     regex = re.compile(r"\.\.")
 
 
-class ChainToken(Token):
+class SubOperatorToken(Token):
     id = "/"
     regex = re.compile("/")
 

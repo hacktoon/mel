@@ -1,6 +1,7 @@
 from collections import defaultdict
 import functools
 
+from . import tokens
 from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
@@ -31,7 +32,7 @@ class Parser:
 
     @functools.lru_cache()
     def get_subparsers(self, parser, hint):
-        classes = parser.subparsers[hint]
+        classes = parser.subparsers[hint.id]
         sorted_cls = sorted(classes, key=lambda p: p.priority, reverse=True)
         return [cls(self.stream) for cls in sorted_cls]
 
@@ -59,7 +60,7 @@ class Parser:
     def parse_object(self):
         node = None
         token = self.stream.peek()
-        subparsers = self.get_subparsers(ObjectParser, token.id)
+        subparsers = self.get_subparsers(ObjectParser, token)
         for parser in subparsers:
             node = parser.parse()
             if node:
@@ -68,9 +69,9 @@ class Parser:
         return node
 
     def _parse_subnode(self, node):
-        if not self.stream.is_next("/"):
+        if not self.stream.is_next(tokens.SubOperatorToken):
             return
-        token = self.stream.read("/")
+        token = self.stream.read()
         obj = self.parse_object()
         if not obj:
             raise SubNodeError(token.index[0])
@@ -80,7 +81,7 @@ class Parser:
     @indexed
     def parse_relation(self):
         token = self.stream.peek()
-        subparsers = self.get_subparsers(RelationParser, token.id)
+        subparsers = self.get_subparsers(RelationParser, token)
         for parser in subparsers:
             node = parser.parse()
             if node:
@@ -108,7 +109,7 @@ class RelationParser(Parser):
     @classmethod
     def __init_subclass__(cls):
         for hint in cls.hints:
-            RelationParser.subparsers[hint].append(cls)
+            RelationParser.subparsers[hint.id].append(cls)
 
     def parse(self):
         token = self.stream.read(self.hints[0])
@@ -120,34 +121,34 @@ class RelationParser(Parser):
         return node
 
 
-class EqualParser(RelationParser):
+class EqualsParser(RelationParser):
     node = nodes.EqualNode
-    hints = ["="]
+    hints = [tokens.EqualsToken]
 
 
 class DifferentParser(RelationParser):
     node = nodes.DifferentNode
-    hints = ["!="]
+    hints = [tokens.DifferentToken]
 
 
 class GreaterThanParser(RelationParser):
     node = nodes.GreaterThanNode
-    hints = [">"]
+    hints = [tokens.GreaterThanToken]
 
 
 class GreaterThanEqualParser(RelationParser):
     node = nodes.GreaterThanEqualNode
-    hints = [">="]
+    hints = [tokens.GreaterThanEqualToken]
 
 
 class LessThanParser(RelationParser):
     node = nodes.LessThanNode
-    hints = ["<"]
+    hints = [tokens.LessThanToken]
 
 
 class LessThanEqualParser(RelationParser):
     node = nodes.LessThanEqualNode
-    hints = ["<="]
+    hints = [tokens.LessThanEqualToken]
 
 
 class ObjectParser(Parser):
@@ -156,21 +157,21 @@ class ObjectParser(Parser):
     @classmethod
     def __init_subclass__(cls):
         for hint in cls.hints:
-            ObjectParser.subparsers[hint].append(cls)
+            ObjectParser.subparsers[hint.id].append(cls)
 
 
 class StructParser(ObjectParser):
     def parse(self):
-        start_id, end_id = self.delimiters
+        start, end = self.delimiters
         node = self.node()
-        self.stream.read(start_id)
+        self.stream.read(start)
         self._parse_key(node)
         self.parse_expressions(node)
-        self.stream.read(end_id)
+        self.stream.read(end)
         return node
 
     def _parse_key(self, node):
-        if self.stream.is_next(":"):
+        if self.stream.is_next(tokens.NullKeyToken):
             self.stream.read()
         else:
             node.key = self.parse_expression() or nodes.NullNode()
@@ -178,37 +179,36 @@ class StructParser(ObjectParser):
 
 class ScopeParser(StructParser):
     node = nodes.ScopeNode
-    delimiters = "()"
-    hints = ["("]
+    delimiters = (tokens.StartScopeToken, tokens.EndScopeToken)
+    hints = [tokens.StartScopeToken]
 
 
 class QueryParser(StructParser):
     node = nodes.QueryNode
-    delimiters = "{}"
-    hints = ["{"]
+    delimiters = (tokens.StartQueryToken, tokens.EndQueryToken)
+    hints = [tokens.StartQueryToken]
 
 
 class ListParser(ObjectParser):
     node = nodes.ListNode
-    delimiters = "[]"
-    hints = ["["]
+    hints = [tokens.StartListToken]
 
     def parse(self):
-        start_id, end_id = self.delimiters
         node = self.node()
-        self.stream.read(start_id)
+        self.stream.read(tokens.StartListToken)
         self.parse_objects(node)
-        self.stream.read(end_id)
+        self.stream.read(tokens.EndListToken)
         return node
 
 
 class NameParser(ObjectParser):
     node = nodes.NameNode
-    hints = ["name"]
+    hints = [tokens.NameToken]
 
     def parse(self):
         node = self.node()
-        node.name = self.stream.read("name").value
+        token = self.stream.read(tokens.NameToken)
+        node.name = token.value
         return node
 
 
@@ -216,64 +216,64 @@ class PrefixedNameParser(ObjectParser):
     def parse(self):
         self.stream.read(self.hints[0])
         node = self.node()
-        node.name = self.stream.read("name").value
+        node.name = self.stream.read(tokens.NameToken).value
         return node
 
 
 class AttributeParser(PrefixedNameParser):
     node = nodes.AttributeNode
-    hints = ["@"]
+    hints = [tokens.AttributePrefixToken]
 
 
 class FlagParser(PrefixedNameParser):
     node = nodes.FlagNode
-    hints = ["!"]
+    hints = [tokens.FlagPrefixToken]
 
 
 class UIDParser(PrefixedNameParser):
     node = nodes.UIDNode
-    hints = ["#"]
+    hints = [tokens.UIDPrefixToken]
 
 
 class VariableParser(PrefixedNameParser):
     node = nodes.VariableNode
-    hints = ["$"]
+    hints = [tokens.VariablePrefixToken]
 
 
 class FormatParser(PrefixedNameParser):
     node = nodes.FormatNode
-    hints = ["%"]
+    hints = [tokens.FormatPrefixToken]
 
 
 class DocParser(PrefixedNameParser):
     node = nodes.DocNode
-    hints = ["?"]
+    hints = [tokens.DocPrefixToken]
 
 
 class RangeParser(ObjectParser):
     node = nodes.RangeNode
-    hints = ["int", ".."]
+    hints = [tokens.IntToken, tokens.RangeToken]
     priority = 1
 
     def parse(self):
-        range = self._parse_range()
-        if not range:
+        _range = self._parse_range()
+        if not _range:
             return
         node = self.node()
-        node.value = range
+        node.value = _range
         return node
 
     def _parse_range(self):
         start = end = None
         token = self.stream.peek()
         next_token = self.stream.peek(1)
-        if token.id == "..":
+        if token == tokens.RangeToken:
             self.stream.read()
-            end = self.stream.read("int").value
-        elif token.id == "int" and next_token.id == "..":
+            end = self.stream.read(tokens.IntToken).value
+        elif token == tokens.IntToken and next_token == tokens.RangeToken:
             start = self.stream.read().value
-            self.stream.read("..")
-            if self.stream.is_next("int"):
+            self.stream.read(tokens.RangeToken)
+            if self.stream.is_next(tokens.IntToken):
                 end = self.stream.read().value
         else:
             return
@@ -290,24 +290,24 @@ class LiteralParser(ObjectParser):
 
 class FloatParser(LiteralParser):
     node = nodes.FloatNode
-    hints = ["float"]
+    hints = [tokens.FloatToken]
 
 
 class IntParser(LiteralParser):
     node = nodes.IntNode
-    hints = ["int"]
+    hints = [tokens.IntToken]
 
 
 class StringParser(LiteralParser):
     node = nodes.StringNode
-    hints = ["string"]
+    hints = [tokens.StringToken]
 
 
 class BooleanParser(LiteralParser):
     node = nodes.BooleanNode
-    hints = ["boolean"]
+    hints = [tokens.BooleanToken]
 
 
 class WildcardParser(LiteralParser):
     node = nodes.WildcardNode
-    hints = ["*"]
+    hints = [tokens.WildcardToken]
