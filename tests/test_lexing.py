@@ -72,10 +72,13 @@ def test_token_columns():
 
 
 def test_tokenize_string_with_newline():
-    tokens = tokenize('"line one\nline two"')
+    tokens = tokenize('"line one\nline two" uid,etc')
     assert tokens[0].value == "line one\nline two"
     assert tokens[0].line == 1
     assert tokens[0].column == 0
+    assert tokens[1].column == 10
+    assert tokens[1].line == 2
+    assert tokens[2].column == 14
 
 
 def test_tokenize_string_with_escaped_quotes():

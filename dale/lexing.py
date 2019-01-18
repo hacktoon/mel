@@ -24,7 +24,7 @@ class Lexer:
             self.column += len(token)
             if token.newline:
                 _, end = re.split(tokens.NewlineToken.regex, token.value)
-                self.column = len(end)
+                self.column = len(end) + 1 if end else 0
                 self.line += 1
             if not token.skip:
                 _tokens.append(token)
