@@ -45,6 +45,13 @@ class Parser:
             raise UnexpectedTokenError(token.index[0])
         return node
 
+    def parse_expressions(self, node):
+        while True:
+            exp = self.parse_expression()
+            if not exp:
+                break
+            node.add(exp)
+
     @indexed
     def parse_expression(self):
         obj = self.parse_object()
@@ -87,13 +94,6 @@ class Parser:
             if node:
                 return node
         return
-
-    def parse_expressions(self, node):
-        while True:
-            exp = self.parse_expression()
-            if not exp:
-                break
-            node.add(exp)
 
     def parse_objects(self, node):
         while True:
