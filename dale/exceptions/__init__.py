@@ -2,31 +2,33 @@ class DaleError(Exception):
     pass
 
 
-class InvalidSyntaxError(DaleError):
-    def __init__(self, index):
-        self.index = index
-        super().__init__("This expression is not valid.")
-
-
-class UnexpectedTokenError(DaleError):
-    def __init__(self, token):
+class BaseError(DaleError):
+    def __init__(self, token, msg):
+        super().__init__(msg)
         self.index = token.index[0]
-        super().__init__("This token is not expected here.")
+        self.token = token
 
 
-class UnexpectedEOFError(DaleError):
+class InvalidSyntaxError(BaseError):
     def __init__(self, token):
-        self.index = token.index[0]
-        super().__init__("Reached end of text while parsing.")
+        super().__init__(token, "This expression is not valid.")
 
 
-class SubNodeError(DaleError):
+class UnexpectedTokenError(BaseError):
     def __init__(self, token):
-        self.index = token.index[0]
-        super().__init__("Expected an object after this symbol.")
+        super().__init__(token, "This token is not expected here.")
 
 
-class RelationError(DaleError):
+class UnexpectedEOFError(BaseError):
     def __init__(self, token):
-        self.index = token.index[0]
-        super().__init__("Expected an object to make a relation.")
+        super().__init__(token, "Reached end of text while parsing.")
+
+
+class SubNodeError(BaseError):
+    def __init__(self, token):
+        super().__init__(token, "Expected an object after this symbol.")
+
+
+class RelationError(BaseError):
+    def __init__(self, token):
+        super().__init__(token, "Expected an object to make a relation.")
