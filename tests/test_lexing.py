@@ -55,9 +55,27 @@ def test_commas_are_treated_as_whitespace():
     assert tokens[2].value is True
 
 
+def test_token_lines():
+    tokens = tokenize('abc 33\n\nline "two"')
+    assert tokens[0].line == 1
+    assert tokens[1].line == 1
+    assert tokens[2].line == 3
+    assert tokens[3].line == 3
+
+
+def test_token_columns():
+    tokens = tokenize('name "test"\nline two')
+    assert tokens[0].column == 0
+    assert tokens[1].column == 5
+    assert tokens[2].column == 0
+    assert tokens[3].column == 5
+
+
 def test_tokenize_string_with_newline():
     tokens = tokenize('"line one\nline two"')
     assert tokens[0].value == "line one\nline two"
+    assert tokens[0].line == 1
+    assert tokens[0].column == 0
 
 
 def test_tokenize_string_with_escaped_quotes():
