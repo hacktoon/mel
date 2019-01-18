@@ -84,7 +84,7 @@ class StringToken(Token):
 
     @property
     def newline(self):
-        return re.search(r"\r|\r?\n", self.value)
+        return re.search(NewlineToken.regex, self.value)
 
 
 class FloatToken(Token):
