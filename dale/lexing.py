@@ -23,15 +23,6 @@ class Lexer:
                 _tokens.append(token)
         return _tokens
 
-    def _update_counters(self, token):
-        self.index += len(token)
-        self.column += len(token)
-        if token.newline:
-            lines = token.value.splitlines()
-            *_, end = lines
-            self.column = len(end) + 1 if end else 0
-            self.line += max(1, len(lines) - 1)
-
     def lex(self):
         for Token in self.token_classes:
             match = Token.regex.match(self.text, self.index)
@@ -43,6 +34,16 @@ class Lexer:
             token.column = self.column
             return token
         raise InvalidSyntaxError(self.index)
+
+    def _update_counters(self, token):
+        self.index += len(token)
+        self.column += len(token)
+        if not token.newline:
+            return
+        lines = token.value.splitlines()
+        *_, end = lines
+        self.column = len(end) + 1 if end else 0
+        self.line += max(1, len(lines) - 1)
 
 
 class TokenStream:
