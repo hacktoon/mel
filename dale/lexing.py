@@ -1,5 +1,3 @@
-import re
-
 from . import tokens
 from .exceptions import (
     InvalidSyntaxError,
@@ -29,9 +27,10 @@ class Lexer:
         self.index += len(token)
         self.column += len(token)
         if token.newline:
-            _, end = re.split(tokens.NewlineToken.regex, token.value)
+            lines = token.value.splitlines()
+            *_, end = lines
             self.column = len(end) + 1 if end else 0
-            self.line += 1
+            self.line += max(1, len(lines) - 1)
 
     def lex(self):
         for Token in self.token_classes:
