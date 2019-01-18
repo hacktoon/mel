@@ -151,10 +151,8 @@ class RangeNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.value = (0, 0)
-
-    def __getitem__(self, index):
-        return self.value[index]
+        self.start = None
+        self.end = None
 
 
 class LiteralNode(Node):

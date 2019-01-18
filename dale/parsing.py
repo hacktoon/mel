@@ -256,28 +256,30 @@ class RangeParser(ObjectParser):
     priority = 1
 
     def parse(self):
-        _range = self._parse_range()
-        if not _range:
-            return
         node = self.node()
-        node.value = _range
-        return node
+        if self._parse_left_open(node):
+            return node
+        if self._parse_left_bound(node):
+            return node
+        return
 
-    def _parse_range(self):
-        start = end = None
-        token = self.stream.peek()
-        next_token = self.stream.peek(1)
-        if token == tokens.RangeToken:
+    def _parse_left_open(self, node):
+        if self.stream.is_next(tokens.RangeToken):
             self.stream.read()
-            end = self.stream.read(tokens.IntToken).value
-        elif token == tokens.IntToken and next_token == tokens.RangeToken:
-            start = self.stream.read().value
-            self.stream.read(tokens.RangeToken)
-            if self.stream.is_next(tokens.IntToken):
-                end = self.stream.read().value
-        else:
+            node.end = self.stream.read(tokens.IntToken).value
+            return True
+        return
+
+    def _parse_left_bound(self, node):
+        first_is_int = self.stream.is_next(tokens.IntToken)
+        range_is_next = self.stream.peek(1) == tokens.RangeToken
+        if not (first_is_int and range_is_next):
             return
-        return (start, end)
+        node.start = self.stream.read().value
+        self.stream.read()
+        if self.stream.is_next(tokens.IntToken):
+            node.end = self.stream.read().value
+        return True
 
 
 class LiteralParser(ObjectParser):

@@ -307,20 +307,20 @@ def test_range_id():
 
 def test_range_limit():
     node = parse_object("0..-10")
-    assert node[0] == 0
-    assert node[1] == -10
+    assert node.start == 0
+    assert node.end == -10
 
 
 def test_range_without_specific_end():
     node = parse_object("42..")
-    assert node[0] == 42
-    assert node[1] is None
+    assert node.start == 42
+    assert node.end is None
 
 
 def test_range_without_specific_start():
     node = parse_object("..33")
-    assert node[0] is None
-    assert node[1] == 33
+    assert node.start is None
+    assert node.end == 33
 
 
 def test_range_must_have_at_least_one_int():
