@@ -20,15 +20,18 @@ class Lexer:
         _tokens = []
         while self.index < len(self.text):
             token = self.lex()
-            self.index += len(token)
-            self.column += len(token)
-            if token.newline:
-                _, end = re.split(tokens.NewlineToken.regex, token.value)
-                self.column = len(end) + 1 if end else 0
-                self.line += 1
+            self._update_counters(token)
             if not token.skip:
                 _tokens.append(token)
         return _tokens
+
+    def _update_counters(self, token):
+        self.index += len(token)
+        self.column += len(token)
+        if token.newline:
+            _, end = re.split(tokens.NewlineToken.regex, token.value)
+            self.column = len(end) + 1 if end else 0
+            self.line += 1
 
     def lex(self):
         for Token in self.token_classes:
