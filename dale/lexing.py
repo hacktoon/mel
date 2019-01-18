@@ -28,8 +28,7 @@ class Lexer:
             match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
-            index = match.start(), match.end()
-            token = Token(match.group(0), index)
+            token = Token(self.text, match.span())
             token.line = self.line
             token.column = self.column
             return token

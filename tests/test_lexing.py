@@ -53,12 +53,19 @@ def test_token_repr(test_input, expected):
     assert repr(tokens[0]) == expected
 
 
+def test_token_indices():
+    tokens = tokenize("1 abc $")
+    assert tokens[0].index == (0, 1)
+    assert tokens[1].index == (2, 5)
+    assert tokens[2].index == (6, 7)
+
+
 def test_boolean_regex_word_boundary():
     tokens = tokenize("TrueFalse")
     assert tokens[0].value == "TrueFalse"
 
 
-def test_that_comments_are_ignored():
+def test_that_skipped_tokens_are_ignored():
     tokens = tokenize("--comment \n 45 --after")
     assert tokens[0].value == 45
     assert len(tokens) == 1

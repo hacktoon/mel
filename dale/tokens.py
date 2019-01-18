@@ -14,17 +14,17 @@ class Token:
     skip = False
     priority = 0
 
-    def __init__(self, text="", index=None):
+    def __init__(self, text, index):
         self.text = text
-        self.index = index or (0, 0)
-
-    @property
-    def value(self):
-        return self.text
+        self.index = index
 
     @property
     def newline(self):
         return
+
+    @property
+    def value(self):
+        return str(self)
 
     def __eq__(self, token):
         return self.id == token.id
@@ -33,13 +33,22 @@ class Token:
         return super().__hash__()
 
     def __len__(self):
-        return len(self.text)
-
-    def __str__(self):
-        return self.text
+        return len(str(self))
 
     def __repr__(self):
         return "TOKEN({!r})".format(str(self))
+
+    def __str__(self):
+        start, end = self.index
+        return self.text[start:end]
+
+
+class EOFToken(Token):
+    id = "EOF"
+    regex = re.compile(r"\0")
+
+    def __init__(self):
+        super().__init__("", (0, 0))
 
 
 class WhitespaceToken(Token):
@@ -71,7 +80,7 @@ class StringToken(Token):
 
     @property
     def value(self):
-        return self.text[1:-1]
+        return str(self)[1:-1]
 
     @property
     def newline(self):
@@ -85,7 +94,7 @@ class FloatToken(Token):
 
     @property
     def value(self):
-        return float(self.text)
+        return float(str(self))
 
 
 class IntToken(Token):
@@ -94,7 +103,7 @@ class IntToken(Token):
 
     @property
     def value(self):
-        return int(self.text)
+        return int(str(self))
 
 
 class BooleanToken(Token):
@@ -104,7 +113,7 @@ class BooleanToken(Token):
 
     @property
     def value(self):
-        return {"true": True, "false": False}[self.text]
+        return {"true": True, "false": False}[str(self)]
 
 
 class NameToken(Token):
@@ -223,8 +232,3 @@ class StartListToken(Token):
 class EndListToken(Token):
     id = "]"
     regex = re.compile(r"\]")
-
-
-class EOFToken(Token):
-    id = "EOF"
-    regex = re.compile(r"\0")
