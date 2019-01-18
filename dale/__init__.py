@@ -23,10 +23,14 @@ def lex(text):
         raise DaleError(message)
 
 
+def create_parser(text):
+    stream = lex(text)
+    return Parser(stream)
+
+
 def parse(text):
     try:
-        stream = TokenStream(text)
-        return Parser(stream).parse()
+        return create_parser(text).parse()
     except DaleError as error:
         message = ErrorFormatter(text, error).format()
         raise DaleError(message)
