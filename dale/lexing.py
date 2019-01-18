@@ -1,3 +1,5 @@
+import re
+
 from . import tokens
 from .exceptions import (
     InvalidSyntaxError,
@@ -9,17 +11,24 @@ from .exceptions import (
 class Lexer:
     def __init__(self, text):
         self.index = 0
+        self.line = 1
+        self.column = 0
         self.text = text
         self.token_classes = tokens.classes()
 
     def tokenize(self):
-        tokens = []
+        _tokens = []
         while self.index < len(self.text):
             token = self.lex()
             self.index += len(token)
+            self.column += len(token)
+            if token.newline:
+                _, end = re.split(tokens.NewlineToken.regex, token.value)
+                self.column = len(end)
+                self.line += 1
             if not token.skip:
-                tokens.append(token)
-        return tokens
+                _tokens.append(token)
+        return _tokens
 
     def lex(self):
         for Token in self.token_classes:
@@ -28,6 +37,8 @@ class Lexer:
                 continue
             index = match.start(), match.end()
             token = Token(match.group(0), index)
+            token.line = self.line
+            token.column = self.column
             return token
         raise InvalidSyntaxError(self.index)
 
