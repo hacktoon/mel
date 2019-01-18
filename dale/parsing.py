@@ -6,6 +6,7 @@ from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
     SubNodeError,
+    RelationError,
 )
 
 
@@ -42,7 +43,7 @@ class Parser:
         self.parse_expressions(node)
         if not self.stream.is_eof():
             token = self.stream.peek()
-            raise UnexpectedTokenError(token.index[0])
+            raise UnexpectedTokenError(token)
         return node
 
     def parse_expressions(self, node):
@@ -81,7 +82,7 @@ class Parser:
         token = self.stream.read()
         obj = self.parse_object()
         if not obj:
-            raise SubNodeError(token.index[0])
+            raise SubNodeError(token)
         node.add(obj)
         self._parse_subnode(obj)
 
@@ -115,7 +116,7 @@ class RelationParser(Parser):
         token = self.stream.read(self.hints[0])
         obj = self.parse_object()
         if not obj:
-            raise UnexpectedTokenError(token.index[0])
+            raise RelationError(token)
         node = self.node()
         node.value = obj
         return node

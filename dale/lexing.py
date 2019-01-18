@@ -8,11 +8,10 @@ from .exceptions import (
 
 class Lexer:
     def __init__(self, text):
+        self.text = text
         self.index = 0
         self.line = 1
         self.column = 0
-        self.text = text
-        self.token_classes = tokens.classes()
 
     def tokenize(self):
         _tokens = []
@@ -24,7 +23,7 @@ class Lexer:
         return _tokens
 
     def lex(self):
-        for Token in self.token_classes:
+        for Token in tokens.subclasses():
             match = Token.regex.match(self.text, self.index)
             if not match:
                 continue
@@ -55,8 +54,8 @@ class TokenStream:
         current = self.peek()
         if token and not self.is_next(token):
             if self.is_eof():
-                raise UnexpectedEOFError(self.index)
-            raise UnexpectedTokenError(current.index[0])
+                raise UnexpectedEOFError(current)
+            raise UnexpectedTokenError(current)
         self.index += 1
         return current
 

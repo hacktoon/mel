@@ -5,7 +5,8 @@ from dale.parsing import Parser
 from dale.exceptions import (
     SubNodeError,
     UnexpectedTokenError,
-    UnexpectedEOFError
+    UnexpectedEOFError,
+    RelationError
 )
 
 
@@ -49,13 +50,13 @@ def test_parser_two_consecutive_expressions():
 
 def test_parser_incomplete_relation():
     parser = create_parser("=")
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(RelationError):
         parser.parse_relation()
 
 
 def test_parser_invalid_relation():
     parser = create_parser("==")
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(RelationError):
         parser.parse_relation()
 
 
