@@ -1,4 +1,4 @@
-class Index:
+class Index:  # pragma: nocover
     def __init__(self, start=0, end=None):
         self.start = start
         self.end = end
