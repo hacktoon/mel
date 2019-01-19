@@ -2,17 +2,17 @@
 class ErrorFormatter:
     def __init__(self, error):
         self.error = error
-        self.lines = error.token.text.splitlines(keepends=True)
+        self.lines = error.token.text.splitlines()
         self.digits_offset = len(str(len(self.lines)))
-        self.line = error.token.line - 1
+        self.line = error.token.line
         self.column = error.token.column
         self.delimiter = " | "
 
     def format(self, lines_offset=4):
         tpl = "Error at line {line}, column {column}.\n{error}\n\n{snippet}\n"
         return tpl.format(
-            line=self.error.token.line,
-            column=self.error.token.column + 1,
+            line=self.line + 1,
+            column=self.column + 1,
             snippet=self._snippet(lines_offset),
             error=self.error,
         )
@@ -24,7 +24,7 @@ class ErrorFormatter:
 
         for index in range(min_index, max_index):
             line = self._prefix_line(self.lines[index], index)
-            lines.append(line.strip())
+            lines.append(line)
             if index == self.line:
                 lines.append(self._build_error_pointer())
         return "\n".join(lines)

@@ -10,7 +10,7 @@ class Lexer:
     def __init__(self, text):
         self.text = text
         self.index = 0
-        self.line = 1
+        self.line = 0
         self.column = 0
 
     def tokenize(self):
