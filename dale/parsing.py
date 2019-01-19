@@ -93,9 +93,7 @@ class Parser:
         token = self.stream.peek()
         subparsers = self.get_subparsers(RelationParser, token)
         for parser in subparsers:
-            node = parser.parse()
-            if node:
-                return node
+            return parser.parse()
         return
 
     def parse_objects(self, node):
