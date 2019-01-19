@@ -4,5 +4,5 @@ branch = true
 data_file = /tmp/.dale-coverage
 
 [report]
-fail_under = 70
+fail_under = 90
 show_missing = true
