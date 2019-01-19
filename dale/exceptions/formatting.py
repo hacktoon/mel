@@ -3,10 +3,10 @@ class ErrorFormatter:
     def __init__(self, error):
         self.message = str(error)
         self.lines = error.text.splitlines()
-        self.digits_offset = len(str(len(self.lines)))
         self.line = error.line
         self.column = error.column
-        self.delimiter = " | "
+        self._digits_offset = len(str(len(self.lines)))
+        self._linenum_sep = " | "
 
     def format(self, lines_offset=4):
         tpl = "Error at line {line}, column {column}.\n{msg}\n\n{snippet}\n"
@@ -22,8 +22,7 @@ class ErrorFormatter:
         lines = []
         min_index, max_index = self._line_range(lines_offset)
         for index in range(min_index, max_index):
-            line = self._prefix_line(self.lines[index], index)
-            lines.append(line)
+            lines.append(self._line_prefix(index))
             if index == self.line:
                 lines.append(self._error_pointer())
         return "\n".join(lines)
@@ -33,11 +32,11 @@ class ErrorFormatter:
         max_index = min(self.line + lines_offset, len(self.lines))
         return min_index, max_index
 
-    def _prefix_line(self, line, index):
-        line_num = str(index + 1).zfill(self.digits_offset)
-        return "{}{}{}".format(line_num, self.delimiter, line)
+    def _line_prefix(self, index):
+        line_num = str(index + 1).zfill(self._digits_offset)
+        return "{}{}{}".format(line_num, self._linenum_sep, self.lines[index])
 
     def _error_pointer(self):
-        prefix_length = self.digits_offset + len(self.delimiter)
+        prefix_length = self._digits_offset + len(self._linenum_sep)
         arrow_length = prefix_length + self.column
         return arrow_length * "-" + "^"
