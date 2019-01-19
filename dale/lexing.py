@@ -25,17 +25,13 @@ class Lexer:
     def lex(self):
         for Token in tokens.subclasses():
             match = Token.regex.match(self.text, self.index)
-            if not match:
-                continue
-            token = Token(self.text, match.span())
-            token.line = self.line
-            token.column = self.column
-            return token
-        token = self._build_null_token()
+            if match:
+                return self._build_token(Token, match.span())
+        token = self._build_token(tokens.NullToken, (self.index,) * 2)
         raise InvalidSyntaxError(token)
 
-    def _build_null_token(self):
-        token = tokens.NullToken(self.text, (self.index,) * 2)
+    def _build_token(self, Token, index):
+        token = Token(self.text, index)
         token.line = self.line
         token.column = self.column
         return token
