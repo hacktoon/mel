@@ -5,8 +5,10 @@ class DaleError(Exception):
 class BaseError(DaleError):
     def __init__(self, token, msg):
         super().__init__(msg)
+        self.text = token.text
         self.index = token.index[0]
-        self.token = token
+        self.line = token.line
+        self.column = token.column
 
 
 class InvalidSyntaxError(BaseError):

@@ -1,39 +1,43 @@
 
 class ErrorFormatter:
     def __init__(self, error):
-        self.error = error
-        self.lines = error.token.text.splitlines()
+        self.message = str(error)
+        self.lines = error.text.splitlines()
         self.digits_offset = len(str(len(self.lines)))
-        self.line = error.token.line
-        self.column = error.token.column
+        self.line = error.line
+        self.column = error.column
         self.delimiter = " | "
 
     def format(self, lines_offset=4):
-        tpl = "Error at line {line}, column {column}.\n{error}\n\n{snippet}\n"
+        tpl = "Error at line {line}, column {column}.\n{msg}\n\n{snippet}\n"
+        snippet = self._snippet(lines_offset)
         return tpl.format(
             line=self.line + 1,
             column=self.column + 1,
-            snippet=self._snippet(lines_offset),
-            error=self.error,
+            snippet=snippet,
+            msg=self.message
         )
 
     def _snippet(self, lines_offset):
         lines = []
-        min_index = max(0, self.line - lines_offset)
-        max_index = min(self.line + lines_offset, len(self.lines))
-
+        min_index, max_index = self._line_range(lines_offset)
         for index in range(min_index, max_index):
             line = self._prefix_line(self.lines[index], index)
             lines.append(line)
             if index == self.line:
-                lines.append(self._build_error_pointer())
+                lines.append(self._error_pointer())
         return "\n".join(lines)
+
+    def _line_range(self, lines_offset):
+        min_index = max(0, self.line - lines_offset)
+        max_index = min(self.line + lines_offset, len(self.lines))
+        return min_index, max_index
 
     def _prefix_line(self, line, index):
         line_num = str(index + 1).zfill(self.digits_offset)
         return "{}{}{}".format(line_num, self.delimiter, line)
 
-    def _build_error_pointer(self):
+    def _error_pointer(self):
         prefix_length = self.digits_offset + len(self.delimiter)
         arrow_length = prefix_length + self.column
         return arrow_length * "-" + "^"
