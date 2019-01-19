@@ -6,15 +6,6 @@ from dale.exceptions import DaleError, BaseError
 from dale.exceptions.formatting import ErrorFormatter
 
 
-_evaluators = {}
-
-
-def evaluator(name):
-    def decorator(func):
-        _evaluators[name] = func
-    return decorator
-
-
 def lex(text):
     try:
         return TokenStream(text)
@@ -41,7 +32,6 @@ def eval(text, context=Context()):
         tree = parse(text)
         context.tree = tree
         context.text = text
-        context.evaluators = _evaluators
         return tree.eval(context)
     except DaleError as error:
         raise error
