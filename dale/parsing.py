@@ -8,6 +8,7 @@ from .exceptions import (
     SubNodeError,
     RelationError,
     NameNotFoundError,
+    InfiniteRangeError
 )
 
 
@@ -268,11 +269,13 @@ class RangeParser(ObjectParser):
         return
 
     def _parse_left_open(self, node):
-        if self.stream.is_next(tokens.RangeToken):
-            self.stream.read()
-            node.end = self.stream.read(tokens.IntToken).value
-            return True
-        return
+        if not self.stream.is_next(tokens.RangeToken):
+            return
+        _range = self.stream.read()
+        if not self.stream.is_next(tokens.IntToken):
+            raise InfiniteRangeError(_range)
+        node.end = self.stream.read().value
+        return True
 
     def _parse_left_bound(self, node):
         first_is_int = self.stream.is_next(tokens.IntToken)

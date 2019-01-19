@@ -8,6 +8,7 @@ from dale.exceptions import (
     UnexpectedEOFError,
     RelationError,
     NameNotFoundError,
+    InfiniteRangeError
 )
 
 
@@ -326,12 +327,12 @@ def test_range_without_specific_start():
 
 
 def test_range_must_have_at_least_one_int():
-    with pytest.raises(UnexpectedEOFError):
+    with pytest.raises(InfiniteRangeError):
         parse("..")
 
 
 def test_range_only_accepts_integers():
-    with pytest.raises(UnexpectedEOFError):
+    with pytest.raises(InfiniteRangeError):
         parse("3.4..")
 
 
