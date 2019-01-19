@@ -26,12 +26,12 @@ class Lexer:
         for Token in tokens.subclasses():
             match = Token.regex.match(self.text, self.index)
             if match:
-                return self._build_token(Token, match.span())
-        token = self._build_token(tokens.NullToken, (self.index,) * 2)
+                return self.build_token(Token, match.span())
+        token = self.build_token()
         raise InvalidSyntaxError(token)
 
-    def _build_token(self, Token, index):
-        token = Token(self.text, index)
+    def build_token(self, Token=tokens.NullToken, index=None):
+        token = Token(self.text, index or (self.index,) * 2)
         token.line = self.line
         token.column = self.column
         return token
@@ -49,7 +49,8 @@ class Lexer:
 
 class TokenStream:
     def __init__(self, text, lexer=Lexer):
-        self.tokens = lexer(text).tokenize()
+        self.lexer = lexer(text)
+        self.tokens = self.lexer.tokenize()
         self.text = text
         self.index = 0
 
@@ -57,7 +58,7 @@ class TokenStream:
         current = self.peek()
         if token and not self.is_next(token):
             if self.is_eof():
-                raise UnexpectedEOFError(current)
+                raise UnexpectedEOFError(self.peek(-1))
             raise UnexpectedTokenError(current)
         self.index += 1
         return current
@@ -72,5 +73,4 @@ class TokenStream:
         try:
             return self.tokens[self.index + offset]
         except IndexError:
-            index = (self.index,) * 2
-            return tokens.NullToken(index=index)
+            return self.lexer.build_token()

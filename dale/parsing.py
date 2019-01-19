@@ -7,6 +7,7 @@ from .exceptions import (
     UnexpectedTokenError,
     SubNodeError,
     RelationError,
+    NameNotFoundError,
 )
 
 
@@ -215,10 +216,12 @@ class NameParser(ObjectParser):
 
 class PrefixedNameParser(ObjectParser):
     def parse(self):
-        self.stream.read(self.hints[0])
+        symbol = self.stream.read(self.hints[0])
         node = self.node()
-        node.name = self.stream.read(tokens.NameToken).value
-        return node
+        if self.stream.is_next(tokens.NameToken):
+            node.name = self.stream.read().value
+            return node
+        raise NameNotFoundError(symbol)
 
 
 class AttributeParser(PrefixedNameParser):

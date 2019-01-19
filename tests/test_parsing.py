@@ -6,7 +6,8 @@ from dale.exceptions import (
     SubNodeError,
     UnexpectedTokenError,
     UnexpectedEOFError,
-    RelationError
+    RelationError,
+    NameNotFoundError,
 )
 
 
@@ -294,7 +295,7 @@ def test_query_key_assumes_first_value():
 
 
 def test_name_not_found_after_prefix():
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(NameNotFoundError):
         parse("(# )")
 
 
