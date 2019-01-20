@@ -4,37 +4,42 @@
 
 ---
 
-Dale's syntax is based on a simple idea: a sequence of objects. The general rules can be (partially) written as:
+Dale's syntax rules are:
 
 ```
-root          =  expression*
+root            =  metadata* object*
 
-expression    =  relation | object
+metadata        =  assignment | flag
+path            =  identifier ( attribute | child )*
+identifier      =  NAME | uid | variable | format | doc
+attribute       =  '.' ( identifier | flag )
+child           =  '/' NAME
+uid             =  '#' NAME
+variable        =  '$' NAME
+format          =  '%' NAME
+doc             =  '?' NAME
+flag            =  '!' NAME
 
-relation      =  object? sign object
-sign          =  "=" | "!=" | ">" | "<" | ">=" | "<="
+assignment      =  path '=' object
 
-object        =  object-list ('/' object)
-object-list   =  struct | list | range | literal | name | prefixed-name
+object          =  literal | list | scope | base-object ('/' sub-object)*
+base-object     =  query | identifier | wildcard
+sub-object      =  INT | range | base-object
 
-literal       =  int | float | string | boolean | wildcard
+literal         =  INT | FLOAT | STRING | BOOLEAN
 
-prefixed-name =  flag | attribute | uid | variable | format | doc
-flag          =  '!' name
-attribute     =  '@' name
-uid           =  '#' name
-variable      =  '$' name
-format        =  '%' name
-doc           =  '?' name
+scope           =  '(' key metadata* object* ')'
+key             =  ':' | path
 
-struct        =  scope | query
-scope         =  '(' key expression* ')'
-query         =  '{' key expression* '}'
-key           =  ':' | object
+query           =  '{' target criteria* object* '}'
+target          =  path
+criteria        =  flag | path sign object
+sign            =  "=" | "!=" | ">" | "<" | ">=" | "<="
 
-list          =  '[' object* ']'
+list            =  '[' object* ']'
 
-wildcard      =  '*'
+
+wildcard        =  '*'
 ```
 
 ## Whitespace
