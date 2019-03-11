@@ -7,39 +7,42 @@
 Dale's syntax rules are:
 
 ```
-root            =  metadata* object*
+root                =  metadata* object*
 
-metadata        =  assignment | flag
-path            =  identifier ( attribute | child )*
-identifier      =  NAME | uid | variable | format | doc
-attribute       =  '.' ( identifier | flag )
-child           =  '/' NAME
-uid             =  '#' NAME
-variable        =  '$' NAME
-format          =  '%' NAME
-doc             =  '?' NAME
-flag            =  '!' NAME
+metadata            =  flag | identifier '=' object
+identifier          =  NAME | uid | variable | format | doc
+flag                =  '!' NAME
+uid                 =  '#' NAME
+variable            =  '$' NAME
+format              =  '%' NAME
+doc                 =  '?' NAME
 
-assignment      =  path '=' object
+object              =  literal | list | scope | base-object ('/' sub-object)*
+literal             =  INT | FLOAT | STRING | BOOLEAN
+list                =  '[' object* ']'
+base-object         =  SYMBOL | query | identifier | wildcard
+sub-object          =  INT | range | base-object
 
-object          =  literal | list | scope | base-object ('/' sub-object)*
-base-object     =  query | identifier | wildcard
-sub-object      =  INT | range | base-object
+scope               =  '(' key metadata* object* ')'
+key                 =  ':' | path
 
-literal         =  INT | FLOAT | STRING | BOOLEAN
+path                =  identifier subpath
+subpath             =  (attribute | child)*
+attribute           =  '.' ( identifier | flag )
+child               =  '/' NAME
 
-scope           =  '(' key metadata* object* ')'
-key             =  ':' | path
+query               =  '{' target criteria* object* '}'
+target              =  path | SYMBOL subpath
+criteria            =  flag | equals | less-than | greater-than |
+equals              =  path '=' object
+different           =  path '!=' object
+less-than           =  path '<' object
+less-than-equal     =  path '<=' object
+greater-than        =  path '>' object
+greater-than-equal  =  path '>=' object
 
-query           =  '{' target criteria* object* '}'
-target          =  path
-criteria        =  flag | path sign object
-sign            =  "=" | "!=" | ">" | "<" | ">=" | "<="
-
-list            =  '[' object* ']'
-
-
-wildcard        =  '*'
+sign                =  "=" | "!=" | ">" | "<" | ">=" | "<="
+wildcard            =  '*'
 ```
 
 ## Whitespace
