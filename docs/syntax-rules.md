@@ -17,23 +17,26 @@ variable            =  '$' NAME
 format              =  '%' NAME
 doc                 =  '?' NAME
 
-object              =  literal | list | scope | base-object ('/' sub-object)*
+object              =  literal | list | chain-object | scope
 literal             =  INT | FLOAT | STRING | BOOLEAN
 list                =  '[' object* ']'
+
+chain-object        =  base-object ( child-object | attribute )*
 base-object         =  SYMBOL | query | identifier | wildcard
-sub-object          =  INT | range | base-object
+child-object        =  '/' ( INT | query | range | base-object )
+attribute           =  '.' identifier
 
 scope               =  '(' key metadata* object* ')'
 key                 =  ':' | path
 
 path                =  identifier subpath
-subpath             =  (attribute | child)*
-attribute           =  '.' ( identifier | flag )
-child               =  '/' NAME
+subpath             =  ( attribute | child )*
+child               =  '/' ( NAME | SYMBOL )
 
-query               =  '{' target criteria* object* '}'
-target              =  path | SYMBOL subpath
-criteria            =  flag | equals | less-than | greater-than |
+query               =  '{' key? criteria* object* '}'
+criteria            =  flag | equals | different | less-than | greater-than
+                       | less-than-equal | greater-than-equal
+
 equals              =  path '=' object
 different           =  path '!=' object
 less-than           =  path '<' object
@@ -41,7 +44,6 @@ less-than-equal     =  path '<=' object
 greater-than        =  path '>' object
 greater-than-equal  =  path '>=' object
 
-sign                =  "=" | "!=" | ">" | "<" | ">=" | "<="
 wildcard            =  '*'
 ```
 
