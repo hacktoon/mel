@@ -7,44 +7,46 @@
 Dale's syntax rules are:
 
 ```
-root                =  metadata* object*
+root             =  attribute* object*
 
-metadata            =  flag | identifier '=' object
-identifier          =  NAME | uid | variable | format | doc
-flag                =  '!' NAME
-uid                 =  '#' NAME
-variable            =  '$' NAME
-format              =  '%' NAME
-doc                 =  '?' NAME
+attribute        =  flag | equals
 
-object              =  literal | list | chain-object | scope
-literal             =  INT | FLOAT | STRING | BOOLEAN
-list                =  '[' object* ']'
+object           =  literal | list | reference | scope
 
-chain-object        =  base-object ( child-object | attribute )*
-base-object         =  SYMBOL | query | identifier | wildcard
-child-object        =  '/' ( INT | query | range | base-object )
-attribute           =  '.' identifier
+literal          =  INT | FLOAT | STRING | BOOLEAN
 
-scope               =  '(' key metadata* object* ')'
-key                 =  ':' | path
+list             =  '[' object* ']'
 
-path                =  identifier subpath
-subpath             =  ( attribute | child )*
-child               =  '/' ( NAME | SYMBOL )
+reference        =  base-reference ( reference-child | reference-attr )*
+base-reference   =  RANGE | query | identifier | wildcard
+reference-child  =  '/' ( base-reference | INT | list )
+reference-attr   =  '.' identifier
 
-query               =  '{' key? criteria* object* '}'
-criteria            =  flag | equals | different | less-than | greater-than
-                       | less-than-equal | greater-than-equal
+scope            =  '(' key attribute* object* ')'
+query            =  '{' key criteria* object* '}'
+key              =  ':' | path
 
-equals              =  path '=' object
-different           =  path '!=' object
-less-than           =  path '<' object
-less-than-equal     =  path '<=' object
-greater-than        =  path '>' object
-greater-than-equal  =  path '>=' object
+path             =  identifier ( path-child | path-attribute )*
+path-child       =  '/' identifier
+path-attribute   =  '.' identifier
 
-wildcard            =  '*'
+identifier       =  SYMBOL | NAME | uid | variable | format | doc
+flag             =  '!' NAME
+uid              =  '#' NAME
+variable         =  '$' NAME
+format           =  '%' NAME
+doc              =  '?' NAME
+
+wildcard         =  '*'
+
+criteria         =  flag | equals | different | lt | lte | gt | gte
+equals           =  path '=' object
+different        =  path '!=' object
+lt               =  path '<' object
+lte              =  path '<=' object
+gt               =  path '>' object
+gte              =  path '>=' object
+
 ```
 
 ## Whitespace
