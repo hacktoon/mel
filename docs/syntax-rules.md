@@ -24,11 +24,11 @@ reference-attr   =  '.' identifier
 
 scope            =  '(' key attribute* object* ')'
 query            =  '{' key criteria* object* '}'
-key              =  ':' | path
+key              =  ':' | namespace
 
-path             =  identifier ( path-child | path-attribute )*
-path-child       =  '/' identifier
-path-attribute   =  '.' identifier
+namespace        =  identifier ( namespace-child | namespace-attr )*
+namespace-child  =  '/' identifier
+namespace-attr   =  '.' identifier
 
 identifier       =  SYMBOL | NAME | uid | variable | format | doc
 flag             =  '!' NAME
@@ -40,12 +40,12 @@ doc              =  '?' NAME
 wildcard         =  '*'
 
 criteria         =  flag | equals | different | lt | lte | gt | gte
-equals           =  path '=' object
-different        =  path '!=' object
-lt               =  path '<' object
-lte              =  path '<=' object
-gt               =  path '>' object
-gte              =  path '>=' object
+equals           =  namespace '=' object
+different        =  namespace '!=' object
+lt               =  namespace '<' object
+lte              =  namespace '<=' object
+gt               =  namespace '>' object
+gte              =  namespace '>=' object
 
 ```
 
