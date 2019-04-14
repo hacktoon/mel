@@ -9,26 +9,23 @@ Dale's syntax rules are:
 ```
 root             =  attribute* object*
 
-attribute        =  flag | equals
-
 object           =  literal | list | reference | scope
 
 literal          =  INT | FLOAT | STRING | BOOLEAN
 
 list             =  '[' object* ']'
 
-reference        =  base-reference ( reference-child | reference-attr )*
+reference        =  base-reference ( reference-child | '.' identifier )*
 base-reference   =  RANGE | query | identifier | wildcard
 reference-child  =  '/' ( base-reference | INT | list )
-reference-attr   =  '.' identifier
 
 scope            =  '(' key attribute* object* ')'
 query            =  '{' key criteria* object* '}'
-key              =  ':' | namespace
 
-namespace        =  identifier ( namespace-child | namespace-attr )*
-namespace-child  =  '/' identifier
-namespace-attr   =  '.' identifier
+key              =  ':' | namespace
+attribute        =  flag | equals
+
+namespace        =  identifier ( '/' identifier | '.' identifier )*
 
 identifier       =  SYMBOL | NAME | uid | variable | format | doc
 flag             =  '!' NAME

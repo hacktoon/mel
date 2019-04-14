@@ -91,7 +91,7 @@ class Parser:
     @indexed
     def parse_relation(self):
         token = self.stream.peek()
-        subparsers = self.get_subparsers(RelationParser, token)
+        subparsers = self.get_subparsers(CriteriaParser, token)
         for parser in subparsers:
             return parser.parse()
         return
@@ -102,54 +102,6 @@ class Parser:
             if not obj:
                 break
             node.add(obj)
-
-
-class RelationParser(Parser):
-    subparsers = defaultdict(list)
-
-    @classmethod
-    def __init_subclass__(cls):
-        for hint in cls.hints:
-            RelationParser.subparsers[hint.id].append(cls)
-
-    def parse(self):
-        token = self.stream.read(self.hints[0])
-        obj = self.parse_object()
-        if not obj:
-            raise RelationError(token)
-        node = self.node()
-        node.value = obj
-        return node
-
-
-class EqualsParser(RelationParser):
-    node = nodes.EqualNode
-    hints = [tokens.EqualsToken]
-
-
-class DifferentParser(RelationParser):
-    node = nodes.DifferentNode
-    hints = [tokens.DifferentToken]
-
-
-class GreaterThanParser(RelationParser):
-    node = nodes.GreaterThanNode
-    hints = [tokens.GreaterThanToken]
-
-
-class GreaterThanEqualParser(RelationParser):
-    node = nodes.GreaterThanEqualNode
-    hints = [tokens.GreaterThanEqualToken]
-
-
-class LessThanParser(RelationParser):
-    node = nodes.LessThanNode
-    hints = [tokens.LessThanToken]
-
-
-class LessThanEqualParser(RelationParser):
-    node = nodes.LessThanEqualNode
-    hints = [tokens.LessThanEqualToken]
 
 
 class ObjectParser(Parser):
@@ -318,3 +270,51 @@ class BooleanParser(LiteralParser):
 class WildcardParser(LiteralParser):
     node = nodes.WildcardNode
     hints = [tokens.WildcardToken]
+
+
+class CriteriaParser(Parser):
+    subparsers = defaultdict(list)
+
+    @classmethod
+    def __init_subclass__(cls):
+        for hint in cls.hints:
+            CriteriaParser.subparsers[hint.id].append(cls)
+
+    def parse(self):
+        token = self.stream.read(self.hints[0])
+        obj = self.parse_object()
+        if not obj:
+            raise RelationError(token)
+        node = self.node()
+        node.value = obj
+        return node
+
+
+class EqualsParser(CriteriaParser):
+    node = nodes.EqualNode
+    hints = [tokens.EqualsToken]
+
+
+class DifferentParser(CriteriaParser):
+    node = nodes.DifferentNode
+    hints = [tokens.DifferentToken]
+
+
+class GreaterThanParser(CriteriaParser):
+    node = nodes.GreaterThanNode
+    hints = [tokens.GreaterThanToken]
+
+
+class GreaterThanEqualParser(CriteriaParser):
+    node = nodes.GreaterThanEqualNode
+    hints = [tokens.GreaterThanEqualToken]
+
+
+class LessThanParser(CriteriaParser):
+    node = nodes.LessThanNode
+    hints = [tokens.LessThanToken]
+
+
+class LessThanEqualParser(CriteriaParser):
+    node = nodes.LessThanEqualNode
+    hints = [tokens.LessThanEqualToken]
