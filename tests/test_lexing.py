@@ -23,6 +23,8 @@ def create_stream(text):
         ("1.45e-10", 1.45e-10),
         ("true", True),
         ("false", False),
+        ("True", True),
+        ("False", False),
         ("-56", -56),
         ("45", 45),
         ("(", "("),

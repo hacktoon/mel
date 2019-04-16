@@ -267,11 +267,6 @@ class BooleanParser(LiteralParser):
     hints = [tokens.BooleanToken]
 
 
-class WildcardParser(LiteralParser):
-    node = nodes.WildcardNode
-    hints = [tokens.WildcardToken]
-
-
 class CriteriaParser(Parser):
     subparsers = defaultdict(list)
 
@@ -318,3 +313,14 @@ class LessThanParser(CriteriaParser):
 class LessThanEqualParser(CriteriaParser):
     node = nodes.LessThanEqualNode
     hints = [tokens.LessThanEqualToken]
+
+
+class WildcardParser(ObjectParser):
+    node = nodes.WildcardNode
+    hints = [tokens.WildcardToken]
+
+    def parse(self):
+        node = self.node()
+        token = self.stream.read(self.hints[0])
+        node.value = token.value
+        return node

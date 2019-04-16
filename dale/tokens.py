@@ -108,17 +108,23 @@ class IntToken(Token):
 
 class BooleanToken(Token):
     id = "boolean"
-    regex = re.compile(r"(true|false)\b")
+    regex = re.compile(r"([tT]rue|[fF]alse)\b")
     priority = 1
 
     @property
     def value(self):
-        return {"true": True, "false": False}[str(self)]
+        _map = {"true": True, "false": False}
+        return _map[str(self).lower()]
 
 
 class NameToken(Token):
     id = "name"
     regex = re.compile(r"[_a-zA-Z]\w*")
+
+
+class SymbolToken(Token):
+    id = "symbol"
+    regex = re.compile(r"[_A-Z]\w*")
 
 
 class AttributePrefixToken(Token):
@@ -197,6 +203,11 @@ class WildcardToken(Token):
 class RangeToken(Token):
     id = ".."
     regex = re.compile(r"\.\.")
+
+
+class ChildOperatorToken(Token):
+    id = "."
+    regex = re.compile(r"\.")
 
 
 class SubOperatorToken(Token):
