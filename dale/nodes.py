@@ -114,7 +114,7 @@ class ListNode(Node):
     id = "list"
 
 
-class NameNode(Node):
+class IdentifierNode(Node):
     id = "name"
 
     def __init__(self):
@@ -122,27 +122,27 @@ class NameNode(Node):
         self.name = ""
 
 
-class AttributeNode(NameNode):
+class AttributeNode(IdentifierNode):
     id = "attribute"
 
 
-class FlagNode(NameNode):
+class FlagNode(IdentifierNode):
     id = "flag"
 
 
-class UIDNode(NameNode):
+class UIDNode(IdentifierNode):
     id = "uid"
 
 
-class FormatNode(NameNode):
+class FormatNode(IdentifierNode):
     id = "format"
 
 
-class VariableNode(NameNode):
+class VariableNode(IdentifierNode):
     id = "variable"
 
 
-class DocNode(NameNode):
+class DocNode(IdentifierNode):
     id = "doc"
 
 

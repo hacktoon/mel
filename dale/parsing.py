@@ -154,8 +154,8 @@ class ListParser(ObjectParser):
         return node
 
 
-class NameParser(ObjectParser):
-    node = nodes.NameNode
+class IdentifierParser(ObjectParser):
+    node = nodes.IdentifierNode
     hints = [tokens.NameToken]
 
     def parse(self):
@@ -165,7 +165,7 @@ class NameParser(ObjectParser):
         return node
 
 
-class PrefixedNameParser(ObjectParser):
+class PrefixedIdentifierParser(ObjectParser):
     def parse(self):
         symbol = self.stream.read(self.hints[0])
         node = self.node()
@@ -175,32 +175,32 @@ class PrefixedNameParser(ObjectParser):
         raise NameNotFoundError(symbol)
 
 
-class AttributeParser(PrefixedNameParser):
+class AttributeParser(PrefixedIdentifierParser):
     node = nodes.AttributeNode
     hints = [tokens.AttributePrefixToken]
 
 
-class FlagParser(PrefixedNameParser):
+class FlagParser(PrefixedIdentifierParser):
     node = nodes.FlagNode
     hints = [tokens.FlagPrefixToken]
 
 
-class UIDParser(PrefixedNameParser):
+class UIDParser(PrefixedIdentifierParser):
     node = nodes.UIDNode
     hints = [tokens.UIDPrefixToken]
 
 
-class VariableParser(PrefixedNameParser):
+class VariableParser(PrefixedIdentifierParser):
     node = nodes.VariableNode
     hints = [tokens.VariablePrefixToken]
 
 
-class FormatParser(PrefixedNameParser):
+class FormatParser(PrefixedIdentifierParser):
     node = nodes.FormatNode
     hints = [tokens.FormatPrefixToken]
 
 
-class DocParser(PrefixedNameParser):
+class DocParser(PrefixedIdentifierParser):
     node = nodes.DocNode
     hints = [tokens.DocPrefixToken]
 
