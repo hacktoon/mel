@@ -29,9 +29,13 @@ def indexed(method):
 class Parser:
     priority = 0
     hints = []
+    node = nodes.Node
 
     def __init__(self, stream):
         self.stream = stream
+
+    def buildNode(self):
+        return self.node()
 
     @functools.lru_cache()
     def get_subparsers(self, parser, hint):
@@ -116,7 +120,7 @@ class ObjectParser(Parser):
 class StructParser(ObjectParser):
     def parse(self):
         start, end = self.delimiters
-        node = self.node()
+        node = self.buildNode()
         self.stream.read(start)
         self._parse_key(node)
         self.parse_expressions(node)
@@ -147,10 +151,29 @@ class ListParser(ObjectParser):
     hints = [tokens.StartListToken]
 
     def parse(self):
-        node = self.node()
+        node = self.buildNode()
         self.stream.read(tokens.StartListToken)
         self.parse_objects(node)
         self.stream.read(tokens.EndListToken)
+        return node
+
+
+class IdentifierParser2():
+    node = nodes.IdentifierNode
+    hints = [
+        tokens.NameToken,
+        tokens.SymbolToken,
+        tokens.FlagPrefixToken,
+        tokens.UIDPrefixToken,
+        tokens.VariablePrefixToken,
+        tokens.FormatPrefixToken,
+        tokens.DocPrefixToken
+    ]
+
+    def parse(self):
+        node = self.buildNode()
+        token = self.stream.read(tokens.NameToken)
+        node.name = token.value
         return node
 
 
@@ -159,7 +182,7 @@ class IdentifierParser(ObjectParser):
     hints = [tokens.NameToken]
 
     def parse(self):
-        node = self.node()
+        node = self.buildNode()
         token = self.stream.read(tokens.NameToken)
         node.name = token.value
         return node
@@ -168,16 +191,11 @@ class IdentifierParser(ObjectParser):
 class PrefixedIdentifierParser(ObjectParser):
     def parse(self):
         symbol = self.stream.read(self.hints[0])
-        node = self.node()
+        node = self.buildNode()
         if self.stream.is_next(tokens.NameToken):
             node.name = self.stream.read().value
             return node
         raise NameNotFoundError(symbol)
-
-
-class AttributeParser(PrefixedIdentifierParser):
-    node = nodes.AttributeNode
-    hints = [tokens.AttributePrefixToken]
 
 
 class FlagParser(PrefixedIdentifierParser):
@@ -211,7 +229,7 @@ class RangeParser(ObjectParser):
     priority = 1
 
     def parse(self):
-        node = self.node()
+        node = self.buildNode()
         if self._parse_left_open(node):
             return node
         if self._parse_left_bound(node):
@@ -241,7 +259,7 @@ class RangeParser(ObjectParser):
 
 class LiteralParser(ObjectParser):
     def parse(self):
-        node = self.node()
+        node = self.buildNode()
         token = self.stream.read(self.hints[0])
         node.value = token.value
         return node
@@ -280,7 +298,7 @@ class CriteriaParser(Parser):
         obj = self.parse_object()
         if not obj:
             raise RelationError(token)
-        node = self.node()
+        node = self.buildNode()
         node.value = obj
         return node
 
@@ -320,7 +338,7 @@ class WildcardParser(ObjectParser):
     hints = [tokens.WildcardToken]
 
     def parse(self):
-        node = self.node()
+        node = self.buildNode()
         token = self.stream.read(self.hints[0])
         node.value = token.value
         return node

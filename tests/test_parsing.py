@@ -151,7 +151,7 @@ def test_one_sized_list():
 
 
 def test_multi_sized_list():
-    node = parse_object("[3 @name $cache]")
+    node = parse_object("[3 name $cache]")
     assert len(node) == 3
 
 
@@ -209,11 +209,6 @@ def test_scope_with_many_values():
     assert str(node[2]) == "'etc'"
 
 
-def test_scope_key_with_attribute():
-    node = parse_object("(a (@b 2))")
-    assert str(node.props["attribute"]["b"]) == "(@b 2)"
-
-
 def test_scope_key_with_doc():
     node = parse_object("(bar (?help 'foo'))")
     assert node.props["doc"]["help"][0].value == "foo"
@@ -226,10 +221,10 @@ def test_scope_key_with_multi_properties():
 
 
 def test_scope_child_values():
-    node = parse_object("(foo (@bar 2, 4))")
-    attr = node.props["attribute"]["bar"]
-    assert str(attr[0]) == "2"
-    assert str(attr[1]) == "4"
+    node = parse_object("(foo (#bar 2, 4))")
+    uid = node.props["uid"]["bar"]
+    assert str(uid[0]) == "2"
+    assert str(uid[1]) == "4"
 
 
 def test_unclosed_scope_raises_error():
@@ -253,14 +248,12 @@ def test_scope_properties():
         (#answer_code 42)
         ($ref {!active})
         (?help "A object")
-        (@child {bar 2})
         (%short child)
     )
     """
     node = parse_object(text)
     attrs = node.props
     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
-    assert str(attrs["attribute"]["child"]) == "(@child {bar 2})"
     assert str(attrs["doc"]["help"]) == '(?help "A object")'
     assert str(attrs["variable"]["ref"]) == "($ref {!active})"
     assert str(attrs["format"]["short"]) == "(%short child)"

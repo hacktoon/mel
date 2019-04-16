@@ -87,7 +87,10 @@ class ScopeNode(Node):
         if not relation.key:
             self._nodes.append(relation)
             return
-        key = "attribute" if relation.key.id == "name" else relation.key.id
+        if relation.key.id == "name":
+            key = "attribute"
+        else:
+            key = relation.key.id
         self.props[key][relation.key.name] = relation
 
     def eval(self, context):
@@ -120,10 +123,6 @@ class IdentifierNode(Node):
     def __init__(self):
         super().__init__()
         self.name = ""
-
-
-class AttributeNode(IdentifierNode):
-    id = "attribute"
 
 
 class FlagNode(IdentifierNode):
