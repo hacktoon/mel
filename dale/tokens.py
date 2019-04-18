@@ -205,12 +205,12 @@ class RangeToken(Token):
     regex = re.compile(r"\.\.")
 
 
-class ChildOperatorToken(Token):
+class PropAccessToken(Token):
     id = "."
     regex = re.compile(r"\.")
 
 
-class SubOperatorToken(Token):
+class ChildAccessToken(Token):
     id = "/"
     regex = re.compile("/")
 

@@ -84,7 +84,7 @@ class Parser:
         return node
 
     def _parse_subnode(self, node):
-        if not self.stream.is_next(tokens.SubOperatorToken):
+        if not self.stream.is_next(tokens.ChildAccessToken):
             return
         token = self.stream.read()
         obj = self.parse_object()
