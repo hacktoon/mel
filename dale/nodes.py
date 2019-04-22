@@ -125,6 +125,14 @@ class IdentifierNode(Node):
         self.name = ""
 
 
+class AttributeNode(IdentifierNode):
+    id = "attribute"
+
+
+class SymbolNode(IdentifierNode):
+    id = "symbol"
+
+
 class FlagNode(IdentifierNode):
     id = "flag"
 
