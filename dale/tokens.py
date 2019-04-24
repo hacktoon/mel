@@ -122,7 +122,7 @@ class NameToken(Token):
     regex = re.compile(r"[_a-zA-Z]\w*")
 
 
-class SymbolToken(Token):
+class ReservedNameToken(Token):
     id = "symbol"
     regex = re.compile(r"[_A-Z]\w*")
 

@@ -117,24 +117,24 @@ class ListNode(Node):
     id = "list"
 
 
+class FlagNode(Node):
+    id = "flag"
+
+
 class IdentifierNode(Node):
-    id = "name"
+    id = "identifier"
 
     def __init__(self):
         super().__init__()
         self.name = ""
 
 
-class AttributeNode(IdentifierNode):
-    id = "attribute"
+class NameNode(IdentifierNode):
+    id = "name"
 
 
-class SymbolNode(IdentifierNode):
-    id = "symbol"
-
-
-class FlagNode(IdentifierNode):
-    id = "flag"
+class ReservedNameNode(IdentifierNode):
+    id = "reserved-name"
 
 
 class UIDNode(IdentifierNode):

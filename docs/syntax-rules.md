@@ -7,7 +7,7 @@
 Dale's syntax rules are:
 
 ```
-root             =  attribute* object*
+root             =  metadata* object*
 
 object           =  literal | list | reference | scope
 
@@ -19,16 +19,18 @@ reference        =  base-reference ( reference-child | '.' identifier )*
 base-reference   =  RANGE | query | identifier | wildcard
 reference-child  =  '/' ( base-reference | INT | list )
 
-scope            =  '(' key attribute* object* ')'
+scope            =  '(' key metadata* object* ')'
 query            =  '{' key criteria* object* '}'
 
 key              =  ':' | namespace
-attribute        =  flag | equals
+
+metadata         =  flag | equals
+flag             =  '!' NAME
+equals           =  namespace '=' object
 
 namespace        =  identifier ( '/' identifier | '.' identifier )*
 
-identifier       =  SYMBOL | NAME | uid | variable | format | doc
-flag             =  '!' NAME
+identifier       =  NAME | RESERVED_NAME | uid | variable | format | doc
 uid              =  '#' NAME
 variable         =  '$' NAME
 format           =  '%' NAME
@@ -37,7 +39,6 @@ doc              =  '?' NAME
 wildcard         =  '*'
 
 criteria         =  flag | equals | different | lt | lte | gt | gte
-equals           =  namespace '=' object
 different        =  namespace '!=' object
 lt               =  namespace '<' object
 lte              =  namespace '<=' object
