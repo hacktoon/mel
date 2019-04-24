@@ -12,65 +12,59 @@ from .exceptions import (
 )
 
 
-def indexed(method):
-    @functools.wraps(method)
-    def surrogate(parser):
-        first = parser.stream.peek()
-        node = method(parser)
+_subparsers = {}
+
+
+@functools.lru_cache()
+def get_subparser(id, stream):
+    return _subparsers[id](stream)
+
+
+# decorator - register a Parser class as a subparser
+def subparser(cls):
+    _subparsers[cls.Node.id] = cls
+    return cls
+
+
+# decorator - enriches a node instance with stream data
+def indexed(parse_method):
+    @functools.wraps(parse_method)
+    def surrogate(self):
+        first = self.stream.peek()
+        node = parse_method(self)
         if not node:
             return
-        last = parser.stream.peek(-1)
+        last = self.stream.peek(-1)
         node.index = first.index[0], last.index[1]
-        node.text = parser.stream.text
+        node.text = self.stream.text
         return node
     return surrogate
 
 
-class BaseParser:
-    _subparsers = {}
-
+class Parser:
     def __init__(self, stream):
         self.stream = stream
 
-    def get_subparser(self, id):
-        return self._subparsers.get(id)
-
-
-class Parser(BaseParser):
-    def __init__(self, stream):
-        super(). __init__(stream)
-        self._init_subparsers()
-
-    def _init_subparsers(self):
-        self._build_subparsers(BaseParser)
-
-    def _build_subparsers(self, superclass):
-        for _class in superclass.__subclasses__():
-            if hasattr(_class, 'Node'):
-                BaseParser._subparsers[_class.Node.id] = _class(self.stream)
-            self._build_subparsers(_class)
-
     def parse(self):
-        parser = self.get_subparser(nodes.RootNode.id)
-        node = parser.parse()
-        if not self.stream.is_eof():
-            token = self.stream.peek()
-            raise UnexpectedTokenError(token)
-        return node
+        node = RootParser(self.stream).parse()
+        if self.stream.is_eof():
+            return node
+        token = self.stream.peek()
+        raise UnexpectedTokenError(token)
 
 
-class MultiParser(BaseParser):
+class MultiParser(Parser):
     @indexed
     def parse(self):
         for option in self.options:
-            subparser = self.get_subparser(option.id)
+            subparser = get_subparser(option.id, self.stream)
             node = subparser.parse()
             if node:
                 return node
         return
 
 
-class RootParser(BaseParser):
+class RootParser(Parser):
     Node = nodes.RootNode
 
     @indexed
@@ -78,6 +72,7 @@ class RootParser(BaseParser):
         pass
 
 
+@subparser
 class IdentifierParser(MultiParser):
     Node = nodes.IdentifierNode
     options = (
@@ -90,7 +85,8 @@ class IdentifierParser(MultiParser):
     )
 
 
-class NameParser(BaseParser):
+@subparser
+class NameParser(Parser):
     Node = nodes.NameNode
     Token = tokens.NameToken
 
@@ -103,12 +99,13 @@ class NameParser(BaseParser):
         return node
 
 
+@subparser
 class ReservedNameParser(NameParser):
     Node = nodes.ReservedNameNode
     Token = tokens.ReservedNameToken
 
 
-class PrefixedNameParser(BaseParser):
+class PrefixedNameParser(Parser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.Token):
@@ -121,21 +118,25 @@ class PrefixedNameParser(BaseParser):
         raise NameNotFoundError(prefix)
 
 
+@subparser
 class UIDParser(PrefixedNameParser):
     Node = nodes.UIDNode
     Token = tokens.UIDPrefixToken
 
 
+@subparser
 class VariableParser(PrefixedNameParser):
     Node = nodes.VariableNode
     Token = tokens.VariablePrefixToken
 
 
+@subparser
 class FormatParser(PrefixedNameParser):
     Node = nodes.FormatNode
     Token = tokens.FormatPrefixToken
 
 
+@subparser
 class DocParser(PrefixedNameParser):
     Node = nodes.DocNode
     Token = tokens.DocPrefixToken
