@@ -3,14 +3,6 @@ import pytest
 from dale import parsing
 
 from dale.lexing import TokenStream
-from dale.exceptions import (
-    SubNodeError,
-    UnexpectedTokenError,
-    UnexpectedEOFError,
-    RelationError,
-    NameNotFoundError,
-    InfiniteRangeError
-)
 
 
 def create_parser(text, Parser=parsing.Parser):

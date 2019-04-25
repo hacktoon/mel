@@ -25,12 +25,11 @@ query            =  '{' key criteria* object* '}'
 key              =  ':' | namespace
 
 metadata         =  flag | equals
-flag             =  '!' NAME
-equals           =  namespace '=' object
 
 namespace        =  identifier ( '/' identifier | '.' identifier )*
 
 identifier       =  NAME | RESERVED_NAME | uid | variable | format | doc
+flag             =  '!' NAME
 uid              =  '#' NAME
 variable         =  '$' NAME
 format           =  '%' NAME
@@ -39,6 +38,7 @@ doc              =  '?' NAME
 wildcard         =  '*'
 
 criteria         =  flag | equals | different | lt | lte | gt | gte
+equals           =  namespace '=' object
 different        =  namespace '!=' object
 lt               =  namespace '<' object
 lte              =  namespace '<=' object
