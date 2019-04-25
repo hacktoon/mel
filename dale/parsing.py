@@ -48,6 +48,9 @@ class Parser:
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
 
+    def subparse(self, id):
+        return get_subparser(id, self.stream).parse()
+
     def __repr__(self):
         return self.__class__.__name__
 
@@ -56,8 +59,7 @@ class MultiParser(Parser):
     @indexed
     def parse(self):
         for option in self.options:
-            subparser = get_subparser(option.id, self.stream)
-            node = subparser.parse()
+            node = self.subparse(option.id)
             if node:
                 return node
         return
