@@ -52,6 +52,9 @@ class Parser:
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 class MultiParser(Parser):
     @indexed
@@ -70,6 +73,24 @@ class RootParser(Parser):
     @indexed
     def parse(self):
         pass
+
+
+class MetadataParser(Parser):
+    Node = nodes.MetadataNode
+
+    @indexed
+    def parse(self):
+        pass
+
+
+class ObjectParser(MultiParser):
+    Node = nodes.ObjectNode
+    options = (
+        nodes.LiteralNode,
+        nodes.ListNode,
+        nodes.ReferenceNode,
+        nodes.ScopeNode
+    )
 
 
 @subparser

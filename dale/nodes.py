@@ -58,6 +58,18 @@ class WildcardNode(Node):
     id = "wildcard"
 
 
+class MetadataNode(Node):
+    id = "metadata"
+
+
+class ObjectNode(Node):
+    id = "object"
+
+
+class ReferenceNode(ObjectNode):
+    id = "reference"
+
+
 class ScopeNode(Node):
     id = "scope"
 
@@ -133,7 +145,7 @@ class NameNode(IdentifierNode):
     id = "name"
 
 
-class ReservedNameNode(IdentifierNode):
+class ReservedNameNode(NameNode):
     id = "reserved-name"
 
 
