@@ -9,7 +9,8 @@ from dale.parsing import (
     UIDParser,
     VariableParser,
     FormatParser,
-    DocParser
+    DocParser,
+    LiteralParser
 )
 from dale.exceptions import (
     SubNodeError,
@@ -50,7 +51,7 @@ def parse_one(text):
 def test_identifier_acceptance(test_input, expected):
     parser = create_parser(test_input, IdentifierParser)
     node = parser.parse()
-    assert node.name == expected
+    assert node.value == expected
 
 
 @pytest.mark.parametrize(
@@ -88,20 +89,59 @@ def test_identifier_subparsers(test_input, parser):
     assert parser.parse() is not None
 
 
-# def test_parser_any_object():
-#     parser = create_parser("42 name")
-#     assert parser.parse_object()
-#     assert parser.parse_object()
-#     assert not parser.parse_object()
+#  LITERAL
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("2", 2),
+        # ("4.7e3", 4.7e3),
+        # ("'foo'", 'foo'),
+        # ("true", True),
+        # ("True", True),
+        # ("false", False),
+        # ("False", False)
+    ]
+)
+def test_literal_acceptance(test_input, expected):
+    parser = create_parser(test_input, LiteralParser)
+    node = parser.parse()
+    assert node.value == expected
 
 
-# def test_parser_any_relation():
-#     parser = create_parser("answer = 42")
-#     assert parser.parse_object()
-#     assert parser.parse_relation()
-#     assert not parser.parse_relation()
-#     assert not parser.parse_object()
+# @pytest.mark.parametrize(
+#     "test_input",
+#     [
+#         "2",
+#         "-3",
+#         "'abc'",
+#         "(a 2)",
+#         "{b 5.7}",
+#         "[1 2]"
+#     ]
+# )
+# def test_identifier_non_acceptance(test_input):
+#     parser = create_parser(test_input, IdentifierParser)
+#     assert parser.parse() is None
 
+
+# #  LITERAL SUB PARSERS
+
+# @pytest.mark.parametrize(
+#     "test_input, parser",
+#     [
+#         ("foo", NameParser),
+#         ("_bar", NameParser),
+#         ("Foo", ReservedNameParser),
+#         ("#foo", UIDParser),
+#         ("$foo", VariableParser),
+#         ("%foo", FormatParser),
+#         ("?foo", DocParser)
+#     ]
+# )
+# def test_identifier_subparsers(test_input, parser):
+#     parser = create_parser(test_input, parser)
+#     assert parser.parse() is not None
 
 # def test_parser_two_consecutive_expressions():
 #     parser = create_parser("'string' answer = 42")

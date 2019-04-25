@@ -138,7 +138,7 @@ class IdentifierNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.name = ""
+        self.value = ""
 
 
 class NameNode(IdentifierNode):
@@ -175,6 +175,8 @@ class RangeNode(Node):
 
 
 class LiteralNode(Node):
+    id = "literal"
+
     def __init__(self):
         super().__init__()
         self.value = None

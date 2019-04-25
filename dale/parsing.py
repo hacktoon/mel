@@ -67,6 +67,16 @@ class MultiParser(Parser):
         return
 
 
+class TokenParser(Parser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.Token):
+            return
+        node = self.Node()
+        node.value = self.stream.read().value
+        return node
+
+
 class RootParser(Parser):
     Node = nodes.RootNode
 
@@ -93,6 +103,8 @@ class ObjectParser(MultiParser):
     )
 
 
+# IDENTIFIER
+
 @subparser
 class IdentifierParser(MultiParser):
     Node = nodes.IdentifierNode
@@ -107,21 +119,13 @@ class IdentifierParser(MultiParser):
 
 
 @subparser
-class NameParser(Parser):
+class NameParser(TokenParser):
     Node = nodes.NameNode
     Token = tokens.NameToken
 
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.Token):
-            return
-        node = self.Node()
-        node.name = self.stream.read().value
-        return node
-
 
 @subparser
-class ReservedNameParser(NameParser):
+class ReservedNameParser(TokenParser):
     Node = nodes.ReservedNameNode
     Token = tokens.ReservedNameToken
 
@@ -134,7 +138,7 @@ class PrefixedNameParser(Parser):
         prefix = self.stream.read()
         node = self.Node()
         if self.stream.is_next(tokens.NameToken):
-            node.name = self.stream.read().value
+            node.value = self.stream.read().value
             return node
         raise NameNotFoundError(prefix)
 
@@ -161,3 +165,40 @@ class FormatParser(PrefixedNameParser):
 class DocParser(PrefixedNameParser):
     Node = nodes.DocNode
     Token = tokens.DocPrefixToken
+
+
+# LITERAL
+
+@subparser
+class LiteralParser(MultiParser):
+    Node = nodes.LiteralNode
+    options = (
+        nodes.IntNode,
+        nodes.FloatNode,
+        nodes.StringNode,
+        nodes.BooleanNode
+    )
+
+
+@subparser
+class IntParser(TokenParser):
+    Node = nodes.IntNode
+    Token = tokens.IntToken
+
+
+@subparser
+class FloatParser(TokenParser):
+    Node = nodes.FloatNode
+    Token = tokens.FloatToken
+
+
+@subparser
+class StringParser(TokenParser):
+    Node = nodes.StringNode
+    Token = tokens.StringToken
+
+
+@subparser
+class BooleanParser(TokenParser):
+    Node = nodes.BooleanNode
+    Token = tokens.BooleanToken
