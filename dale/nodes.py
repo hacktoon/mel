@@ -182,6 +182,13 @@ class LiteralNode(Node):
         self.value = None
 
 
+class NamespaceNode(Node):
+    id = "namespace"
+
+    def __init__(self):
+        super().__init__()
+
+
 class IntNode(LiteralNode):
     id = "int"
 

@@ -99,6 +99,16 @@ class ObjectParser(MultiParser):
     )
 
 
+# NAMESPACE
+
+class NamespaceParser(Parser):
+    Node = nodes.NamespaceNode
+
+    @indexed
+    def parse(self):
+        raise NotImplementedError
+
+
 # IDENTIFIER
 
 @subparser
