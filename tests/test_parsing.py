@@ -1,17 +1,8 @@
 import pytest
 
+from dale import parsing
+
 from dale.lexing import TokenStream
-from dale.parsing import (
-    Parser,
-    IdentifierParser,
-    NameParser,
-    ReservedNameParser,
-    UIDParser,
-    VariableParser,
-    FormatParser,
-    DocParser,
-    LiteralParser
-)
 from dale.exceptions import (
     SubNodeError,
     UnexpectedTokenError,
@@ -22,7 +13,7 @@ from dale.exceptions import (
 )
 
 
-def create_parser(text, Parser=Parser):
+def create_parser(text, Parser=parsing.Parser):
     stream = TokenStream(text)
     return Parser(stream)
 
@@ -49,7 +40,7 @@ def parse_one(text):
     ]
 )
 def test_identifier_acceptance(test_input, expected):
-    parser = create_parser(test_input, IdentifierParser)
+    parser = create_parser(test_input, parsing.IdentifierParser)
     node = parser.parse()
     assert node.value == expected
 
@@ -66,7 +57,7 @@ def test_identifier_acceptance(test_input, expected):
     ]
 )
 def test_identifier_non_acceptance(test_input):
-    parser = create_parser(test_input, IdentifierParser)
+    parser = create_parser(test_input, parsing.IdentifierParser)
     assert parser.parse() is None
 
 
@@ -75,13 +66,13 @@ def test_identifier_non_acceptance(test_input):
 @pytest.mark.parametrize(
     "test_input, parser",
     [
-        ("foo", NameParser),
-        ("_bar", NameParser),
-        ("Foo", ReservedNameParser),
-        ("#foo", UIDParser),
-        ("$foo", VariableParser),
-        ("%foo", FormatParser),
-        ("?foo", DocParser)
+        ("foo", parsing.NameParser),
+        ("_bar", parsing.NameParser),
+        ("Foo", parsing.ReservedNameParser),
+        ("#foo", parsing.UIDParser),
+        ("$foo", parsing.VariableParser),
+        ("%foo", parsing.FormatParser),
+        ("?foo", parsing.DocParser)
     ]
 )
 def test_identifier_subparsers(test_input, parser):
@@ -95,53 +86,51 @@ def test_identifier_subparsers(test_input, parser):
     "test_input, expected",
     [
         ("2", 2),
-        # ("4.7e3", 4.7e3),
-        # ("'foo'", 'foo'),
-        # ("true", True),
-        # ("True", True),
-        # ("false", False),
-        # ("False", False)
+        ("4.7e3", 4.7e3),
+        ("'foo'", 'foo'),
+        ("true", True),
+        ("True", True),
+        ("false", False),
+        ("False", False)
     ]
 )
 def test_literal_acceptance(test_input, expected):
-    parser = create_parser(test_input, LiteralParser)
+    parser = create_parser(test_input, parsing.LiteralParser)
     node = parser.parse()
     assert node.value == expected
 
 
-# @pytest.mark.parametrize(
-#     "test_input",
-#     [
-#         "2",
-#         "-3",
-#         "'abc'",
-#         "(a 2)",
-#         "{b 5.7}",
-#         "[1 2]"
-#     ]
-# )
-# def test_identifier_non_acceptance(test_input):
-#     parser = create_parser(test_input, IdentifierParser)
-#     assert parser.parse() is None
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "aa",
+        "{a}",
+        "[1, 2]",
+        "(a 1)"
+    ]
+)
+def test_literal_non_acceptance(test_input):
+    parser = create_parser(test_input, parsing.LiteralParser)
+    assert parser.parse() is None
 
 
-# #  LITERAL SUB PARSERS
+#  LITERAL SUB PARSERS
 
-# @pytest.mark.parametrize(
-#     "test_input, parser",
-#     [
-#         ("foo", NameParser),
-#         ("_bar", NameParser),
-#         ("Foo", ReservedNameParser),
-#         ("#foo", UIDParser),
-#         ("$foo", VariableParser),
-#         ("%foo", FormatParser),
-#         ("?foo", DocParser)
-#     ]
-# )
-# def test_identifier_subparsers(test_input, parser):
-#     parser = create_parser(test_input, parser)
-#     assert parser.parse() is not None
+@pytest.mark.parametrize(
+    "test_input, parser",
+    [
+        ("3", parsing.IntParser),
+        ("-3.44", parsing.FloatParser),
+        ('" aaa "', parsing.StringParser),
+        ("'foo'", parsing.StringParser),
+        ("true", parsing.BooleanParser),
+        ("False", parsing.BooleanParser),
+
+    ]
+)
+def test_literal_subparsers(test_input, parser):
+    parser = create_parser(test_input, parser)
+    assert parser.parse() is not None
 
 # def test_parser_two_consecutive_expressions():
 #     parser = create_parser("'string' answer = 42")
