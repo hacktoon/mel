@@ -53,12 +53,29 @@ def test_identifier_acceptance(test_input, expected):
     assert node.name == expected
 
 
-#  NAME
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "2",
+        "-3",
+        "'abc'",
+        "(a 2)",
+        "{b 5.7}",
+        "[1 2]"
+    ]
+)
+def test_identifier_non_acceptance(test_input):
+    parser = create_parser(test_input, IdentifierParser)
+    assert parser.parse() is None
+
+
+#  IDENTIFIER SUB PARSERS
 
 @pytest.mark.parametrize(
     "test_input, parser",
     [
         ("foo", NameParser),
+        ("_bar", NameParser),
         ("Foo", ReservedNameParser),
         ("#foo", UIDParser),
         ("$foo", VariableParser),
