@@ -37,6 +37,8 @@ def indexed(parse_method):
     return surrogate
 
 
+# BASE PARSER ===========================
+
 class Parser:
     def __init__(self, stream):
         self.stream = stream
@@ -54,6 +56,8 @@ class Parser:
     def __repr__(self):
         return self.__class__.__name__
 
+
+# SPECIALIZED PARSERS ===========================
 
 class MultiParser(Parser):
     @indexed
@@ -75,6 +79,8 @@ class TokenParser(Parser):
         return node
 
 
+# ROOT ===========================
+
 class RootParser(Parser):
     Node = nodes.RootNode
 
@@ -82,6 +88,8 @@ class RootParser(Parser):
     def parse(self):
         pass
 
+
+# METADATA ===========================
 
 class MetadataParser(Parser):
     Node = nodes.MetadataNode
@@ -91,7 +99,7 @@ class MetadataParser(Parser):
         pass
 
 
-# OBJECT
+# OBJECT ===========================
 
 class ObjectParser(MultiParser):
     Node = nodes.ObjectNode
@@ -103,7 +111,7 @@ class ObjectParser(MultiParser):
     )
 
 
-# NAMESPACE
+# NAMESPACE ===========================
 
 class NamespaceParser(Parser):
     Node = nodes.NamespaceNode
@@ -113,7 +121,6 @@ class NamespaceParser(Parser):
         identifier = self.subparse(nodes.IdentifierNode)
         node = self.Node()
         node.add(identifier)
-        prefix = self.stream.read()
         while identifier:
             identifier = self.subparse(nodes.IdentifierNode)
             if identifier:
@@ -121,7 +128,7 @@ class NamespaceParser(Parser):
         return node
 
 
-# IDENTIFIER
+# IDENTIFIER ===========================
 
 @subparser
 class IdentifierParser(MultiParser):
@@ -185,7 +192,7 @@ class DocParser(PrefixedNameParser):
     Token = tokens.DocPrefixToken
 
 
-# LITERAL
+# LITERAL ===========================
 
 @subparser
 class LiteralParser(MultiParser):
