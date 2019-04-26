@@ -111,28 +111,41 @@ class ObjectParser(MultiParser):
     )
 
 
-# NAMESPACE ===========================
+# PATH ===========================
 
-class NamespaceParser(Parser):
-    Node = nodes.NamespaceNode
+class PathParser(Parser):
+    Node = nodes.PathNode
 
     @indexed
     def parse(self):
-        identifier = self.subparse(nodes.IdentifierNode)
+        identifier = self.subparse(nodes.KeywordNode)
         node = self.Node()
         node.add(identifier)
         while identifier:
-            identifier = self.subparse(nodes.IdentifierNode)
+            identifier = self.subparse(nodes.KeywordNode)
             if identifier:
                 node.add(identifier)
         return node
 
 
-# IDENTIFIER ===========================
+class ChildPathParser(Parser):
+    Node = nodes.ChildPathNode
+
+    def parse(self):
+        if not self.stream.is_next(tokens.ChildPathToken):
+            return
+        node = self.Node()
+        identifier = self.subparse(nodes.KeywordNode)
+        if not identifier:
+            raise UnexpectedTokenError()
+        return node
+
+
+# KEYWORD ===========================
 
 @subparser
-class IdentifierParser(MultiParser):
-    Node = nodes.IdentifierNode
+class KeywordParser(MultiParser):
+    Node = nodes.KeywordNode
     options = (
         nodes.NameNode,
         nodes.ReservedNameNode,

@@ -133,15 +133,15 @@ class FlagNode(Node):
     id = "flag"
 
 
-class IdentifierNode(Node):
-    id = "identifier"
+class KeywordNode(Node):
+    id = "keyword"
 
     def __init__(self):
         super().__init__()
         self.value = ""
 
 
-class NameNode(IdentifierNode):
+class NameNode(KeywordNode):
     id = "name"
 
 
@@ -149,19 +149,19 @@ class ReservedNameNode(NameNode):
     id = "reserved-name"
 
 
-class UIDNode(IdentifierNode):
+class UIDNode(KeywordNode):
     id = "uid"
 
 
-class FormatNode(IdentifierNode):
+class FormatNode(KeywordNode):
     id = "format"
 
 
-class VariableNode(IdentifierNode):
+class VariableNode(KeywordNode):
     id = "variable"
 
 
-class DocNode(IdentifierNode):
+class DocNode(KeywordNode):
     id = "doc"
 
 
@@ -182,13 +182,6 @@ class LiteralNode(Node):
         self.value = None
 
 
-class NamespaceNode(Node):
-    id = "namespace"
-
-    def __init__(self):
-        super().__init__()
-
-
 class IntNode(LiteralNode):
     id = "int"
 
@@ -203,6 +196,22 @@ class BooleanNode(LiteralNode):
 
 class StringNode(LiteralNode):
     id = "string"
+
+
+class PathNode(Node):
+    id = "path"
+
+    def __init__(self):
+        super().__init__()
+        self.keywords = []
+
+
+class ChildPathNode(Node):
+    id = "child-path"
+
+
+class MetadataPathNode(Node):
+    id = "metadata-path"
 
 
 class RelationNode(Node):

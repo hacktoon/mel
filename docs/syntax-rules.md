@@ -15,20 +15,20 @@ literal          =  INT | FLOAT | STRING | BOOLEAN
 
 list             =  '[' object* ']'
 
-reference        =  base-reference ( reference-child | '.' identifier )*
-base-reference   =  RANGE | query | identifier | wildcard
+reference        =  base-reference ( reference-child | metadata-path )*
+base-reference   =  RANGE | query | keyword | wildcard
 reference-child  =  '/' ( base-reference | INT | list )
 
-scope            =  '(' key metadata* object* ')'
-query            =  '{' key criteria* object* '}'
-
-key              =  ':' | namespace
+scope            =  '(' path metadata* object* ')'
+query            =  '{' path criteria* object* '}'
 
 metadata         =  flag | equals
 
-namespace        =  identifier ( '/' identifier | '.' identifier )*
+path             =  ':' | keyword ( child-path | metadata-path )*
+child-path       =  '/' keyword
+metadata-path    =  '.' keyword
 
-identifier       =  NAME | RESERVED_NAME | uid | variable | format | doc
+keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
 flag             =  '!' NAME
 uid              =  '#' NAME
 variable         =  '$' NAME
@@ -38,12 +38,12 @@ doc              =  '?' NAME
 wildcard         =  '*'
 
 criteria         =  flag | equals | different | lt | lte | gt | gte
-equals           =  namespace '=' object
-different        =  namespace '!=' object
-lt               =  namespace '<' object
-lte              =  namespace '<=' object
-gt               =  namespace '>' object
-gte              =  namespace '>=' object
+equals           =  path '=' object
+different        =  path '!=' object
+lt               =  path '<' object
+lte              =  path '<=' object
+gt               =  path '>' object
+gte              =  path '>=' object
 
 ```
 

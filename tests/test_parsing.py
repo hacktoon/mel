@@ -26,23 +26,23 @@ def parse_one(text):
 #     assert parser.parse()
 
 
-#  NAMESPACE PARSER
+#  PATH PARSER
 
-def test_namespace_single_identifier():
-    parser = create_parser("foo", parsing.NamespaceParser)
+def test_path_single_keyword():
+    parser = create_parser("foo", parsing.PathParser)
     assert parser.parse()
 
 
-def test_namespace_multi_identifier():
-    parser = create_parser("foo bar", parsing.NamespaceParser)
+def test_path_multi_keyword():
+    parser = create_parser("foo bar", parsing.PathParser)
     node = parser.parse()
     assert len(node) == 2
 
 
-#  IDENTIFIER
+#  KEYWORD
 
-def test_subparser_identifier():
-    parser = create_parser("foo", parsing.IdentifierParser)
+def test_subparser_keyword():
+    parser = create_parser("foo", parsing.KeywordParser)
     assert parser.subparse(nodes.NameNode)
 
 
@@ -57,8 +57,8 @@ def test_subparser_identifier():
         ("?foo", "foo"),
     ]
 )
-def test_identifier_acceptance(test_input, expected):
-    parser = create_parser(test_input, parsing.IdentifierParser)
+def test_keyword_acceptance(test_input, expected):
+    parser = create_parser(test_input, parsing.KeywordParser)
     node = parser.parse()
     assert node.value == expected
 
@@ -74,8 +74,8 @@ def test_identifier_acceptance(test_input, expected):
         "[1 2]"
     ]
 )
-def test_identifier_non_acceptance(test_input):
-    parser = create_parser(test_input, parsing.IdentifierParser)
+def test_keyword_non_acceptance(test_input):
+    parser = create_parser(test_input, parsing.KeywordParser)
     assert parser.parse() is None
 
 
@@ -93,7 +93,7 @@ def test_identifier_non_acceptance(test_input):
         ("?foo", parsing.DocParser)
     ]
 )
-def test_identifier_subparsers(test_input, parser):
+def test_keyword_subparsers(test_input, parser):
     parser = create_parser(test_input, parser)
     assert parser.parse() is not None
 
