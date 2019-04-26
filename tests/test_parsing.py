@@ -1,6 +1,7 @@
 import pytest
 
 from dale import parsing
+from dale import nodes
 
 from dale.lexing import TokenStream
 
@@ -18,7 +19,32 @@ def parse_one(text):
     return create_parser(text).parse()[0]
 
 
+#  BASE PARSER
+
+# def test_parser_empty_input():
+#     parser = create_parser("")
+#     assert parser.parse()
+
+
+#  NAMESPACE PARSER
+
+def test_namespace_single_identifier():
+    parser = create_parser("foo", parsing.NamespaceParser)
+    assert parser.parse()
+
+
+def test_namespace_multi_identifier():
+    parser = create_parser("foo bar", parsing.NamespaceParser)
+    node = parser.parse()
+    assert len(node) == 2
+
+
 #  IDENTIFIER
+
+def test_subparser_identifier():
+    parser = create_parser("foo", parsing.IdentifierParser)
+    assert parser.subparse(nodes.NameNode)
+
 
 @pytest.mark.parametrize(
     "test_input, expected",

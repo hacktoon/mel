@@ -48,8 +48,8 @@ class Parser:
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
 
-    def subparse(self, id):
-        return get_subparser(id, self.stream).parse()
+    def subparse(self, Node):
+        return get_subparser(Node.id, self.stream).parse()
 
     def __repr__(self):
         return self.__class__.__name__
@@ -59,7 +59,7 @@ class MultiParser(Parser):
     @indexed
     def parse(self):
         for option in self.options:
-            node = self.subparse(option.id)
+            node = self.subparse(option)
             if node:
                 return node
         return
@@ -91,6 +91,8 @@ class MetadataParser(Parser):
         pass
 
 
+# OBJECT
+
 class ObjectParser(MultiParser):
     Node = nodes.ObjectNode
     options = (
@@ -108,7 +110,15 @@ class NamespaceParser(Parser):
 
     @indexed
     def parse(self):
-        raise NotImplementedError
+        identifier = self.subparse(nodes.IdentifierNode)
+        node = self.Node()
+        node.add(identifier)
+        prefix = self.stream.read()
+        while identifier:
+            identifier = self.subparse(nodes.IdentifierNode)
+            if identifier:
+                node.add(identifier)
+        return node
 
 
 # IDENTIFIER
