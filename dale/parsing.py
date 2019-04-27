@@ -113,27 +113,49 @@ class ObjectParser(MultiParser):
 
 # PATH ===========================
 
+@subparser
 class PathParser(Parser):
     Node = nodes.PathNode
+    SubNodes = [nodes.ChildPathNode, nodes.MetadataPathNode]
 
     @indexed
     def parse(self):
         keyword = self.subparse(nodes.KeywordNode)
+        if not keyword:
+            return
         node = self.Node()
         node.add(keyword)
         while keyword:
-            keyword = self.subparse(nodes.KeywordNode)
-            if keyword:
-                node.add(keyword)
+            for Node in self.SubNodes:
+                keyword = self.subparse(Node)
+                if keyword:
+                    node.add(keyword)
         return node
 
 
+@subparser
 class ChildPathParser(Parser):
     Node = nodes.ChildPathNode
 
     def parse(self):
         if not self.stream.is_next(tokens.ChildPathToken):
             return
+        self.stream.read()
+        node = self.Node()
+        keyword = self.subparse(nodes.KeywordNode)
+        if not keyword:
+            raise UnexpectedTokenError()
+        return node
+
+
+@subparser
+class MetadataPathParser(Parser):
+    Node = nodes.MetadataPathNode
+
+    def parse(self):
+        if not self.stream.is_next(tokens.MetadataPathToken):
+            return
+        self.stream.read()
         node = self.Node()
         keyword = self.subparse(nodes.KeywordNode)
         if not keyword:

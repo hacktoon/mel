@@ -34,7 +34,7 @@ def test_path_single_keyword():
 
 
 def test_path_multi_keyword():
-    parser = create_parser("foo bar", parsing.PathParser)
+    parser = create_parser("foo/bar", parsing.PathParser)
     node = parser.parse()
     assert len(node) == 2
 
