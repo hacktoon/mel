@@ -118,13 +118,13 @@ class PathParser(Parser):
 
     @indexed
     def parse(self):
-        identifier = self.subparse(nodes.KeywordNode)
+        keyword = self.subparse(nodes.KeywordNode)
         node = self.Node()
-        node.add(identifier)
-        while identifier:
-            identifier = self.subparse(nodes.KeywordNode)
-            if identifier:
-                node.add(identifier)
+        node.add(keyword)
+        while keyword:
+            keyword = self.subparse(nodes.KeywordNode)
+            if keyword:
+                node.add(keyword)
         return node
 
 
@@ -135,8 +135,8 @@ class ChildPathParser(Parser):
         if not self.stream.is_next(tokens.ChildPathToken):
             return
         node = self.Node()
-        identifier = self.subparse(nodes.KeywordNode)
-        if not identifier:
+        keyword = self.subparse(nodes.KeywordNode)
+        if not keyword:
             raise UnexpectedTokenError()
         return node
 
