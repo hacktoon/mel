@@ -4,6 +4,7 @@ from dale import parsing
 from dale import nodes
 
 from dale.lexing import TokenStream
+from dale.exceptions import KeywordNotFoundError
 
 
 def create_parser(text, Parser=parsing.Parser):
@@ -33,10 +34,31 @@ def test_path_single_keyword():
     assert parser.parse()
 
 
-def test_path_multi_keyword():
+def test_path_child_keyword():
     parser = create_parser("foo/bar", parsing.PathParser)
     node = parser.parse()
     assert len(node) == 2
+
+
+def test_path_metadata_keyword():
+    parser = create_parser("foo.bar", parsing.PathParser)
+    node = parser.parse()
+    assert len(node) == 2
+
+
+def test_path_multi_mixed_keyword():
+    parser = create_parser("foo.bar/etc", parsing.PathParser)
+    node = parser.parse()
+    assert node[0].value == 'foo'
+    assert node[1].value == 'bar'
+    assert node[2].value == 'etc'
+    assert len(node) == 3
+
+
+def test_path_keyword_not_found():
+    parser = create_parser("foo/", parsing.PathParser)
+    with pytest.raises(KeywordNotFoundError):
+        parser.parse()
 
 
 #  KEYWORD

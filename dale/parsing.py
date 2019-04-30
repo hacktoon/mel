@@ -4,7 +4,8 @@ from . import tokens
 from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
-    NameNotFoundError
+    NameNotFoundError,
+    KeywordNotFoundError
 )
 
 
@@ -133,34 +134,29 @@ class PathParser(Parser):
         return node
 
 
-@subparser
-class ChildPathParser(Parser):
-    Node = nodes.ChildPathNode
-
+class SubPathParser(Parser):
     def parse(self):
-        if not self.stream.is_next(tokens.ChildPathToken):
+        if not self.stream.is_next(self.Token):
             return
-        self.stream.read()
+        prefix = self.stream.read()
         node = self.Node()
         keyword = self.subparse(nodes.KeywordNode)
         if not keyword:
-            raise UnexpectedTokenError()
+            raise KeywordNotFoundError(prefix)
+        node.value = keyword.value
         return node
 
 
 @subparser
-class MetadataPathParser(Parser):
+class MetadataPathParser(SubPathParser):
     Node = nodes.MetadataPathNode
+    Token = tokens.MetadataPathToken
 
-    def parse(self):
-        if not self.stream.is_next(tokens.MetadataPathToken):
-            return
-        self.stream.read()
-        node = self.Node()
-        keyword = self.subparse(nodes.KeywordNode)
-        if not keyword:
-            raise UnexpectedTokenError()
-        return node
+
+@subparser
+class ChildPathParser(SubPathParser):
+    Node = nodes.ChildPathNode
+    Token = tokens.ChildPathToken
 
 
 # KEYWORD ===========================

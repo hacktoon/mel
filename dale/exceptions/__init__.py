@@ -31,9 +31,9 @@ class SubNodeError(BaseError):
         super().__init__(token, "Expected an object after this symbol.")
 
 
-class RelationError(BaseError):
+class KeywordNotFoundError(BaseError):
     def __init__(self, token):
-        super().__init__(token, "Expected an object to make a relation.")
+        super().__init__(token, "Expected keyword.")
 
 
 class NameNotFoundError(BaseError):
