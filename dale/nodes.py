@@ -198,19 +198,27 @@ class StringNode(LiteralNode):
     id = "string"
 
 
+# PATH ============================
+
 class PathNode(Node):
     id = "path"
 
+    def __repr__(self):
+        txt = ''.join([str(node) for node in self._nodes])
+        return "{}('{}')".format(self.id.upper(), txt)
+
+
+class SubPathNode(Node):
     def __init__(self):
         super().__init__()
-        self.keywords = []
+        self.keyword = None
 
 
-class ChildPathNode(Node):
+class ChildPathNode(SubPathNode):
     id = "child-path"
 
 
-class MetadataPathNode(Node):
+class MetadataPathNode(SubPathNode):
     id = "metadata-path"
 
 

@@ -27,7 +27,7 @@ def parse_one(text):
 #     assert parser.parse()
 
 
-#  PATH PARSER
+#  PATH PARSER =================================================
 
 def test_path_single_keyword():
     parser = create_parser("foo", parsing.PathParser)
@@ -47,21 +47,29 @@ def test_path_metadata_keyword():
 
 
 def test_path_multi_mixed_keyword():
-    parser = create_parser("foo.bar/etc", parsing.PathParser)
+    parser = create_parser("foo.%bar/#etc", parsing.PathParser)
     node = parser.parse()
     assert node[0].value == 'foo'
-    assert node[1].value == 'bar'
-    assert node[2].value == 'etc'
+    assert node[1].keyword.id == nodes.FormatNode.id
+    assert node[1].keyword.value == 'bar'
+    assert node[2].keyword.id == nodes.UIDNode.id
+    assert node[2].keyword.value == 'etc'
     assert len(node) == 3
 
 
-def test_path_keyword_not_found():
-    parser = create_parser("foo/", parsing.PathParser)
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "foo.a/",
+    ]
+)
+def test_path_keyword_not_found(test_input):
+    parser = create_parser(test_input, parsing.PathParser)
     with pytest.raises(KeywordNotFoundError):
         parser.parse()
 
 
-#  KEYWORD
+#  KEYWORD ======================================================
 
 def test_subparser_keyword():
     parser = create_parser("foo", parsing.KeywordParser)

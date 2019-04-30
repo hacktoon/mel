@@ -44,6 +44,9 @@ class Parser:
     def __init__(self, stream):
         self.stream = stream
 
+    def build_node(self):
+        return self.Node()
+
     def parse(self):
         node = RootParser(self.stream).parse()
         if self.stream.is_eof():
@@ -75,7 +78,7 @@ class TokenParser(Parser):
     def parse(self):
         if not self.stream.is_next(self.Token):
             return
-        node = self.Node()
+        node = self.build_node()
         node.value = self.stream.read().value
         return node
 
@@ -124,7 +127,7 @@ class PathParser(Parser):
         keyword = self.subparse(nodes.KeywordNode)
         if not keyword:
             return
-        node = self.Node()
+        node = self.build_node()
         node.add(keyword)
         while keyword:
             for Node in self.SubNodes:
@@ -135,15 +138,16 @@ class PathParser(Parser):
 
 
 class SubPathParser(Parser):
+    @indexed
     def parse(self):
         if not self.stream.is_next(self.Token):
             return
         prefix = self.stream.read()
-        node = self.Node()
         keyword = self.subparse(nodes.KeywordNode)
         if not keyword:
             raise KeywordNotFoundError(prefix)
-        node.value = keyword.value
+        node = self.build_node()
+        node.keyword = keyword
         return node
 
 
@@ -192,7 +196,7 @@ class PrefixedNameParser(Parser):
         if not self.stream.is_next(self.Token):
             return
         prefix = self.stream.read()
-        node = self.Node()
+        node = self.build_node()
         if self.stream.is_next(tokens.NameToken):
             node.value = self.stream.read().value
             return node
