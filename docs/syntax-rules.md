@@ -19,12 +19,14 @@ reference        =  base-reference ( reference-child | metadata-path )*
 base-reference   =  RANGE | query | keyword | wildcard
 reference-child  =  '/' ( base-reference | INT | list )
 
-scope            =  '(' path metadata* object* ')'
-query            =  '{' path criteria* object* '}'
+scope            =  '(' key metadata* object* ')'
+query            =  '{' key criteria* object* '}'
+
+key              =  ':' | path
 
 metadata         =  flag | equals
 
-path             =  ':' | keyword ( child-path | metadata-path )*
+path             =  keyword ( child-path | metadata-path )*
 child-path       =  '/' keyword
 metadata-path    =  '.' keyword
 
