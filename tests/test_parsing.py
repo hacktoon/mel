@@ -124,7 +124,7 @@ def test_keyword_non_acceptance(test_input):
     assert parser.parse() is None
 
 
-#  IDENTIFIER SUB PARSERS
+#  KEYWORD SUB PARSERS ====================================
 
 @pytest.mark.parametrize(
     "test_input, parser",
@@ -143,7 +143,7 @@ def test_keyword_subparsers(test_input, parser):
     assert parser.parse() is not None
 
 
-#  LITERAL
+#  LITERAL =================================================
 
 @pytest.mark.parametrize(
     "test_input, expected",
@@ -177,7 +177,7 @@ def test_literal_non_acceptance(test_input):
     assert parser.parse() is None
 
 
-#  LITERAL SUB PARSERS
+#  LITERAL SUB PARSERS ====================================
 
 @pytest.mark.parametrize(
     "test_input, parser",

@@ -115,6 +115,22 @@ class ObjectParser(MultiParser):
     )
 
 
+# LIST ===========================
+
+class ListParser(MultiParser):
+    Node = nodes.ObjectNode
+    Token = tokens.StartListToken
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.Token):
+            return
+        node = self.build_node()
+        self.stream.read()
+        self.stream.read(tokens.EndListToken)
+        return node
+
+
 # PATH ===========================
 
 @subparser
