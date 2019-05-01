@@ -34,27 +34,39 @@ def test_path_single_keyword():
     assert parser.parse()
 
 
-def test_path_child_keyword():
-    parser = create_parser("foo/bar", parsing.PathParser)
+@pytest.mark.parametrize(
+    "test_input, total",
+    [
+        ("foo", 1),
+        ("Bar", 1),
+        ("foo/#bar", 2),
+        ("Foo/bar/?baz", 3),
+        ("foo.Bar.%baz", 3),
+        ("Foo/Etc.$bar/baz", 4)
+
+    ]
+)
+def test_path_length(test_input, total):
+    parser = create_parser(test_input, parsing.PathParser)
     node = parser.parse()
-    assert len(node) == 2
+    assert len(node) == total
 
 
-def test_path_metadata_keyword():
-    parser = create_parser("foo.bar", parsing.PathParser)
+@pytest.mark.parametrize(
+    "test_input, refNode",
+    [
+        ("foo", nodes.NameNode),
+        ("Bar", nodes.ReservedNameNode),
+        ("#code", nodes.UIDNode),
+        ("$code", nodes.VariableNode),
+        ("%code", nodes.FormatNode),
+        ("?code", nodes.DocNode)
+    ]
+)
+def test_path_single_node_ids(test_input, refNode):
+    parser = create_parser(test_input, parsing.PathParser)
     node = parser.parse()
-    assert len(node) == 2
-
-
-def test_path_multi_mixed_keyword():
-    parser = create_parser("foo.%bar/#etc", parsing.PathParser)
-    node = parser.parse()
-    assert node[0].value == 'foo'
-    assert node[1].keyword.id == nodes.FormatNode.id
-    assert node[1].keyword.value == 'bar'
-    assert node[2].keyword.id == nodes.UIDNode.id
-    assert node[2].keyword.value == 'etc'
-    assert len(node) == 3
+    assert node[0].id == refNode.id
 
 
 @pytest.mark.parametrize(
