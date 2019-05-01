@@ -121,6 +121,7 @@ class ObjectParser(MultiParser):
 class PathParser(Parser):
     Node = nodes.PathNode
     SubNodes = [nodes.ChildPathNode, nodes.MetadataPathNode]
+    Prefixes = (tokens.ChildPathToken, tokens.MetadataPathToken)
 
     @indexed
     def parse(self):
@@ -129,7 +130,7 @@ class PathParser(Parser):
             return
         node = self.build_node()
         node.add(keyword)
-        while keyword:
+        while self.stream.peek() in self.Prefixes:
             for Node in self.SubNodes:
                 keyword = self.subparse(Node)
                 if keyword:

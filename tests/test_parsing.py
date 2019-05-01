@@ -60,7 +60,10 @@ def test_path_multi_mixed_keyword():
 @pytest.mark.parametrize(
     "test_input",
     [
-        "foo.a/",
+        "foo/",
+        "Foo.",
+        "%foo.a/",
+        "$etc/#bar.tsc.",
     ]
 )
 def test_path_keyword_not_found(test_input):
