@@ -115,19 +115,69 @@ class ObjectParser(MultiParser):
     )
 
 
-# LIST ===========================
+# SCOPE ===========================
 
-class ListParser(MultiParser):
-    Node = nodes.ObjectNode
-    Token = tokens.StartListToken
+class ScopeParser(Parser):
+    Node = nodes.ScopeNode
+    FirstToken = tokens.StartScopeToken
+    LastToken = tokens.EndScopeToken
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.Token):
+        if not self.stream.is_next(self.FirstToken):
             return
         node = self.build_node()
         self.stream.read()
-        self.stream.read(tokens.EndListToken)
+        self.stream.read(self.LastToken)
+        return node
+
+
+# QUERY ===========================
+
+class QueryParser(Parser):
+    Node = nodes.QueryNode
+    FirstToken = tokens.StartQueryToken
+    LastToken = tokens.EndQueryToken
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.FirstToken):
+            return
+        node = self.build_node()
+        self.stream.read()
+        self.stream.read(self.LastToken)
+        return node
+
+
+# LIST ===========================
+
+class ListParser(Parser):
+    Node = nodes.ObjectNode
+    FirstToken = tokens.StartListToken
+    LastToken = tokens.EndListToken
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.FirstToken):
+            return
+        node = self.build_node()
+        self.stream.read()
+        self.stream.read(self.LastToken)
+        return node
+
+
+# REFERENCE ===========================
+
+class ReferenceParser(Parser):
+    Node = nodes.ReferenceNode
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.FirstToken):
+            return
+        node = self.build_node()
+        self.stream.read()
+        self.stream.read(self.LastToken)
         return node
 
 
