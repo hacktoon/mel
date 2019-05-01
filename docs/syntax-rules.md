@@ -9,43 +9,44 @@ Dale's syntax rules are:
 ```
 root             =  metadata* object*
 
-object           =  literal | list | reference | scope
-
-literal          =  INT | FLOAT | STRING | BOOLEAN
-
-list             =  '[' object* ']'
-
-reference        =  base-reference ( reference-child | metadata-path )*
-base-reference   =  RANGE | query | keyword | wildcard
-reference-child  =  '/' ( base-reference | INT | list )
-
-scope            =  '(' key metadata* object* ')'
-query            =  '{' key criteria* object* '}'
-
-key              =  ':' | path
-
-metadata         =  flag | equals
-
-path             =  keyword ( child-path | metadata-path )*
-child-path       =  '/' keyword
-metadata-path    =  '.' keyword
-
-keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
+metadata         =  flag | equals | different | lt | lte | gt | gte
 flag             =  '!' NAME
-uid              =  '#' NAME
-variable         =  '$' NAME
-format           =  '%' NAME
-doc              =  '?' NAME
-
-wildcard         =  '*'
-
-criteria         =  flag | equals | different | lt | lte | gt | gte
 equals           =  path '=' object
 different        =  path '!=' object
 lt               =  path '<' object
 lte              =  path '<=' object
 gt               =  path '>' object
 gte              =  path '>=' object
+
+path             =  keyword ( child-path | metadata-path )*
+child-path       =  '/' keyword
+metadata-path    =  '.' keyword
+
+keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
+uid              =  '#' NAME
+variable         =  '$' NAME
+format           =  '%' NAME
+doc              =  '?' NAME
+
+object           =  literal | list | reference | scope
+
+literal          =  INT | FLOAT | STRING | BOOLEAN
+
+list             =  '[' object* ']'
+
+reference        =  base-reference ( child-reference | metadata-path )*
+base-reference   =  RANGE | query | keyword | wildcard
+child-reference  =  '/' ( base-reference | INT | list )
+
+scope            =  '(' struct ')'
+query            =  '{' struct '}'
+
+struct           =  struct-key metadata* object*
+struct-key       =  ':' | path
+
+wildcard         =  '*'
+
+
 
 ```
 
