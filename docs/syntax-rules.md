@@ -41,13 +41,10 @@ child-reference  =  '/' ( base-reference | INT | list )
 scope            =  '(' struct ')'
 query            =  '{' struct '}'
 
-struct           =  struct-key metadata* object*
-struct-key       =  ':' | path
+struct           =  key metadata* object*
+key              =  ':' | path
 
 wildcard         =  '*'
-
-
-
 ```
 
 ## Whitespace

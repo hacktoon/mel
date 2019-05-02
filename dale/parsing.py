@@ -23,7 +23,7 @@ def subparser(cls):
     return cls
 
 
-# decorator - enriches a node instance with stream data
+# decorator - add stream data to node instance via parser method
 def indexed(parse_method):
     @functools.wraps(parse_method)
     def surrogate(self):
@@ -95,12 +95,59 @@ class RootParser(Parser):
 
 # METADATA ===========================
 
-class MetadataParser(Parser):
+class MetadataParser(MultiParser):
     Node = nodes.MetadataNode
+    options = (
+        nodes.FlagNode,
+        nodes.EqualNode,
+        nodes.DifferentNode,
+        nodes.GreaterThanNode,
+        nodes.GreaterThanEqualNode,
+        nodes.LessThanNode,
+        nodes.LessThanEqualNode
+    )
 
+
+class RelationParser(Parser):
     @indexed
     def parse(self):
-        pass
+        path = self.subparse(nodes.PathNode)
+        if not path:
+            return
+        self.stream.read(self.Token)
+        _object = self.subparse(nodes.ObjectNode)
+        if not _object:
+            raise Exception
+
+
+class EqualParser(RelationParser):
+    Node = nodes.EqualNode
+    Token = tokens.EqualsToken
+
+
+class DifferentParser(RelationParser):
+    Node = nodes.DifferentNode
+    Token = tokens.DifferentToken
+
+
+class GreaterThanParser(RelationParser):
+    Node = nodes.GreaterThanNode
+    Token = tokens.GreaterThanToken
+
+
+class GreaterThanEqualParser(RelationParser):
+    Node = nodes.GreaterThanEqualNode
+    Token = tokens.GreaterThanEqualToken
+
+
+class LessThanParser(RelationParser):
+    Node = nodes.LessThanNode
+    Token = tokens.LessThanToken
+
+
+class LessThanEqualParser(RelationParser):
+    Node = nodes.LessThanEqualNode
+    Token = tokens.LessThanEqualToken
 
 
 # OBJECT ===========================
@@ -115,44 +162,50 @@ class ObjectParser(MultiParser):
     )
 
 
-# SCOPE ===========================
+# STRUCT ===========================
 
-class ScopeParser(Parser):
+class StructParser(MultiParser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.FirstToken):
+            return
+        node = self.build_node()
+        self.stream.read()
+        self.parse_key(node)
+        self.parse_metadata(node)
+        self.parse_objects(node)
+        self.stream.read(self.LastToken)
+        return node
+
+    def parse_key(self, node):
+        if self.stream.is_next(tokens.NullKeyToken):
+            self.stream.read()
+            return
+        node.key = self.subparse(nodes.PathNode)
+
+    def parse_metadata(self, node):
+        pass
+
+    def parse_objects(self, node):
+        pass
+
+
+class ScopeParser(StructParser):
     Node = nodes.ScopeNode
     FirstToken = tokens.StartScopeToken
     LastToken = tokens.EndScopeToken
 
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.FirstToken):
-            return
-        node = self.build_node()
-        self.stream.read()
-        self.stream.read(self.LastToken)
-        return node
 
-
-# QUERY ===========================
-
-class QueryParser(Parser):
+class QueryParser(StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken
-
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.FirstToken):
-            return
-        node = self.build_node()
-        self.stream.read()
-        self.stream.read(self.LastToken)
-        return node
 
 
 # LIST ===========================
 
 class ListParser(Parser):
-    Node = nodes.ObjectNode
+    Node = nodes.ListNode
     FirstToken = tokens.StartListToken
     LastToken = tokens.EndListToken
 
@@ -173,12 +226,7 @@ class ReferenceParser(Parser):
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.FirstToken):
-            return
-        node = self.build_node()
-        self.stream.read()
-        self.stream.read(self.LastToken)
-        return node
+        pass
 
 
 # PATH ===========================
@@ -186,7 +234,7 @@ class ReferenceParser(Parser):
 @subparser
 class PathParser(Parser):
     Node = nodes.PathNode
-    SubNodes = [nodes.ChildPathNode, nodes.MetadataPathNode]
+    SubNodes = (nodes.ChildPathNode, nodes.MetadataPathNode)
     Prefixes = (tokens.ChildPathToken, tokens.MetadataPathToken)
 
     @indexed
@@ -268,6 +316,12 @@ class PrefixedNameParser(Parser):
             node.value = self.stream.read().value
             return node
         raise NameNotFoundError(prefix)
+
+
+@subparser
+class FlagParser(PrefixedNameParser):
+    Node = nodes.FlagNode
+    Token = tokens.FlagPrefixToken
 
 
 @subparser

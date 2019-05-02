@@ -70,8 +70,8 @@ class ReferenceNode(ObjectNode):
     id = "reference"
 
 
-class ScopeNode(Node):
-    id = "scope"
+class StructNode(Node):
+    id = "struct"
 
     def __init__(self):
         super().__init__()
@@ -113,11 +113,15 @@ class ScopeNode(Node):
         }
 
 
-class RootNode(ScopeNode):
+class RootNode(Node):
     id = "root"
 
 
-class QueryNode(ScopeNode):
+class ScopeNode(StructNode):
+    id = "scope"
+
+
+class QueryNode(StructNode):
     id = "query"
 
     def __init__(self):
