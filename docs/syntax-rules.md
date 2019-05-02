@@ -9,8 +9,9 @@ Dale's syntax rules are:
 ```
 root             =  metadata* object*
 
-metadata         =  flag | equals | different | lt | lte | gt | gte
+metadata         =  flag | relation
 flag             =  '!' NAME
+relation         =  equals | different | lt | lte | gt | gte
 equals           =  path '=' object
 different        =  path '!=' object
 lt               =  path '<' object

@@ -27,6 +27,53 @@ def parse_one(text):
 #     assert parser.parse()
 
 
+# OBJECT ======================================================
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        ("'etc'"),
+        ('"abc"'),
+        ('[1, -2.3, True]'),
+    ]
+)
+def test_subparser_object(test_input):
+    parser = create_parser(test_input, parsing.ObjectParser)
+    assert parser.parse()
+
+
+#  LIST ======================================================
+
+def test_subparser_empty_list():
+    parser = create_parser("[]", parsing.ListParser)
+    assert parser.parse().id == nodes.ListNode.id
+
+
+def test_subparser_literal_list():
+    parser = create_parser("[1, 2]", parsing.ListParser)
+    assert parser.parse().id == nodes.ListNode.id
+
+
+def test_subparser_nested_list():
+    parser = create_parser("[[], [1, 2]]", parsing.ListParser)
+    node = parser.parse()
+    assert node[0].id == nodes.ListNode.id
+    assert node[1].id == nodes.ListNode.id
+
+
+# METADATA ======================================================
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "!abc"
+    ]
+)
+def test_subparser_metadata(test_input):
+    parser = create_parser(test_input, parsing.MetadataParser)
+    assert parser.parse()
+
+
 #  PATH PARSER =================================================
 
 def test_path_single_keyword():
@@ -43,7 +90,6 @@ def test_path_single_keyword():
         ("Foo/bar/?baz", 3),
         ("foo.Bar.%baz", 3),
         ("Foo/Etc.$bar/baz", 4)
-
     ]
 )
 def test_path_length(test_input, total):

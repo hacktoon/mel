@@ -90,15 +90,34 @@ class RootParser(Parser):
 
     @indexed
     def parse(self):
-        pass
+        node = self.build_node()
+        self.parse_metadata(node)
+        return node
+
+    def parse_metadata(self, node):
+        while True:
+            metadata = self.subparse(nodes.MetadataNode)
+            if not metadata:
+                return
+            node.add(metadata)
 
 
 # METADATA ===========================
 
+@subparser
 class MetadataParser(MultiParser):
     Node = nodes.MetadataNode
     options = (
         nodes.FlagNode,
+        nodes.RelationNode
+    )
+
+
+# RELATION ===========================
+
+class RelationParser(MultiParser):
+    Node = nodes.RelationNode
+    options = (
         nodes.EqualNode,
         nodes.DifferentNode,
         nodes.GreaterThanNode,
@@ -107,44 +126,55 @@ class MetadataParser(MultiParser):
         nodes.LessThanEqualNode
     )
 
-
-class RelationParser(Parser):
     @indexed
     def parse(self):
         path = self.subparse(nodes.PathNode)
         if not path:
             return
-        self.stream.read(self.Token)
+        if not self.stream.is_next(self.Token):
+            return
+        self.stream.read()
+        node = self.build_node()
         _object = self.subparse(nodes.ObjectNode)
         if not _object:
             raise Exception
+        return node
+
+    def parse_signed_object(self):
+        pass
 
 
+@subparser
 class EqualParser(RelationParser):
     Node = nodes.EqualNode
     Token = tokens.EqualsToken
 
 
+@subparser
 class DifferentParser(RelationParser):
     Node = nodes.DifferentNode
     Token = tokens.DifferentToken
 
 
+@subparser
 class GreaterThanParser(RelationParser):
     Node = nodes.GreaterThanNode
     Token = tokens.GreaterThanToken
 
 
+@subparser
 class GreaterThanEqualParser(RelationParser):
     Node = nodes.GreaterThanEqualNode
     Token = tokens.GreaterThanEqualToken
 
 
+@subparser
 class LessThanParser(RelationParser):
     Node = nodes.LessThanNode
     Token = tokens.LessThanToken
 
 
+@subparser
 class LessThanEqualParser(RelationParser):
     Node = nodes.LessThanEqualNode
     Token = tokens.LessThanEqualToken
@@ -152,6 +182,7 @@ class LessThanEqualParser(RelationParser):
 
 # OBJECT ===========================
 
+@subparser
 class ObjectParser(MultiParser):
     Node = nodes.ObjectNode
     options = (
@@ -184,18 +215,28 @@ class StructParser(MultiParser):
         node.key = self.subparse(nodes.PathNode)
 
     def parse_metadata(self, node):
-        pass
+        while True:
+            metadata = self.subparse(nodes.MetadataNode)
+            if not metadata:
+                return
+            node.add(metadata)
 
     def parse_objects(self, node):
-        pass
+        while True:
+            _object = self.subparse(nodes.ObjectNode)
+            if not _object:
+                break
+            node.add(_object)
 
 
+@subparser
 class ScopeParser(StructParser):
     Node = nodes.ScopeNode
     FirstToken = tokens.StartScopeToken
     LastToken = tokens.EndScopeToken
 
 
+@subparser
 class QueryParser(StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
@@ -204,6 +245,7 @@ class QueryParser(StructParser):
 
 # LIST ===========================
 
+@subparser
 class ListParser(Parser):
     Node = nodes.ListNode
     FirstToken = tokens.StartListToken
@@ -215,12 +257,21 @@ class ListParser(Parser):
             return
         node = self.build_node()
         self.stream.read()
+        self.parse_objects(node)
         self.stream.read(self.LastToken)
         return node
+
+    def parse_objects(self, node):
+        while True:
+            _object = self.subparse(nodes.ObjectNode)
+            if not _object:
+                break
+            node.add(_object)
 
 
 # REFERENCE ===========================
 
+@subparser
 class ReferenceParser(Parser):
     Node = nodes.ReferenceNode
 
