@@ -4,7 +4,11 @@ from dale import parsing
 from dale import nodes
 
 from dale.lexing import TokenStream
-from dale.exceptions import KeywordNotFoundError
+from dale.exceptions import (
+    KeywordNotFoundError,
+    NameNotFoundError,
+    InfiniteRangeError
+)
 
 
 def create_parser(text, Parser=parsing.Parser):
@@ -20,11 +24,72 @@ def parse_one(text):
     return create_parser(text).parse()[0]
 
 
-#  BASE PARSER
+# BASE PARSER ===========================================
 
-# def test_parser_empty_input():
-#     parser = create_parser("")
-#     assert parser.parse()
+def test_empty_input_string():
+    node = parse("")
+    assert node.id == nodes.RootNode.id
+    assert len(node) == 0
+
+
+def test_whitespace_only():
+    node = parse("   ,,,\n ; , ;, \t ")
+    assert node.id == "root"
+    assert len(node) == 0
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        ("56.75 (a 3)"),
+        ("!flag -0.75"),
+        ("True  False"),
+        ("1.45e-10"),
+        ('"string"'),
+        ("'string'"),
+        # ("#id -0.099999"),
+        # ("-0.75e10/55 etc"),
+        # ("name 2"),
+        # ('?foo "test"'),
+    ],
+)
+def test_string_representation(test_input):
+    tree = parse(test_input)
+    assert str(tree) == test_input
+
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("-215", "INT('-215')"),
+        ("56.75", "FLOAT('56.75')"),
+        # ("#id", "UID('#id')"),
+        # ("$path", "VARIABLE('$path')"),
+        ("(bar 42)", "SCOPE('(bar 42)')"),
+        # ('[bar "etc"]', "LIST('[bar \"etc\"]')"),
+    ],
+)
+def test_node_representation(test_input, expected):
+    node = parse_one(test_input)
+    assert repr(node) == expected
+
+
+# NODE INDEX ===========================================
+
+def test_node_children_index():
+    node = parse("44 12")
+    assert node[0].index == (0, 2)
+    assert node[1].index == (3, 5)
+
+
+def test_list_index():
+    node = parse("[1, 2]")
+    assert node.index == (0, 6)
+
+
+def test_scope_index():
+    scope = parse("(a 2)")
+    assert scope.index == (0, 5)
 
 
 # OBJECT ======================================================
@@ -181,6 +246,11 @@ def test_keyword_non_acceptance(test_input):
     assert parser.parse() is None
 
 
+def test_name_not_found_after_prefix():
+    with pytest.raises(NameNotFoundError):
+        parse("(# )")
+
+
 #  KEYWORD SUB PARSERS ====================================
 
 @pytest.mark.parametrize(
@@ -253,74 +323,39 @@ def test_literal_subparsers(test_input, parser):
     assert parser.parse() is not None
 
 
-# #  NODE INDEX TESTS
+#  RANGE ==================================================
+
+# def test_range_id():
+#     node = parse_one("2..4")
+#     assert node.id == "range"
 
 
-# def test_node_children_index():
-#     node = parse("44 12")
-#     assert node[0].index == (0, 2)
-#     assert node[1].index == (3, 5)
+# def test_range_limit():
+#     node = parse_one("0..-10")
+#     assert node.start == 0
+#     assert node.end == -10
 
 
-# def test_list_index():
-#     node = parse("[1, 2]")
-#     assert node.index == (0, 6)
+# def test_range_without_specific_end():
+#     node = parse_one("42..")
+#     assert node.start == 42
+#     assert node.end is None
 
 
-# def test_scope_index():
-#     scope = parse("(a 2)")
-#     assert scope.index == (0, 5)
+# def test_range_without_specific_start():
+#     node = parse_one("..33")
+#     assert node.start is None
+#     assert node.end == 33
 
 
-# #  REPR TESTS
+# def test_range_must_have_at_least_one_int():
+#     with pytest.raises(InfiniteRangeError):
+#         parse("..")
 
 
-# def test_whitespace_only():
-#     node = parse("   ,,,\n ; , ;, \t ")
-#     assert node.id == "root"
-#     assert len(node) == 0
-
-
-# def test_empty_input_string():
-#     node = parse("")
-#     assert node.id == "root"
-#     assert len(node) == 0
-
-
-# @pytest.mark.parametrize(
-#     "test_input",
-#     [
-#         ("56.75 (a b)"),
-#         ("!flag -0.75"),
-#         ("#id -.099999"),
-#         ("-0.75e10/55 etc"),
-#         ("1.45e-10"),
-#         ("true  false"),
-#         ('"string"'),
-#         ("'string'"),
-#         ("name 2"),
-#         ('?foo "test"'),
-#     ],
-# )
-# def test_string_representation(test_input):
-#     tree = parse(test_input)
-#     assert str(tree) == test_input
-
-
-# @pytest.mark.parametrize(
-#     "test_input, expected",
-#     [
-#         ("-215", "INT('-215')"),
-#         ("56.75", "FLOAT('56.75')"),
-#         ("#id", "UID('#id')"),
-#         ("$path", "VARIABLE('$path')"),
-#         ("(bar 42)", "SCOPE('(bar 42)')"),
-#         ('[bar "etc"]', "LIST('[bar \"etc\"]')"),
-#     ],
-# )
-# def test_object_representation(test_input, expected):
-#     node = parse_one(test_input)
-#     assert repr(node) == expected
+# def test_range_only_accepts_integers():
+#     with pytest.raises(InfiniteRangeError):
+#         parse("3.4..")
 
 
 # #  SCOPE TESTS
@@ -424,63 +459,3 @@ def test_literal_subparsers(test_input, parser):
 #     node = parse_one("{abc 42}")
 #     assert str(node.key) == "abc"
 #     assert node[0].value == 42
-
-
-# #  PROPERTIES TESTS
-
-
-# def test_name_not_found_after_prefix():
-#     with pytest.raises(NameNotFoundError):
-#         parse("(# )")
-
-
-# #  RANGE TESTS
-
-
-# def test_range_id():
-#     node = parse_one("2..4")
-#     assert node.id == "range"
-
-
-# def test_range_limit():
-#     node = parse_one("0..-10")
-#     assert node.start == 0
-#     assert node.end == -10
-
-
-# def test_range_without_specific_end():
-#     node = parse_one("42..")
-#     assert node.start == 42
-#     assert node.end is None
-
-
-# def test_range_without_specific_start():
-#     node = parse_one("..33")
-#     assert node.start is None
-#     assert node.end == 33
-
-
-# def test_range_must_have_at_least_one_int():
-#     with pytest.raises(InfiniteRangeError):
-#         parse("..")
-
-
-# def test_range_only_accepts_integers():
-#     with pytest.raises(InfiniteRangeError):
-#         parse("3.4..")
-
-
-# # RELATION TESTS
-
-
-# def test_root_equal_relation_attributes():
-#     root = parse("name = 'john'")
-#     relation = root.props["attribute"]["name"]
-#     assert relation.value.value == "john"
-
-
-# def test_scope_relation_attributes():
-#     node = parse_one("(person name = 'john')")
-#     assert node.key.name == "person"
-#     relation = node.props["attribute"]["name"]
-#     assert relation.value.value == "john"

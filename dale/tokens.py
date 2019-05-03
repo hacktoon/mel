@@ -124,7 +124,7 @@ class NameToken(Token):
 
 class ReservedNameToken(Token):
     id = "reserved-name"
-    regex = re.compile(r"[A-Z]\w*")
+    regex = re.compile(r"[_A-Z]\w*")
 
 
 class AttributePrefixToken(Token):
