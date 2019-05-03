@@ -33,7 +33,12 @@ class SubNodeError(BaseError):
 
 class KeywordNotFoundError(BaseError):
     def __init__(self, token):
-        super().__init__(token, "Expected keyword.")
+        super().__init__(token, "Expected a keyword.")
+
+
+class ObjectNotFoundError(BaseError):
+    def __init__(self, token):
+        super().__init__(token, "Expected an object.")
 
 
 class NameNotFoundError(BaseError):

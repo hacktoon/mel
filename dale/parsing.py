@@ -5,7 +5,8 @@ from . import nodes
 from .exceptions import (
     UnexpectedTokenError,
     NameNotFoundError,
-    KeywordNotFoundError
+    KeywordNotFoundError,
+    ObjectNotFoundError
 )
 
 
@@ -55,7 +56,6 @@ class Parser:
         raise UnexpectedTokenError(token)
 
     def subparse(self, Node):
-        self.stream.save()
         return get_subparser(Node.id, self.stream).parse()
 
     def __repr__(self):
@@ -131,20 +131,24 @@ class MetadataParser(MultiParser):
 
 class RelationParser(Parser):
     Node = nodes.RelationNode
-    path_cache = None
 
     @indexed
     def parse(self):
+        self.stream.save()
         path = self.subparse(nodes.PathNode)
         if not path:
             return
         if not self.stream.is_next(self.Token):
+            self.stream.restore()
             return
         self.stream.read()
+        value = self.subparse(nodes.ObjectNode)
+        print(value)
+        if not value:
+            raise ObjectNotFoundError(self.stream.peek())
         node = self.build_node()
-        _object = self.subparse(nodes.ObjectNode)
-        if not _object:
-            raise Exception
+        node.path = path
+        node.value = value
         return node
 
 

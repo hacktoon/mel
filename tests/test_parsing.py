@@ -54,6 +54,11 @@ def test_subparser_literal_list():
     assert parser.parse().id == nodes.ListNode.id
 
 
+def test_list_size():
+    parser = create_parser("[1, 2, 'abc']", parsing.ListParser)
+    assert len(parser.parse()) == 3
+
+
 def test_subparser_nested_list():
     parser = create_parser("[[], [1, 2]]", parsing.ListParser)
     node = parser.parse()
@@ -67,7 +72,12 @@ def test_subparser_nested_list():
     "test_input",
     [
         "!abc",
-        "a = 3"
+        "a = 3",
+        "a/b >= 3",
+        "a/b <= 5.5",
+        "a.b > 102",
+        "foo.bar < 'a'",
+        "a.b/c != 'foo'"
     ]
 )
 def test_subparser_metadata(test_input):
@@ -242,24 +252,6 @@ def test_literal_subparsers(test_input, parser):
     parser = create_parser(test_input, parser)
     assert parser.parse() is not None
 
-# def test_parser_two_consecutive_expressions():
-#     parser = create_parser("'string' answer = 42")
-#     assert parser.parse_expression()
-#     assert parser.parse_expression()
-#     assert not parser.parse_expression()
-
-
-# def test_parser_incomplete_relation():
-#     parser = create_parser("=")
-#     with pytest.raises(RelationError):
-#         parser.parse_relation()
-
-
-# def test_parser_invalid_relation():
-#     parser = create_parser("==")
-#     with pytest.raises(RelationError):
-#         parser.parse_relation()
-
 
 # #  NODE INDEX TESTS
 
@@ -329,56 +321,6 @@ def test_literal_subparsers(test_input, parser):
 # def test_object_representation(test_input, expected):
 #     node = parse_one(test_input)
 #     assert repr(node) == expected
-
-
-# #  LIST TESTS
-
-
-# def test_empty_list():
-#     node = parse_one("[]")
-#     assert len(node) == 0
-
-
-# def test_list_id():
-#     node = parse_one("[2, 4]")
-#     assert node.id == "list"
-
-
-# def test_one_sized_list():
-#     node = parse_one("[3]")
-#     assert len(node) == 1
-
-
-# def test_multi_sized_list():
-#     node = parse_one("[3 name $cache]")
-#     assert len(node) == 3
-
-
-# #  SUBNODE TESTS
-
-
-# def test_path_creates_subnode():
-#     node = parse_one("abc/$def")
-#     assert node.id == "name"
-#     assert node[0].id == "variable"
-
-
-# def test_bigger_subnode_path():
-#     node = parse_one("abc/$def/#pid/!active")
-#     assert node.id == "name"
-#     assert node[0].id == "variable"
-#     assert node[0][0].id == "uid"
-#     assert node[0][0][0].id == "flag"
-
-
-# def test_unexpected_finished_chained_value_error():
-#     with pytest.raises(SubNodeError):
-#         parse("name/")
-
-
-# def test_unexpected_separator_error():
-#     with pytest.raises(UnexpectedTokenError):
-#         parse("/")
 
 
 # #  SCOPE TESTS

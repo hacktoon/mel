@@ -58,8 +58,43 @@ class WildcardNode(Node):
     id = "wildcard"
 
 
+# METADATA ============================
+
 class MetadataNode(Node):
     id = "metadata"
+
+
+class RelationNode(Node):
+    id = "relation"
+
+    def __init__(self):
+        super().__init__()
+        self.path = NullNode()
+        self.value = NullNode()
+
+
+class EqualNode(RelationNode):
+    id = "equal"
+
+
+class DifferentNode(RelationNode):
+    id = "different"
+
+
+class GreaterThanNode(RelationNode):
+    id = "greater_than"
+
+
+class GreaterThanEqualNode(RelationNode):
+    id = "greater_than_equal"
+
+
+class LessThanNode(RelationNode):
+    id = "less_than"
+
+
+class LessThanEqualNode(RelationNode):
+    id = "less_than_equal"
 
 
 class ObjectNode(Node):
@@ -225,33 +260,3 @@ class ChildPathNode(SubPathNode):
 class MetadataPathNode(SubPathNode):
     id = "metadata-path"
 
-
-class RelationNode(Node):
-    def __init__(self):
-        super().__init__()
-        self.key = NullNode()
-        self.value = NullNode()
-
-
-class EqualNode(RelationNode):
-    id = "equal"
-
-
-class DifferentNode(RelationNode):
-    id = "different"
-
-
-class GreaterThanNode(RelationNode):
-    id = "greater_than"
-
-
-class GreaterThanEqualNode(RelationNode):
-    id = "greater_than_equal"
-
-
-class LessThanNode(RelationNode):
-    id = "less_than"
-
-
-class LessThanEqualNode(RelationNode):
-    id = "less_than_equal"
