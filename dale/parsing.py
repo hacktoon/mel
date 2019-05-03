@@ -55,6 +55,7 @@ class Parser:
         raise UnexpectedTokenError(token)
 
     def subparse(self, Node):
+        self.stream.save()
         return get_subparser(Node.id, self.stream).parse()
 
     def __repr__(self):
@@ -92,6 +93,7 @@ class RootParser(Parser):
     def parse(self):
         node = self.build_node()
         self.parse_metadata(node)
+        self.parse_objects(node)
         return node
 
     def parse_metadata(self, node):
@@ -100,6 +102,13 @@ class RootParser(Parser):
             if not metadata:
                 return
             node.add(metadata)
+
+    def parse_objects(self, node):
+        while True:
+            _object = self.subparse(nodes.ObjectNode)
+            if not _object:
+                break
+            node.add(_object)
 
 
 # METADATA ===========================
