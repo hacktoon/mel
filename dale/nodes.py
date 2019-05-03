@@ -6,7 +6,7 @@ class Node:
     id = "node"
 
     def __init__(self):
-        self._nodes = []
+        self.children = []
         self.text = ""
         self.index = (0, 0)
 
@@ -14,7 +14,7 @@ class Node:
         return True
 
     def __len__(self):
-        return len(self._nodes)
+        return len(self.children)
 
     def __str__(self):
         first, last = self.index
@@ -24,7 +24,7 @@ class Node:
         return "{}('{}')".format(self.id.upper(), self)
 
     def __getitem__(self, index):
-        return self._nodes[index]
+        return self.children[index]
 
     def add(self, node):
         method_name = "_add_" + node.id
@@ -32,12 +32,12 @@ class Node:
             method = getattr(self, method_name)
             method(node)
         else:
-            self._nodes.append(node)
+            self.children.append(node)
 
     def eval(self, context):
         return {
             "id": self.id,
-            "nodes": [node.eval(context) for node in self._nodes]
+            "nodes": [node.eval(context) for node in self.children]
         }
 
 
@@ -54,11 +54,13 @@ class NullNode(Node):
         return
 
 
-class WildcardNode(Node):
-    id = "wildcard"
+# ROOT ========================================================
+
+class RootNode(Node):
+    id = "root"
 
 
-# METADATA ============================
+# METADATA ========================================================
 
 class MetadataNode(Node):
     id = "metadata"
@@ -97,13 +99,19 @@ class LessThanEqualNode(RelationNode):
     id = "less_than_equal"
 
 
+# OBJECT ========================================================
+
 class ObjectNode(Node):
     id = "object"
 
 
+# REFERENCE ========================================================
+
 class ReferenceNode(ObjectNode):
     id = "reference"
 
+
+# STRUCT ========================================================
 
 class StructNode(Node):
     id = "struct"
@@ -119,37 +127,13 @@ class StructNode(Node):
             "format": {},
             "doc": {},
         }
-        self.children = {}
-
-    def _add_flag(self, node):
-        self.props[node.id][node.name] = node
-
-    def _add_scope(self, scope):
-        if scope.key.id in self.props:
-            self.props[scope.key.id][scope.key.name] = scope
-        else:
-            self._nodes.append(scope)
-
-    def _add_equal(self, relation):
-        if not relation.key:
-            self._nodes.append(relation)
-            return
-        if relation.key.id == "name":
-            key = "attribute"
-        else:
-            key = relation.key.id
-        self.props[key][relation.key.name] = relation
 
     def eval(self, context):
         return {
             "id": self.id,
             "key": self.key.eval(context) if self.key else None,
-            "nodes": [node.eval(context) for node in self._nodes]
+            "nodes": [node.eval(context) for node in self.children]
         }
-
-
-class RootNode(Node):
-    id = "root"
 
 
 class ScopeNode(StructNode):
@@ -164,13 +148,13 @@ class QueryNode(StructNode):
         self.criteria = []
 
 
+# LIST ========================================================
+
 class ListNode(Node):
     id = "list"
 
 
-class FlagNode(Node):
-    id = "flag"
-
+# KEYWORD ========================================================
 
 class KeywordNode(Node):
     id = "keyword"
@@ -186,6 +170,10 @@ class NameNode(KeywordNode):
 
 class ReservedNameNode(NameNode):
     id = "reserved-name"
+
+
+class FlagNode(KeywordNode):
+    id = "flag"
 
 
 class UIDNode(KeywordNode):
@@ -204,6 +192,8 @@ class DocNode(KeywordNode):
     id = "doc"
 
 
+# RANGE ========================================================
+
 class RangeNode(Node):
     id = "range"
 
@@ -212,6 +202,8 @@ class RangeNode(Node):
         self.start = None
         self.end = None
 
+
+# LITERAL ========================================================
 
 class LiteralNode(Node):
     id = "literal"
@@ -237,13 +229,13 @@ class StringNode(LiteralNode):
     id = "string"
 
 
-# PATH ============================
+# PATH ========================================================
 
 class PathNode(Node):
     id = "path"
 
     def __repr__(self):
-        txt = ''.join([str(node) for node in self._nodes])
+        txt = ''.join([str(node) for node in self.children])
         return "{}('{}')".format(self.id.upper(), txt)
 
 
@@ -260,3 +252,8 @@ class ChildPathNode(SubPathNode):
 class MetadataPathNode(SubPathNode):
     id = "metadata-path"
 
+
+# WILDCARD ========================================================
+
+class WildcardNode(Node):
+    id = "wildcard"
