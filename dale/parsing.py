@@ -135,19 +135,21 @@ class RelationParser(Parser):
     @indexed
     def parse(self):
         self.stream.save()
-        path = self.subparse(nodes.PathNode)
-        if not path:
+        path_node = self.subparse(nodes.PathNode)
+        if not path_node:
             return
         if not self.stream.is_next(self.Token):
             self.stream.restore()
             return
+        return self.parse_relation(path_node)
+
+    def parse_relation(self, path_node):
         self.stream.read()
         value = self.subparse(nodes.ObjectNode)
-        print(value)
         if not value:
             raise ObjectNotFoundError(self.stream.peek())
         node = self.build_node()
-        node.path = path
+        node.path = path_node
         node.value = value
         return node
 
