@@ -109,15 +109,6 @@ class MetadataParser(MultiParser):
     Node = nodes.MetadataNode
     options = (
         nodes.FlagNode,
-        nodes.RelationNode
-    )
-
-
-# RELATION ===========================
-
-class RelationParser(MultiParser):
-    Node = nodes.RelationNode
-    options = (
         nodes.EqualNode,
         nodes.DifferentNode,
         nodes.GreaterThanNode,
@@ -125,6 +116,13 @@ class RelationParser(MultiParser):
         nodes.LessThanNode,
         nodes.LessThanEqualNode
     )
+
+
+# RELATION ===========================
+
+class RelationParser(Parser):
+    Node = nodes.RelationNode
+    path_cache = None
 
     @indexed
     def parse(self):
@@ -140,14 +138,11 @@ class RelationParser(MultiParser):
             raise Exception
         return node
 
-    def parse_signed_object(self):
-        pass
-
 
 @subparser
 class EqualParser(RelationParser):
     Node = nodes.EqualNode
-    Token = tokens.EqualsToken
+    Token = tokens.EqualToken
 
 
 @subparser

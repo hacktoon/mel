@@ -154,3 +154,23 @@ def test_stream_ends_with_eof_token():
     stream.read(tokens.EndScopeToken)
     assert stream.is_eof()
     assert stream.is_next(tokens.NullToken)
+
+
+def test_stream_default_savepoint():
+    stream = create_stream("1 2")
+    token = stream.read()
+    assert token.value == 1
+    stream.restore()
+    token = stream.read()
+    assert token.value == 1
+
+
+def test_stream_savepoint():
+    stream = create_stream("1 2 3")
+    stream.read()
+    index = stream.save()
+    stream.read()
+    stream.read()
+    stream.restore()
+    token = stream.read()
+    assert token.value == 2

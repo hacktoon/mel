@@ -157,7 +157,7 @@ class DocPrefixToken(Token):
     regex = re.compile(r"\?")
 
 
-class EqualsToken(Token):
+class EqualToken(Token):
     id = "="
     regex = re.compile("=")
 

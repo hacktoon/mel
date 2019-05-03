@@ -36,8 +36,8 @@ literal          =  INT | FLOAT | STRING | BOOLEAN
 list             =  '[' object* ']'
 
 reference        =  base-reference ( child-reference | metadata-path )*
-base-reference   =  RANGE | query | keyword | wildcard
-child-reference  =  '/' ( base-reference | INT | list )
+base-reference   =  query | keyword | wildcard
+child-reference  =  '/' ( base-reference | RANGE | INT | list )
 
 scope            =  '(' struct ')'
 query            =  '{' struct '}'

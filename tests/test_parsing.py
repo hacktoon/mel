@@ -66,7 +66,8 @@ def test_subparser_nested_list():
 @pytest.mark.parametrize(
     "test_input",
     [
-        "!abc"
+        "!abc",
+        "a = 3"
     ]
 )
 def test_subparser_metadata(test_input):
