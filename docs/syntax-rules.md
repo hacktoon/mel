@@ -7,45 +7,48 @@
 Dale's syntax rules are:
 
 ```
-root             =  meta* object*
+root           =  meta* object*
 
-meta             =  flag | relation
-flag             =  '!' NAME
-relation         =  equals | different | lt | lte | gt | gte
-equals           =  path '=' object
-different        =  path '!=' object
-lt               =  path '<' object
-lte              =  path '<=' object
-gt               =  path '>' object
-gte              =  path '>=' object
+meta           =  flag | relation
+flag           =  '!' NAME
+relation       =  equals | different | lt | lte | gt | gte
+equals         =  path '=' object
+different      =  path '!=' object
+lt             =  path '<' object
+lte            =  path '<=' object
+gt             =  path '>' object
+gte            =  path '>=' object
 
-path             =  keyword ( child-keyword | meta-keyword )*
-child-keyword    =  '/' keyword
-meta-keyword     =  '.' keyword
+path           =  keyword ( child-keyword | meta-keyword )*
+child-keyword  =  '/' keyword
+meta-keyword   =  '.' keyword
 
-keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
-uid              =  '#' NAME
-variable         =  '$' NAME
-format           =  '%' NAME
-doc              =  '?' NAME
+keyword        =  NAME | RESERVED_NAME | uid | variable | format | doc
+uid            =  '#' NAME
+variable       =  '$' NAME
+format         =  '%' NAME
+doc            =  '?' NAME
 
-object           =  literal | list | reference | scope
+object         =  literal | list | reference | scope
 
-literal          =  INT | FLOAT | STRING | BOOLEAN
+literal        =  INT | FLOAT | STRING | BOOLEAN
 
-list             =  '[' object* ']'
+list           =  '[' object* ']'
 
-reference        =  head-reference ( child-reference | meta-keyword )*
-head-reference   =  query | keyword | wildcard
-child-reference  =  '/' ( head-reference | RANGE | INT | list )
+reference      =  head-ref ( child-ref | meta-keyword )*
+head-ref       =  query | keyword | wildcard
+child-ref      =  '/' ( head-ref | range-ref | index-ref | subref-list )
+range-ref      =  RANGE
+index-ref      =  INT
+subref-list    =  list
 
-scope            =  '(' struct ')'
-query            =  '{' struct '}'
+scope          =  '(' struct ')'
+query          =  '{' struct '}'
 
-struct           =  key meta* object*
-key              =  ':' | path
+struct         =  key meta* object*
+key            =  ':' | path
 
-wildcard         =  '*'
+wildcard       =  '*'
 ```
 
 ## Whitespace

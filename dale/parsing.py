@@ -66,6 +66,8 @@ class Parser:
 # SPECIALIZED PARSERS ===========================
 
 class MultiParser(Parser):
+    options = tuple()
+
     @indexed
     def parse(self):
         for option in self.options:
@@ -82,6 +84,14 @@ class TokenParser(Parser):
             return
         node = self.build_node()
         node.value = self.stream.read().value
+        return node
+
+
+class AliasParser(Parser):
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        node.node = self.subparse(self.Alias)
         return node
 
 
@@ -304,13 +314,48 @@ class HeadReferenceParser(MultiParser):
     )
 
 
+@subparser
+class ChildReferenceParser(MultiParser):
+    Node = nodes.ChildReferenceNode
+    options = (
+        nodes.HeadReferenceNode,
+        nodes.RangeReferenceNode,
+        nodes.IntReferenceNode,
+        nodes.SubreferenceListNode
+    )
+
+    def parse(self):
+        if not self.stream.is_next(tokens.ChildToken):
+            return
+        self.stream.read()
+        return super().parse()
+
+
+@subparser
+class RangeReferenceParser(AliasParser):
+    Node = nodes.RangeReferenceNode
+    Alias = nodes.RangeNode
+
+
+@subparser
+class IntReferenceParser(AliasParser):
+    Node = nodes.IntReferenceNode
+    Alias = nodes.IntNode
+
+
+@subparser
+class SubreferenceListParser(AliasParser):
+    Node = nodes.SubreferenceListNode
+    Alias = nodes.ListNode
+
+
 # PATH ===========================
 
 @subparser
 class PathParser(Parser):
     Node = nodes.PathNode
     SubNodes = (nodes.ChildKeywordNode, nodes.MetaKeywordNode)
-    Prefixes = (tokens.ChildPathToken, tokens.MetaPathToken)
+    Prefixes = (tokens.ChildToken, tokens.MetaPathToken)
 
     @indexed
     def parse(self):
@@ -350,7 +395,7 @@ class MetaPathParser(SubPathParser):
 @subparser
 class ChildPathParser(SubPathParser):
     Node = nodes.ChildKeywordNode
-    Token = tokens.ChildPathToken
+    Token = tokens.ChildToken
 
 
 # KEYWORD ===========================

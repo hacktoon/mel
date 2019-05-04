@@ -107,12 +107,32 @@ class ObjectNode(Node):
 
 # REFERENCE ========================================================
 
-class ReferenceNode(ObjectNode):
+class ReferenceNode(Node):
     id = "reference"
 
 
-class HeadReferenceNode(ObjectNode):
+class HeadReferenceNode(Node):
     id = "head-reference"
+
+
+class SubreferenceNode(Node):
+    id = "subreference"
+
+
+class ChildReferenceNode(Node):
+    id = "child-reference"
+
+
+class RangeReferenceNode(SubreferenceNode):
+    id = "range-reference"
+
+
+class IntReferenceNode(SubreferenceNode):
+    id = "int-reference"
+
+
+class SubreferenceListNode(SubreferenceNode):
+    id = "subreference-list"
 
 
 # STRUCT ========================================================

@@ -205,7 +205,7 @@ class MetaPathToken(Token):
     regex = re.compile(r"\.")
 
 
-class ChildPathToken(Token):
+class ChildToken(Token):
     id = "/"
     regex = re.compile("/")
 
