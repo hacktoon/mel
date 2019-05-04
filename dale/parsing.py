@@ -207,9 +207,9 @@ class LessThanEqualParser(RelationParser):
 class ObjectParser(MultiParser):
     Node = nodes.ObjectNode
     options = (
+        nodes.ReferenceNode,
         nodes.LiteralNode,
         nodes.ListNode,
-        nodes.ReferenceNode,
         nodes.ScopeNode
     )
 
@@ -295,13 +295,22 @@ class ListParser(Parser):
 @subparser
 class ReferenceParser(Parser):
     Node = nodes.ReferenceNode
+    SubNodes = (nodes.ChildReferenceNode, nodes.MetaKeywordNode)
+    Prefixes = (tokens.ChildToken, tokens.MetaPathToken)
 
     @indexed
     def parse(self):
         head = self.subparse(nodes.HeadReferenceNode)
         if not head:
             return
-        return head
+        node = self.build_node()
+        node.add(head)
+        while self.stream.peek() in self.Prefixes:
+            for Node in self.SubNodes:
+                subnode = self.subparse(Node)
+                if subnode:
+                    node.add(subnode)
+        return node
 
 
 @subparser

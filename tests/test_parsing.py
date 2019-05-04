@@ -6,7 +6,8 @@ from dale import nodes
 from dale.lexing import TokenStream
 from dale.exceptions import (
     KeywordNotFoundError,
-    NameNotFoundError
+    NameNotFoundError,
+    InfiniteRangeError
 )
 
 
@@ -15,8 +16,8 @@ def create_parser(text, Parser=parsing.Parser):
     return Parser(stream)
 
 
-def parse(text):
-    return create_parser(text).parse()
+def parse(text, Parser=parsing.Parser):
+    return create_parser(text, Parser).parse()
 
 
 def parse_one(text):
@@ -62,8 +63,8 @@ def test_string_representation(test_input):
     [
         ("-215", "INT('-215')"),
         ("56.75", "FLOAT('56.75')"),
-        ("#id", "UID('#id')"),
-        ("$path", "VARIABLE('$path')"),
+        ("#id", "REFERENCE('#id')"),
+        ("$path", "REFERENCE('$path')"),
         ("(bar 42)", "SCOPE('(bar 42)')"),
         ('[bar "etc"]', "LIST('[bar \"etc\"]')")
     ],
@@ -128,6 +129,21 @@ def test_subparser_nested_list():
     node = parser.parse()
     assert node[0].id == nodes.ListNode.id
     assert node[1].id == nodes.ListNode.id
+
+
+#  REFERENCE ======================================================
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "etc",
+        'foo.#bar',
+        'abc/[1 2]'
+    ]
+)
+def test_reference_keywords(test_input):
+    parser = create_parser(test_input, parsing.ReferenceParser)
+    assert parser.parse()
 
 
 # METADATA ======================================================
@@ -250,8 +266,6 @@ def test_name_not_found_after_prefix():
         parse("(# )")
 
 
-#  KEYWORD SUB PARSERS ====================================
-
 @pytest.mark.parametrize(
     "test_input, parser",
     [
@@ -303,8 +317,6 @@ def test_literal_non_acceptance(test_input):
     assert parser.parse() is None
 
 
-#  LITERAL SUB PARSERS ====================================
-
 @pytest.mark.parametrize(
     "test_input, parser",
     [
@@ -324,79 +336,78 @@ def test_literal_subparsers(test_input, parser):
 
 #  RANGE ==================================================
 
-# def test_range_id():
-#     node = parse_one("2..4")
-#     assert node.id == "range"
+def test_range_id():
+    node = parse("2..4", parsing.RangeParser)
+    assert node.id == nodes.RangeNode.id
 
 
-# def test_range_limit():
-#     node = parse_one("0..-10")
-#     assert node.start == 0
-#     assert node.end == -10
+def test_range_limit():
+    node = parse("0..-10", parsing.RangeParser)
+    assert node.start == 0
+    assert node.end == -10
 
 
-# def test_range_without_specific_end():
-#     node = parse_one("42..")
-#     assert node.start == 42
-#     assert node.end is None
+def test_range_without_specific_end():
+    node = parse("42..", parsing.RangeParser)
+    assert node.start == 42
+    assert node.end is None
 
 
-# def test_range_without_specific_start():
-#     node = parse_one("..33")
-#     assert node.start is None
-#     assert node.end == 33
+def test_range_without_specific_start():
+    node = parse("..33", parsing.RangeParser)
+    assert node.start is None
+    assert node.end == 33
 
 
-# def test_range_must_have_at_least_one_int():
-#     with pytest.raises(InfiniteRangeError):
-#         parse("..")
+def test_range_must_have_at_least_one_int():
+    with pytest.raises(InfiniteRangeError):
+        parse("..", parsing.RangeParser)
 
 
-# def test_range_only_accepts_integers():
-#     with pytest.raises(InfiniteRangeError):
-#         parse("3.4..")
+def test_range_only_accepts_integers():
+    with pytest.raises(InfiniteRangeError):
+        parse("..3.4", parsing.RangeParser)
 
 
-# #  SCOPE TESTS
+# SCOPE ===================================================
+
+def test_empty_scope():
+    node = parse("()", parsing.ScopeParser)
+    assert not node.key
+    assert len(node) == 0
 
 
-# def test_empty_scope():
-#     node = parse_one("()")
-#     assert not node.key
-#     assert len(node) == 0
+def test_scope_with_key_and_no_value():
+    node = parse("(a)", parsing.ScopeParser)
+    assert str(node.key) == "a"
+    assert len(node) == 0
 
 
-# def test_scope_with_key_and_no_value():
-#     node = parse_one("(a)")
-#     assert str(node.key) == "a"
-#     assert len(node) == 0
+def test_scope_key_assumes_first_value():
+    node = parse("(foo 42)", parsing.ScopeParser)
+    assert str(node.key) == "foo"
 
 
-# def test_scope_key_assumes_first_value():
-#     node = parse_one("(foo 42)")
-#     assert str(node.key) == "foo"
-
-
-# def test_scope_with_many_values():
-#     node = parse_one("(a (b 2) 4 'etc')")
-#     assert str(node[0]) == "(b 2)"
-#     assert str(node[1]) == "4"
-#     assert str(node[2]) == "'etc'"
+def test_scope_with_many_values():
+    node = parse("(a (b 2) 4 'etc')", parsing.ScopeParser)
+    assert str(node[0]) == "(b 2)"
+    assert str(node[1]) == "4"
+    assert str(node[2]) == "'etc'"
 
 
 # def test_scope_key_with_doc():
-#     node = parse_one("(bar (?help 'foo'))")
+#     node = parse("(bar (?help 'foo'))", parsing.ScopeParser)
 #     assert node.props["doc"]["help"][0].value == "foo"
 
 
 # def test_scope_key_with_multi_properties():
-#     node = parse_one("(foo (%bar 2) (#id 48764))")
+#     node = parse("(foo (%bar 2) (#id 48764))", parsing.ScopeParser)
 #     assert str(node.props["format"]["bar"]) == "(%bar 2)"
 #     assert str(node.props["uid"]["id"]) == "(#id 48764)"
 
 
 # def test_scope_child_values():
-#     node = parse_one("(foo (#bar 2, 4))")
+#     node = parse("(foo (#bar 2, 4))", parsing.ScopeParser)
 #     uid = node.props["uid"]["bar"]
 #     assert str(uid[0]) == "2"
 #     assert str(uid[1]) == "4"
@@ -408,12 +419,12 @@ def test_literal_subparsers(test_input, parser):
 
 
 # def test_scope_flag_property():
-#     node = parse_one("(foo !active)")
+#     node = parse("(foo !active)", parsing.ScopeParser)
 #     assert str(node.props["flag"]["active"]) == "!active"
 
 
 # def test_scope_uid_property():
-#     node = parse_one("(foo (#id 22))")
+#     node = parse("(foo (#id 22))", parsing.ScopeParser)
 #     assert str(node.props["uid"]["id"]) == "(#id 22)"
 
 
@@ -426,7 +437,7 @@ def test_literal_subparsers(test_input, parser):
 #         (%short child)
 #     )
 #     """
-#     node = parse_one(text)
+#     node = parse(text, parsing.ScopeParser)
 #     attrs = node.props
 #     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
 #     assert str(attrs["doc"]["help"]) == '(?help "A object")'
@@ -435,26 +446,26 @@ def test_literal_subparsers(test_input, parser):
 
 
 # def test_null_scope_key():
-#     node = parse_one("(: 'test')")
+#     node = parse("(: 'test')", parsing.ScopeParser)
 #     assert not node.key
 
 
 # def test_nested_scope_with_null_key():
-#     node = parse_one("(foo (: 56.7) )")
+#     node = parse("(foo (: 56.7) )", parsing.ScopeParser)
 #     assert node.id == "scope"
 #     assert node.props["attribute"] == {}
 
 
 # def test_scope_with_wildcard_key():
-#     node = parse_one("(* abc)")
+#     node = parse("(* abc)", parsing.ScopeParser)
 #     assert node.id == "scope"
 #     assert node.key.id == "wildcard"
 
 
-# #  QUERY TESTS
+# QUERY ===============================================
 
 
-# def test_query_key_assumes_first_value():
-#     node = parse_one("{abc 42}")
-#     assert str(node.key) == "abc"
-#     assert node[0].value == 42
+def test_query_key_single_value():
+    node = parse("{abc 42}", parsing.QueryParser)
+    assert str(node.key) == "abc"
+    assert node[0].value == 42

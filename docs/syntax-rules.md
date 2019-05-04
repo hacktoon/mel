@@ -11,13 +11,13 @@ root           =  meta* object*
 
 meta           =  flag | relation
 flag           =  '!' NAME
-relation       =  equals | different | lt | lte | gt | gte
-equals         =  path '=' object
-different      =  path '!=' object
-lt             =  path '<' object
-lte            =  path '<=' object
-gt             =  path '>' object
-gte            =  path '>=' object
+relation       =  path ( equals | different | lt | lte | gt | gte )
+equals         =  '=' object
+different      =  '!=' object
+lt             =  '<' object
+lte            =  '<=' object
+gt             =  '>' object
+gte            =  '>=' object
 
 path           =  keyword ( child-keyword | meta-keyword )*
 child-keyword  =  '/' keyword
@@ -29,18 +29,18 @@ variable       =  '$' NAME
 format         =  '%' NAME
 doc            =  '?' NAME
 
-object         =  literal | list | reference | scope
+object         =  reference | literal | list | scope
 
-literal        =  INT | FLOAT | STRING | BOOLEAN
+literal        =  RANGE | INT | FLOAT | STRING | BOOLEAN
 
 list           =  '[' object* ']'
 
 reference      =  head-ref ( child-ref | meta-keyword )*
-head-ref       =  query | keyword | wildcard
-child-ref      =  '/' ( head-ref | range-ref | index-ref | subref-list )
+head-ref       =  query | keyword
+child-ref      =  '/' ( head-ref | range-ref | index-ref | list-ref | wildcard)
 range-ref      =  RANGE
 index-ref      =  INT
-subref-list    =  list
+list-ref       =  list
 
 scope          =  '(' struct ')'
 query          =  '{' struct '}'
