@@ -111,6 +111,10 @@ class ReferenceNode(ObjectNode):
     id = "reference"
 
 
+class HeadReferenceNode(ObjectNode):
+    id = "head-reference"
+
+
 # STRUCT ========================================================
 
 class StructNode(Node):

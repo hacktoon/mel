@@ -288,16 +288,20 @@ class ReferenceParser(Parser):
 
     @indexed
     def parse(self):
-        pass
+        head = self.subparse(nodes.HeadReferenceNode)
+        if not head:
+            return
+        return head
 
 
 @subparser
-class HeadReferenceParser(Parser):
-    Node = nodes.ReferenceNode
-
-    @indexed
-    def parse(self):
-        pass
+class HeadReferenceParser(MultiParser):
+    Node = nodes.HeadReferenceNode
+    options = (
+        nodes.QueryNode,
+        nodes.KeywordNode,
+        nodes.WildcardNode
+    )
 
 
 # PATH ===========================

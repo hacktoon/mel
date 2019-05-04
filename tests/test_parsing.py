@@ -46,10 +46,10 @@ def test_whitespace_only():
         ("1.45e-10"),
         ('"string"'),
         ("'string'"),
-        # ("#id -0.099999"),
-        # ("-0.75e10/55 etc"),
-        # ("name 2"),
-        # ('?foo "test"'),
+        ("#id -0.099999"),
+        ("-0.75e10 etc"),
+        ("name 2"),
+        ('?foo "test"')
     ],
 )
 def test_string_representation(test_input):
@@ -62,10 +62,10 @@ def test_string_representation(test_input):
     [
         ("-215", "INT('-215')"),
         ("56.75", "FLOAT('56.75')"),
-        # ("#id", "UID('#id')"),
-        # ("$path", "VARIABLE('$path')"),
+        ("#id", "UID('#id')"),
+        ("$path", "VARIABLE('$path')"),
         ("(bar 42)", "SCOPE('(bar 42)')"),
-        # ('[bar "etc"]', "LIST('[bar \"etc\"]')"),
+        ('[bar "etc"]', "LIST('[bar \"etc\"]')")
     ],
 )
 def test_node_representation(test_input, expected):
