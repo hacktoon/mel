@@ -6,8 +6,7 @@ from dale import nodes
 from dale.lexing import TokenStream
 from dale.exceptions import (
     KeywordNotFoundError,
-    NameNotFoundError,
-    InfiniteRangeError
+    NameNotFoundError
 )
 
 

@@ -168,7 +168,7 @@ def test_stream_default_savepoint():
 def test_stream_savepoint():
     stream = create_stream("1 2 3")
     stream.read()
-    index = stream.save()
+    stream.save()
     stream.read()
     stream.read()
     stream.restore()

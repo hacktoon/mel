@@ -6,7 +6,8 @@ from .exceptions import (
     UnexpectedTokenError,
     NameNotFoundError,
     KeywordNotFoundError,
-    ObjectNotFoundError
+    ObjectNotFoundError,
+    InfiniteRangeError
 )
 
 
@@ -295,7 +296,7 @@ class ReferenceParser(Parser):
 @subparser
 class PathParser(Parser):
     Node = nodes.PathNode
-    SubNodes = (nodes.ChildPathNode, nodes.MetadataPathNode)
+    SubNodes = (nodes.ChildKeywordNode, nodes.MetaKeywordNode)
     Prefixes = (tokens.ChildPathToken, tokens.MetadataPathToken)
 
     @indexed
@@ -329,13 +330,13 @@ class SubPathParser(Parser):
 
 @subparser
 class MetadataPathParser(SubPathParser):
-    Node = nodes.MetadataPathNode
+    Node = nodes.MetaKeywordNode
     Token = tokens.MetadataPathToken
 
 
 @subparser
 class ChildPathParser(SubPathParser):
-    Node = nodes.ChildPathNode
+    Node = nodes.ChildKeywordNode
     Token = tokens.ChildPathToken
 
 

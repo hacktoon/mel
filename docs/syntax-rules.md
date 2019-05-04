@@ -19,9 +19,9 @@ lte              =  path '<=' object
 gt               =  path '>' object
 gte              =  path '>=' object
 
-path             =  keyword ( child-path | metadata-path )*
-child-path       =  '/' keyword
-metadata-path    =  '.' keyword
+path             =  keyword ( child-keyword | meta-keyword )*
+child-keyword    =  '/' keyword
+meta-keyword     =  '.' keyword
 
 keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
 uid              =  '#' NAME
@@ -35,7 +35,7 @@ literal          =  INT | FLOAT | STRING | BOOLEAN
 
 list             =  '[' object* ']'
 
-reference        =  base-reference ( child-reference | metadata-path )*
+reference        =  base-reference ( child-reference | meta-keyword )*
 base-reference   =  query | keyword | wildcard
 child-reference  =  '/' ( base-reference | RANGE | INT | list )
 

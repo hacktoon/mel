@@ -239,18 +239,18 @@ class PathNode(Node):
         return "{}('{}')".format(self.id.upper(), txt)
 
 
-class SubPathNode(Node):
+class SubpathNode(Node):
     def __init__(self):
         super().__init__()
         self.keyword = None
 
 
-class ChildPathNode(SubPathNode):
-    id = "child-path"
+class ChildKeywordNode(SubpathNode):
+    id = "child-keyword"
 
 
-class MetadataPathNode(SubPathNode):
-    id = "metadata-path"
+class MetaKeywordNode(SubpathNode):
+    id = "meta-keyword"
 
 
 # WILDCARD ========================================================
