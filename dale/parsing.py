@@ -291,6 +291,15 @@ class ReferenceParser(Parser):
         pass
 
 
+@subparser
+class HeadReferenceParser(Parser):
+    Node = nodes.ReferenceNode
+
+    @indexed
+    def parse(self):
+        pass
+
+
 # PATH ===========================
 
 @subparser
