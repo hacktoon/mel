@@ -165,6 +165,23 @@ class RelationParser(Parser):
         return node
 
 
+class ComparisonParser(Parser):
+    Node = nodes.EqualNode
+    Token = tokens.EqualToken
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.Token):
+            return
+        self.stream.read()
+        _object = self.subparse(nodes.ObjectNode)
+        if not _object:
+            raise ObjectNotFoundError(self.stream.peek())
+        node = self.build_node()
+        node.value = _object
+        return node
+
+
 @subparser
 class EqualParser(RelationParser):
     Node = nodes.EqualNode

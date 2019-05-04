@@ -165,6 +165,12 @@ def test_subparser_meta(test_input):
     assert parser.parse()
 
 
+def test_comparison():
+    parser = create_parser("= 4", parsing.ComparisonParser)
+    comparison = parser.parse().value
+    assert comparison.value == 4
+
+
 #  PATH PARSER =================================================
 
 def test_path_single_keyword():
