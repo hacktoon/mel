@@ -200,7 +200,7 @@ class RangeToken(Token):
     regex = re.compile(r"\.\.")
 
 
-class MetadataPathToken(Token):
+class MetaPathToken(Token):
     id = "."
     regex = re.compile(r"\.")
 

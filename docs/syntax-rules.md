@@ -7,45 +7,45 @@
 Dale's syntax rules are:
 
 ```
-root             =  metadata* object*
+root           =  meta* object*
 
-metadata         =  flag | relation
-flag             =  '!' NAME
-relation         =  equals | different | lt | lte | gt | gte
-equals           =  path '=' object
-different        =  path '!=' object
-lt               =  path '<' object
-lte              =  path '<=' object
-gt               =  path '>' object
-gte              =  path '>=' object
+meta           =  flag | relation
+flag           =  '!' NAME
+relation       =  equals | different | lt | lte | gt | gte
+equals         =  path '=' object
+different      =  path '!=' object
+lt             =  path '<' object
+lte            =  path '<=' object
+gt             =  path '>' object
+gte            =  path '>=' object
 
-path             =  keyword ( child-keyword | meta-keyword )*
-child-keyword    =  '/' keyword
-meta-keyword     =  '.' keyword
+path           =  keyword ( child-keyword | meta-keyword )*
+child-keyword  =  '/' keyword
+meta-keyword   =  '.' keyword
 
-keyword          =  NAME | RESERVED_NAME | uid | variable | format | doc
-uid              =  '#' NAME
-variable         =  '$' NAME
-format           =  '%' NAME
-doc              =  '?' NAME
+keyword        =  NAME | RESERVED_NAME | uid | variable | format | doc
+uid            =  '#' NAME
+variable       =  '$' NAME
+format         =  '%' NAME
+doc            =  '?' NAME
 
-object           =  literal | list | reference | scope
+object         =  literal | list | ref | scope
 
-literal          =  INT | FLOAT | STRING | BOOLEAN
+literal        =  INT | FLOAT | STRING | BOOLEAN
 
-list             =  '[' object* ']'
+list           =  '[' object* ']'
 
-reference        =  base-reference ( child-reference | meta-keyword )*
-base-reference   =  query | keyword | wildcard
-child-reference  =  '/' ( base-reference | RANGE | INT | list )
+ref            =  base-ref ( child-ref | meta-keyword )*
+base-ref       =  query | keyword | wildcard
+child-ref      =  '/' ( base-ref | RANGE | INT | list )
 
-scope            =  '(' struct ')'
-query            =  '{' struct '}'
+scope          =  '(' struct ')'
+query          =  '{' struct '}'
 
-struct           =  key metadata* object*
-key              =  ':' | path
+struct         =  key meta* object*
+key            =  ':' | path
 
-wildcard         =  '*'
+wildcard       =  '*'
 ```
 
 ## Whitespace

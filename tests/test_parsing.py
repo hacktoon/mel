@@ -144,8 +144,8 @@ def test_subparser_nested_list():
         "a.b/c != 'foo'"
     ]
 )
-def test_subparser_metadata(test_input):
-    parser = create_parser(test_input, parsing.MetadataParser)
+def test_subparser_meta(test_input):
+    parser = create_parser(test_input, parsing.MetaParser)
     assert parser.parse()
 
 

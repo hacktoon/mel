@@ -60,10 +60,10 @@ class RootNode(Node):
     id = "root"
 
 
-# METADATA ========================================================
+# META ========================================================
 
-class MetadataNode(Node):
-    id = "metadata"
+class MetaNode(Node):
+    id = "meta"
 
 
 class RelationNode(Node):

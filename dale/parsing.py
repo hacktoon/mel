@@ -99,7 +99,7 @@ class RootParser(Parser):
 
     def parse_metadata(self, node):
         while True:
-            metadata = self.subparse(nodes.MetadataNode)
+            metadata = self.subparse(nodes.MetaNode)
             if not metadata:
                 return
             node.add(metadata)
@@ -115,8 +115,8 @@ class RootParser(Parser):
 # METADATA ===========================
 
 @subparser
-class MetadataParser(MultiParser):
-    Node = nodes.MetadataNode
+class MetaParser(MultiParser):
+    Node = nodes.MetaNode
     options = (
         nodes.FlagNode,
         nodes.EqualNode,
@@ -227,7 +227,7 @@ class StructParser(MultiParser):
 
     def parse_metadata(self, node):
         while True:
-            metadata = self.subparse(nodes.MetadataNode)
+            metadata = self.subparse(nodes.MetaNode)
             if not metadata:
                 return
             node.add(metadata)
@@ -297,7 +297,7 @@ class ReferenceParser(Parser):
 class PathParser(Parser):
     Node = nodes.PathNode
     SubNodes = (nodes.ChildKeywordNode, nodes.MetaKeywordNode)
-    Prefixes = (tokens.ChildPathToken, tokens.MetadataPathToken)
+    Prefixes = (tokens.ChildPathToken, tokens.MetaPathToken)
 
     @indexed
     def parse(self):
@@ -329,9 +329,9 @@ class SubPathParser(Parser):
 
 
 @subparser
-class MetadataPathParser(SubPathParser):
+class MetaPathParser(SubPathParser):
     Node = nodes.MetaKeywordNode
-    Token = tokens.MetadataPathToken
+    Token = tokens.MetaPathToken
 
 
 @subparser
