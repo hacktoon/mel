@@ -71,35 +71,37 @@ class StatementNode(Node):
 
 
 class RelationNode(Node):
-    id = "relation"
-
     def __init__(self):
         super().__init__()
         self.path = NullNode()
         self.value = NullNode()
 
 
-class EqualNode(RelationNode):
+class ComparisonNode(Node):
+    id = "comparison"
+
+
+class EqualNode(ComparisonNode):
     id = "equal"
 
 
-class DifferentNode(RelationNode):
+class DifferentNode(ComparisonNode):
     id = "different"
 
 
-class GreaterThanNode(RelationNode):
+class GreaterThanNode(ComparisonNode):
     id = "greater_than"
 
 
-class GreaterThanEqualNode(RelationNode):
+class GreaterThanEqualNode(ComparisonNode):
     id = "greater_than_equal"
 
 
-class LessThanNode(RelationNode):
+class LessThanNode(ComparisonNode):
     id = "less_than"
 
 
-class LessThanEqualNode(RelationNode):
+class LessThanEqualNode(ComparisonNode):
     id = "less_than_equal"
 
 

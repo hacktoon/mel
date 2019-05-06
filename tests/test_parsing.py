@@ -152,8 +152,10 @@ def test_reference_keywords(test_input):
     "test_input",
     [
         "!abc",
+        "!foo/bar",
         "a = 3",
-        "a/b >= 3",
+        "etc = (a 2)",
+        "a/b >= 3.19",
         "a/b <= 5.5",
         "a.b > 102",
         "foo.bar < 'a'",
@@ -165,13 +167,15 @@ def test_subparser_meta(test_input):
     assert parser.parse()
 
 
-def test_comparison():
-    parser = create_parser("= 4", parsing.ComparisonParser)
+# RELATION =================================================
+
+def test_relation():
+    parser = create_parser("a.b/c != 'foo'", parsing.RelationParser)
     comparison = parser.parse().value
-    assert comparison.value == 4
+    assert comparison.value == 'foo'
 
 
-#  PATH PARSER =================================================
+# PATH =================================================
 
 def test_path_single_keyword():
     parser = create_parser("foo", parsing.PathParser)
@@ -227,7 +231,7 @@ def test_path_keyword_not_found(test_input):
         parser.parse()
 
 
-#  KEYWORD ======================================================
+# KEYWORD ======================================================
 
 def test_subparser_keyword():
     parser = create_parser("foo", parsing.KeywordParser)
@@ -289,7 +293,7 @@ def test_keyword_subparsers(test_input, parser):
     assert parser.parse() is not None
 
 
-#  LITERAL =================================================
+# LITERAL =================================================
 
 @pytest.mark.parametrize(
     "test_input, expected",
@@ -340,7 +344,7 @@ def test_literal_subparsers(test_input, parser):
     assert parser.parse() is not None
 
 
-#  RANGE ==================================================
+# RANGE ==================================================
 
 def test_range_id():
     node = parse("2..4", parsing.RangeParser)
@@ -462,14 +466,7 @@ def test_scope_with_many_values():
 #     assert node.props["attribute"] == {}
 
 
-# def test_scope_with_wildcard_key():
-#     node = parse("(* abc)", parsing.ScopeParser)
-#     assert node.id == "scope"
-#     assert node.key.id == "wildcard"
-
-
 # QUERY ===============================================
-
 
 def test_query_key_single_value():
     node = parse("{abc 42}", parsing.QueryParser)

@@ -95,7 +95,7 @@ class AliasParser(Parser):
         return node
 
 
-# ROOT ===========================
+# ROOT ======================================================
 
 class RootParser(Parser):
     Node = nodes.RootNode
@@ -122,13 +122,23 @@ class RootParser(Parser):
             node.add(_object)
 
 
-# METADATA ===========================
+# METADATA ======================================================
 
 @subparser
 class MetaParser(MultiParser):
     Node = nodes.MetaNode
     options = (
         nodes.FlagNode,
+        nodes.RelationNode
+    )
+
+
+# RELATION ======================================================
+
+@subparser
+class RelationParser(MultiParser):
+    Node = nodes.RelationNode
+    options = (
         nodes.EqualNode,
         nodes.DifferentNode,
         nodes.GreaterThanNode,
@@ -137,38 +147,21 @@ class MetaParser(MultiParser):
         nodes.LessThanEqualNode
     )
 
-
-# RELATION ===========================
-
-class RelationParser(Parser):
-    Node = nodes.RelationNode
-
     @indexed
     def parse(self):
         self.stream.save()
-        path_node = self.subparse(nodes.PathNode)
-        if not path_node:
+        path = self.subparse(nodes.PathNode)
+        if not path:
             return
-        if not self.stream.is_next(self.Token):
+        node = super().parse()
+        if not node:
             self.stream.restore()
             return
-        return self.parse_relation(path_node)
-
-    def parse_relation(self, path_node):
-        self.stream.read()
-        value = self.subparse(nodes.ObjectNode)
-        if not value:
-            raise ObjectNotFoundError(self.stream.peek())
-        node = self.build_node()
-        node.path = path_node
-        node.value = value
+        node.path = path
         return node
 
 
 class ComparisonParser(Parser):
-    Node = nodes.EqualNode
-    Token = tokens.EqualToken
-
     @indexed
     def parse(self):
         if not self.stream.is_next(self.Token):
@@ -183,42 +176,42 @@ class ComparisonParser(Parser):
 
 
 @subparser
-class EqualParser(RelationParser):
+class EqualParser(ComparisonParser):
     Node = nodes.EqualNode
     Token = tokens.EqualToken
 
 
 @subparser
-class DifferentParser(RelationParser):
+class DifferentParser(ComparisonParser):
     Node = nodes.DifferentNode
     Token = tokens.DifferentToken
 
 
 @subparser
-class GreaterThanParser(RelationParser):
+class GreaterThanParser(ComparisonParser):
     Node = nodes.GreaterThanNode
     Token = tokens.GreaterThanToken
 
 
 @subparser
-class GreaterThanEqualParser(RelationParser):
+class GreaterThanEqualParser(ComparisonParser):
     Node = nodes.GreaterThanEqualNode
     Token = tokens.GreaterThanEqualToken
 
 
 @subparser
-class LessThanParser(RelationParser):
+class LessThanParser(ComparisonParser):
     Node = nodes.LessThanNode
     Token = tokens.LessThanToken
 
 
 @subparser
-class LessThanEqualParser(RelationParser):
+class LessThanEqualParser(ComparisonParser):
     Node = nodes.LessThanEqualNode
     Token = tokens.LessThanEqualToken
 
 
-# OBJECT ===========================
+# OBJECT ======================================================
 
 @subparser
 class ObjectParser(MultiParser):
@@ -231,7 +224,7 @@ class ObjectParser(MultiParser):
     )
 
 
-# STRUCT ===========================
+# STRUCT ======================================================
 
 class StructParser(MultiParser):
     @indexed
@@ -281,7 +274,7 @@ class QueryParser(StructParser):
     LastToken = tokens.EndQueryToken
 
 
-# LIST ===========================
+# LIST ======================================================
 
 @subparser
 class ListParser(Parser):
@@ -307,7 +300,7 @@ class ListParser(Parser):
             node.add(_object)
 
 
-# REFERENCE ===========================
+# REFERENCE ======================================================
 
 @subparser
 class ReferenceParser(Parser):
@@ -375,7 +368,7 @@ class SubreferenceListParser(AliasParser):
     Alias = nodes.ListNode
 
 
-# PATH ===========================
+# PATH ======================================================
 
 @subparser
 class PathParser(Parser):
