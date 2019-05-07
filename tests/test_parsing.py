@@ -152,7 +152,6 @@ def test_reference_keywords(test_input):
     "test_input",
     [
         "!abc",
-        "!foo/bar",
         "a = 3",
         "etc = (a 2)",
         "a/b >= 3.19",
@@ -167,10 +166,10 @@ def test_subparser_meta(test_input):
     assert parser.parse()
 
 
-# RELATION =================================================
+# STATEMENT =================================================
 
-def test_relation():
-    parser = create_parser("a/b/c != 'foo'", parsing.RelationParser)
+def test_statement():
+    parser = create_parser("a/b/c != 'foo'", parsing.StatementParser)
     comparison = parser.parse().value
     assert comparison.value == 'foo'
 

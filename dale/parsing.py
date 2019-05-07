@@ -129,15 +129,15 @@ class MetaParser(MultiParser):
     Node = nodes.MetaNode
     options = (
         nodes.FlagNode,
-        nodes.RelationNode
+        nodes.StatementNode
     )
 
 
-# RELATION ======================================================
+# STATEMENT ======================================================
 
 @subparser
-class RelationParser(MultiParser):
-    Node = nodes.RelationNode
+class StatementParser(MultiParser):
+    Node = nodes.StatementNode
     options = (
         nodes.EqualNode,
         nodes.DifferentNode,

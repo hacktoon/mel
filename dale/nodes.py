@@ -69,8 +69,6 @@ class MetaNode(Node):
 class StatementNode(Node):
     id = "statement"
 
-
-class RelationNode(Node):
     def __init__(self):
         super().__init__()
         self.path = NullNode()
