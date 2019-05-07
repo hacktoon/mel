@@ -19,9 +19,7 @@ lte            =  '<=' object
 gt             =  '>' object
 gte            =  '>=' object
 
-path           =  keyword ( child-keyword | meta-keyword )*
-child-keyword  =  '/' keyword
-meta-keyword   =  '.' keyword
+path           =  keyword ( '/' keyword )*
 
 keyword        =  NAME | RESERVED_NAME | uid | variable | format | doc
 uid            =  '#' NAME
@@ -35,12 +33,9 @@ literal        =  RANGE | INT | FLOAT | STRING | BOOLEAN
 
 list           =  '[' object* ']'
 
-reference      =  head-ref ( child-ref | meta-keyword )*
+reference      =  head-ref ( '/' child-ref )*
 head-ref       =  query | keyword
-child-ref      =  '/' ( head-ref | range-ref | index-ref | list-ref | wildcard)
-range-ref      =  RANGE
-index-ref      =  INT
-list-ref       =  list
+child-ref      =  RANGE | INT | wildcard | list | query | keyword
 
 scope          =  '(' struct ')'
 query          =  '{' struct '}'

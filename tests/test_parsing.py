@@ -137,7 +137,7 @@ def test_subparser_nested_list():
     "test_input",
     [
         "etc",
-        'foo.#bar',
+        'foo/#bar',
         'abc/[1 2]'
     ]
 )
@@ -157,9 +157,9 @@ def test_reference_keywords(test_input):
         "etc = (a 2)",
         "a/b >= 3.19",
         "a/b <= 5.5",
-        "a.b > 102",
-        "foo.bar < 'a'",
-        "a.b/c != 'foo'"
+        "_etc > 102",
+        "foo/bar < 'a'",
+        "A/b/C != 'foo'"
     ]
 )
 def test_subparser_meta(test_input):
@@ -170,7 +170,7 @@ def test_subparser_meta(test_input):
 # RELATION =================================================
 
 def test_relation():
-    parser = create_parser("a.b/c != 'foo'", parsing.RelationParser)
+    parser = create_parser("a/b/c != 'foo'", parsing.RelationParser)
     comparison = parser.parse().value
     assert comparison.value == 'foo'
 
@@ -189,8 +189,8 @@ def test_path_single_keyword():
         ("Bar", 1),
         ("foo/#bar", 2),
         ("Foo/bar/?baz", 3),
-        ("foo.Bar.%baz", 3),
-        ("Foo/Etc.$bar/baz", 4)
+        ("foo/Bar/%baz", 3),
+        ("Foo/Etc/$bar/baz", 4)
     ]
 )
 def test_path_length(test_input, total):
@@ -220,9 +220,9 @@ def test_path_single_node_ids(test_input, refNode):
     "test_input",
     [
         "foo/",
-        "Foo.",
-        "%foo.a/",
-        "$etc/#bar.tsc.",
+        "Foo/",
+        "%foo/a/",
+        "$etc/#bar/Tsc/",
     ]
 )
 def test_path_keyword_not_found(test_input):

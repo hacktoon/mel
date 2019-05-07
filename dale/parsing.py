@@ -305,8 +305,6 @@ class ListParser(Parser):
 @subparser
 class ReferenceParser(Parser):
     Node = nodes.ReferenceNode
-    SubNodes = (nodes.ChildReferenceNode, nodes.MetaKeywordNode)
-    Prefixes = (tokens.ChildToken, tokens.MetaPathToken)
 
     @indexed
     def parse(self):
@@ -315,11 +313,11 @@ class ReferenceParser(Parser):
             return
         node = self.build_node()
         node.add(head)
-        while self.stream.peek() in self.Prefixes:
-            for Node in self.SubNodes:
-                subnode = self.subparse(Node)
-                if subnode:
-                    node.add(subnode)
+        while self.stream.is_next(tokens.ChildToken):
+            self.stream.read()
+            child = self.subparse(nodes.ChildReferenceNode)
+            if child:
+                node.add(child)
         return node
 
 
@@ -328,8 +326,7 @@ class HeadReferenceParser(MultiParser):
     Node = nodes.HeadReferenceNode
     options = (
         nodes.QueryNode,
-        nodes.KeywordNode,
-        nodes.WildcardNode
+        nodes.KeywordNode
     )
 
 
@@ -337,35 +334,14 @@ class HeadReferenceParser(MultiParser):
 class ChildReferenceParser(MultiParser):
     Node = nodes.ChildReferenceNode
     options = (
-        nodes.HeadReferenceNode,
-        nodes.RangeReferenceNode,
-        nodes.IntReferenceNode,
-        nodes.SubreferenceListNode
+        nodes.WildcardNode,
+        nodes.RangeNode,
+        nodes.IntNode,
+        nodes.ListNode,
+        # nodes.FlagNode,
+        nodes.KeywordNode,
+        nodes.HeadReferenceNode
     )
-
-    def parse(self):
-        if not self.stream.is_next(tokens.ChildToken):
-            return
-        self.stream.read()
-        return super().parse()
-
-
-@subparser
-class RangeReferenceParser(AliasParser):
-    Node = nodes.RangeReferenceNode
-    Alias = nodes.RangeNode
-
-
-@subparser
-class IntReferenceParser(AliasParser):
-    Node = nodes.IntReferenceNode
-    Alias = nodes.IntNode
-
-
-@subparser
-class SubreferenceListParser(AliasParser):
-    Node = nodes.SubreferenceListNode
-    Alias = nodes.ListNode
 
 
 # PATH ======================================================
@@ -373,8 +349,6 @@ class SubreferenceListParser(AliasParser):
 @subparser
 class PathParser(Parser):
     Node = nodes.PathNode
-    SubNodes = (nodes.ChildKeywordNode, nodes.MetaKeywordNode)
-    Prefixes = (tokens.ChildToken, tokens.MetaPathToken)
 
     @indexed
     def parse(self):
@@ -383,38 +357,14 @@ class PathParser(Parser):
             return
         node = self.build_node()
         node.add(keyword)
-        while self.stream.peek() in self.Prefixes:
-            for Node in self.SubNodes:
-                keyword = self.subparse(Node)
-                if keyword:
-                    node.add(keyword)
+        while self.stream.is_next(tokens.ChildToken):
+            self.stream.read()
+            keyword = self.subparse(nodes.KeywordNode)
+            if keyword:
+                node.add(keyword)
+            else:
+                raise KeywordNotFoundError(self.stream.peek())
         return node
-
-
-class SubPathParser(Parser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.Token):
-            return
-        prefix = self.stream.read()
-        keyword = self.subparse(nodes.KeywordNode)
-        if not keyword:
-            raise KeywordNotFoundError(prefix)
-        node = self.build_node()
-        node.keyword = keyword
-        return node
-
-
-@subparser
-class MetaPathParser(SubPathParser):
-    Node = nodes.MetaKeywordNode
-    Token = tokens.MetaPathToken
-
-
-@subparser
-class ChildPathParser(SubPathParser):
-    Node = nodes.ChildKeywordNode
-    Token = tokens.ChildToken
 
 
 # KEYWORD ===========================

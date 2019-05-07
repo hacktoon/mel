@@ -200,11 +200,6 @@ class RangeToken(Token):
     regex = re.compile(r"\.\.")
 
 
-class MetaPathToken(Token):
-    id = "."
-    regex = re.compile(r"\.")
-
-
 class ChildToken(Token):
     id = "/"
     regex = re.compile("/")
