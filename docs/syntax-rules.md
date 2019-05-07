@@ -9,10 +9,10 @@ Dale's syntax rules are:
 ```
 root       =  meta* object*
 
-meta       =  flag | relation
+meta       =  flag | statement
 flag       =  '!' NAME
-relation   =  path sign object
-sign       =  '=' | '!=' | '<' | '<=' | '>' | '>='
+statement  =  path symbol object
+symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
 path       =  keyword ( '/' keyword )*
 
