@@ -7,43 +7,38 @@
 Dale's syntax rules are:
 
 ```
-root           =  meta* object*
+root       =  meta* object*
 
-meta           =  flag | relation
-flag           =  '!' NAME
-relation       =  path ( equals | different | lt | lte | gt | gte )
-equals         =  '=' object
-different      =  '!=' object
-lt             =  '<' object
-lte            =  '<=' object
-gt             =  '>' object
-gte            =  '>=' object
+meta       =  flag | relation
+flag       =  '!' NAME
+relation   =  path sign object
+sign       =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
-path           =  keyword ( '/' keyword )*
+path       =  keyword ( '/' keyword )*
 
-keyword        =  NAME | RESERVED_NAME | uid | variable | format | doc
-uid            =  '#' NAME
-variable       =  '$' NAME
-format         =  '%' NAME
-doc            =  '?' NAME
+keyword    =  NAME | RESERVED_NAME | uid | variable | format | doc
+uid        =  '#' NAME
+variable   =  '$' NAME
+format     =  '%' NAME
+doc        =  '?' NAME
 
-object         =  reference | literal | list | scope
+object     =  reference | literal | list | scope
 
-literal        =  RANGE | INT | FLOAT | STRING | BOOLEAN
+literal    =  RANGE | INT | FLOAT | STRING | BOOLEAN
 
-list           =  '[' object* ']'
+list       =  '[' object* ']'
 
-reference      =  head-ref ( '/' child-ref )*
-head-ref       =  query | keyword
-child-ref      =  RANGE | INT | wildcard | list | query | keyword
+reference  =  head-ref ( '/' child-ref )*
+head-ref   =  query | keyword
+child-ref  =  RANGE | INT | wildcard | list | query | keyword
 
-scope          =  '(' struct ')'
-query          =  '{' struct '}'
+scope      =  '(' struct ')'
+query      =  '{' struct '}'
 
-struct         =  key meta* object*
-key            =  ':' | path
+struct     =  key meta* object*
+key        =  ':' | path
 
-wildcard       =  '*'
+wildcard   =  '*'
 ```
 
 ## Whitespace
