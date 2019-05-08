@@ -7,9 +7,9 @@
 Dale's syntax rules are:
 
 ```
-root       =  meta* object*
+root       =  meta object*
 
-meta       =  flag | statement
+meta       =  ( flag | statement )*
 flag       =  '!' NAME
 statement  =  path symbol object
 symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
@@ -35,7 +35,7 @@ child-ref  =  RANGE | INT | wildcard | list | query | keyword
 scope      =  '(' struct ')'
 query      =  '{' struct '}'
 
-struct     =  key meta* object*
+struct     =  key meta object*
 key        =  ':' | path
 
 wildcard   =  '*'

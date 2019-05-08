@@ -103,16 +103,9 @@ class RootParser(Parser):
     @indexed
     def parse(self):
         node = self.build_node()
-        self.parse_metadata(node)
+        node.meta = self.subparse(nodes.MetaNode)
         self.parse_objects(node)
         return node
-
-    def parse_metadata(self, node):
-        while True:
-            metadata = self.subparse(nodes.MetaNode)
-            if not metadata:
-                return
-            node.add(metadata)
 
     def parse_objects(self, node):
         while True:
@@ -122,7 +115,7 @@ class RootParser(Parser):
             node.add(_object)
 
 
-# METADATA ======================================================
+# META ======================================================
 
 @subparser
 class MetaParser(MultiParser):
@@ -131,6 +124,16 @@ class MetaParser(MultiParser):
         nodes.FlagNode,
         nodes.StatementNode
     )
+
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        while True:
+            meta = super().parse()
+            if not meta:
+                break
+            node.add(meta)
+        return node
 
 
 # STATEMENT ======================================================
@@ -237,7 +240,7 @@ class StructParser(MultiParser):
         node = self.build_node()
         self.stream.read()
         self.parse_key(node)
-        self.parse_metadata(node)
+        node.meta = self.subparse(nodes.MetaNode)
         self.parse_objects(node)
         self.stream.read(self.LastToken)
         return node
@@ -247,13 +250,6 @@ class StructParser(MultiParser):
             self.stream.read()
             return
         node.key = self.subparse(nodes.PathNode)
-
-    def parse_metadata(self, node):
-        while True:
-            metadata = self.subparse(nodes.MetaNode)
-            if not metadata:
-                return
-            node.add(metadata)
 
     def parse_objects(self, node):
         while True:
