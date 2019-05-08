@@ -468,35 +468,20 @@ def test_scope_meta_statement(test_input, compare_map):
         result_map[str(meta.key)] = meta.value.value
     assert result_map == compare_map
 
-# def test_scope_child_values():
-#     node = parse("(foo (#bar 2, 4))", parsing.ScopeParser)
-#     uid = node.props["uid"]["bar"]
-#     assert str(uid[0]) == "2"
-#     assert str(uid[1]) == "4"
 
-
-# def test_scope_properties():
-#     text = """
-#     (object
-#         (#answer_code 42)
-#         ($ref {!active})
-#         (?help "A object")
-#         (%short child)
-#     )
-#     """
-#     node = parse(text, parsing.ScopeParser)
-#     attrs = node.props
-#     assert str(attrs["uid"]["answer_code"]) == "(#answer_code 42)"
-#     assert str(attrs["doc"]["help"]) == '(?help "A object")'
-#     assert str(attrs["variable"]["ref"]) == "($ref {!active})"
-#     assert str(attrs["format"]["short"]) == "(%short child)"
-
-
-
-# def test_nested_scope_with_null_key():
-#     node = parse("(foo (: 56.7) )", parsing.ScopeParser)
-#     assert node.id == "scope"
-#     assert node.props["attribute"] == {}
+@pytest.mark.parametrize(
+    "test_input, flags",
+    [
+        ("(foo !active)", ["active"]),
+        ("(bar !a !b)", ["a", "b"]),
+    ]
+)
+def test_scope_meta_flag(test_input, flags):
+    node = parse(test_input, parsing.ScopeParser)
+    result_flags = []
+    for meta in node.meta:
+        result_flags.append(meta.value)
+    assert result_flags == flags
 
 
 # QUERY ===============================================

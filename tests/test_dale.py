@@ -14,16 +14,16 @@ def test_invalid_lex():
         dale.lex("~")
 
 
-# def test_create_parser():
-#     parser = dale.create_parser("answer 42")
-#     assert parser.parse()
+def test_create_parser():
+    parser = dale.create_parser("answer 42")
+    assert parser.parse()
 
 
-# def test_parse():
-#     tree = dale.parse("answer 42")
-#     assert len(tree) == 2
+def test_parse():
+    tree = dale.parse("answer 42")
+    assert len(tree) == 2
 
 
-# def test_invalid_parse():
-#     with pytest.raises(DaleError):
-#         dale.parse("answer /")
+def test_invalid_parse():
+    with pytest.raises(DaleError):
+        dale.parse("answer /")
