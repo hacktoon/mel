@@ -5,6 +5,7 @@ from dale import nodes
 
 from dale.lexing import TokenStream
 from dale.exceptions import (
+    UnexpectedEOFError,
     KeywordNotFoundError,
     NameNotFoundError,
     InfiniteRangeError
@@ -72,6 +73,22 @@ def test_string_representation(test_input):
 def test_node_representation(test_input, expected):
     node = parse_one(test_input)
     assert repr(node) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "[etc",
+        "[2, 6",
+        "(a ",
+        "{a x=2",
+        "{a x=2 [55, 'foo' ",
+    ]
+)
+def test_incomplete_input_EOF(test_input):
+    parser = create_parser(test_input)
+    with pytest.raises(UnexpectedEOFError):
+        parser.parse()
 
 
 # NODE INDEX ===========================================
