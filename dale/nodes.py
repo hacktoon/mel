@@ -71,7 +71,7 @@ class StatementNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.path = NullNode()
+        self.key = NullNode()
         self.value = NullNode()
 
 

@@ -416,6 +416,19 @@ def test_null_scope_key():
 
 
 @pytest.mark.parametrize(
+    "test_input, value",
+    [
+        ("(foo 42)", 'foo'),
+        ("(etc 'test')", 'etc'),
+        ("(a/#b/c 4 6 7)", 'a/#b/c'),
+    ]
+)
+def test_scope_key_string_repr(test_input, value):
+    node = parse(test_input, parsing.ScopeParser)
+    assert str(node.key) == value
+
+
+@pytest.mark.parametrize(
     "test_input",
     [
         "()",
@@ -440,6 +453,20 @@ def test_scope_unexpected_meta(test_input):
     with pytest.raises(UnexpectedTokenError):
         parse(test_input, parsing.ScopeParser)
 
+
+@pytest.mark.parametrize(
+    "test_input, compare_map",
+    [
+        ("(foo x=2)", {"x": 2}),
+        ("(bar a/b='foo' y = 4)", {"a/b": 'foo', 'y': 4}),
+    ]
+)
+def test_scope_meta_statement(test_input, compare_map):
+    node = parse(test_input, parsing.ScopeParser)
+    result_map = {}
+    for meta in node.meta:
+        result_map[str(meta.key)] = meta.value.value
+    assert result_map == compare_map
 
 # def test_scope_child_values():
 #     node = parse("(foo (#bar 2, 4))", parsing.ScopeParser)

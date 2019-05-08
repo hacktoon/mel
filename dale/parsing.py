@@ -90,14 +90,6 @@ class TokenParser(Parser):
         return node
 
 
-class AliasParser(Parser):
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        node.node = self.subparse(self.Alias)
-        return node
-
-
 # ROOT ======================================================
 
 class RootParser(Parser):
@@ -156,19 +148,19 @@ class StatementParser(MultiParser):
     @indexed
     def parse(self):
         self.stream.save()
-        path = self.subparse(nodes.PathNode)
-        if not path:
+        key = self.subparse(nodes.PathNode)
+        if not key:
             return
         node = super().parse()
         if not node:
             self.stream.restore()
             return
-        _object = self.subparse(nodes.ObjectNode)
-        if not _object:
+        value = self.subparse(nodes.ObjectNode)
+        if not value:
             raise ObjectNotFoundError(self.stream.peek())
         node = self.build_node()
-        node.path = path
-        node.value = _object
+        node.key = key
+        node.value = value
         return node
 
 
