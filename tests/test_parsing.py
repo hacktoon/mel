@@ -149,21 +149,24 @@ def test_reference_keywords(test_input):
 # METADATA ======================================================
 
 @pytest.mark.parametrize(
-    "test_input",
+    "test_input, count",
     [
-        "!abc",
-        "a = 3",
-        "etc = (a 2)",
-        "a/b >= 3.19",
-        "a/b <= 5.5",
-        "_etc > 102",
-        "foo/bar < 'a'",
-        "A/b/C != 'foo'"
+        ("!abc", 1),
+        ("!abc !def", 2),
+        ("a = 3", 1),
+        ("a = True !active", 2),
+        ("etc = (a 2)", 1),
+        ("a/b >= 3.19", 1),
+        ("a/b >= 42, d/e != 3 !foo", 3),
+        ("a/b <= 5.5", 1),
+        ("_etc > 102", 1),
+        ("foo/bar < 'a', !flag1", 2),
+        ("A/b/C != 'foo', x = 5", 2)
     ]
 )
-def test_subparser_meta(test_input):
-    parser = create_parser(test_input, parsing.MetaParser)
-    assert parser.parse()
+def test_meta_node_count(test_input, count):
+    node = parse(test_input, parsing.MetaParser)
+    assert len(node) == count
 
 
 # STATEMENT =================================================
