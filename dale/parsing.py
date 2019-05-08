@@ -157,56 +157,59 @@ class StatementParser(MultiParser):
         if not node:
             self.stream.restore()
             return
-        node.path = path
-        return node
-
-
-class ComparisonParser(Parser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.Token):
-            return
-        self.stream.read()
         _object = self.subparse(nodes.ObjectNode)
         if not _object:
             raise ObjectNotFoundError(self.stream.peek())
         node = self.build_node()
+        node.path = path
         node.value = _object
         return node
 
 
+class SymbolParser(Parser):
+    Nodes = nodes.SymbolNode
+
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.Token):
+            return
+        node = self.build_node()
+        self.stream.read()
+        return node
+
+
 @subparser
-class EqualParser(ComparisonParser):
+class EqualParser(SymbolParser):
     Node = nodes.EqualNode
     Token = tokens.EqualToken
 
 
 @subparser
-class DifferentParser(ComparisonParser):
+class DifferentParser(SymbolParser):
     Node = nodes.DifferentNode
     Token = tokens.DifferentToken
 
 
 @subparser
-class GreaterThanParser(ComparisonParser):
+class GreaterThanParser(SymbolParser):
     Node = nodes.GreaterThanNode
     Token = tokens.GreaterThanToken
 
 
 @subparser
-class GreaterThanEqualParser(ComparisonParser):
+class GreaterThanEqualParser(SymbolParser):
     Node = nodes.GreaterThanEqualNode
     Token = tokens.GreaterThanEqualToken
 
 
 @subparser
-class LessThanParser(ComparisonParser):
+class LessThanParser(SymbolParser):
     Node = nodes.LessThanNode
     Token = tokens.LessThanToken
 
 
 @subparser
-class LessThanEqualParser(ComparisonParser):
+class LessThanEqualParser(SymbolParser):
     Node = nodes.LessThanEqualNode
     Token = tokens.LessThanEqualToken
 

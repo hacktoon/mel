@@ -75,31 +75,31 @@ class StatementNode(Node):
         self.value = NullNode()
 
 
-class ComparisonNode(Node):
-    id = "comparison"
+class SymbolNode(Node):
+    id = "symbol"
 
 
-class EqualNode(ComparisonNode):
+class EqualNode(SymbolNode):
     id = "equal"
 
 
-class DifferentNode(ComparisonNode):
+class DifferentNode(SymbolNode):
     id = "different"
 
 
-class GreaterThanNode(ComparisonNode):
+class GreaterThanNode(SymbolNode):
     id = "greater_than"
 
 
-class GreaterThanEqualNode(ComparisonNode):
+class GreaterThanEqualNode(SymbolNode):
     id = "greater_than_equal"
 
 
-class LessThanNode(ComparisonNode):
+class LessThanNode(SymbolNode):
     id = "less_than"
 
 
-class LessThanEqualNode(ComparisonNode):
+class LessThanEqualNode(SymbolNode):
     id = "less_than_equal"
 
 
