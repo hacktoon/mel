@@ -72,11 +72,12 @@ class StatementNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
+        self.symbol = NullNode()
         self.value = NullNode()
 
 
 class SymbolNode(Node):
-    id = "symbol"
+    pass
 
 
 class EqualNode(SymbolNode):
