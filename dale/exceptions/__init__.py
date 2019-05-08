@@ -36,6 +36,11 @@ class KeywordNotFoundError(BaseError):
         super().__init__(token, "Expected a keyword.")
 
 
+class KeyNotFoundError(BaseError):
+    def __init__(self, token):
+        super().__init__(token, "Expected a path or ':'.")
+
+
 class ObjectNotFoundError(BaseError):
     def __init__(self, token):
         super().__init__(token, "Expected an object.")

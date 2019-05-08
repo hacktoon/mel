@@ -6,6 +6,7 @@ from .exceptions import (
     UnexpectedTokenError,
     NameNotFoundError,
     KeywordNotFoundError,
+    KeyNotFoundError,
     ObjectNotFoundError,
     InfiniteRangeError
 )
@@ -249,7 +250,10 @@ class StructParser(MultiParser):
         if self.stream.is_next(tokens.NullKeyToken):
             self.stream.read()
             return
-        node.key = self.subparse(nodes.PathNode)
+        key = self.subparse(nodes.PathNode)
+        if not key:
+            raise KeyNotFoundError(self.stream.peek())
+        node.key = key
 
     def parse_objects(self, node):
         while True:

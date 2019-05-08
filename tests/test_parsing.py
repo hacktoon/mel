@@ -7,6 +7,7 @@ from dale.lexing import TokenStream
 from dale.exceptions import (
     UnexpectedEOFError,
     KeywordNotFoundError,
+    KeyNotFoundError,
     NameNotFoundError,
     InfiniteRangeError
 )
@@ -196,11 +197,6 @@ def test_statement():
 
 # PATH =================================================
 
-def test_path_single_keyword():
-    parser = create_parser("foo", parsing.PathParser)
-    assert parser.parse()
-
-
 @pytest.mark.parametrize(
     "test_input, total",
     [
@@ -251,11 +247,6 @@ def test_path_keyword_not_found(test_input):
 
 
 # KEYWORD ======================================================
-
-def test_subparser_keyword():
-    parser = create_parser("foo", parsing.KeywordParser)
-    assert parser.subparse(nodes.NameNode)
-
 
 @pytest.mark.parametrize(
     "test_input, expected",
@@ -400,12 +391,6 @@ def test_range_only_accepts_integers():
 
 # SCOPE ===================================================
 
-def test_empty_scope():
-    node = parse("()", parsing.ScopeParser)
-    assert not node.key
-    assert len(node) == 0
-
-
 def test_scope_with_key_and_no_value():
     node = parse("(a)", parsing.ScopeParser)
     assert str(node.key) == "a"
@@ -424,15 +409,23 @@ def test_scope_with_many_values():
     assert str(node[2]) == "'etc'"
 
 
-# def test_scope_key_with_doc():
-#     node = parse("(bar (?help 'foo'))", parsing.ScopeParser)
-#     assert node.props["doc"]["help"][0].value == "foo"
+def test_null_scope_key():
+    node = parse("(: 'test')", parsing.ScopeParser)
+    assert not node.key
 
 
-# def test_scope_key_with_multi_properties():
-#     node = parse("(foo (%bar 2) (#id 48764))", parsing.ScopeParser)
-#     assert str(node.props["format"]["bar"]) == "(%bar 2)"
-#     assert str(node.props["uid"]["id"]) == "(#id 48764)"
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "()",
+        "(44 'test')",
+        "('test')",
+        # "(x = 2)"
+    ]
+)
+def test_invalid_scope_key(test_input):
+    with pytest.raises(KeyNotFoundError):
+        parse(test_input, parsing.ScopeParser)
 
 
 # def test_scope_child_values():
@@ -440,21 +433,6 @@ def test_scope_with_many_values():
 #     uid = node.props["uid"]["bar"]
 #     assert str(uid[0]) == "2"
 #     assert str(uid[1]) == "4"
-
-
-# def test_unclosed_scope_raises_error():
-#     with pytest.raises(UnexpectedEOFError):
-#         parse("(")
-
-
-# def test_scope_flag_property():
-#     node = parse("(foo !active)", parsing.ScopeParser)
-#     assert str(node.props["flag"]["active"]) == "!active"
-
-
-# def test_scope_uid_property():
-#     node = parse("(foo (#id 22))", parsing.ScopeParser)
-#     assert str(node.props["uid"]["id"]) == "(#id 22)"
 
 
 # def test_scope_properties():
@@ -473,10 +451,6 @@ def test_scope_with_many_values():
 #     assert str(attrs["variable"]["ref"]) == "($ref {!active})"
 #     assert str(attrs["format"]["short"]) == "(%short child)"
 
-
-# def test_null_scope_key():
-#     node = parse("(: 'test')", parsing.ScopeParser)
-#     assert not node.key
 
 
 # def test_nested_scope_with_null_key():
