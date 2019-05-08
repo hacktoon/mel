@@ -17,7 +17,9 @@ _subparsers = {}
 
 @functools.lru_cache()
 def get_subparser(id, stream):
-    return _subparsers[id](stream)
+    if id in _subparsers:
+        return _subparsers[id](stream)
+    raise Exception('Invalid subparser: ' + id)
 
 
 # decorator - register a Parser class as a subparser

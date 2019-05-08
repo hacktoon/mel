@@ -5,6 +5,7 @@ from dale import nodes
 
 from dale.lexing import TokenStream
 from dale.exceptions import (
+    UnexpectedTokenError,
     UnexpectedEOFError,
     KeywordNotFoundError,
     KeyNotFoundError,
@@ -419,12 +420,24 @@ def test_null_scope_key():
     [
         "()",
         "(44 'test')",
-        "('test')",
-        # "(x = 2)"
+        "('test')"
     ]
 )
 def test_invalid_scope_key(test_input):
     with pytest.raises(KeyNotFoundError):
+        parse(test_input, parsing.ScopeParser)
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "(x = 2)",
+        "(a/b > 2)",
+        "($var != 'foo')"
+    ]
+)
+def test_scope_unexpected_meta(test_input):
+    with pytest.raises(UnexpectedTokenError):
         parse(test_input, parsing.ScopeParser)
 
 
