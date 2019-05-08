@@ -478,9 +478,7 @@ def test_scope_meta_statement(test_input, compare_map):
 )
 def test_scope_meta_flag(test_input, flags):
     node = parse(test_input, parsing.ScopeParser)
-    result_flags = []
-    for meta in node.meta:
-        result_flags.append(meta.value)
+    result_flags = [meta.value for meta in node.meta]
     assert result_flags == flags
 
 
