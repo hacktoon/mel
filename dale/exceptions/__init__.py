@@ -46,6 +46,11 @@ class ObjectNotFoundError(BaseError):
         super().__init__(token, "Expected an object.")
 
 
+class ReferenceChildError(BaseError):
+    def __init__(self, token):
+        super().__init__(token, "Expected a reference.")
+
+
 class NameNotFoundError(BaseError):
     def __init__(self, token):
         super().__init__(token, "Expected a name after this symbol.")

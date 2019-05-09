@@ -8,7 +8,8 @@ from .exceptions import (
     KeywordNotFoundError,
     KeyNotFoundError,
     ObjectNotFoundError,
-    InfiniteRangeError
+    InfiniteRangeError,
+    ReferenceChildError
 )
 
 
@@ -304,12 +305,28 @@ class ReferenceParser(Parser):
             return
         node = self.build_node()
         node.add(head)
+        self.parse_children(node)
+        return node
+
+    def parse_children(self, node):
         while self.stream.is_next(tokens.ChildToken):
             self.stream.read()
-            child = self.subparse(nodes.ChildReferenceNode)
-            if child:
-                node.add(child)
-        return node
+            if self.parse_flag(node):
+                break
+            self.parse_child(node)
+
+    def parse_flag(self, node):
+        flag = self.subparse(nodes.FlagNode)
+        if flag:
+            node.add(flag)
+        return flag
+
+    def parse_child(self, node):
+        child = self.subparse(nodes.ChildReferenceNode)
+        if not child:
+            raise ReferenceChildError(self.stream.peek())
+        node.add(child)
+        return child
 
 
 @subparser
@@ -329,9 +346,8 @@ class ChildReferenceParser(MultiParser):
         nodes.RangeNode,
         nodes.IntNode,
         nodes.ListNode,
-        # nodes.FlagNode,
         nodes.KeywordNode,
-        nodes.HeadReferenceNode
+        nodes.QueryNode
     )
 
 
