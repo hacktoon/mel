@@ -12,7 +12,6 @@ root       =  meta object*
 meta       =  ( flag | statement )*
 flag       =  '!' NAME
 statement  =  path symbol object
-symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
 path       =  keyword ( '/' keyword )*
 
@@ -22,16 +21,17 @@ variable   =  '$' NAME
 format     =  '%' NAME
 doc        =  '?' NAME
 
+symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
+
 object     =  reference | literal | list | scope
-
-literal    =  RANGE | INT | FLOAT | STRING | BOOLEAN
-
-list       =  '[' object* ']'
 
 reference  =  head-ref ( '/' child-ref )*
 head-ref   =  query | keyword
 child-ref  =  RANGE | INT | wildcard | list | query | keyword
 
+literal    =  RANGE | INT | FLOAT | STRING | BOOLEAN
+
+list       =  '[' object* ']'
 scope      =  '(' struct ')'
 query      =  '{' struct '}'
 
