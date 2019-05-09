@@ -29,9 +29,6 @@ class Token:
     def __eq__(self, token):
         return self.id == token.id
 
-    def __hash__(self):
-        return super().__hash__()
-
     def __len__(self):
         return len(str(self))
 
