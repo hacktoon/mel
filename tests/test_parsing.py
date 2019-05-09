@@ -165,6 +165,18 @@ def test_reference_keywords(test_input):
     assert parser.parse()
 
 
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "etc/bar/!active",
+        'foo/!bar'
+    ]
+)
+def test_reference_flag(test_input):
+    parser = create_parser(test_input, parsing.ReferenceParser)
+    assert parser.parse()
+
+
 # METADATA ======================================================
 
 @pytest.mark.parametrize(
@@ -179,8 +191,8 @@ def test_reference_keywords(test_input):
         ("a/b >= 42, d/e != 3 !foo", 3),
         ("a/b <= 5.5", 1),
         ("_etc > 102", 1),
-        ("foo/bar < 'a', !flag1", 2),
-        ("A/b/C != 'foo', x = 5", 2)
+        ("foo/_bar < 'a', !flag1", 2),
+        ("A/b/_C != 'foo', x = 5", 2)
     ]
 )
 def test_meta_node_count(test_input, count):
