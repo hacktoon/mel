@@ -197,7 +197,7 @@ class RangeToken(Token):
     regex = re.compile(r"\.\.")
 
 
-class ChildToken(Token):
+class SubNodeToken(Token):
     id = "/"
     regex = re.compile("/")
 

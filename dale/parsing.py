@@ -309,7 +309,7 @@ class ReferenceParser(Parser):
         return node
 
     def parse_children(self, node):
-        while self.stream.is_next(tokens.ChildToken):
+        while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
             if self.parse_flag(node):
                 break
@@ -364,7 +364,7 @@ class PathParser(Parser):
             return
         node = self.build_node()
         node.add(keyword)
-        while self.stream.is_next(tokens.ChildToken):
+        while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
             keyword = self.subparse(nodes.KeywordNode)
             if keyword:
