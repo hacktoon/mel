@@ -116,12 +116,12 @@ class BooleanToken(Token):
 
 class NameToken(Token):
     id = "name"
-    regex = re.compile(r"[_a-z]\w*")
+    regex = re.compile(r"[a-z]\w*")
 
 
 class ReservedNameToken(Token):
     id = "reserved-name"
-    regex = re.compile(r"[_A-Z]\w*")
+    regex = re.compile(r"[A-Z]\w*")
 
 
 class UIDPrefixToken(Token):

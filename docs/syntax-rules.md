@@ -4,7 +4,7 @@
 
 ---
 
-Dale's syntax rules are:
+## Grammar
 
 ```
 root       =  meta object*
@@ -42,6 +42,53 @@ wildcard   =  '*'
 
 comment    =  '--'
 ```
+
+
+## Comments
+
+Comments starts with the `--` symbol. The parser will ignore everything else until the line ends.
+
+```
+"foobar"     -- defines a string
+42           -- answers everything
+```
+
+
+## Names
+
+Names (i.e `NAME`) are formed by lowercase letters and numbers only.
+They're used to represent tree nodes by its names.
+
+```
+foo       -- the name 'foo'
+f1o2o3    -- can have numbers
+3foo      -- wrong! Can't start with numbers
+(bar 3)   -- defines an scope named 'bar'
+```
+
+
+## Reserved names
+
+Reserved names are like `NAME`s except they start with a capital letter.
+They represent names reserved for an application's context.
+
+```
+Pages                -- all the pages in a site
+{File "index.html"}  -- a query to a file named "index.html"
+
+```
+
+
+## Ranges
+
+Ranges (i.e `RANGE`) represent numeric intervals between integers.
+
+```
+Pages                -- all the pages in a site
+{File "index.html"}  -- a query to a file named "index.html"
+
+```
+
 
 ## Whitespace
 
@@ -82,19 +129,8 @@ It can be rewritten in one line:
 or using commas ans semicolons:
 
 ```
-(name "Bob", "Joe");
-(age 12),
-(items ball, fruit),
-"Description about Bob (Joe)";
-```
-
-
-## Comments
-
-A comment starts with the `--` symbol and ends at the end of the line. Comments are ignored by the parser and won't be interpreted.
-
-```
-"A string"   -- this is a comment and (id 5) won't be interpreted
-
--- another comment
+(name lang="en"; "Bob");
+(age 12);
+(items ball, fruit);
+"Description about Bob";
 ```

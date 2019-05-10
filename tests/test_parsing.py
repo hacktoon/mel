@@ -190,9 +190,9 @@ def test_reference_flag(test_input):
         ("a/b >= 3.19", 1),
         ("a/b >= 42, d/e != 3 !foo", 3),
         ("a/b <= 5.5", 1),
-        ("_etc > 102", 1),
-        ("foo/_bar < 'a', !flag1", 2),
-        ("A/b/_C != 'foo', x = 5", 2)
+        ("etc > 102", 1),
+        ("foo/bar < 'a', !flag1", 2),
+        ("A/b/C != 'foo', x = 5", 2)
     ]
 )
 def test_meta_node_count(test_input, count):
@@ -303,7 +303,7 @@ def test_name_not_found_after_prefix():
     "test_input, parser",
     [
         ("foo", parsing.NameParser),
-        ("_bar", parsing.NameParser),
+        ("bar", parsing.NameParser),
         ("Foo", parsing.ReservedNameParser),
         ("#foo", parsing.UIDParser),
         ("$foo", parsing.VariableParser),
