@@ -39,6 +39,8 @@ struct     =  key meta object*
 key        =  ':' | path
 
 wildcard   =  '*'
+
+comment    =  '--'
 ```
 
 ## Whitespace

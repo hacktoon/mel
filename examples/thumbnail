@@ -1,8 +1,8 @@
 -- A example of web component defined in Dale.
 
-(component (type "thumbnail")
+(component type="thumbnail"
     (?help "This is a component for thumbnails")
     (a
-        (img (src "http://thumbnails.com/3444") (alt "A random image"))
+        (img src="http://thumbnails.com/3444" alt="A random image")
     )
 )
