@@ -73,8 +73,8 @@ Reserved names are like `NAME`s except they start with a capital letter.
 They represent names reserved for an application's context.
 
 ```
-Pages                -- all the pages in a site
-{File "index.html"}  -- a query to a file named "index.html"
+Page      -- the page class
+File      -- a file reference
 
 ```
 
@@ -84,8 +84,10 @@ Pages                -- all the pages in a site
 Ranges (i.e `RANGE`) represent numeric intervals between integers.
 
 ```
-Pages                -- all the pages in a site
-{File "index.html"}  -- a query to a file named "index.html"
+0..10    -- from 0 to 10
+..6      -- from 0 to 6
+8..      -- from 8 to infinity
+-5..0    -- from -5 to 0
 
 ```
 
@@ -114,7 +116,7 @@ Or typing scopes without any separation:
 Spaces, tabs, newlines, commas and semicolons are all considered whitespace and will be ignored. Consider the example:
 
 ```
-(name "Bob")
+(name lang = "en"  "Bob")
 (age 12)
 (items ball fruit)
 "Description about Bob"
@@ -129,8 +131,8 @@ It can be rewritten in one line:
 or using commas ans semicolons:
 
 ```
-(name lang="en"; "Bob");
+(name lang="en", "Bob");
 (age 12);
-(items ball, fruit);
+(items; ball, fruit);
 "Description about Bob";
 ```
