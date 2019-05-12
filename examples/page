@@ -11,7 +11,5 @@
         month = 5
         year = 2019
     )
-    (content "
-        Hello world!
-    ")
+    content = "Hello world!"
 )

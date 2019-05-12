@@ -177,29 +177,6 @@ def test_reference_flag(test_input):
     assert parser.parse()
 
 
-# METADATA ======================================================
-
-@pytest.mark.parametrize(
-    "test_input, count",
-    [
-        ("!abc", 1),
-        ("!abc !def", 2),
-        ("a = 3", 1),
-        ("a = True !active", 2),
-        ("etc = (a 2)", 1),
-        ("a/b >= 3.19", 1),
-        ("a/b >= 42, d/e != 3 !foo", 3),
-        ("a/b <= 5.5", 1),
-        ("etc > 102", 1),
-        ("foo/bar < 'a', !flag1", 2),
-        ("A/b/C != 'foo', x = 5", 2)
-    ]
-)
-def test_meta_node_count(test_input, count):
-    node = parse(test_input, parsing.MetaParser)
-    assert len(node) == count
-
-
 # RELATION =================================================
 
 def test_relation():
@@ -461,37 +438,9 @@ def test_invalid_scope_key(test_input):
         "($var != 'foo')"
     ]
 )
-def test_scope_unexpected_meta(test_input):
+def test_scope_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
         parse(test_input, parsing.ScopeParser)
-
-
-@pytest.mark.parametrize(
-    "test_input, compare_map",
-    [
-        ("(foo x=2)", {"x": 2}),
-        ("(bar a/b='foo' y = 4)", {"a/b": 'foo', 'y': 4}),
-    ]
-)
-def test_scope_meta_statement(test_input, compare_map):
-    node = parse(test_input, parsing.ScopeParser)
-    result_map = {}
-    for meta in node.meta:
-        result_map[str(meta.key)] = meta.value.value
-    assert result_map == compare_map
-
-
-@pytest.mark.parametrize(
-    "test_input, flags",
-    [
-        ("(foo !active)", ["active"]),
-        ("(bar !a !b)", ["a", "b"]),
-    ]
-)
-def test_scope_meta_flag(test_input, flags):
-    node = parse(test_input, parsing.ScopeParser)
-    result_flags = [meta.value for meta in node.meta]
-    assert result_flags == flags
 
 
 # QUERY ===============================================

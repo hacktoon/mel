@@ -60,6 +60,12 @@ class RootNode(Node):
     id = "root"
 
 
+# EXPRESSSION =================================================
+
+class ExpressionNode(Node):
+    id = "expression"
+
+
 # META ========================================================
 
 class MetaNode(Node):

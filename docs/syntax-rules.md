@@ -7,9 +7,9 @@
 ## Grammar
 
 ```
-root       =  meta object*
+root       =  expression*
 
-meta       =  ( flag | relation )*
+expression =  flag | relation | object
 flag       =  '!' NAME
 relation   =  path symbol object
 
@@ -35,7 +35,7 @@ list       =  '[' object* ']'
 scope      =  '(' struct ')'
 query      =  '{' struct '}'
 
-struct     =  key meta object*
+struct     =  key root
 key        =  ':' | path
 
 wildcard   =  '*'

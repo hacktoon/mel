@@ -98,38 +98,28 @@ class RootParser(Parser):
 
     @indexed
     def parse(self):
-        node = self.build_node()
-        node.meta = self.subparse(nodes.MetaNode)
-        self.parse_objects(node)
-        return node
+        return self.parse_expressions()
 
-    def parse_objects(self, node):
+    def parse_expressions(self):
+        node = self.build_node()
         while True:
-            _object = self.subparse(nodes.ObjectNode)
+            _object = self.subparse(nodes.ExpressionNode)
             if not _object:
                 break
             node.add(_object)
+        return node
 
 
-# META ======================================================
+# EXPRESSION ======================================================
 
 @subparser
-class MetaParser(MultiParser):
-    Node = nodes.MetaNode
+class ExpressionParser(MultiParser):
+    Node = nodes.ExpressionNode
     options = (
         nodes.FlagNode,
-        nodes.RelationNode
+        nodes.RelationNode,
+        nodes.ObjectNode
     )
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        while True:
-            meta = super().parse()
-            if not meta:
-                break
-            node.add(meta)
-        return node
 
 
 # RELATION ======================================================
@@ -230,8 +220,7 @@ class StructParser(MultiParser):
         node = self.build_node()
         self.stream.read()
         self.parse_key(node)
-        node.meta = self.subparse(nodes.MetaNode)
-        self.parse_objects(node)
+        self.parse_expressions(node)
         self.stream.read(self.LastToken)
         return node
 
@@ -244,12 +233,12 @@ class StructParser(MultiParser):
             raise KeyNotFoundError(self.stream.peek())
         node.key = key
 
-    def parse_objects(self, node):
+    def parse_expressions(self, node):
         while True:
-            _object = self.subparse(nodes.ObjectNode)
-            if not _object:
+            expr = self.subparse(nodes.ExpressionNode)
+            if not expr:
                 break
-            node.add(_object)
+            node.add(expr)
 
 
 @subparser
@@ -280,11 +269,11 @@ class ListParser(Parser):
             return
         node = self.build_node()
         self.stream.read()
-        self.parse_objects(node)
+        self.parse_expressions(node)
         self.stream.read(self.LastToken)
         return node
 
-    def parse_objects(self, node):
+    def parse_expressions(self, node):
         while True:
             _object = self.subparse(nodes.ObjectNode)
             if not _object:
