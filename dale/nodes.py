@@ -165,6 +165,12 @@ class QueryNode(StructNode):
 class ListNode(Node):
     id = "list"
 
+    def eval(self, context):
+        return {
+            "id": self.id,
+            "nodes": [node.eval(context) for node in self.children]
+        }
+
 
 # KEYWORD ========================================================
 
@@ -224,6 +230,9 @@ class LiteralNode(Node):
         super().__init__()
         self.value = None
 
+    def eval(self, context):
+        return self.value
+
 
 class IntNode(LiteralNode):
     id = "int"
@@ -245,10 +254,6 @@ class StringNode(LiteralNode):
 
 class PathNode(Node):
     id = "path"
-
-    def __repr__(self):
-        txt = ''.join([str(node) for node in self.children])
-        return "{}('{}')".format(self.id.upper(), txt)
 
 
 # WILDCARD ========================================================
