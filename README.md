@@ -16,7 +16,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 
 ### Dependencies
 
- * Python 3.6+
+ * Python 3.7+
  * Pip
  * GNU Make
  * Docker (optional)
@@ -50,12 +50,8 @@ docker run dale examples/thumbnail.dl
  * [Syntax rules](docs/syntax-rules.md)
  * [Objects](docs/objects.md)
     * [Literals](docs/literals.md)
-    * [Names](docs/names.md)
     * [Lists](docs/lists.md)
-    * [Ranges](docs/structs.md)
-    * [Structs](docs/structs.md)
  * [Relations](docs/relations.md)
- * [Examples](docs/examples.md)
 
 
 ## License

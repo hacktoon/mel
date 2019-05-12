@@ -11,7 +11,7 @@ Names are used to reference values. In the example below, the name `answer` is s
 ```
 
 
-Names can be prefixed with the following symbols: `!`, `@`, `#`, `$`, `%` and `?`.
+Names can be prefixed with the following symbols: `!`, `#`, `$`, `%` and `?`.
 
 
 ## Flags
