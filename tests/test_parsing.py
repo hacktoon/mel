@@ -111,6 +111,23 @@ def test_scope_index():
     assert scope.index == (0, 5)
 
 
+# EXPRESSION =================================================
+
+@pytest.mark.parametrize(
+    "test_input, refnode",
+    [
+        ("!foo", nodes.FlagNode),
+        ("x = 3", nodes.RelationNode),
+        ("x != 3", nodes.RelationNode),
+        ("44", nodes.IntNode),
+        ("'foo'", nodes.StringNode),
+    ]
+)
+def test_expression(test_input, refnode):
+    node = parse(test_input, parsing.ExpressionParser)
+    assert node.id == refnode.id
+
+
 # OBJECT ======================================================
 
 @pytest.mark.parametrize(
@@ -119,11 +136,31 @@ def test_scope_index():
         ("'etc'"),
         ('"abc"'),
         ('[1, -2.3, True]'),
+        ('42'),
+        ('a/b/c'),
+        ('(a 3)'),
     ]
 )
 def test_subparser_object(test_input):
     parser = create_parser(test_input, parsing.ObjectParser)
     assert parser.parse()
+
+
+# RELATION =================================================
+
+@pytest.mark.parametrize(
+    "test_input, key, symbol, value",
+    [
+        ("x = 4", 'x', '=', '4'),
+        ("x/y != 64", 'x/y', '!=', '64'),
+        ("a/#pid/f_a > [1, 2]", 'a/#pid/f_a', '>', '[1, 2]'),
+    ]
+)
+def test_relation(test_input, key, symbol, value):
+    node = parse(test_input, parsing.RelationParser)
+    assert str(node.key) == key
+    assert str(node.symbol) == symbol
+    assert str(node.value) == value
 
 
 #  LIST ======================================================
@@ -175,14 +212,6 @@ def test_reference_keywords(test_input):
 def test_reference_flag(test_input):
     parser = create_parser(test_input, parsing.ReferenceParser)
     assert parser.parse()
-
-
-# RELATION =================================================
-
-def test_relation():
-    parser = create_parser("a/b/c != 'foo'", parsing.RelationParser)
-    comparison = parser.parse().value
-    assert comparison.value == 'foo'
 
 
 # PATH =================================================
