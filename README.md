@@ -34,14 +34,14 @@ make inspect
 ### Using system's Python
 
 ```
-./bin/dale examples/person.dl
+./bin/dale examples/person
 ```
 
 ### Using Docker
 
 ```
 docker build -t dale .
-docker run dale examples/thumbnail.dl
+docker run dale examples/thumbnail
 ```
 
 

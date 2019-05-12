@@ -126,24 +126,8 @@ class HeadReferenceNode(Node):
     id = "head-reference"
 
 
-class SubreferenceNode(Node):
-    id = "subreference"
-
-
 class ChildReferenceNode(Node):
     id = "child-reference"
-
-
-class RangeReferenceNode(SubreferenceNode):
-    id = "range-reference"
-
-
-class IntReferenceNode(SubreferenceNode):
-    id = "int-reference"
-
-
-class SubreferenceListNode(SubreferenceNode):
-    id = "subreference-list"
 
 
 # STRUCT ========================================================
@@ -154,14 +138,7 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.props = {
-            "flag": {},
-            "uid": {},
-            "attribute": {},
-            "variable": {},
-            "format": {},
-            "doc": {},
-        }
+        self.props = {}
 
     def eval(self, context):
         return {
