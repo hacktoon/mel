@@ -7,6 +7,7 @@ endif
 	cp bin/pre-commit.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 	chmod +x bin/dale
+	pip install --upgrade pip
 	pip install -r requirements.txt
 
 upgrade:
