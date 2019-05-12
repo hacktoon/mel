@@ -48,9 +48,11 @@ docker run dale examples/thumbnail
 ## Documentation
 
  * [Syntax rules](docs/syntax-rules.md)
- * [Objects](docs/objects.md)
-    * [Literals](docs/literals.md)
-    * [Lists](docs/lists.md)
+ * [Literals](docs/literals.md)
+ * [References](docs/references.md)
+ * [Scopes](docs/scopes.md)
+ * [Queries](docs/queries.md)
+ * [Lists](docs/lists.md)
  * [Relations](docs/relations.md)
 
 

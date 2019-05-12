@@ -21,7 +21,9 @@ class Node:
         return self.text[first:last]
 
     def __repr__(self):
-        return "{}('{}')".format(self.id.upper(), self)
+        template = "{}('{}')"
+        id = self.id.upper()
+        return template.format(id, self)
 
     def __getitem__(self, index):
         return self.children[index]
@@ -83,7 +85,7 @@ class RelationNode(Node):
 
 
 class SymbolNode(Node):
-    pass
+    id = "symbol"
 
 
 class EqualNode(SymbolNode):
@@ -154,10 +156,6 @@ class ScopeNode(StructNode):
 
 class QueryNode(StructNode):
     id = "query"
-
-    def __init__(self):
-        super().__init__()
-        self.criteria = []
 
 
 # LIST ========================================================

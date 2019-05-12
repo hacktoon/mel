@@ -1,22 +1,21 @@
-# Objects
+# Literals
 
 [Home](../README.md)
 
 ---
 
-Objects are any kind of self-contained value, like structs, names and literals.
+Literals are any kind of self-contained value, like strings and numbers.
 
 
 ## Booleans
 
-Booleans are reserved names and are written in lowercase:
+Booleans are reserved names and are written in capital or lowercase. All forms below are valid:
 
 ```
 true
 false
-(active true)
-(active false)
-
+True
+False
 ```
 
 
@@ -58,25 +57,4 @@ Floats support scientific notation:
 -56.2e-5
 +0.33e+2
 0.7e5
-```
-
-
-## Ranges
-
-Ranges are used to represent a interval of integers or indexes.
-
-```
-5..10     -- from 5 to 10
-
--9..0     -- from -9 to 0
-
--20..     -- starting from -20
-
-..-20     -- from 0 to -20
-```
-
-The more common use for ranges are filtering items in lists:
-
-```
-movies/0..5   -- lists the first 4 movies
 ```

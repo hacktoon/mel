@@ -86,10 +86,19 @@ File      -- a file reference
 Ranges (i.e `RANGE`) represent numeric intervals between integers.
 
 ```
-0..10    -- from 0 to 10
-..6      -- from 0 to 6
-8..      -- from 8 to infinity
--5..0    -- from -5 to 0
+5..10     -- from 5 to 10
+
+-9..0     -- from -9 to 0
+
+-20..     -- starting from -20
+
+..-20     -- from 0 to -20
+```
+
+The most common use for ranges are filtering items in lists:
+
+```
+movies/0..3   -- lists the first 4 movies
 ```
 
 
