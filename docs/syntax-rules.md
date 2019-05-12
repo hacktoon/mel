@@ -10,7 +10,9 @@
 root       =  expression*
 
 expression =  flag | relation | object
+
 flag       =  '!' NAME
+
 relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
@@ -29,13 +31,13 @@ reference  =  head-ref ( '/' child-ref )* ( '/' flag )?
 head-ref   =  query | keyword
 child-ref  =  RANGE | INT | wildcard | list | query | keyword
 
-literal    =  RANGE | INT | FLOAT | STRING | BOOLEAN
+literal    =  INT | FLOAT | STRING | BOOLEAN
 
 list       =  '[' object* ']'
 scope      =  '(' struct ')'
 query      =  '{' struct '}'
 
-struct     =  key root
+struct     =  key expression*
 key        =  ':' | path
 
 wildcard   =  '*'

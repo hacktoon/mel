@@ -98,15 +98,12 @@ class RootParser(Parser):
 
     @indexed
     def parse(self):
-        return self.parse_expressions()
-
-    def parse_expressions(self):
         node = self.build_node()
         while True:
-            _object = self.subparse(nodes.ExpressionNode)
-            if not _object:
+            expr = self.subparse(nodes.ExpressionNode)
+            if not expr:
                 break
-            node.add(_object)
+            node.add(expr)
         return node
 
 
