@@ -1,0 +1,17 @@
+-- A blog page
+
+(page
+    !draft      -- flag this page as a draft
+
+    #id = 1       -- this page has id = 1
+    title = "Hello world"
+    category = Category/news
+    (date
+        day = 3
+        month = 5
+        year = 2019
+    )
+    (content "
+        Hello world!
+    ")
+)

@@ -66,8 +66,8 @@ class MetaNode(Node):
     id = "meta"
 
 
-class StatementNode(Node):
-    id = "statement"
+class RelationNode(Node):
+    id = "relation"
 
     def __init__(self):
         super().__init__()

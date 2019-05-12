@@ -200,10 +200,10 @@ def test_meta_node_count(test_input, count):
     assert len(node) == count
 
 
-# STATEMENT =================================================
+# RELATION =================================================
 
-def test_statement():
-    parser = create_parser("a/b/c != 'foo'", parsing.StatementParser)
+def test_relation():
+    parser = create_parser("a/b/c != 'foo'", parsing.RelationParser)
     comparison = parser.parse().value
     assert comparison.value == 'foo'
 

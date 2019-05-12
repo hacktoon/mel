@@ -118,7 +118,7 @@ class MetaParser(MultiParser):
     Node = nodes.MetaNode
     options = (
         nodes.FlagNode,
-        nodes.StatementNode
+        nodes.RelationNode
     )
 
     @indexed
@@ -132,11 +132,11 @@ class MetaParser(MultiParser):
         return node
 
 
-# STATEMENT ======================================================
+# RELATION ======================================================
 
 @subparser
-class StatementParser(Parser):
-    Node = nodes.StatementNode
+class RelationParser(Parser):
+    Node = nodes.RelationNode
 
     @indexed
     def parse(self):

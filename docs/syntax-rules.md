@@ -9,9 +9,9 @@
 ```
 root       =  meta object*
 
-meta       =  ( flag | statement )*
+meta       =  ( flag | relation )*
 flag       =  '!' NAME
-statement  =  path symbol object
+relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
 
@@ -61,9 +61,9 @@ They're used to represent tree nodes by its names.
 
 ```
 foo       -- the name 'foo'
-f1o2o3    -- can have numbers
+f1o2_o3   -- can have numbers and underscores
 3foo      -- wrong! Can't start with numbers
-(bar 3)   -- defines an scope named 'bar'
+(bar_ 3)   -- defines an scope named 'bar_'
 ```
 
 
@@ -88,32 +88,22 @@ Ranges (i.e `RANGE`) represent numeric intervals between integers.
 ..6      -- from 0 to 6
 8..      -- from 8 to infinity
 -5..0    -- from -5 to 0
-
 ```
 
 
 ## Whitespace
 
-Whitespace isn't significant, except for some cases like names followed by numbers, which may cause semantic errors:
+Whitespace isn't significant. Spaces, tabs, newlines, commas `,` and semicolons `;` are all considered whitespace and will be ignored. All examples below are valid:
 
 ```
-(foo 42)  -- a scope with a name `foo` followed by a number 42
-foo42   -- a name `foo42`
+python='foo',,
+python = 'bar';
+"monty",python;;;
+"monty"     python,
+(person"john");(dog"rex")
 ```
 
-So there's no problem concatenating a string and a name, since the quote symbol act as a delimiter between a string and anything else:
-
-```
-"monty"python
-```
-
-Or typing scopes without any separation:
-
-```
-(person"john")(dog"rex")
-```
-
-Spaces, tabs, newlines, commas and semicolons are all considered whitespace and will be ignored. Consider the example:
+The example below...
 
 ```
 (name lang = "en"  "Bob")
@@ -122,17 +112,22 @@ Spaces, tabs, newlines, commas and semicolons are all considered whitespace and 
 "Description about Bob"
 ```
 
-It can be rewritten in one line:
+...can be rewritten in one line...
 
 ```
 (name "Bob") (age 12) (items ball fruit) "Description about Bob"
 ```
 
-or using commas ans semicolons:
+...or using commas, semicolons and tabs:
 
 ```
-(name lang="en", "Bob");
+(name
+    lang="en";
+    "Bob"
+);
+
 (age 12);
 (items; ball, fruit);
+
 "Description about Bob";
 ```
