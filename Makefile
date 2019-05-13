@@ -28,3 +28,6 @@ ifdef TEST
 else
 	PYTHONBREAKPOINT=$(PYTHON_DEBUGGER) pytest -s
 endif
+
+docker-build:
+	docker build -t dale .
