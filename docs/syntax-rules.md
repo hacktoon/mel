@@ -17,7 +17,7 @@ relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
 
-keyword    =  NAME | RESERVED_NAME | uid | variable | format | doc
+keyword    =  NAME | CONSTANT | uid | variable | format | doc
 uid        =  '#' NAME
 variable   =  '$' NAME
 format     =  '%' NAME
@@ -69,13 +69,14 @@ f1o2_o3   -- can have numbers and underscores
 ```
 
 
-## Reserved names
+## Constants
 
-Reserved names are like `NAME`s except they start with a capital letter.
+Constants are like `NAME`s except they start with a capital letter.
 They represent names reserved for an application's context.
 
 ```
-Page      -- the page class
+True      -- the boolean `true` value
+Page      -- the page collection in a site
 File      -- a file reference
 
 ```

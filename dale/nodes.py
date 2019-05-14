@@ -184,8 +184,8 @@ class NameNode(KeywordNode):
     id = "name"
 
 
-class ReservedNameNode(NameNode):
-    id = "reserved-name"
+class ConstantNode(NameNode):
+    id = "constant"
 
 
 class FlagNode(KeywordNode):
