@@ -134,7 +134,7 @@ class FormatPrefixToken(Token):
     regex = re.compile("%")
 
 
-class VariablePrefixToken(Token):
+class AliasPrefixToken(Token):
     id = "$"
     regex = re.compile(r"\$")
 

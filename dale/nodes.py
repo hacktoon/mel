@@ -200,8 +200,8 @@ class FormatNode(KeywordNode):
     id = "format"
 
 
-class VariableNode(KeywordNode):
-    id = "variable"
+class AliasNode(KeywordNode):
+    id = "alias"
 
 
 class DocNode(KeywordNode):

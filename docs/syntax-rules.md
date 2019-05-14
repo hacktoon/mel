@@ -17,9 +17,9 @@ relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
 
-keyword    =  NAME | CONSTANT | uid | variable | format | doc
+keyword    =  NAME | CONSTANT | uid | alias | format | doc
 uid        =  '#' NAME
-variable   =  '$' NAME
+alias      =  '$' NAME
 format     =  '%' NAME
 doc        =  '?' NAME
 

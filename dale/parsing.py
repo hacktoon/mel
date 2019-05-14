@@ -369,7 +369,7 @@ class KeywordParser(MultiParser):
         nodes.NameNode,
         nodes.ConstantNode,
         nodes.UIDNode,
-        nodes.VariableNode,
+        nodes.AliasNode,
         nodes.FormatNode,
         nodes.DocNode
     )
@@ -413,9 +413,9 @@ class UIDParser(PrefixedNameParser):
 
 
 @subparser
-class VariableParser(PrefixedNameParser):
-    Node = nodes.VariableNode
-    Token = tokens.VariablePrefixToken
+class AliasParser(PrefixedNameParser):
+    Node = nodes.AliasNode
+    Token = tokens.AliasPrefixToken
 
 
 @subparser
