@@ -10,9 +10,20 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
  * Build and represent different types of information
  * Automate data generation for different formats
 
----
 
-## Install
+## Documentation
+
+ * [Syntax rules](docs/syntax-rules.md)
+ * [Literals](docs/literals.md)
+ * [Keywords](docs/keywords.md)
+ * [Scopes](docs/scopes.md)
+ * [Queries](docs/queries.md)
+ * [Lists](docs/lists.md)
+ * [Flags](docs/flags.md)
+ * [Relations](docs/relations.md)
+
+
+## Installation
 
 ### Dependencies
 
@@ -43,18 +54,6 @@ make inspect
 docker build -t dale .
 docker run dale examples/thumbnail
 ```
-
-
-## Documentation
-
- * [Syntax rules](docs/syntax-rules.md)
- * [Literals](docs/literals.md)
- * [Keywords](docs/keywords.md)
- * [Scopes](docs/scopes.md)
- * [Queries](docs/queries.md)
- * [Lists](docs/lists.md)
- * [Flags](docs/lists.md)
- * [Relations](docs/relations.md)
 
 
 ## License

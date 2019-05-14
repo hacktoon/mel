@@ -4,10 +4,10 @@
 
 ---
 
-Flags are keywords used to mark or tag a node with a specific name.
+Flags are keywords used to mark or tag a node with a specific name. Any keyword prefixed with a exclamation symbol is considered a flag.
 
 ```
-(foo !bar 42)
+(foo !bar !baz 42)  -- adds the !bar and !baz to foo object.
 ```
 
 ## Applications
@@ -17,9 +17,9 @@ Flags are keywords used to mark or tag a node with a specific name.
 Flags are used to represent the class attribute.
 
 ```
-(input !checked type="checkbox" name="enable-validation")
+(input !active type="checkbox" name="enable-validation")
 ```
 is converted to
 ```
-<input class="checked" type="checkbox" name="enable-validation" />
+<input class="active" type="checkbox" name="enable-validation" />
 ```

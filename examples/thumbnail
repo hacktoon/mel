@@ -1,4 +1,4 @@
--- A example of web component defined in Dale.
+-- A example of web component
 
 (component type="thumbnail"
     (?help "This is a component for thumbnails")

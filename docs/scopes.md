@@ -4,11 +4,9 @@
 
 ---
 
-A scope defines a context, which has a key and zero or more expressions.
+Scopes are used to define objects and its properties. As the name says, it creates a new scope.
 
-Any first path is considered the scope's key.
-
-Scopes are used to set values in contexts. The example below defines an scope `person` with properties `name` and `age` equal to `"Mary"` and `42`, respectively:
+The example below defines a scope `person` with the properties `name` equal to "Mary" and `age` equal to 42:
 
 ```
 (person
@@ -17,11 +15,30 @@ Scopes are used to set values in contexts. The example below defines an scope `p
 )
 ```
 
-## Keys
+## Syntax
 
-Keys are the first value in a scope.
+Scopes require a key and can have zero or more expressions:
+
+```
+'(' key expressions* ')'
+```
+
+The key must be a path or a null key `:`.
+The expressions can be flags, relations or objects. All flags and relations will be considered the scope's metadata.
 
 
-## Values
+## Applications
 
-Scopes can have as many values as necessary.
+### HTML
+
+When converted to HTML, scopes become tags. The example below:
+
+```
+(input type="text" 42)
+```
+
+is converted to:
+
+```
+<input type="text" value="42" />
+```
