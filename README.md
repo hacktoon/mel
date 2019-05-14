@@ -49,10 +49,11 @@ docker run dale examples/thumbnail
 
  * [Syntax rules](docs/syntax-rules.md)
  * [Literals](docs/literals.md)
- * [References](docs/references.md)
+ * [Keywords](docs/keywords.md)
  * [Scopes](docs/scopes.md)
  * [Queries](docs/queries.md)
  * [Lists](docs/lists.md)
+ * [Flags](docs/lists.md)
  * [Relations](docs/relations.md)
 
 

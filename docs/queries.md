@@ -1,12 +1,12 @@
-# Scopes
+# Queries
 
 [Home](../README.md)
 
 ---
 
-A scope defines a context, which has a key and zero or more expressions.
+A query is a scope, reference to data, with parameters and default value(s).
 
-Any first path is considered the scope's key.
+The syntax
 
 Scopes are used to set values in contexts. The example below defines an scope `person` with properties `name` and `age` equal to `"Mary"` and `42`, respectively:
 

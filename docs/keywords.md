@@ -1,17 +1,19 @@
-# Names
+# Keywords
 
 [Home](../README.md)
 
 ---
 
-Names are used to reference values. In the example below, the name `answer` is set to reference the `int` 42:
+Keywords are names with different properties, used to reference tree nodes.
+
+In the example below, the keyword `answer` is set to reference the `int` 42:
 
 ```
 (answer 42)
 ```
 
 
-Names can be prefixed with the following symbols: `!`, `#`, `$`, `%` and `?`.
+Keywords can be prefixed with the following symbols: `!`, `#`, `$`, `%` and `?`.
 
 
 ## Flags
