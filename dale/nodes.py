@@ -139,8 +139,29 @@ class StructNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = NullNode()
-        self.props = {}
+        self._key = NullNode()
+        self.uid = {}
+        self.alias = {}
+        self.format = {}
+        self.doc = {}
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, key):
+        self._key = key
+
+    def add(self, node):
+        super().add(node)
+        self._add_prop(node)
+
+    def _add_prop(self, node):
+        if not hasattr(self, node.id):
+            return
+        prop_map = getattr(self, node.id)
+        prop_map[node] = node
 
     def eval(self, context):
         return {
