@@ -140,10 +140,13 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self._key = NullNode()
-        self.uid = {}
-        self.alias = {}
-        self.format = {}
-        self.doc = {}
+        self.meta = {
+            'name': {},
+            'uid': {},
+            'alias': {},
+            'format': {},
+            'doc': {}
+        }
 
     @property
     def key(self):
