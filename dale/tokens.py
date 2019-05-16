@@ -129,7 +129,7 @@ class AliasPrefixToken(Token):
     regex = re.compile("@")
 
 
-class UIDPrefixToken(Token):
+class TagPrefixToken(Token):
     id = "#"
     regex = re.compile("#")
 

@@ -216,8 +216,8 @@ class FlagNode(KeywordNode):
     id = "flag"
 
 
-class UIDNode(KeywordNode):
-    id = "uid"
+class TagNode(KeywordNode):
+    id = "tag"
 
 
 class FormatNode(KeywordNode):

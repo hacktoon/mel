@@ -238,7 +238,7 @@ def test_path_length(test_input, total):
     [
         ("foo", nodes.NameNode),
         ("Bar", nodes.ConstantNode),
-        ("#code", nodes.UIDNode),
+        ("#code", nodes.TagNode),
         ("@code", nodes.AliasNode),
         ("%code", nodes.FormatNode),
         ("?code", nodes.DocNode)
@@ -311,7 +311,7 @@ def test_name_not_found_after_prefix():
         ("foo", parsing.NameParser),
         ("bar", parsing.NameParser),
         ("Foo", parsing.ConstantParser),
-        ("#foo", parsing.UIDParser),
+        ("#foo", parsing.TagParser),
         ("@foo", parsing.AliasParser),
         ("%foo", parsing.FormatParser),
         ("?foo", parsing.DocParser)
@@ -438,7 +438,7 @@ def test_null_scope_key():
     [
         ("(foo 42)", 'foo'),
         ("(etc 'test')", 'etc'),
-        ("(a/#b/c 4 6 7)", 'a/#b/c'),
+        ("(a/b 4 6 7)", 'a/b'),
     ]
 )
 def test_scope_key_string_repr(test_input, value):

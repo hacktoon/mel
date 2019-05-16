@@ -368,7 +368,7 @@ class KeywordParser(MultiParser):
     options = (
         nodes.NameNode,
         nodes.ConstantNode,
-        nodes.UIDNode,
+        nodes.TagNode,
         nodes.AliasNode,
         nodes.FormatNode,
         nodes.DocNode
@@ -407,9 +407,9 @@ class FlagParser(PrefixedNameParser):
 
 
 @subparser
-class UIDParser(PrefixedNameParser):
-    Node = nodes.UIDNode
-    Token = tokens.UIDPrefixToken
+class TagParser(PrefixedNameParser):
+    Node = nodes.TagNode
+    Token = tokens.TagPrefixToken
 
 
 @subparser
