@@ -9,9 +9,9 @@
 ```
 root       =  expression*
 
-expression =  flag | relation | object
+expression =  tag | relation | object
 
-flag       =  '!' NAME
+tag        =  '!' NAME
 
 relation   =  path symbol object
 
@@ -27,7 +27,7 @@ symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
 object     =  reference | literal | list | scope
 
-reference  =  head-ref ( '/' child-ref )* ( '/' flag )?
+reference  =  head-ref ( '/' child-ref )* ( '/' tag )?
 head-ref   =  query | keyword
 child-ref  =  RANGE | INT | wildcard | list | query | keyword
 

@@ -113,7 +113,7 @@ class RootParser(Parser):
 class ExpressionParser(MultiParser):
     Node = nodes.ExpressionNode
     options = (
-        nodes.FlagNode,
+        nodes.TagNode,
         nodes.RelationNode,
         nodes.ObjectNode
     )
@@ -297,15 +297,15 @@ class ReferenceParser(Parser):
     def parse_children(self, node):
         while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
-            if self.parse_flag(node):
+            if self.parse_tag(node):
                 break
             self.parse_child(node)
 
-    def parse_flag(self, node):
-        flag = self.subparse(nodes.FlagNode)
-        if flag:
-            node.add(flag)
-        return flag
+    def parse_tag(self, node):
+        tag = self.subparse(nodes.TagNode)
+        if tag:
+            node.add(tag)
+        return tag
 
     def parse_child(self, node):
         child = self.subparse(nodes.ChildReferenceNode)
@@ -401,9 +401,9 @@ class PrefixedNameParser(Parser):
 
 
 @subparser
-class FlagParser(PrefixedNameParser):
-    Node = nodes.FlagNode
-    Token = tokens.FlagPrefixToken
+class AuditParser(PrefixedNameParser):
+    Node = nodes.AuditNode
+    Token = tokens.AuditPrefixToken
 
 
 @subparser

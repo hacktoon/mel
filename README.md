@@ -19,7 +19,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
  * [Scopes](docs/scopes.md)
  * [Queries](docs/queries.md)
  * [Lists](docs/lists.md)
- * [Flags](docs/flags.md)
+ * [Tags](docs/tags.md)
  * [Relations](docs/relations.md)
 
 

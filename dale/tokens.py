@@ -139,7 +139,7 @@ class FormatPrefixToken(Token):
     regex = re.compile("%")
 
 
-class FlagPrefixToken(Token):
+class AuditPrefixToken(Token):
     id = "!"
     regex = re.compile("!")
 

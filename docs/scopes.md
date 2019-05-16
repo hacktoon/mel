@@ -24,7 +24,7 @@ Scopes require a key and can have zero or more expressions:
 ```
 
 The key must be a path or a null key `:`.
-The expressions can be flags, relations or objects. All flags and relations will be considered the scope's metadata.
+The expressions can be tags, relations or objects. All tags and relations will be considered the scope's metadata.
 
 
 ## Applications

@@ -212,8 +212,8 @@ class ConstantNode(NameNode):
     id = "constant"
 
 
-class FlagNode(KeywordNode):
-    id = "flag"
+class AuditNode(KeywordNode):
+    id = "audit"
 
 
 class TagNode(KeywordNode):

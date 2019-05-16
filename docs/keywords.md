@@ -9,31 +9,31 @@ Keywords are names with different properties, used to reference tree nodes.
 In the example below, the keyword `answer` is set to reference the `int` 42:
 
 ```
-(answer 42)
+answer = 42
 ```
 
 
-Keywords can be prefixed with the following symbols: `!`, `#`, `@`, `%` and `?`.
+Keywords can be prefixed with symbols like: `#`, `@`, `%` and `?`.
 
 
-## Flags
+## Tags
 
-Flags are used to define a name as `true` by default. Flags are `!` prefixed names.
+Tags are used to define a name as `true` by default. Tags are `#` prefixed names.
 
 ```
 (person
-    !vip
-    (name "Mary")
+    #vip
+    name = "Mary"
 )
 ```
 
 
-Flags can be used to generate information like CSS classes. See below:
+Tags can be used to generate information like CSS classes. See below:
 
 ```
 (title
-    !active
-    !bold
+    #active
+    #bold
 
     "content"
 )

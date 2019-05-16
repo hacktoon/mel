@@ -45,7 +45,7 @@ def test_whitespace_only():
     "test_input",
     [
         ("56.75 (a 3)"),
-        ("!flag -0.75"),
+        ("#checked -0.75"),
         ("True  False"),
         ("1.45e-10"),
         ('"string"'),
@@ -66,7 +66,7 @@ def test_string_representation(test_input):
     [
         ("-215", "INT('-215')"),
         ("56.75", "FLOAT('56.75')"),
-        ("#id", "REFERENCE('#id')"),
+        ("id", "REFERENCE('id')"),
         ("@path", "REFERENCE('@path')"),
         ("(bar 42)", "SCOPE('(bar 42)')"),
         ('[bar "etc"]', "LIST('[bar \"etc\"]')")
@@ -116,7 +116,7 @@ def test_scope_index():
 @pytest.mark.parametrize(
     "test_input, refnode",
     [
-        ("!foo", nodes.FlagNode),
+        ("#foo", nodes.TagNode),
         ("x = 3", nodes.RelationNode),
         ("x != 3", nodes.RelationNode),
         ("44", nodes.IntNode),
@@ -205,11 +205,11 @@ def test_reference_keywords(test_input):
 @pytest.mark.parametrize(
     "test_input",
     [
-        "etc/bar/!active",
-        'foo/!bar'
+        "etc/bar/#active",
+        'foo/#bar'
     ]
 )
-def test_reference_flag(test_input):
+def test_reference_tag(test_input):
     parser = create_parser(test_input, parsing.ReferenceParser)
     assert parser.parse()
 
@@ -234,7 +234,7 @@ def test_path_length(test_input, total):
 
 
 @pytest.mark.parametrize(
-    "test_input, refNode",
+    "test_input, expected",
     [
         ("foo", nodes.NameNode),
         ("Bar", nodes.ConstantNode),
@@ -244,10 +244,10 @@ def test_path_length(test_input, total):
         ("?code", nodes.DocNode)
     ]
 )
-def test_path_single_node_ids(test_input, refNode):
+def test_path_single_node_ids(test_input, expected):
     parser = create_parser(test_input, parsing.PathParser)
     node = parser.parse()
-    assert node[0].id == refNode.id
+    assert node[0].id == expected.id
 
 
 @pytest.mark.parametrize(
