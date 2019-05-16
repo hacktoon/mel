@@ -56,7 +56,7 @@ def test_token_repr(test_input, expected):
 
 
 def test_token_indices():
-    tokens = tokenize("1 abc $")
+    tokens = tokenize("1 abc @")
     assert tokens[0].index == (0, 1)
     assert tokens[1].index == (2, 5)
     assert tokens[2].index == (6, 7)

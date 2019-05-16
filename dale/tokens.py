@@ -124,6 +124,11 @@ class ConstantToken(Token):
     regex = re.compile(r"[A-Z]\w*")
 
 
+class AliasPrefixToken(Token):
+    id = "@"
+    regex = re.compile("@")
+
+
 class UIDPrefixToken(Token):
     id = "#"
     regex = re.compile("#")
@@ -132,11 +137,6 @@ class UIDPrefixToken(Token):
 class FormatPrefixToken(Token):
     id = "%"
     regex = re.compile("%")
-
-
-class AliasPrefixToken(Token):
-    id = "$"
-    regex = re.compile(r"\$")
 
 
 class FlagPrefixToken(Token):

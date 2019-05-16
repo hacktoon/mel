@@ -19,9 +19,9 @@ Scopes are used to set values in contexts. The example below defines an scope `p
 
 ## Keys
 
-Keys are the first value in a scope.
+Keys are the first value in a query.
 
 
 ## Values
 
-Scopes can have as many values as necessary.
+Queries can have as many values as necessary.

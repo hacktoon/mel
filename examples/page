@@ -1,13 +1,10 @@
 -- A blog page
 
 (page
-    !draft      -- flag this page as a draft
-    !meta/[hello world blog news forty_two]  -- sets multi flags under 'meta' main flag
-    !Output/JSON       -- enables the json output flag
+    #draft      -- tag this page as a draft
 
-    #id = 1       -- this page has id = 1
     title = "Hello world"
-    category = Category/news
+    category = Category/news  -- reference the 'news' category
     content = "Hello world!"
 
     (date
@@ -15,28 +12,4 @@
         month = 5
         year = 2019
     )
-)
-
-
--- sets the default values (by using Constant)
-(Page
-    #draft                -- tag this page as a draft
-    #[a b c]              -- defines a b c tags
-    #view/[excerpt full]  -- tag subtags of view tag
-    #output/json          -- enables the json output tag
-
-    !id/redis = 1                   -- uid
-    !id/hadoop = 4                  -- uid
-    !id/[mongodb firebase] = 345    -- uid
-    !cpf = 3456
-
-    title = "Hello world"
-    category = Category/news
-
-    (date
-        day = 3
-        month = 5
-        year = 2019
-    )
-    (content "Hello world!")
 )

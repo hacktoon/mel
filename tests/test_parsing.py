@@ -67,7 +67,7 @@ def test_string_representation(test_input):
         ("-215", "INT('-215')"),
         ("56.75", "FLOAT('56.75')"),
         ("#id", "REFERENCE('#id')"),
-        ("$path", "REFERENCE('$path')"),
+        ("@path", "REFERENCE('@path')"),
         ("(bar 42)", "SCOPE('(bar 42)')"),
         ('[bar "etc"]', "LIST('[bar \"etc\"]')")
     ],
@@ -224,7 +224,7 @@ def test_reference_flag(test_input):
         ("foo/#bar", 2),
         ("Foo/bar/?baz", 3),
         ("foo/Bar/%baz", 3),
-        ("Foo/Etc/$bar/baz", 4)
+        ("Foo/Etc/@bar/baz", 4)
     ]
 )
 def test_path_length(test_input, total):
@@ -239,7 +239,7 @@ def test_path_length(test_input, total):
         ("foo", nodes.NameNode),
         ("Bar", nodes.ConstantNode),
         ("#code", nodes.UIDNode),
-        ("$code", nodes.AliasNode),
+        ("@code", nodes.AliasNode),
         ("%code", nodes.FormatNode),
         ("?code", nodes.DocNode)
     ]
@@ -256,7 +256,7 @@ def test_path_single_node_ids(test_input, refNode):
         "foo/",
         "Foo/",
         "%foo/a/",
-        "$etc/#bar/Tsc/",
+        "@etc/bar/Tsc/",
     ]
 )
 def test_path_keyword_not_found(test_input):
@@ -273,7 +273,7 @@ def test_path_keyword_not_found(test_input):
         ("foo", "foo"),
         ("Foo", "Foo"),
         ("#foo", "foo"),
-        ("$foo", "foo"),
+        ("@foo", "foo"),
         ("%foo", "foo"),
         ("?foo", "foo"),
     ]
@@ -312,7 +312,7 @@ def test_name_not_found_after_prefix():
         ("bar", parsing.NameParser),
         ("Foo", parsing.ConstantParser),
         ("#foo", parsing.UIDParser),
-        ("$foo", parsing.AliasParser),
+        ("@foo", parsing.AliasParser),
         ("%foo", parsing.FormatParser),
         ("?foo", parsing.DocParser)
     ]
@@ -464,7 +464,7 @@ def test_invalid_scope_key(test_input):
     [
         "(x = 2)",
         "(a/b > 2)",
-        "($var != 'foo')"
+        "(@var != 'foo')"
     ]
 )
 def test_scope_unexpected_expression(test_input):

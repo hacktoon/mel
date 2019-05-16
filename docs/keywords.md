@@ -13,7 +13,7 @@ In the example below, the keyword `answer` is set to reference the `int` 42:
 ```
 
 
-Keywords can be prefixed with the following symbols: `!`, `#`, `$`, `%` and `?`.
+Keywords can be prefixed with the following symbols: `!`, `#`, `@`, `%` and `?`.
 
 
 ## Flags

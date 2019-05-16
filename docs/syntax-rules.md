@@ -19,7 +19,7 @@ path       =  keyword ( '/' keyword )*
 
 keyword    =  NAME | CONSTANT | uid | alias | format | doc
 uid        =  '#' NAME
-alias      =  '$' NAME
+alias      =  '@' NAME
 format     =  '%' NAME
 doc        =  '?' NAME
 
