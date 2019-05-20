@@ -430,6 +430,11 @@ class DocParser(PrefixedNameParser):
     Token = tokens.DocPrefixToken
 
 
+class MetaParser(PrefixedNameParser):
+    Node = nodes.MetaNode
+    Token = tokens.MetaPrefixToken
+
+
 # LITERAL ===========================
 
 @subparser

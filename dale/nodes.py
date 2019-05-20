@@ -68,11 +68,7 @@ class ExpressionNode(Node):
     id = "expression"
 
 
-# META ========================================================
-
-class MetaNode(Node):
-    id = "meta"
-
+# RELATION ========================================================
 
 class RelationNode(Node):
     id = "relation"
@@ -230,6 +226,10 @@ class AliasNode(KeywordNode):
 
 class DocNode(KeywordNode):
     id = "doc"
+
+
+class MetaNode(Node):
+    id = "meta"
 
 
 # RANGE ========================================================

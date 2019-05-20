@@ -73,7 +73,7 @@ class CommentToken(Token):
 
 class StringToken(Token):
     id = "string"
-    regex = re.compile("{}|{}".format(r"'[^']*'", r'"[^"]*"'))
+    regex = re.compile(r"{}|{}".format(r"'[^']*'", r'"[^"]*"'))
 
     @property
     def value(self):
@@ -126,22 +126,22 @@ class ConstantToken(Token):
 
 class AliasPrefixToken(Token):
     id = "@"
-    regex = re.compile("@")
+    regex = re.compile(r"@")
 
 
 class TagPrefixToken(Token):
     id = "#"
-    regex = re.compile("#")
+    regex = re.compile(r"#")
 
 
 class FormatPrefixToken(Token):
     id = "%"
-    regex = re.compile("%")
+    regex = re.compile(r"%")
 
 
 class AuditPrefixToken(Token):
     id = "!"
-    regex = re.compile("!")
+    regex = re.compile(r"!")
 
 
 class DocPrefixToken(Token):
@@ -149,42 +149,47 @@ class DocPrefixToken(Token):
     regex = re.compile(r"\?")
 
 
+class MetaPrefixToken(Token):
+    id = "."
+    regex = re.compile(r"\.")
+
+
 class EqualToken(Token):
     id = "="
-    regex = re.compile("=")
+    regex = re.compile(r"=")
 
 
 class DifferentToken(Token):
     id = "!="
-    regex = re.compile("!=")
+    regex = re.compile(r"!=")
     priority = 1
 
 
 class GreaterThanToken(Token):
     id = ">"
-    regex = re.compile(">")
+    regex = re.compile(r">")
 
 
 class GreaterThanEqualToken(Token):
     id = ">="
-    regex = re.compile(">=")
+    regex = re.compile(r">=")
     priority = 1
 
 
 class LessThanToken(Token):
     id = "<"
-    regex = re.compile("<")
+    regex = re.compile(r"<")
 
 
 class LessThanEqualToken(Token):
     id = "<="
-    regex = re.compile("<=")
+    regex = re.compile(r"<=")
     priority = 1
 
 
 class NullKeyToken(Token):
     id = ":"
-    regex = re.compile(":")
+    regex = re.compile(r":")
 
 
 class WildcardToken(Token):
@@ -195,11 +200,12 @@ class WildcardToken(Token):
 class RangeToken(Token):
     id = ".."
     regex = re.compile(r"\.\.")
+    priority = 1
 
 
 class SubNodeToken(Token):
     id = "/"
-    regex = re.compile("/")
+    regex = re.compile(r"/")
 
 
 class StartScopeToken(Token):

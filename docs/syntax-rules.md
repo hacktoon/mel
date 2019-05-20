@@ -11,17 +11,18 @@ root       =  expression*
 
 expression =  tag | relation | object
 
-tag        =  '!' NAME
+tag        =  '#' NAME
 
 relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
 
-keyword    =  NAME | CONSTANT | uid | alias | format | doc
-uid        =  '#' NAME
+keyword    =  NAME | CONSTANT | audit | alias | format | doc | meta
+audit      =  '!' NAME
 alias      =  '@' NAME
 format     =  '%' NAME
 doc        =  '?' NAME
+meta       =  '.' NAME
 
 symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
 

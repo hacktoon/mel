@@ -9,10 +9,7 @@ Scopes are used to define objects and its properties. As the name says, it creat
 The example below defines a scope `person` with the properties `name` equal to "Mary" and `age` equal to 42:
 
 ```
-(person
-    name = "Mary"
-    age = 42
-)
+(person  name = "Mary"  age = 42)
 ```
 
 ## Syntax
@@ -24,7 +21,7 @@ Scopes require a key and can have zero or more expressions:
 ```
 
 The key must be a path or a null key `:`.
-The expressions can be tags, relations or objects. All tags and relations will be considered the scope's metadata.
+The expressions can be tags, relations or objects.
 
 
 ## Applications
