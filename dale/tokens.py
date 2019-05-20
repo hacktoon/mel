@@ -119,8 +119,8 @@ class NameToken(Token):
     regex = re.compile(r"[a-z]\w*")
 
 
-class ConstantToken(Token):
-    id = "constant"
+class ConceptToken(Token):
+    id = "concept"
     regex = re.compile(r"[A-Z]\w*")
 
 

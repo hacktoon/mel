@@ -237,7 +237,7 @@ def test_path_length(test_input, total):
     "test_input, expected",
     [
         ("foo", nodes.NameNode),
-        ("Bar", nodes.ConstantNode),
+        ("Bar", nodes.ConceptNode),
         ("#code", nodes.TagNode),
         ("@code", nodes.AliasNode),
         ("%code", nodes.FormatNode),
@@ -310,7 +310,7 @@ def test_name_not_found_after_prefix():
     [
         ("foo", parsing.NameParser),
         ("bar", parsing.NameParser),
-        ("Foo", parsing.ConstantParser),
+        ("Foo", parsing.ConceptParser),
         ("#foo", parsing.TagParser),
         ("@foo", parsing.AliasParser),
         ("%foo", parsing.FormatParser),

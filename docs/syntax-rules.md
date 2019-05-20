@@ -17,7 +17,7 @@ relation   =  path symbol object
 
 path       =  keyword ( '/' keyword )*
 
-keyword    =  NAME | CONSTANT | audit | alias | format | doc | meta
+keyword    =  NAME | CONCEPT | audit | alias | format | doc | meta
 audit      =  '!' NAME
 alias      =  '@' NAME
 format     =  '%' NAME
@@ -70,16 +70,15 @@ f1o2_o3   -- can have numbers and underscores
 ```
 
 
-## Constants
+## Concepts
 
-Constants are like `NAME`s except they start with a capital letter.
-They represent names reserved for an application's context.
+Concepts are like `NAME`s except they start with a capital letter.
+They represent names reserved (or concepts) for an application's context.
 
 ```
-True      -- the boolean `true` value
+Web       -- a concept for using the Web
 Page      -- the page collection in a site
 File      -- a file reference
-
 ```
 
 

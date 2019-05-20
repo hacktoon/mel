@@ -367,7 +367,7 @@ class KeywordParser(MultiParser):
     Node = nodes.KeywordNode
     options = (
         nodes.NameNode,
-        nodes.ConstantNode,
+        nodes.ConceptNode,
         nodes.TagNode,
         nodes.AliasNode,
         nodes.FormatNode,
@@ -382,9 +382,9 @@ class NameParser(TokenParser):
 
 
 @subparser
-class ConstantParser(TokenParser):
-    Node = nodes.ConstantNode
-    Token = tokens.ConstantToken
+class ConceptParser(TokenParser):
+    Node = nodes.ConceptNode
+    Token = tokens.ConceptToken
 
 
 class PrefixedNameParser(Parser):

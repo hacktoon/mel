@@ -204,8 +204,8 @@ class NameNode(KeywordNode):
     id = "name"
 
 
-class ConstantNode(NameNode):
-    id = "constant"
+class ConceptNode(NameNode):
+    id = "concept"
 
 
 class AuditNode(KeywordNode):
