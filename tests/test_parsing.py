@@ -208,6 +208,7 @@ def test_subparser_nested_list():
     "test_input",
     [
         "etc",
+        "bar/.name",
         'foo/#bar',
         'abc/[1 2]'
     ]
