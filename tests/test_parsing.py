@@ -128,6 +128,21 @@ def test_expression(test_input, refnode):
     assert node.id == refnode.id
 
 
+# TAG =================================================
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "#foo",
+        "#foo/bar",
+        "#foo/bar/baz",
+    ]
+)
+def test_tags(test_input):
+    node = parse(test_input, parsing.TagParser)
+    assert node.id == nodes.TagNode.id
+
+
 # OBJECT ======================================================
 
 @pytest.mark.parametrize(

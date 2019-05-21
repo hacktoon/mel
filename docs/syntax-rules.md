@@ -11,7 +11,7 @@ root       =  expression*
 
 expression =  tag | relation | object
 
-tag        =  '#' NAME
+tag        =  '#' NAME ( '/' NAME )*
 
 relation   =  path symbol object
 
