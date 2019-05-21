@@ -371,7 +371,8 @@ class KeywordParser(MultiParser):
         nodes.TagNode,
         nodes.AliasNode,
         nodes.FormatNode,
-        nodes.DocNode
+        nodes.DocNode,
+        nodes.MetaNode
     )
 
 
@@ -430,6 +431,7 @@ class DocParser(PrefixedNameParser):
     Token = tokens.DocPrefixToken
 
 
+@subparser
 class MetaParser(PrefixedNameParser):
     Node = nodes.MetaNode
     Token = tokens.MetaPrefixToken

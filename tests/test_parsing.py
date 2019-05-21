@@ -276,6 +276,7 @@ def test_path_keyword_not_found(test_input):
         ("@foo", "foo"),
         ("%foo", "foo"),
         ("?foo", "foo"),
+        (".ba_r2", "ba_r2")
     ]
 )
 def test_keyword_acceptance(test_input, expected):
@@ -314,7 +315,8 @@ def test_name_not_found_after_prefix():
         ("#foo", parsing.TagParser),
         ("@foo", parsing.AliasParser),
         ("%foo", parsing.FormatParser),
-        ("?foo", parsing.DocParser)
+        ("?foo", parsing.DocParser),
+        (".fo_o", parsing.MetaParser)
     ]
 )
 def test_keyword_subparsers(test_input, parser):
@@ -429,7 +431,7 @@ def test_scope_with_many_values():
 
 
 def test_null_scope_key():
-    node = parse("(: 'test')", parsing.ScopeParser)
+    node = parse("(: 4 'test')", parsing.ScopeParser)
     assert not node.key
 
 
