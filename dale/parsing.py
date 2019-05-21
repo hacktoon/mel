@@ -297,15 +297,7 @@ class ReferenceParser(Parser):
     def parse_children(self, node):
         while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
-            if self.parse_tag(node):
-                break
             self.parse_child(node)
-
-    def parse_tag(self, node):
-        tag = self.subparse(nodes.TagNode)
-        if tag:
-            node.add(tag)
-        return tag
 
     def parse_child(self, node):
         child = self.subparse(nodes.ChildReferenceNode)

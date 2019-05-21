@@ -28,7 +28,7 @@ symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
 object     =  reference | literal | list | scope
 
-reference  =  head-ref ( '/' child-ref )* ( '/' tag )?
+reference  =  head-ref ( '/' child-ref )*
 head-ref   =  query | keyword
 child-ref  =  RANGE | INT | wildcard | list | query | keyword
 
