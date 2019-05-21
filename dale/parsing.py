@@ -119,32 +119,6 @@ class ExpressionParser(MultiParser):
     )
 
 
-# TAG ======================================================
-
-@subparser
-class TagParser(Parser):
-    Node = nodes.TagNode
-    Token = tokens.TagPrefixToken
-
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.Token):
-            return
-        prefix = self.stream.read()
-        node = self.build_node()
-        if not self.stream.is_next(tokens.NameToken):
-            raise NameNotFoundError(prefix)
-        node.value = self.stream.read().value
-        self.parse_names(node)
-        return node
-
-    def parse_names(self, node):
-        while self.stream.is_next(tokens.SubNodeToken):
-            self.stream.read()
-            name = self.subparse(nodes.NameNode)
-            node.add(name)
-
-
 # RELATION ======================================================
 
 @subparser
@@ -417,6 +391,12 @@ class PrefixedNameParser(Parser):
             node.value = self.stream.read().value
             return node
         raise NameNotFoundError(prefix)
+
+
+@subparser
+class TagParser(PrefixedNameParser):
+    Node = nodes.TagNode
+    Token = tokens.TagPrefixToken
 
 
 @subparser

@@ -134,8 +134,8 @@ def test_expression(test_input, refnode):
     "test_input",
     [
         "#foo",
-        "#foo/bar",
-        "#foo/bar/baz",
+        "#bar_4",
+        "#fA_o",
     ]
 )
 def test_tags(test_input):
