@@ -7,43 +7,43 @@
 ## Grammar
 
 ```
-root       =  expression*
+root        =  expression*
 
-expression =  tag | relation | object
+expression  =  tag | relation | object
 
-tag        =  '#' NAME ( '/' NAME )*
+tag         =  '#' NAME ( '/' NAME )*
 
-relation   =  path symbol object
+relation    =  path symbol object
 
-path       =  keyword ( '/' keyword )*
+path        =  keyword ( '/' keyword )*
 
-keyword    =  NAME | CONCEPT | audit | alias | format | doc | meta
-audit      =  '!' NAME
-alias      =  '@' NAME
-format     =  '%' NAME
-doc        =  '?' NAME
-meta       =  '.' NAME
+keyword     =  NAME | CONCEPT | audit | alias | format | doc | meta
+audit       =  '!' NAME
+alias       =  '@' NAME
+format      =  '%' NAME
+doc         =  '?' NAME
+meta        =  '.' NAME
 
-symbol     =  '=' | '!=' | '<' | '<=' | '>' | '>='
+symbol      =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
-object     =  reference | literal | list | scope
+object      =  reference | literal | list | scope
 
-reference  =  head-ref ( '/' child-ref )*
-head-ref   =  query | keyword
-child-ref  =  RANGE | INT | wildcard | list | query | keyword
+reference   =  head-ref ( '/' child-ref )*
+head-ref    =  query | keyword
+child-ref   =  RANGE | INT | wildcard | list | query | keyword | tag
 
-literal    =  INT | FLOAT | STRING | BOOLEAN
+literal     =  INT | FLOAT | STRING | BOOLEAN
 
-list       =  '[' object* ']'
-scope      =  '(' struct ')'
-query      =  '{' struct '}'
+list        =  '[' object* ']'
+scope       =  '(' struct ')'
+query       =  '{' struct '}'
 
-struct     =  key expression*
-key        =  ':' | path
+struct      =  key expression*
+key         =  ':' | path
 
-wildcard   =  '*'
+wildcard    =  '*'
 
-comment    =  '--'
+comment     =  '--'
 ```
 
 

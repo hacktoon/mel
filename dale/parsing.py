@@ -350,8 +350,9 @@ class ChildReferenceParser(MultiParser):
         nodes.RangeNode,
         nodes.IntNode,
         nodes.ListNode,
+        nodes.QueryNode,
         nodes.KeywordNode,
-        nodes.QueryNode
+        nodes.TagNode,
     )
 
 
@@ -386,7 +387,6 @@ class KeywordParser(MultiParser):
     options = (
         nodes.NameNode,
         nodes.ConceptNode,
-        nodes.TagNode,
         nodes.AliasNode,
         nodes.FormatNode,
         nodes.DocNode,

@@ -168,7 +168,7 @@ def test_subparser_object(test_input):
     [
         ("x = 4", 'x', '=', '4'),
         ("x/y != 64", 'x/y', '!=', '64'),
-        ("a/#pid/f_a > [1, 2]", 'a/#pid/f_a', '>', '[1, 2]'),
+        ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
     ]
 )
 def test_relation(test_input, key, symbol, value):
@@ -236,7 +236,6 @@ def test_reference_tag(test_input):
     [
         ("foo", 1),
         ("Bar", 1),
-        ("foo/#bar", 2),
         ("Foo/bar/?baz", 3),
         ("foo/Bar/%baz", 3),
         ("Foo/Etc/@bar/baz", 4)
@@ -253,7 +252,6 @@ def test_path_length(test_input, total):
     [
         ("foo", nodes.NameNode),
         ("Bar", nodes.ConceptNode),
-        ("#code", nodes.TagNode),
         ("@code", nodes.AliasNode),
         ("%code", nodes.FormatNode),
         ("?code", nodes.DocNode)
@@ -287,7 +285,6 @@ def test_path_keyword_not_found(test_input):
     [
         ("foo", "foo"),
         ("Foo", "Foo"),
-        ("#foo", "foo"),
         ("@foo", "foo"),
         ("%foo", "foo"),
         ("?foo", "foo"),
@@ -318,7 +315,7 @@ def test_keyword_non_acceptance(test_input):
 
 def test_name_not_found_after_prefix():
     with pytest.raises(NameNotFoundError):
-        parse("(# )")
+        parse("(@ )")
 
 
 @pytest.mark.parametrize(
