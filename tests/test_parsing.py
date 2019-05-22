@@ -10,7 +10,8 @@ from dale.exceptions import (
     KeywordNotFoundError,
     KeyNotFoundError,
     NameNotFoundError,
-    InfiniteRangeError
+    InfiniteRangeError,
+    UnexpectedKeywordError
 )
 
 
@@ -228,6 +229,18 @@ def test_reference_keywords(test_input):
 def test_reference_tag(test_input):
     parser = create_parser(test_input, parsing.ReferenceParser)
     assert parser.parse()
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "etc/bar/#active/ge",
+        'foo/#bar/ff'
+    ]
+)
+def test_reference_non_terminal_tag_error(test_input):
+    with pytest.raises(UnexpectedKeywordError):
+        parse(test_input, parsing.ReferenceParser)
 
 
 # PATH =================================================

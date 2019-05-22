@@ -136,12 +136,15 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self._key = NullNode()
-        self.meta = {
+        self._props = {
             'name': {},
-            'uid': {},
+            'concept': {},
+            'audit': {},
+            'tag': {},
             'alias': {},
             'format': {},
-            'doc': {}
+            'doc': {},
+            'meta': {}
         }
 
     @property
@@ -157,10 +160,9 @@ class StructNode(Node):
         self._add_prop(node)
 
     def _add_prop(self, node):
-        if not hasattr(self, node.id):
+        if node.id not in self._props:
             return
-        prop_map = getattr(self, node.id)
-        prop_map[node] = node
+        self._props[node.id] = node
 
     def eval(self, context):
         return {
