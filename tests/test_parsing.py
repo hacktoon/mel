@@ -100,6 +100,20 @@ def test_incomplete_input_EOF(test_input):
         parser.parse()
 
 
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "etc)",
+        "#fd]",
+        "44}",
+    ]
+)
+def test_incomplete_input_token(test_input):
+    parser = create_parser(test_input)
+    with pytest.raises(UnexpectedTokenError):
+        parser.parse()
+
+
 # NODE INDEX ===========================================
 
 def test_node_children_index():
