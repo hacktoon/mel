@@ -25,7 +25,7 @@ meta        =  '.' NAME
 
 symbol      =  '=' | '!=' | '<' | '<=' | '>' | '>='
 
-object      =  reference | literal | list | scope
+object      =  reference | literal | list | scope | prototype
 
 reference   =  head-ref ( '/' child-ref )* ( '/' tag )?
 head-ref    =  query | keyword

@@ -6,15 +6,13 @@
 
 A query is a scope, reference to data, with parameters and default value(s).
 
-The syntax
-
-Scopes are used to set values in contexts. The example below defines an scope `person` with properties `name` and `age` equal to `"Mary"` and `42`, respectively:
+Queries are used to get values in contexts. The example below defines a query `person` with constraints `name` and `age` equal to `"Mary"` and `42`, respectively:
 
 ```
-(person
+{person
     name = "Mary"
     age = 42
-)
+}
 ```
 
 ## Keys
