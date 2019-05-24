@@ -11,7 +11,8 @@ from dale.exceptions import (
     KeyNotFoundError,
     NameNotFoundError,
     InfiniteRangeError,
-    UnexpectedKeywordError
+    UnexpectedKeywordError,
+    ObjectNotFoundError
 )
 
 
@@ -185,18 +186,32 @@ def test_subparser_object(test_input):
 # RELATION =================================================
 
 @pytest.mark.parametrize(
-    "test_input, key, symbol, value",
+    "test_input, key, symbol, object",
     [
         ("x = 4", 'x', '=', '4'),
         ("x/y != 64", 'x/y', '!=', '64'),
         ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
     ]
 )
-def test_relation(test_input, key, symbol, value):
+def test_relation_components(test_input, key, symbol, object):
     node = parse(test_input, parsing.RelationParser)
     assert str(node.key) == key
     assert str(node.symbol) == symbol
-    assert str(node.value) == value
+    assert str(node.value) == object
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "x = >",
+        "x <= ",
+        "x > <",
+        "x >= =",
+    ]
+)
+def test_relation_object_expected(test_input):
+    with pytest.raises(ObjectNotFoundError):
+        parse(test_input, parsing.RelationParser)
 
 
 #  LIST ======================================================
