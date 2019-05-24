@@ -12,7 +12,8 @@ from dale.exceptions import (
     NameNotFoundError,
     InfiniteRangeError,
     UnexpectedKeywordError,
-    ObjectNotFoundError
+    ObjectNotFoundError,
+    ExpectedKeywordError
 )
 
 
@@ -246,6 +247,7 @@ def test_subparser_nested_list():
         "etc",
         "bar/.name",
         'foo/#bar',
+        "etc/bar/#active",
         'abc/[1 2]'
     ]
 )
@@ -257,24 +259,25 @@ def test_reference_keywords(test_input):
 @pytest.mark.parametrize(
     "test_input",
     [
-        "etc/bar/#active",
-        'foo/#bar'
+        "etc/bar/#active/ge",
+        'foo/#bar/ff',
+        "etc/#bar/",
     ]
 )
-def test_reference_tag(test_input):
-    parser = create_parser(test_input, parsing.ReferenceParser)
-    assert parser.parse()
+def test_reference_non_terminal_tag_error(test_input):
+    with pytest.raises(UnexpectedKeywordError):
+        parse(test_input, parsing.ReferenceParser)
 
 
 @pytest.mark.parametrize(
     "test_input",
     [
-        "etc/bar/#active/ge",
-        'foo/#bar/ff'
+        "etc/bar/",
+        "etc/@bar/",
     ]
 )
-def test_reference_non_terminal_tag_error(test_input):
-    with pytest.raises(UnexpectedKeywordError):
+def test_reference_expected_child(test_input):
+    with pytest.raises(ExpectedKeywordError):
         parse(test_input, parsing.ReferenceParser)
 
 

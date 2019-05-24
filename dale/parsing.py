@@ -9,7 +9,7 @@ from .exceptions import (
     KeyNotFoundError,
     ObjectNotFoundError,
     InfiniteRangeError,
-    ReferenceChildError,
+    ExpectedKeywordError,
     UnexpectedKeywordError
 )
 
@@ -311,7 +311,7 @@ class ReferenceParser(Parser):
     def parse_child(self, node):
         child = self.subparse(nodes.ChildReferenceNode)
         if not child:
-            raise ReferenceChildError(self.stream.peek())
+            raise ExpectedKeywordError(self.stream.peek())
         node.add(child)
         return child
 
