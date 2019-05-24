@@ -17,8 +17,7 @@ relation    =  path symbol object
 
 path        =  keyword ( '/' keyword )*
 
-keyword     =  NAME | CONCEPT | audit | alias | format | doc | meta
-audit       =  '!' NAME
+keyword     =  NAME | CONCEPT | alias | format | doc | meta
 alias       =  '@' NAME
 format      =  '%' NAME
 doc         =  '?' NAME

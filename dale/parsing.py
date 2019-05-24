@@ -411,12 +411,6 @@ class TagParser(PrefixedNameParser):
 
 
 @subparser
-class AuditParser(PrefixedNameParser):
-    Node = nodes.AuditNode
-    Token = tokens.AuditPrefixToken
-
-
-@subparser
 class AliasParser(PrefixedNameParser):
     Node = nodes.AliasNode
     Token = tokens.AliasPrefixToken

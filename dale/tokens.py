@@ -139,11 +139,6 @@ class FormatPrefixToken(Token):
     regex = re.compile(r"%")
 
 
-class AuditPrefixToken(Token):
-    id = "!"
-    regex = re.compile(r"!")
-
-
 class DocPrefixToken(Token):
     id = "?"
     regex = re.compile(r"\?")

@@ -139,7 +139,6 @@ class StructNode(Node):
         self._props = {
             'name': {},
             'concept': {},
-            'audit': {},
             'tag': {},
             'alias': {},
             'format': {},
@@ -208,10 +207,6 @@ class NameNode(KeywordNode):
 
 class ConceptNode(NameNode):
     id = "concept"
-
-
-class AuditNode(KeywordNode):
-    id = "audit"
 
 
 class TagNode(KeywordNode):
