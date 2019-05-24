@@ -30,6 +30,12 @@ def parse_one(text):
 
 # BASE PARSER ===========================================
 
+def test_subparser_invalid_node_id():
+    stream = TokenStream("foo")
+    with pytest.raises(Exception):
+        parsing.get_subparser("x", stream)
+
+
 def test_empty_input_string():
     node = parse("")
     assert node.id == nodes.RootNode.id
