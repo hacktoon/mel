@@ -26,11 +26,6 @@ class UnexpectedEOFError(BaseError):
         super().__init__(token, "Reached end of text while parsing.")
 
 
-class SubNodeError(BaseError):
-    def __init__(self, token):
-        super().__init__(token, "Expected an object after this symbol.")
-
-
 class KeywordNotFoundError(BaseError):
     def __init__(self, token):
         super().__init__(token, "Expected a keyword.")
