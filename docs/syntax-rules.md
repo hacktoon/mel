@@ -36,6 +36,7 @@ literal     =  INT | FLOAT | STRING | BOOLEAN
 list        =  '[' object* ']'
 scope       =  '(' struct ')'
 query       =  '{' struct '}'
+prototype   =  '((' struct '))'
 
 struct      =  key expression*
 key         =  ':' | path

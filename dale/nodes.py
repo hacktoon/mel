@@ -175,6 +175,10 @@ class ScopeNode(StructNode):
     id = "scope"
 
 
+class PrototypeNode(StructNode):
+    id = "prototype"
+
+
 class QueryNode(StructNode):
     id = "query"
 

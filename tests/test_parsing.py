@@ -544,3 +544,11 @@ def test_query_key_single_value():
     node = parse("{abc 42}", parsing.QueryParser)
     assert str(node.key) == "abc"
     assert node[0].value == 42
+
+
+# PROTOTYPE ===============================================
+
+def test_prototype_key_single_value():
+    node = parse("((abc 42))", parsing.PrototypeParser)
+    assert str(node.key) == "abc"
+    assert node[0].value == 42

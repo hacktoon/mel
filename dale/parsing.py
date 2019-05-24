@@ -244,6 +244,13 @@ class ScopeParser(StructParser):
 
 
 @subparser
+class PrototypeParser(StructParser):
+    Node = nodes.PrototypeNode
+    FirstToken = tokens.StartPrototypeToken
+    LastToken = tokens.EndPrototypeToken
+
+
+@subparser
 class QueryParser(StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken

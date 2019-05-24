@@ -213,6 +213,18 @@ class EndScopeToken(Token):
     regex = re.compile(r"\)")
 
 
+class StartPrototypeToken(Token):
+    id = "(("
+    regex = re.compile(r"\(\(")
+    priority = 1
+
+
+class EndPrototypeToken(Token):
+    id = "))"
+    regex = re.compile(r"\)\)")
+    priority = 1
+
+
 class StartQueryToken(Token):
     id = "{"
     regex = re.compile(r"\{")
