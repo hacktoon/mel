@@ -336,7 +336,7 @@ def test_name_not_found_after_prefix():
     "test_input, parser",
     [
         ("foo", parsing.NameParser),
-        ("bar", parsing.NameParser),
+        ("bar_", parsing.NameParser),
         ("Foo", parsing.ConceptParser),
         ("#foo", parsing.TagParser),
         ("@foo", parsing.AliasParser),
