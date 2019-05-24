@@ -64,9 +64,6 @@ class Parser:
     def subparse(self, Node):
         return get_subparser(Node.id, self.stream).parse()
 
-    def __repr__(self):
-        return self.__class__.__name__
-
 
 # SPECIALIZED PARSERS ===========================
 
