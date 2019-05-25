@@ -135,33 +135,7 @@ class StructNode(Node):
 
     def __init__(self):
         super().__init__()
-        self._key = NullNode()
-        self._props = {
-            'name': {},
-            'concept': {},
-            'tag': {},
-            'alias': {},
-            'format': {},
-            'doc': {},
-            'meta': {}
-        }
-
-    @property
-    def key(self):
-        return self._key
-
-    @key.setter
-    def key(self, key):
-        self._key = key
-
-    def add(self, node):
-        super().add(node)
-        self._add_prop(node)
-
-    def _add_prop(self, node):
-        if node.id not in self._props:
-            return
-        self._props[node.id] = node
+        self.key = NullNode()
 
     def eval(self, context):
         return {
