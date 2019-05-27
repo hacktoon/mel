@@ -223,6 +223,9 @@ class StructParser(MultiParser):
         if self.stream.is_next(tokens.NullKeyToken):
             self.stream.read()
             return
+        if self.stream.is_next(tokens.DefaultFormatKeyToken):
+            self.stream.read()
+            return
         key = self.subparse(nodes.PathNode)
         if not key:
             raise KeyNotFoundError(self.stream.peek())

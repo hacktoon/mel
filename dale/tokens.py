@@ -187,6 +187,12 @@ class NullKeyToken(Token):
     regex = re.compile(r":")
 
 
+class DefaultFormatKeyToken(Token):
+    id = "%:"
+    regex = re.compile(r"%:")
+    priority = 1
+
+
 class WildcardToken(Token):
     id = "*"
     regex = re.compile(r"\*")

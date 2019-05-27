@@ -34,12 +34,13 @@ child-ref   =  RANGE | INT | wildcard | list | query | keyword
 literal     =  INT | FLOAT | STRING | BOOLEAN
 
 list        =  '[' object* ']'
+
 scope       =  '(' struct ')'
 query       =  '{' struct '}'
 prototype   =  '((' struct '))'
 
 struct      =  key expression*
-key         =  ':' | path
+key         =  ':' | '%:' | path
 
 wildcard    =  '*'
 
