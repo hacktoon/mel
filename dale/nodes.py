@@ -142,7 +142,7 @@ class StructNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = NullNode()
+        self._key = NullNode()
         self.tags = set()
         self.props = {
             'name': {},
@@ -152,6 +152,14 @@ class StructNode(Node):
             'doc': {},
             'meta': {},
         }
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, node):
+        self._key = node
 
     def _add_tag(self, node):
         self.tags.add(node.value)
