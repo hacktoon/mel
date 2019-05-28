@@ -13,7 +13,7 @@ expression  =  tag | relation | object
 
 tag         =  '#' NAME
 
-relation    =  path symbol object
+relation    =  path sign object
 
 path        =  keyword ( '/' keyword )*
 
@@ -23,7 +23,7 @@ format      =  '%' NAME
 doc         =  '?' NAME
 meta        =  '.' NAME
 
-symbol      =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
+sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
 object      =  reference | literal | list | scope | prototype
 

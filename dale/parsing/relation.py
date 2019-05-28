@@ -22,8 +22,8 @@ class RelationParser(BaseParser):
         key = self.subparse(nodes.PathNode)
         if not key:
             return
-        symbol = self.subparse(nodes.SymbolNode)
-        if not symbol:
+        sign = self.subparse(nodes.SymbolNode)
+        if not sign:
             self.stream.restore()
             return
         value = self.subparse(nodes.ObjectNode)
@@ -31,7 +31,7 @@ class RelationParser(BaseParser):
             raise ObjectNotFoundError(self.stream.peek())
         node = self.build_node()
         node.key = key
-        node.symbol = symbol
+        node.sign = sign
         node.value = value
         return node
 

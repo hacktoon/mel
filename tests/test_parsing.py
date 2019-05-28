@@ -187,7 +187,7 @@ def test_subparser_object(test_input):
 # RELATION =================================================
 
 @pytest.mark.parametrize(
-    "test_input, key, symbol, object",
+    "test_input, key, sign, object",
     [
         ("x = 4", 'x', '=', '4'),
         ("x >< -5", 'x', '><', '-5'),
@@ -196,10 +196,10 @@ def test_subparser_object(test_input):
         ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
     ]
 )
-def test_relation_components(test_input, key, symbol, object):
+def test_relation_components(test_input, key, sign, object):
     node = parse(test_input, parsing.relation.RelationParser)
     assert str(node.key) == key
-    assert str(node.symbol) == symbol
+    assert str(node.sign) == sign
     assert str(node.value) == object
 
 
@@ -480,8 +480,8 @@ def test_range_only_accepts_integers():
 
 def test_tag_scope():
     node = parse("(a #bar #foo)", parsing.struct.ScopeParser)
-    assert 'bar' in node.tag
-    assert 'foo' in node.tag
+    assert 'bar' in node.tags
+    assert 'foo' in node.tags
 
 
 # SCOPE ===================================================
