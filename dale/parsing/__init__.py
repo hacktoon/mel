@@ -112,6 +112,10 @@ class PathParser(BaseParser):
             return
         node = self.build_node()
         node.add(keyword)
+        self.parse_tail(node)
+        return node
+
+    def parse_tail(self, node):
         while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
             keyword = self.subparse(nodes.KeywordNode)
@@ -119,7 +123,7 @@ class PathParser(BaseParser):
                 node.add(keyword)
             else:
                 raise KeywordNotFoundError(self.stream.peek())
-        return node
+
 
 
 # RANGE ===========================
