@@ -108,6 +108,14 @@ class LessThanEqualNode(SymbolNode):
     id = "less_than_equal"
 
 
+class InNode(SymbolNode):
+    id = "in"
+
+
+class NotInNode(SymbolNode):
+    id = "not_in"
+
+
 # OBJECT ========================================================
 
 class ObjectNode(Node):

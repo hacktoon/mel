@@ -152,7 +152,9 @@ class SymbolParser(MultiParser):
         nodes.GreaterThanNode,
         nodes.GreaterThanEqualNode,
         nodes.LessThanNode,
-        nodes.LessThanEqualNode
+        nodes.LessThanEqualNode,
+        nodes.InNode,
+        nodes.NotInNode
     )
 
 
@@ -190,6 +192,18 @@ class LessThanParser(TokenParser):
 class LessThanEqualParser(TokenParser):
     Node = nodes.LessThanEqualNode
     Token = tokens.LessThanEqualToken
+
+
+@subparser
+class InParser(TokenParser):
+    Node = nodes.InNode
+    Token = tokens.InToken
+
+
+@subparser
+class NotInParser(TokenParser):
+    Node = nodes.NotInNode
+    Token = tokens.NotInToken
 
 
 # OBJECT ======================================================

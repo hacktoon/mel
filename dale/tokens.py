@@ -182,6 +182,18 @@ class LessThanEqualToken(Token):
     priority = 1
 
 
+class InToken(Token):
+    id = "><"
+    regex = re.compile(r"><")
+    priority = 1
+
+
+class NotInToken(Token):
+    id = "<>"
+    regex = re.compile(r"<>")
+    priority = 1
+
+
 class NullKeyToken(Token):
     id = ":"
     regex = re.compile(r":")

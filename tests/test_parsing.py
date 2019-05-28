@@ -190,6 +190,8 @@ def test_subparser_object(test_input):
     "test_input, key, symbol, object",
     [
         ("x = 4", 'x', '=', '4'),
+        ("x >< -5", 'x', '><', '-5'),
+        ("a/b <> foo", 'a/b', '<>', 'foo'),
         ("x/y != 64", 'x/y', '!=', '64'),
         ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
     ]
