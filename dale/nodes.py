@@ -136,6 +136,24 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
+        self.name = {},
+        self.concept = {},
+        self.tag = {},
+        self.alias = {},
+        self.format = {},
+        self.doc = {},
+        self.meta = {}
+
+    def add(self, node):
+        super().add(node)
+        if node.id in (RelationNode.id, ScopeNode.id):
+            self._add_prop(node.key[0])
+
+    def _add_prop(self, node):
+        if hasattr(self, node.id):
+            return
+        prop = getattr(self, node.id)
+        prop[node.value] = node
 
     def eval(self, context):
         return {

@@ -23,7 +23,7 @@ format      =  '%' NAME
 doc         =  '?' NAME
 meta        =  '.' NAME
 
-symbol      =  '=' | '!=' | '<' | '<=' | '>' | '>='
+symbol      =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
 object      =  reference | literal | list | scope | prototype
 
