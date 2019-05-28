@@ -162,7 +162,7 @@ def test_expression(test_input, refnode):
     ]
 )
 def test_tags(test_input):
-    node = parse(test_input, parsing.TagParser)
+    node = parse(test_input, parsing.keyword.TagParser)
     assert node.id == nodes.TagNode.id
 
 
@@ -346,7 +346,7 @@ def test_path_keyword_not_found(test_input):
     ]
 )
 def test_keyword_acceptance(test_input, expected):
-    parser = create_parser(test_input, parsing.KeywordParser)
+    parser = create_parser(test_input, parsing.keyword.KeywordParser)
     node = parser.parse()
     assert node.value == expected
 
@@ -363,7 +363,7 @@ def test_keyword_acceptance(test_input, expected):
     ]
 )
 def test_keyword_non_acceptance(test_input):
-    parser = create_parser(test_input, parsing.KeywordParser)
+    parser = create_parser(test_input, parsing.keyword.KeywordParser)
     assert parser.parse() is None
 
 
@@ -375,14 +375,14 @@ def test_name_not_found_after_prefix():
 @pytest.mark.parametrize(
     "test_input, parser",
     [
-        ("foo", parsing.NameParser),
-        ("bar_", parsing.NameParser),
-        ("Foo", parsing.ConceptParser),
-        ("#foo", parsing.TagParser),
-        ("@foo", parsing.AliasParser),
-        ("%foo", parsing.FormatParser),
-        ("?foo", parsing.DocParser),
-        (".fo_o", parsing.MetaParser)
+        ("foo", parsing.keyword.NameParser),
+        ("bar_", parsing.keyword.NameParser),
+        ("Foo", parsing.keyword.ConceptParser),
+        ("#foo", parsing.keyword.TagParser),
+        ("@foo", parsing.keyword.AliasParser),
+        ("%foo", parsing.keyword.FormatParser),
+        ("?foo", parsing.keyword.DocParser),
+        (".fo_o", parsing.keyword.MetaParser)
     ]
 )
 def test_keyword_subparsers(test_input, parser):
