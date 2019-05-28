@@ -254,7 +254,7 @@ def test_subparser_nested_list():
     ]
 )
 def test_reference_keywords(test_input):
-    parser = create_parser(test_input, parsing.ReferenceParser)
+    parser = create_parser(test_input, parsing.reference.ReferenceParser)
     assert parser.parse()
 
 
@@ -268,7 +268,7 @@ def test_reference_keywords(test_input):
 )
 def test_reference_non_terminal_tag_error(test_input):
     with pytest.raises(UnexpectedKeywordError):
-        parse(test_input, parsing.ReferenceParser)
+        parse(test_input, parsing.reference.ReferenceParser)
 
 
 @pytest.mark.parametrize(
@@ -280,7 +280,7 @@ def test_reference_non_terminal_tag_error(test_input):
 )
 def test_reference_expected_child(test_input):
     with pytest.raises(ExpectedKeywordError):
-        parse(test_input, parsing.ReferenceParser)
+        parse(test_input, parsing.reference.ReferenceParser)
 
 
 # PATH =================================================
