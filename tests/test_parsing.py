@@ -405,7 +405,7 @@ def test_keyword_subparsers(test_input, parser):
     ]
 )
 def test_literal_acceptance(test_input, expected):
-    parser = create_parser(test_input, parsing.LiteralParser)
+    parser = create_parser(test_input, parsing.literal.LiteralParser)
     node = parser.parse()
     assert node.value == expected
 
@@ -420,19 +420,19 @@ def test_literal_acceptance(test_input, expected):
     ]
 )
 def test_literal_non_acceptance(test_input):
-    parser = create_parser(test_input, parsing.LiteralParser)
+    parser = create_parser(test_input, parsing.literal.LiteralParser)
     assert parser.parse() is None
 
 
 @pytest.mark.parametrize(
     "test_input, parser",
     [
-        ("3", parsing.IntParser),
-        ("-3.44", parsing.FloatParser),
-        ('" aaa "', parsing.StringParser),
-        ("'foo'", parsing.StringParser),
-        ("true", parsing.BooleanParser),
-        ("False", parsing.BooleanParser),
+        ("3", parsing.literal.IntParser),
+        ("-3.44", parsing.literal.FloatParser),
+        ('" aaa "', parsing.literal.StringParser),
+        ("'foo'", parsing.literal.StringParser),
+        ("true", parsing.literal.BooleanParser),
+        ("False", parsing.literal.BooleanParser),
 
     ]
 )
