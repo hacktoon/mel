@@ -1,59 +1,29 @@
-import functools
 
-from . import tokens
-from . import nodes
-from .exceptions import (
+from .. import tokens
+from .. import nodes
+
+from . import relation
+from .base import (
+    BaseParser,
+    MultiParser,
+    TokenParser,
+    subparser,
+    get_subparser,
+    indexed
+)
+
+from ..exceptions import (
     UnexpectedTokenError,
     NameNotFoundError,
     KeywordNotFoundError,
     KeyNotFoundError,
-    ObjectNotFoundError,
     InfiniteRangeError,
     ExpectedKeywordError,
     UnexpectedKeywordError
 )
 
 
-_subparsers = {}
-
-
-@functools.lru_cache()
-def get_subparser(id, stream):
-    if id in _subparsers:
-        return _subparsers[id](stream)
-    raise Exception('Invalid subparser: ' + id)
-
-
-# decorator - register a Parser class as a subparser
-def subparser(cls):
-    _subparsers[cls.Node.id] = cls
-    return cls
-
-
-# decorator - add stream data to node instance via parser method
-def indexed(parse_method):
-    @functools.wraps(parse_method)
-    def surrogate(self):
-        first = self.stream.peek()
-        node = parse_method(self)
-        if not node:
-            return
-        last = self.stream.peek(-1)
-        node.index = first.index[0], last.index[1]
-        node.text = self.stream.text
-        return node
-    return surrogate
-
-
-# BASE PARSER ===========================
-
-class Parser:
-    def __init__(self, stream):
-        self.stream = stream
-
-    def build_node(self):
-        return self.Node()
-
+class Parser(BaseParser):
     def parse(self):
         node = RootParser(self.stream).parse()
         if self.stream.is_eof():
@@ -61,37 +31,11 @@ class Parser:
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
 
-    def subparse(self, Node):
-        return get_subparser(Node.id, self.stream).parse()
-
-
-# SPECIALIZED PARSERS ===========================
-
-class MultiParser(Parser):
-    options = tuple()
-
-    @indexed
-    def parse(self):
-        for option in self.options:
-            node = self.subparse(option)
-            if node:
-                return node
-        return
-
-
-class TokenParser(Parser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.Token):
-            return
-        node = self.build_node()
-        node.value = self.stream.read().value
-        return node
 
 
 # ROOT ======================================================
 
-class RootParser(Parser):
+class RootParser(BaseParser):
     Node = nodes.RootNode
 
     @indexed
@@ -115,95 +59,6 @@ class ExpressionParser(MultiParser):
         nodes.RelationNode,
         nodes.ObjectNode
     )
-
-
-# RELATION ======================================================
-
-@subparser
-class RelationParser(Parser):
-    Node = nodes.RelationNode
-
-    @indexed
-    def parse(self):
-        self.stream.save()
-        key = self.subparse(nodes.PathNode)
-        if not key:
-            return
-        symbol = self.subparse(nodes.SymbolNode)
-        if not symbol:
-            self.stream.restore()
-            return
-        value = self.subparse(nodes.ObjectNode)
-        if not value:
-            raise ObjectNotFoundError(self.stream.peek())
-        node = self.build_node()
-        node.key = key
-        node.symbol = symbol
-        node.value = value
-        return node
-
-
-@subparser
-class SymbolParser(MultiParser):
-    Node = nodes.SymbolNode
-    options = (
-        nodes.EqualNode,
-        nodes.DifferentNode,
-        nodes.GreaterThanNode,
-        nodes.GreaterThanEqualNode,
-        nodes.LessThanNode,
-        nodes.LessThanEqualNode,
-        nodes.InNode,
-        nodes.NotInNode
-    )
-
-
-@subparser
-class EqualParser(TokenParser):
-    Node = nodes.EqualNode
-    Token = tokens.EqualToken
-
-
-@subparser
-class DifferentParser(TokenParser):
-    Node = nodes.DifferentNode
-    Token = tokens.DifferentToken
-
-
-@subparser
-class GreaterThanParser(TokenParser):
-    Node = nodes.GreaterThanNode
-    Token = tokens.GreaterThanToken
-
-
-@subparser
-class GreaterThanEqualParser(TokenParser):
-    Node = nodes.GreaterThanEqualNode
-    Token = tokens.GreaterThanEqualToken
-
-
-@subparser
-class LessThanParser(TokenParser):
-    Node = nodes.LessThanNode
-    Token = tokens.LessThanToken
-
-
-@subparser
-class LessThanEqualParser(TokenParser):
-    Node = nodes.LessThanEqualNode
-    Token = tokens.LessThanEqualToken
-
-
-@subparser
-class InParser(TokenParser):
-    Node = nodes.InNode
-    Token = tokens.InToken
-
-
-@subparser
-class NotInParser(TokenParser):
-    Node = nodes.NotInNode
-    Token = tokens.NotInToken
 
 
 # OBJECT ======================================================
@@ -277,7 +132,7 @@ class QueryParser(StructParser):
 # LIST ======================================================
 
 @subparser
-class ListParser(Parser):
+class ListParser(BaseParser):
     Node = nodes.ListNode
     FirstToken = tokens.StartListToken
     LastToken = tokens.EndListToken
@@ -303,7 +158,7 @@ class ListParser(Parser):
 # REFERENCE ======================================================
 
 @subparser
-class ReferenceParser(Parser):
+class ReferenceParser(BaseParser):
     Node = nodes.ReferenceNode
 
     @indexed
@@ -365,7 +220,7 @@ class ChildReferenceParser(MultiParser):
 # PATH ======================================================
 
 @subparser
-class PathParser(Parser):
+class PathParser(BaseParser):
     Node = nodes.PathNode
 
     @indexed
@@ -412,7 +267,7 @@ class ConceptParser(TokenParser):
     Token = tokens.ConceptToken
 
 
-class PrefixedNameParser(Parser):
+class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.Token):
@@ -501,7 +356,7 @@ class WildcardParser(TokenParser):
 # RANGE ===========================
 
 @subparser
-class RangeParser(Parser):
+class RangeParser(BaseParser):
     Node = nodes.RangeNode
 
     @indexed
