@@ -33,8 +33,7 @@ class Node:
         if hasattr(self, method_name):
             method = getattr(self, method_name)
             method(node)
-        else:
-            self.children.append(node)
+        self.children.append(node)
 
     def eval(self, context):
         return {
@@ -144,24 +143,23 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.name = {},
-        self.concept = {},
-        self.tag = {},
-        self.alias = {},
-        self.format = {},
-        self.doc = {},
+        self.name = {}
+        self.concept = {}
+        self.tag = set()
+        self.alias = {}
+        self.format = {}
+        self.doc = {}
         self.meta = {}
 
-    def add(self, node):
-        super().add(node)
-        if node.id in (RelationNode.id, ScopeNode.id):
-            self._add_prop(node.key[0])
+    def _add_relation(self, node):
+        pass
 
-    def _add_prop(self, node):
-        if hasattr(self, node.id):
-            return
-        prop = getattr(self, node.id)
-        prop[node.value] = node
+    def _add_tag(self, node):
+        print(self.tag, node, node.value)
+        self.tag.add(node.value)
+
+    def _add_scope(self, node):
+        pass
 
     def eval(self, context):
         return {

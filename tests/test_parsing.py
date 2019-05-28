@@ -476,6 +476,14 @@ def test_range_only_accepts_integers():
         parse("..3.4", parsing.RangeParser)
 
 
+# STRUCT ===================================================
+
+def test_tag_scope():
+    node = parse("(a #bar #foo)", parsing.struct.ScopeParser)
+    assert 'bar' in node.tag
+    assert 'foo' in node.tag
+
+
 # SCOPE ===================================================
 
 def test_scope_with_key_and_no_value():
@@ -487,13 +495,6 @@ def test_scope_with_key_and_no_value():
 def test_scope_key_assumes_first_value():
     node = parse("(foo 42)", parsing.struct.ScopeParser)
     assert str(node.key) == "foo"
-
-
-def test_scope_with_many_values():
-    node = parse("(a (b 2) 4 'etc')", parsing.struct.ScopeParser)
-    assert str(node[0]) == "(b 2)"
-    assert str(node[1]) == "4"
-    assert str(node[2]) == "'etc'"
 
 
 def test_null_scope_key():
