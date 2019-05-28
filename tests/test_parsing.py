@@ -479,25 +479,25 @@ def test_range_only_accepts_integers():
 # SCOPE ===================================================
 
 def test_scope_with_key_and_no_value():
-    node = parse("(a)", parsing.ScopeParser)
+    node = parse("(a)", parsing.struct.ScopeParser)
     assert str(node.key) == "a"
     assert len(node) == 0
 
 
 def test_scope_key_assumes_first_value():
-    node = parse("(foo 42)", parsing.ScopeParser)
+    node = parse("(foo 42)", parsing.struct.ScopeParser)
     assert str(node.key) == "foo"
 
 
 def test_scope_with_many_values():
-    node = parse("(a (b 2) 4 'etc')", parsing.ScopeParser)
+    node = parse("(a (b 2) 4 'etc')", parsing.struct.ScopeParser)
     assert str(node[0]) == "(b 2)"
     assert str(node[1]) == "4"
     assert str(node[2]) == "'etc'"
 
 
 def test_null_scope_key():
-    node = parse("(: 4 'test')", parsing.ScopeParser)
+    node = parse("(: 4 'test')", parsing.struct.ScopeParser)
     assert not node.key
 
 
@@ -510,7 +510,7 @@ def test_null_scope_key():
     ]
 )
 def test_scope_key_string_repr(test_input, value):
-    node = parse(test_input, parsing.ScopeParser)
+    node = parse(test_input, parsing.struct.ScopeParser)
     assert str(node.key) == value
 
 
@@ -524,7 +524,7 @@ def test_scope_key_string_repr(test_input, value):
 )
 def test_invalid_scope_key(test_input):
     with pytest.raises(KeyNotFoundError):
-        parse(test_input, parsing.ScopeParser)
+        parse(test_input, parsing.struct.ScopeParser)
 
 
 @pytest.mark.parametrize(
@@ -537,13 +537,13 @@ def test_invalid_scope_key(test_input):
 )
 def test_scope_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
-        parse(test_input, parsing.ScopeParser)
+        parse(test_input, parsing.struct.ScopeParser)
 
 
 # QUERY ===============================================
 
 def test_query_key_single_value():
-    node = parse("{abc 42}", parsing.QueryParser)
+    node = parse("{abc 42}", parsing.struct.QueryParser)
     assert str(node.key) == "abc"
     assert node[0].value == 42
 
@@ -551,6 +551,6 @@ def test_query_key_single_value():
 # PROTOTYPE ===============================================
 
 def test_prototype_key_single_value():
-    node = parse("((abc 42))", parsing.PrototypeParser)
+    node = parse("((abc 42))", parsing.struct.PrototypeParser)
     assert str(node.key) == "abc"
     assert node[0].value == 42
