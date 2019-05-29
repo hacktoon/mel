@@ -124,6 +124,11 @@ class ConceptToken(Token):
     regex = re.compile(r"[A-Z]\w*")
 
 
+class LogPrefixToken(Token):
+    id = "!"
+    regex = re.compile(r"!")
+
+
 class AliasPrefixToken(Token):
     id = "@"
     regex = re.compile(r"@")

@@ -17,11 +17,12 @@ relation    =  path sign object
 
 path        =  keyword ( '/' keyword )*
 
-keyword     =  NAME | CONCEPT | alias | format | doc | meta
+keyword     =  NAME | CONCEPT | log | alias | format | meta | doc
+log         =  '!' NAME
 alias       =  '@' NAME
 format      =  '%' NAME
-doc         =  '?' NAME
 meta        =  '.' NAME
+doc         =  '?' NAME
 
 sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 

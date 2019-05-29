@@ -217,20 +217,24 @@ class TagNode(KeywordNode):
     id = "tag"
 
 
-class FormatNode(KeywordNode):
-    id = "format"
+class LogNode(KeywordNode):
+    id = "log"
 
 
 class AliasNode(KeywordNode):
     id = "alias"
 
 
-class DocNode(KeywordNode):
-    id = "doc"
+class FormatNode(KeywordNode):
+    id = "format"
 
 
 class MetaNode(Node):
     id = "meta"
+
+
+class DocNode(KeywordNode):
+    id = "doc"
 
 
 # RANGE ========================================================

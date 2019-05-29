@@ -249,6 +249,7 @@ def test_subparser_nested_list():
         "etc",
         "bar/.name",
         'foo/#bar',
+        '!foo/@bar',
         "etc/bar/#active",
         'abc/[1 2]'
     ]
@@ -275,7 +276,7 @@ def test_reference_non_terminal_tag_error(test_input):
     "test_input",
     [
         "etc/bar/",
-        "etc/@bar/",
+        "!etc/@bar/",
     ]
 )
 def test_reference_expected_child(test_input):
@@ -292,7 +293,7 @@ def test_reference_expected_child(test_input):
         ("Bar", 1),
         ("Foo/bar/?baz", 3),
         ("foo/Bar/%baz", 3),
-        ("Foo/Etc/@bar/baz", 4)
+        ("!foo/Etc/@bar/baz", 4)
     ]
 )
 def test_path_length(test_input, total):
@@ -341,6 +342,7 @@ def test_path_keyword_not_found(test_input):
         ("Foo", "Foo"),
         ("@foo", "foo"),
         ("%foo", "foo"),
+        ("!baz", "baz"),
         ("?foo", "foo"),
         (".ba_r2", "ba_r2")
     ]
@@ -379,6 +381,7 @@ def test_name_not_found_after_prefix():
         ("bar_", parsing.keyword.NameParser),
         ("Foo", parsing.keyword.ConceptParser),
         ("#foo", parsing.keyword.TagParser),
+        ("!foo", parsing.keyword.LogParser),
         ("@foo", parsing.keyword.AliasParser),
         ("%foo", parsing.keyword.FormatParser),
         ("?foo", parsing.keyword.DocParser),

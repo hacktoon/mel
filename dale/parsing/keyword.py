@@ -18,10 +18,11 @@ class KeywordParser(MultiParser):
     options = (
         nodes.NameNode,
         nodes.ConceptNode,
+        nodes.LogNode,
         nodes.AliasNode,
         nodes.FormatNode,
-        nodes.DocNode,
-        nodes.MetaNode
+        nodes.MetaNode,
+        nodes.DocNode
     )
 
 
@@ -54,6 +55,12 @@ class PrefixedNameParser(BaseParser):
 class TagParser(PrefixedNameParser):
     Node = nodes.TagNode
     Token = tokens.TagPrefixToken
+
+
+@subparser
+class LogParser(PrefixedNameParser):
+    Node = nodes.LogNode
+    Token = tokens.LogPrefixToken
 
 
 @subparser
