@@ -23,16 +23,19 @@ class StructParser(BaseParser):
         return node
 
     def parse_key(self, node):
-        if self.stream.is_next(tokens.NullKeyToken):
+        is_null = self.stream.is_next(tokens.NullKeyToken)
+        is_default_fmt = self.stream.is_next(tokens.DefaultFormatKeyToken)
+        if is_null or is_default_fmt:
             self.stream.read()
             return
-        if self.stream.is_next(tokens.DefaultFormatKeyToken):
-            self.stream.read()
-            return
-        key = self.subparse(nodes.PathNode)
-        if not key:
+        node.key = self.parse_path(node)
+
+    def parse_path(self, node):
+        path = self.subparse(nodes.PathNode)
+        if not path:
             raise KeyNotFoundError(self.stream.peek())
-        node.key = key
+        node.name = path[0].value
+        return path
 
     def parse_expressions(self, node):
         while True:

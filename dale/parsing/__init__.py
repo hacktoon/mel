@@ -105,11 +105,11 @@ class PathParser(BaseParser):
 
     @indexed
     def parse(self):
-        head = self.subparse(nodes.KeywordNode)
-        if not head:
+        _keyword = self.subparse(nodes.KeywordNode)
+        if not _keyword:
             return
         node = self.build_node()
-        node.add(head)
+        node.add(_keyword)
         self.parse_tail(node)
         return node
 
