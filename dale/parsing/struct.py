@@ -34,8 +34,7 @@ class StructParser(BaseParser):
         path = self.subparse(nodes.PathNode)
         if not path:
             raise KeyNotFoundError(self.stream.peek())
-        node.name = path[0].value
-        return path
+        return path[0]
 
     def parse_expressions(self, node):
         while True:

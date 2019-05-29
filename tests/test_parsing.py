@@ -508,7 +508,7 @@ def test_scope_key_assumes_first_value():
     [
         ("(foo 42)", 'foo'),
         ("(etc 'test')", 'etc'),
-        ("(a/b 4 6 7)", 'a/b'),
+        ("(a/b 4 6 7)", 'a'),
     ]
 )
 def test_scope_key_string_repr(test_input, value):
