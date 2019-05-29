@@ -30,7 +30,7 @@ object      =  reference | literal | list | scope | prototype
 
 reference   =  head-ref ( '/' child-ref )* ( '/' tag )?
 head-ref    =  query | keyword
-child-ref   =  RANGE | INT | wildcard | list | query | keyword
+child-ref   =  RANGE | INT | wildcard | list | scope | query | keyword
 
 literal     =  INT | FLOAT | STRING | BOOLEAN
 
