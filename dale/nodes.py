@@ -142,7 +142,8 @@ class StructNode(Node):
 
     def __init__(self):
         super().__init__()
-        self._key = NullNode()
+        self.key = NullNode()
+        self.name = ""
         self.tags = set()
         self.props = {
             'name': {},
@@ -153,20 +154,11 @@ class StructNode(Node):
             'meta': {},
         }
 
-    @property
-    def key(self):
-        return self._key
-
-    @key.setter
-    def key(self, node):
-        self._key = node
-
     def _add_tag(self, node):
         self.tags.add(node.value)
 
     def _add_relation(self, node):
-        key = node.key
-        # print(key, key.id, key[0].id)
+        pass
 
     def _add_scope(self, node):
         pass

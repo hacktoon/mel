@@ -1,12 +1,12 @@
 from .. import tokens
 from .. import nodes
 
-from . import (
+from . import ( # noqa
     relation,
     struct,
     reference,
-    keyword,
-    literal
+    literal,
+    keyword
 )
 from .base import (
     BaseParser,
@@ -14,7 +14,6 @@ from .base import (
     subparser,
     indexed
 )
-
 from ..exceptions import (
     UnexpectedTokenError,
     KeywordNotFoundError,
@@ -29,7 +28,6 @@ class Parser(BaseParser):
             return node
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
-
 
 
 # ROOT ======================================================
@@ -107,23 +105,22 @@ class PathParser(BaseParser):
 
     @indexed
     def parse(self):
-        keyword = self.subparse(nodes.KeywordNode)
-        if not keyword:
+        _keyword = self.subparse(nodes.KeywordNode)
+        if not _keyword:
             return
         node = self.build_node()
-        node.add(keyword)
+        node.add(_keyword)
         self.parse_tail(node)
         return node
 
     def parse_tail(self, node):
         while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
-            keyword = self.subparse(nodes.KeywordNode)
-            if keyword:
-                node.add(keyword)
+            _keyword = self.subparse(nodes.KeywordNode)
+            if _keyword:
+                node.add(_keyword)
             else:
                 raise KeywordNotFoundError(self.stream.peek())
-
 
 
 # RANGE ===========================

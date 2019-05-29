@@ -12,7 +12,6 @@ from .base import (
 from ..exceptions import NameNotFoundError
 
 
-
 @subparser
 class KeywordParser(MultiParser):
     Node = nodes.KeywordNode
