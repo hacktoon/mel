@@ -35,7 +35,7 @@ def parse_one(text):
 def test_subparser_invalid_node_id():
     stream = TokenStream("foo")
     with pytest.raises(Exception):
-        parsing.get_subparser("x", stream)
+        parsing.base.get_subparser("x", stream)
 
 
 def test_empty_input_string():
@@ -250,6 +250,7 @@ def test_subparser_nested_list():
         "bar/.name",
         'foo/#bar',
         '!foo/@bar',
+        '%foo/$bar',
         "etc/bar/#active",
         "etc/bar/(: a=2 b=true)",
         'abc/[1 2]'
@@ -292,6 +293,7 @@ def test_reference_expected_child(test_input):
     [
         ("foo", 1),
         ("Bar", 1),
+        ("Bar/$redis", 2),
         ("Foo/bar/?baz", 3),
         ("foo/Bar/%baz", 3),
         ("!foo/Etc/@bar/baz", 4)

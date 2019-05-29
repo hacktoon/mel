@@ -39,9 +39,6 @@ class BaseParser:
     def build_node(self):
         return self.Node()
 
-    def parse(self):
-        pass
-
     def subparse(self, Node):
         return get_subparser(Node.id, self.stream).parse()
 

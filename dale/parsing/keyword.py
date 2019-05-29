@@ -20,6 +20,7 @@ class KeywordParser(MultiParser):
         nodes.ConceptNode,
         nodes.LogNode,
         nodes.AliasNode,
+        nodes.CacheNode,
         nodes.FormatNode,
         nodes.MetaNode,
         nodes.DocNode
@@ -67,6 +68,12 @@ class LogParser(PrefixedNameParser):
 class AliasParser(PrefixedNameParser):
     Node = nodes.AliasNode
     Token = tokens.AliasPrefixToken
+
+
+@subparser
+class CacheParser(PrefixedNameParser):
+    Node = nodes.CacheNode
+    Token = tokens.CachePrefixToken
 
 
 @subparser

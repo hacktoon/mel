@@ -134,6 +134,11 @@ class AliasPrefixToken(Token):
     regex = re.compile(r"@")
 
 
+class CachePrefixToken(Token):
+    id = "$"
+    regex = re.compile(r"\$")
+
+
 class TagPrefixToken(Token):
     id = "#"
     regex = re.compile(r"#")

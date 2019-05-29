@@ -223,6 +223,10 @@ class AliasNode(KeywordNode):
     id = "alias"
 
 
+class CacheNode(KeywordNode):
+    id = "cache"
+
+
 class FormatNode(KeywordNode):
     id = "format"
 
