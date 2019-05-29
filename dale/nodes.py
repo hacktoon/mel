@@ -28,6 +28,10 @@ class Node:
     def __getitem__(self, index):
         return self.children[index]
 
+    def __iter__(self):
+        for node in self.children:
+            yield node
+
     def add(self, node):
         method_name = "_add_" + node.id
         if hasattr(self, method_name):

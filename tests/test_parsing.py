@@ -116,6 +116,20 @@ def test_incomplete_input_token(test_input):
         parser.parse()
 
 
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("42 (bar) 'foo'", ['int', 'scope', 'string']),
+        ("3.14 {bar} true", ['float', 'reference', 'boolean']),
+
+    ],
+)
+def test_node_iteration(test_input, expected):
+    node = parse(test_input)
+    for index, child in enumerate(node):
+        assert child.id == expected[index]
+
+
 # NODE INDEX ===========================================
 
 def test_node_children_index():
