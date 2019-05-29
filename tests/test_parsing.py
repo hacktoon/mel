@@ -500,11 +500,6 @@ def test_scope_key_assumes_first_value():
     assert str(node.key) == "foo"
 
 
-def test_null_scope_key():
-    node = parse("(: 4 'test')", parsing.struct.ScopeParser)
-    assert not node.key
-
-
 @pytest.mark.parametrize(
     "test_input, value",
     [

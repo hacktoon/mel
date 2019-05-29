@@ -142,7 +142,6 @@ class StructNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = NullNode()
         self.name = ""
         self.tags = set()
         self.props = {
@@ -166,7 +165,6 @@ class StructNode(Node):
     def eval(self, context):
         return {
             "id": self.id,
-            "key": self.key.eval(context) if self.key else None,
             "nodes": [node.eval(context) for node in self.children]
         }
 
