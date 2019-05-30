@@ -28,12 +28,17 @@ class StructParser(BaseParser):
         if is_null or is_default_fmt:
             self.stream.read()
             return
-        path = self.subparse(nodes.PathNode)
-        if not path:
-            raise KeyNotFoundError(self.stream.peek())
-        node.key = path[0]
+        key, *path = self.parse_path()
+        node.key = key
+        node.target = self.build_tree(node, path)
 
-    def build_path(self, node, path):
+    def parse_path(self):
+        path = self.subparse(nodes.PathNode)
+        if path:
+            return path
+        raise KeyNotFoundError(self.stream.peek())
+
+    def build_tree(self, node, path):
         for keyword in path:
             scope = self.build_node()
             scope.key = keyword
@@ -43,10 +48,10 @@ class StructParser(BaseParser):
 
     def parse_expressions(self, node):
         while True:
-            expr = self.subparse(nodes.ExpressionNode)
-            if not expr:
+            expression = self.subparse(nodes.ExpressionNode)
+            if not expression:
                 break
-            node.add(expr)
+            node.add(expression)
 
 
 @subparser
