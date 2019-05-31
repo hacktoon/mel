@@ -147,7 +147,7 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.target = NullNode()
+        self.target = self
         self.tags = set()
         self.props = {
             'name': {},

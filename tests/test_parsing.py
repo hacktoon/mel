@@ -558,6 +558,7 @@ def test_scope_unexpected_expression(test_input):
 
 # QUERY ===============================================
 
+@pytest.mark.skip
 def test_query_key_single_value():
     node = parse("{abc 42}", parsing.struct.QueryParser)
     assert str(node.key) == "abc"
@@ -566,6 +567,7 @@ def test_query_key_single_value():
 
 # PROTOTYPE ===============================================
 
+@pytest.mark.skip
 def test_prototype_key_single_value():
     node = parse("((abc 42))", parsing.struct.PrototypeParser)
     assert str(node.key) == "abc"
