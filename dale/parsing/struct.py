@@ -51,6 +51,25 @@ class StructParser(BaseParser):
             node.add(expression)
 
 
+# ROOT ======================================================
+
+@subparser
+class RootParser(BaseParser):
+    Node = nodes.RootNode
+
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        while True:
+            expression = self.subparse(nodes.ExpressionNode)
+            if not expression:
+                break
+            node.add(expression)
+        return node
+
+
+# SCOPE ======================================================
+
 @subparser
 class ScopeParser(StructParser):
     Node = nodes.ScopeNode
@@ -92,6 +111,8 @@ class ScopeParser(StructParser):
             node.target.add(expression)
 
 
+# PROTOTYPE ======================================================
+
 @subparser
 class PrototypeParser(StructParser):
     Node = nodes.PrototypeNode
@@ -99,12 +120,16 @@ class PrototypeParser(StructParser):
     LastToken = tokens.EndPrototypeToken
 
 
+# QUERY ======================================================
+
 @subparser
 class QueryParser(StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken
 
+
+# RELATION ======================================================
 
 @subparser
 class RelationParser(BaseParser):

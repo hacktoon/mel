@@ -22,27 +22,11 @@ from ..exceptions import (
 
 class Parser(BaseParser):
     def parse(self):
-        node = RootParser(self.stream).parse()
+        node = self.subparse(nodes.RootNode)
         if self.stream.is_eof():
             return node
         token = self.stream.peek()
         raise UnexpectedTokenError(token)
-
-
-# ROOT ======================================================
-
-class RootParser(BaseParser):
-    Node = nodes.RootNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        while True:
-            expr = self.subparse(nodes.ExpressionNode)
-            if not expr:
-                break
-            node.add(expr)
-        return node
 
 
 # EXPRESSION ======================================================
