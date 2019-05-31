@@ -2,7 +2,6 @@ from .. import tokens
 from .. import nodes
 
 from . import ( # noqa
-    relation,
     struct,
     reference,
     literal,

@@ -211,7 +211,7 @@ def test_subparser_object(test_input):
     ]
 )
 def test_relation_components(test_input, key, sign, object):
-    node = parse(test_input, parsing.relation.RelationParser)
+    node = parse(test_input, parsing.struct.RelationParser)
     assert str(node.key) == key
     assert str(node.sign) == sign
     assert str(node.value) == object
@@ -228,7 +228,7 @@ def test_relation_components(test_input, key, sign, object):
 )
 def test_relation_object_expected(test_input):
     with pytest.raises(ObjectNotFoundError):
-        parse(test_input, parsing.relation.RelationParser)
+        parse(test_input, parsing.struct.RelationParser)
 
 
 #  LIST ======================================================
