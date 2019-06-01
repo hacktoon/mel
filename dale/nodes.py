@@ -141,6 +141,10 @@ class ChildReferenceNode(Node):
 
 # STRUCT ========================================================
 
+class PathStructNode(Node):
+    id = "path-struct"
+
+
 class StructNode(Node):
     id = "struct"
 

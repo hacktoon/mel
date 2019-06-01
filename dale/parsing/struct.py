@@ -12,6 +12,38 @@ from .base import (
 from ..exceptions import (KeyNotFoundError, ObjectNotFoundError)
 
 
+class BaseStructParser(BaseParser):
+    def parse_expressions(self):
+        expressions = []
+        while True:
+            expression = self.subparse(nodes.ExpressionNode)
+            if not expression:
+                break
+            expressions.append(expression)
+        return expressions
+
+
+@subparser
+class PathStructParser(BaseStructParser):
+    Node = nodes.PathStructNode
+
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        node.path = self.parse_path()
+        node.expressions = self.parse_expressions()
+        return node
+
+    def parse_path(self):
+        if self.stream.is_next(tokens.NullPathToken):
+            self.stream.read()
+            return
+        path = self.subparse(nodes.PathNode)
+        if path:
+            return path
+        raise KeyNotFoundError(self.stream.peek())
+
+
 class StructParser(BaseParser):
     @indexed
     def parse(self):
@@ -85,7 +117,7 @@ class ScopeParser(StructParser):
         node.target = self.build_tree(node, path)
 
     def is_null_key(self):
-        is_null = self.stream.is_next(tokens.NullKeyToken)
+        is_null = self.stream.is_next(tokens.NullPathToken)
         is_default_fmt = self.stream.is_next(tokens.DefaultFormatKeyToken)
         return is_null or is_default_fmt
 

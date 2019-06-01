@@ -204,7 +204,7 @@ class NotInToken(Token):
     priority = 1
 
 
-class NullKeyToken(Token):
+class NullPathToken(Token):
     id = ":"
     regex = re.compile(r":")
 

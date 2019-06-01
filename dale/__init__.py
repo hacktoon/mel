@@ -14,14 +14,14 @@ def lex(text):
         raise DaleError(message)
 
 
-def create_parser(text):
+def create_parser(text, Parser=Parser):
     stream = lex(text)
     return Parser(stream)
 
 
-def parse(text):
+def parse(text, Parser=Parser):
     try:
-        return create_parser(text).parse()
+        return create_parser(text, Parser).parse()
     except BaseError as error:
         message = ErrorFormatter(error).format()
         raise DaleError(message)
