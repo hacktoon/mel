@@ -86,17 +86,14 @@ class StructParser(BaseParser):
 # ROOT ======================================================
 
 @subparser
-class RootParser(BaseParser):
+class RootParser(BaseStructParser):
     Node = nodes.RootNode
 
     @indexed
     def parse(self):
         node = self.build_node()
-        while True:
-            expression = self.subparse(nodes.ExpressionNode)
-            if not expression:
-                break
-            node.add(expression)
+        # TODO: move 'children' to 'expressions'
+        node.children = self.parse_expressions()
         return node
 
 
