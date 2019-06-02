@@ -23,6 +23,18 @@ class BaseStructParser(BaseParser):
         return expressions
 
 
+class BaseFormatStructParser(BaseParser):
+    Node = nodes.ScopeNode
+
+    def parse(self):
+        if not self.stream.is_next(tokens.DefaultFormatKeyToken):
+            return
+        self.stream.read()
+        node = self.build_node()
+        node.expressions = self.parse_expressions()
+        return node
+
+
 @subparser
 class PathStructParser(BaseStructParser):
     Node = nodes.PathStructNode
@@ -42,6 +54,15 @@ class PathStructParser(BaseStructParser):
         if path:
             return path
         raise KeyNotFoundError(self.stream.peek())
+
+
+class SubTreeStructParser(PathStructParser):
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        node.path = self.parse_path()
+        node.expressions = self.parse_expressions()
+        return node
 
 
 class StructParser(BaseParser):
