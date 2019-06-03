@@ -37,7 +37,8 @@ class ExpressionParser(MultiParser):
     options = (
         nodes.TagNode,
         nodes.RelationNode,
-        nodes.ValueNode
+        nodes.ValueNode,
+        nodes.PrototypeNode
     )
 
 

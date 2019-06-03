@@ -7,46 +7,50 @@
 ## Grammar
 
 ```
-root        =  expression*
+root            =  expression*
 
-expression  =  tag | relation | value
+expression      =  tag | relation | value | prototype
 
-tag         =  '#' NAME
+tag             =  '#' NAME
 
-relation    =  path sign value
+relation        =  path sign value
 
-path        =  keyword ( '/' keyword )*
+path            =  keyword ( '/' keyword )*
 
-keyword     =  NAME | CONCEPT | log | alias | cache | format | meta | doc
-log         =  '!' NAME
-alias       =  '@' NAME
-cache       =  '$' NAME
-format      =  '%' NAME
-meta        =  '.' NAME
-doc         =  '?' NAME
+keyword         =  NAME | CONCEPT | log | alias | cache | format | meta | doc
+log             =  '!' NAME
+alias           =  '@' NAME
+cache           =  '$' NAME
+format          =  '%' NAME
+meta            =  '.' NAME
+doc             =  '?' NAME
 
-sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
+sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-value      =  reference | literal | list | object | prototype
+value           =  reference | literal | list | object
 
-reference   =  head-ref ( '/' child-ref )* ( '/' tag )?
-head-ref    =  query | keyword
-child-ref   =  RANGE | INT | wildcard | list | object | query | keyword
+prototype       =  '((' path expression+ '))'
 
-literal     =  INT | FLOAT | STRING | BOOLEAN
+reference       =  head-ref ( '/' child-ref )* ( '/' tag )?
+head-ref        =  query | keyword
+child-ref       =  RANGE | INT | wildcard | list | object | query | keyword
+query           =  '{' path expression* '}'
+anonym-query    =  '{:' expression* '}'
 
-list        =  '[' value* ']'
+literal         =  INT | FLOAT | STRING | BOOLEAN
 
-object       =  '(' struct ')'
-query       =  '{' struct '}'
-prototype   =  '((' struct '))'
+list            =  '[' value* ']'
 
-struct      =  key expression*
-key         =  ':' | '%:' | path
+struct          =  object | anonym-object | default-format
+object          =  '(' path expression* ')'
+anonym-object   =  '(:' expression* ')'
 
-wildcard    =  '*'
+default-format  =  '(%:' expression* ')'
+default-doc     =  '(?:' expression* ')'
 
-comment     =  '--'
+wildcard        =  '*'
+
+comment         =  '--'
 ```
 
 
