@@ -4,7 +4,7 @@
 
 ---
 
-A list is a collection of values. Allowed values are references, literals, scopes and other lists. Mixed types are permitted.
+A list is a collection of values. Allowed values are references, literals, objects and other lists. Mixed types are permitted.
 
 ```
 names = ['alice', 'ana', 'bob']

@@ -16,7 +16,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
  * [Syntax rules](docs/syntax-rules.md)
  * [Literals](docs/literals.md)
  * [Keywords](docs/keywords.md)
- * [Scopes](docs/scopes.md)
+ * [Objects](docs/objects.md)
  * [Queries](docs/queries.md)
  * [Lists](docs/lists.md)
  * [Tags](docs/tags.md)

@@ -69,7 +69,7 @@ class ChildReferenceParser(MultiParser):
         nodes.RangeNode,
         nodes.IntNode,
         nodes.ListNode,
-        nodes.ScopeNode,
+        nodes.ObjectNode,
         nodes.QueryNode,
         nodes.KeywordNode
     )

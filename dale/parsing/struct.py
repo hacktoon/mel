@@ -24,7 +24,7 @@ class BaseStructParser(BaseParser):
 
 
 class BaseFormatStructParser(BaseParser):
-    Node = nodes.ScopeNode
+    Node = nodes.ObjectNode
 
     def parse(self):
         if not self.stream.is_next(tokens.DefaultFormatKeyToken):
@@ -90,10 +90,10 @@ class StructParser(BaseParser):
 
     def build_tree(self, node, path):
         for keyword in path[1:]:
-            scope = self.build_node()
-            scope.key = keyword
-            node.add(scope)
-            node = scope
+            _object = self.build_node()
+            _object.key = keyword
+            node.add(_object)
+            node = _object
         return node
 
     def parse_expressions(self, node):
@@ -122,7 +122,7 @@ class RootParser(BaseStructParser):
 
 @subparser
 class ScopeParser(StructParser):
-    Node = nodes.ScopeNode
+    Node = nodes.ObjectNode
     FirstToken = tokens.StartScopeToken
     LastToken = tokens.EndScopeToken
 

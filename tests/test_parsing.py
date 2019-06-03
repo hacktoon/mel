@@ -77,7 +77,7 @@ def test_string_representation(test_input):
         ("56.75", "FLOAT('56.75')"),
         ("id", "REFERENCE('id')"),
         ("@path", "REFERENCE('@path')"),
-        ("(bar 42)", "SCOPE('(bar 42)')"),
+        ("(bar 42)", "OBJECT('(bar 42)')"),
         ('[bar "etc"]', "LIST('[bar \"etc\"]')")
     ],
 )
@@ -119,7 +119,7 @@ def test_incomplete_input_token(test_input):
 @pytest.mark.parametrize(
     "test_input, expected",
     [
-        ("42 (bar) 'foo'", ['int', 'scope', 'string']),
+        ("42 (bar) 'foo'", ['int', 'object', 'string']),
         ("3.14 {bar} true", ['float', 'reference', 'boolean']),
 
     ],
@@ -143,9 +143,9 @@ def test_list_index():
     assert node.index == (0, 6)
 
 
-def test_scope_index():
-    scope = parse("(a 2)")
-    assert scope.index == (0, 5)
+def test_object_index():
+    _object = parse("(a 2)")
+    assert _object.index == (0, 5)
 
 
 # EXPRESSION =================================================
@@ -498,7 +498,7 @@ def test_range_only_accepts_integers():
 
 # STRUCT ===================================================
 
-def test_tag_scope():
+def test_tag_object():
     node = parse("(a #bar #foo)", parsing.struct.ScopeParser)
     assert 'bar' in node.tags
     assert 'foo' in node.tags
@@ -506,13 +506,13 @@ def test_tag_scope():
 
 # SCOPE ===================================================
 
-def test_scope_with_key_and_no_value():
+def test_object_with_key_and_no_value():
     node = parse("(a)", parsing.struct.ScopeParser)
     assert str(node.key) == "a"
     assert len(node) == 0
 
 
-def test_scope_key_assumes_first_value():
+def test_object_key_assumes_first_value():
     node = parse("(foo 42)", parsing.struct.ScopeParser)
     assert str(node.key) == "foo"
 
@@ -525,7 +525,7 @@ def test_scope_key_assumes_first_value():
         ("(a/b 4 6 7)", 'a'),
     ]
 )
-def test_scope_key_string_repr(test_input, value):
+def test_object_key_string_repr(test_input, value):
     node = parse(test_input, parsing.struct.ScopeParser)
     assert str(node.key) == value
 
@@ -538,7 +538,7 @@ def test_scope_key_string_repr(test_input, value):
         "('test')"
     ]
 )
-def test_invalid_scope_key(test_input):
+def test_invalid_object_key(test_input):
     with pytest.raises(KeyNotFoundError):
         parse(test_input, parsing.struct.ScopeParser)
 
@@ -551,7 +551,7 @@ def test_invalid_scope_key(test_input):
         "(@var != 'foo')"
     ]
 )
-def test_scope_unexpected_expression(test_input):
+def test_object_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
         parse(test_input, parsing.struct.ScopeParser)
 

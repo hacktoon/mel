@@ -50,7 +50,7 @@ class ValueParser(MultiParser):
         nodes.ReferenceNode,
         nodes.LiteralNode,
         nodes.ListNode,
-        nodes.ScopeNode
+        nodes.ObjectNode
     )
 
 

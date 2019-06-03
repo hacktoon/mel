@@ -27,17 +27,17 @@ doc         =  '?' NAME
 
 sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-value      =  reference | literal | list | scope | prototype
+value      =  reference | literal | list | object | prototype
 
 reference   =  head-ref ( '/' child-ref )* ( '/' tag )?
 head-ref    =  query | keyword
-child-ref   =  RANGE | INT | wildcard | list | scope | query | keyword
+child-ref   =  RANGE | INT | wildcard | list | object | query | keyword
 
 literal     =  INT | FLOAT | STRING | BOOLEAN
 
 list        =  '[' value* ']'
 
-scope       =  '(' struct ')'
+object       =  '(' struct ')'
 query       =  '{' struct '}'
 prototype   =  '((' struct '))'
 
@@ -69,7 +69,7 @@ They're used to represent tree nodes by its names.
 foo       -- the name 'foo'
 f1o2_o3   -- can have numbers and underscores
 3foo      -- wrong! Can't start with numbers
-(bar_ 3)   -- defines an scope named 'bar_'
+(bar_ 3)   -- defines an object named 'bar_'
 ```
 
 

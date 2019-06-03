@@ -168,18 +168,12 @@ class StructNode(Node):
     def _add_relation(self, node):
         pass
 
-    def _add_scope(self, node):
+    def _add_object(self, node):
         pass
 
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "nodes": [node.eval(context) for node in self.children]
-        }
 
-
-class ScopeNode(StructNode):
-    id = "scope"
+class ObjectNode(StructNode):
+    id = "object"
 
 
 class PrototypeNode(StructNode):

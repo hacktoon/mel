@@ -3,5 +3,5 @@
     name = "John"               -- a property "name" with value "John" and
     surname = "Doe"             -- a property "surname" with value "Doe".
     age = 45                    -- Define the "age" property as 45.
-    (%list name ' ' surname)    -- Set format for lists using a sub scope
+    (%list name ' ' surname)    -- Set format for lists using properties
 )
