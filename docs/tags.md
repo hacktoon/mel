@@ -7,7 +7,7 @@
 Tags are keywords used to mark a node with a specific name. Any keyword prefixed with a `#` symbol is considered a tag.
 
 ```
-(foo #bar #baz 42)  -- tags the foo object with #bar and #baz.
+(foo #bar #baz 42)  -- tags the 'foo' object with #bar and #baz.
 ```
 
 ## Applications

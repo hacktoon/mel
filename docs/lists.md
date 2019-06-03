@@ -4,11 +4,11 @@
 
 ---
 
-A list is a collection of objects. Allowed values are references, literals, scopes and other lists. Mixed types are permitted.
+A list is a collection of values. Allowed values are references, literals, scopes and other lists. Mixed types are permitted.
 
 ```
 names = ['alice', 'ana', 'bob']
-objects = [42, GoldenHeart, (person #id="bob")]
+values = [42, GoldenHeart, (person #id="bob")]
 fibonacci = [1 1 2 3 5 8 13 21]
 ```
 

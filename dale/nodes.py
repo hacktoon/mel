@@ -119,10 +119,10 @@ class NotInNode(SymbolNode):
     id = "not_in"
 
 
-# OBJECT ========================================================
+# VALUE ========================================================
 
-class ObjectNode(Node):
-    id = "object"
+class ValueNode(Node):
+    id = "value"
 
 
 # REFERENCE ========================================================

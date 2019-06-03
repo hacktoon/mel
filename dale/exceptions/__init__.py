@@ -36,9 +36,9 @@ class KeyNotFoundError(BaseError):
         super().__init__(token, "Expected a path or ':'.")
 
 
-class ObjectNotFoundError(BaseError):
+class ExpectedValueError(BaseError):
     def __init__(self, token):
-        super().__init__(token, "Expected an object.")
+        super().__init__(token, "Expected a value.")
 
 
 class ExpectedKeywordError(BaseError):

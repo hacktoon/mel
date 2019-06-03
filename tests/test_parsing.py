@@ -12,7 +12,7 @@ from dale.exceptions import (
     NameNotFoundError,
     InfiniteRangeError,
     UnexpectedKeywordError,
-    ObjectNotFoundError,
+    ExpectedValueError,
     ExpectedKeywordError
 )
 
@@ -180,7 +180,7 @@ def test_tags(test_input):
     assert node.id == nodes.TagNode.id
 
 
-# OBJECT ======================================================
+# VALUE ======================================================
 
 @pytest.mark.parametrize(
     "test_input",
@@ -193,15 +193,15 @@ def test_tags(test_input):
         ('(a 3)'),
     ]
 )
-def test_subparser_object(test_input):
-    parser = create_parser(test_input, parsing.ObjectParser)
+def test_subparser_value(test_input):
+    parser = create_parser(test_input, parsing.ValueParser)
     assert parser.parse()
 
 
 # RELATION =================================================
 
 @pytest.mark.parametrize(
-    "test_input, key, sign, object",
+    "test_input, key, sign, value",
     [
         ("x = 4", 'x', '=', '4'),
         ("x >< -5", 'x', '><', '-5'),
@@ -210,11 +210,11 @@ def test_subparser_object(test_input):
         ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
     ]
 )
-def test_relation_components(test_input, key, sign, object):
+def test_relation_components(test_input, key, sign, value):
     node = parse(test_input, parsing.struct.RelationParser)
     assert str(node.key) == key
     assert str(node.sign) == sign
-    assert str(node.value) == object
+    assert str(node.value) == value
 
 
 @pytest.mark.parametrize(
@@ -226,8 +226,8 @@ def test_relation_components(test_input, key, sign, object):
         "x >= =",
     ]
 )
-def test_relation_object_expected(test_input):
-    with pytest.raises(ObjectNotFoundError):
+def test_relation_value_expected(test_input):
+    with pytest.raises(ExpectedValueError):
         parse(test_input, parsing.struct.RelationParser)
 
 

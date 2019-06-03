@@ -9,11 +9,11 @@
 ```
 root        =  expression*
 
-expression  =  tag | relation | object
+expression  =  tag | relation | value
 
 tag         =  '#' NAME
 
-relation    =  path sign object
+relation    =  path sign value
 
 path        =  keyword ( '/' keyword )*
 
@@ -27,7 +27,7 @@ doc         =  '?' NAME
 
 sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-object      =  reference | literal | list | scope | prototype
+value      =  reference | literal | list | scope | prototype
 
 reference   =  head-ref ( '/' child-ref )* ( '/' tag )?
 head-ref    =  query | keyword
@@ -35,7 +35,7 @@ child-ref   =  RANGE | INT | wildcard | list | scope | query | keyword
 
 literal     =  INT | FLOAT | STRING | BOOLEAN
 
-list        =  '[' object* ']'
+list        =  '[' value* ']'
 
 scope       =  '(' struct ')'
 query       =  '{' struct '}'

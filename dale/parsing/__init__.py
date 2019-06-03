@@ -37,15 +37,15 @@ class ExpressionParser(MultiParser):
     options = (
         nodes.TagNode,
         nodes.RelationNode,
-        nodes.ObjectNode
+        nodes.ValueNode
     )
 
 
-# OBJECT ======================================================
+# VALUE ======================================================
 
 @subparser
-class ObjectParser(MultiParser):
-    Node = nodes.ObjectNode
+class ValueParser(MultiParser):
+    Node = nodes.ValueNode
     options = (
         nodes.ReferenceNode,
         nodes.LiteralNode,
@@ -74,7 +74,7 @@ class ListParser(BaseParser):
 
     def parse_expressions(self, node):
         while True:
-            _object = self.subparse(nodes.ObjectNode)
+            _object = self.subparse(nodes.ValueNode)
             if not _object:
                 break
             node.add(_object)

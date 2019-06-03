@@ -9,7 +9,7 @@ from .base import (
     indexed
 )
 
-from ..exceptions import (KeyNotFoundError, ObjectNotFoundError)
+from ..exceptions import (KeyNotFoundError, ExpectedValueError)
 
 
 class BaseStructParser(BaseParser):
@@ -195,9 +195,9 @@ class RelationParser(BaseParser):
         if not sign:
             self.stream.restore()
             return
-        value = self.subparse(nodes.ObjectNode)
+        value = self.subparse(nodes.ValueNode)
         if not value:
-            raise ObjectNotFoundError(self.stream.peek())
+            raise ExpectedValueError(self.stream.peek())
         node = self.build_node()
         node.key = key
         node.sign = sign
