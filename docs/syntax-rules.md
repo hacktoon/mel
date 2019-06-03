@@ -27,26 +27,28 @@ doc             =  '?' NAME
 
 sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-value           =  reference | literal | list | object
+value           =  reference | literal | list | anonym-object | object
 
 prototype       =  '((' path expression+ '))'
 
 reference       =  head-ref ( '/' child-ref )*
 head-ref        =  query | keyword
-child-ref       =  RANGE | INT | wildcard | tag | list | object | query | keyword
-query           =  '{' path expression* '}'
-anonym-query    =  '{:' expression* '}'
+child-ref       =  RANGE | INT | tag | list | anonym-object | object |
+                   query | keyword | wildcard
 
 literal         =  INT | FLOAT | STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
-struct          =  object | anonym-object | default-format
-object          =  '(' path expression* ')'
-anonym-object   =  '(:' expression* ')'
+anonym-object   =  '(:' object-expr* ')'
+object          =  '(' path object-expr* ')'
+object-expr     =  expression | default-format | default-doc
 
 default-format  =  '(%:' expression* ')'
 default-doc     =  '(?:' expression* ')'
+
+anonym-query    =  '{:' expression* '}'
+query           =  '{' path expression* '}'
 
 wildcard        =  '*'
 
