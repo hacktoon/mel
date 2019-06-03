@@ -31,9 +31,9 @@ value           =  reference | literal | list | object
 
 prototype       =  '((' path expression+ '))'
 
-reference       =  head-ref ( '/' child-ref )* ( '/' tag )?
+reference       =  head-ref ( '/' child-ref )*
 head-ref        =  query | keyword
-child-ref       =  RANGE | INT | wildcard | list | object | query | keyword
+child-ref       =  RANGE | INT | wildcard | tag | list | object | query | keyword
 query           =  '{' path expression* '}'
 anonym-query    =  '{:' expression* '}'
 
