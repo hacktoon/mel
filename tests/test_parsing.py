@@ -265,7 +265,6 @@ def test_subparser_nested_list():
         '!foo/@bar',
         '%foo/$bar',
         "etc/bar/#active",
-        "etc/bar/(: a=2 b=true)",
         'abc/[1 2]'
     ]
 )

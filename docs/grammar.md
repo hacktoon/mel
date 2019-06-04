@@ -47,9 +47,9 @@ default-doc     =  '(?:' expression* ')'
 
 anonym-object   =  '(:' object-expr* ')'
 
-anonym-query    =  '{:' expression* '}'
-
 query           =  '{' path expression* '}'
+
+anonym-query    =  '{:' expression* '}'
 
 wildcard        =  '*'
 

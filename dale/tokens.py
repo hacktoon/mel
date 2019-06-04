@@ -231,12 +231,30 @@ class SubNodeToken(Token):
     regex = re.compile(r"/")
 
 
-class StartScopeToken(Token):
+class StartAnonymObjectToken(Token):
+    id = "(:"
+    regex = re.compile(r"\(:")
+    priority = 1
+
+
+class StartDefaultFormatToken(Token):
+    id = "(%:"
+    regex = re.compile(r"\(%:")
+    priority = 1
+
+
+class StartDefaultDocToken(Token):
+    id = "(?:"
+    regex = re.compile(r"\(\?:")
+    priority = 1
+
+
+class StartObjectToken(Token):
     id = "("
     regex = re.compile(r"\(")
 
 
-class EndScopeToken(Token):
+class EndObjectToken(Token):
     id = ")"
     regex = re.compile(r"\)")
 
@@ -250,6 +268,12 @@ class StartPrototypeToken(Token):
 class EndPrototypeToken(Token):
     id = "))"
     regex = re.compile(r"\)\)")
+    priority = 1
+
+
+class StartAnonymQueryToken(Token):
+    id = "{:"
+    regex = re.compile(r"\{:")
     priority = 1
 
 

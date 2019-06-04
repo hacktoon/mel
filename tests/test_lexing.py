@@ -147,11 +147,11 @@ def test_that_read_unexpected_token_raises_error():
 
 def test_stream_ends_with_eof_token():
     stream = create_stream("(age 5)")
-    stream.read(tokens.StartScopeToken)
+    stream.read(tokens.StartObjectToken)
     stream.read(tokens.NameToken)
     assert not stream.is_eof()
     stream.read(tokens.IntToken)
-    stream.read(tokens.EndScopeToken)
+    stream.read(tokens.EndObjectToken)
     assert stream.is_eof()
     assert stream.is_next(tokens.NullToken)
 

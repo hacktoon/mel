@@ -123,8 +123,8 @@ class RootParser(BaseStructParser):
 @subparser
 class ObjectParser(StructParser):
     Node = nodes.ObjectNode
-    FirstToken = tokens.StartScopeToken
-    LastToken = tokens.EndScopeToken
+    FirstToken = tokens.StartObjectToken
+    LastToken = tokens.EndObjectToken
 
     def parse_key(self, node):
         if self.is_null_key():
@@ -132,26 +132,11 @@ class ObjectParser(StructParser):
             return
         path = self.parse_path()
         node.key = path[0]
-        node.target = self.build_tree(node, path)
 
     def is_null_key(self):
         is_null = self.stream.is_next(tokens.NullPathToken)
         is_default_fmt = self.stream.is_next(tokens.DefaultFormatKeyToken)
         return is_null or is_default_fmt
-
-    def build_tree(self, parent, path):
-        for keyword in path[1:]:
-            child = self.build_indexed_node(keyword, path)
-            parent.add(child)
-            parent = child
-        return parent
-
-    def build_indexed_node(self, keyword, path):
-        node = self.build_node()
-        node.key = keyword
-        node.text = path.text
-        node.index = (keyword.index[0], path.index[1])
-        return node
 
     def parse_expressions(self, node):
         while True:
