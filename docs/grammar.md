@@ -40,14 +40,15 @@ literal         =  INT | FLOAT | STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
-anonym-object   =  '(:' object-expr* ')'
 object          =  '(' path object-expr* ')'
 object-expr     =  expression | default-format | default-doc
-
 default-format  =  '(%:' expression* ')'
 default-doc     =  '(?:' expression* ')'
 
+anonym-object   =  '(:' object-expr* ')'
+
 anonym-query    =  '{:' expression* '}'
+
 query           =  '{' path expression* '}'
 
 wildcard        =  '*'
