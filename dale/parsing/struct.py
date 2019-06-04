@@ -118,10 +118,10 @@ class RootParser(BaseStructParser):
         return node
 
 
-# SCOPE ======================================================
+# OBJECT ======================================================
 
 @subparser
-class ScopeParser(StructParser):
+class ObjectParser(StructParser):
     Node = nodes.ObjectNode
     FirstToken = tokens.StartScopeToken
     LastToken = tokens.EndScopeToken

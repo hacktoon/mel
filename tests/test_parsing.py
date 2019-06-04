@@ -485,7 +485,7 @@ def test_range_only_accepts_integers():
 # STRUCT ===================================================
 
 def test_tag_object():
-    node = parse("(a #bar #foo)", parsing.struct.ScopeParser)
+    node = parse("(a #bar #foo)", parsing.struct.ObjectParser)
     assert 'bar' in node.tags
     assert 'foo' in node.tags
 
@@ -493,13 +493,13 @@ def test_tag_object():
 # SCOPE ===================================================
 
 def test_object_with_key_and_no_value():
-    node = parse("(a)", parsing.struct.ScopeParser)
+    node = parse("(a)", parsing.struct.ObjectParser)
     assert str(node.key) == "a"
     assert len(node) == 0
 
 
 def test_object_key_assumes_first_value():
-    node = parse("(foo 42)", parsing.struct.ScopeParser)
+    node = parse("(foo 42)", parsing.struct.ObjectParser)
     assert str(node.key) == "foo"
 
 
@@ -512,7 +512,7 @@ def test_object_key_assumes_first_value():
     ]
 )
 def test_object_key_string_repr(test_input, value):
-    node = parse(test_input, parsing.struct.ScopeParser)
+    node = parse(test_input, parsing.struct.ObjectParser)
     assert str(node.key) == value
 
 
@@ -526,7 +526,7 @@ def test_object_key_string_repr(test_input, value):
 )
 def test_invalid_object_key(test_input):
     with pytest.raises(KeyNotFoundError):
-        parse(test_input, parsing.struct.ScopeParser)
+        parse(test_input, parsing.struct.ObjectParser)
 
 
 @pytest.mark.parametrize(
@@ -539,7 +539,7 @@ def test_invalid_object_key(test_input):
 )
 def test_object_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
-        parse(test_input, parsing.struct.ScopeParser)
+        parse(test_input, parsing.struct.ObjectParser)
 
 
 # QUERY ===============================================

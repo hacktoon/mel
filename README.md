@@ -13,7 +13,7 @@ Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, 
 
 ## Documentation
 
- * [Syntax rules](docs/syntax-rules.md)
+ * [Grammar](docs/grammar.md)
  * [Literals](docs/literals.md)
  * [Keywords](docs/keywords.md)
  * [Objects](docs/objects.md)
