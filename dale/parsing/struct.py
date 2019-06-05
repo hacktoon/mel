@@ -12,6 +12,8 @@ from .base import (
 from ..exceptions import (KeyNotFoundError, ExpectedValueError)
 
 
+# STRUCT ==================================================
+
 class StructParser(BaseParser):
     @indexed
     def parse(self):
@@ -45,20 +47,6 @@ class PathStructParser(BaseParser):
         raise KeyNotFoundError(self.stream.peek())
 
 
-# DEFAULT STRUCTS ======================================================
-
-class DefaultFormatParser(StructParser):
-    Node = nodes.DefaultFormatNode
-    FirstToken = tokens.StartDefaultFormatToken
-    LastToken = tokens.EndObjectToken
-
-
-class DefaultDocParser(StructParser):
-    Node = nodes.DefaultDocNode
-    FirstToken = tokens.StartDefaultDocToken
-    LastToken = tokens.EndObjectToken
-
-
 # ROOT ======================================================
 
 @subparser
@@ -70,6 +58,31 @@ class RootParser(StructParser):
         node = self.build_node()
         node.expressions = self.parse_expressions()
         return node
+
+
+# PROTOTYPE ======================================================
+
+@subparser
+class PrototypeParser(StructParser):
+    Node = nodes.PrototypeNode
+    FirstToken = tokens.StartPrototypeToken
+    LastToken = tokens.EndPrototypeToken
+
+
+# DEFAULT EXPRESSION STRUCTS ==================================
+
+@subparser
+class DefaultFormatParser(StructParser):
+    Node = nodes.DefaultFormatNode
+    FirstToken = tokens.StartDefaultFormatToken
+    LastToken = tokens.EndObjectToken
+
+
+@subparser
+class DefaultDocParser(StructParser):
+    Node = nodes.DefaultDocNode
+    FirstToken = tokens.StartDefaultDocToken
+    LastToken = tokens.EndObjectToken
 
 
 # OBJECT ======================================================
@@ -92,21 +105,19 @@ class AnonymObjectParser(StructParser):
     LastToken = tokens.EndObjectToken
 
 
-# PROTOTYPE ======================================================
-
-@subparser
-class PrototypeParser(StructParser):
-    Node = nodes.PrototypeNode
-    FirstToken = tokens.StartPrototypeToken
-    LastToken = tokens.EndPrototypeToken
-
-
 # QUERY ======================================================
 
 @subparser
 class QueryParser(StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
+    LastToken = tokens.EndQueryToken
+
+
+@subparser
+class AnonymQueryParser(StructParser):
+    Node = nodes.AnonymQueryNode
+    FirstToken = tokens.StartAnonymQueryToken
     LastToken = tokens.EndQueryToken
 
 
