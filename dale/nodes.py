@@ -6,7 +6,7 @@ class Node:
     id = "node"
 
     def __init__(self):
-        self.children = []
+        self.expressions = []
         self.text = ""
         self.index = (0, 0)
 
@@ -14,7 +14,7 @@ class Node:
         return True
 
     def __len__(self):
-        return len(self.children)
+        return len(self.expressions)
 
     def __str__(self):
         first, last = self.index
@@ -26,10 +26,10 @@ class Node:
         return template.format(id, self)
 
     def __getitem__(self, index):
-        return self.children[index]
+        return self.expressions[index]
 
     def __iter__(self):
-        for node in self.children:
+        for node in self.expressions:
             yield node
 
     def add(self, node):
@@ -37,12 +37,12 @@ class Node:
         if hasattr(self, method_name):
             method = getattr(self, method_name)
             method(node)
-        self.children.append(node)
+        self.expressions.append(node)
 
     def eval(self, context):
         return {
             "id": self.id,
-            "nodes": [node.eval(context) for node in self.children]
+            "nodes": [node.eval(context) for node in self.expressions]
         }
 
 
@@ -141,47 +141,39 @@ class ChildReferenceNode(Node):
 
 # STRUCT ========================================================
 
-class PathStructNode(Node):
-    id = "path-struct"
-
-
 class StructNode(Node):
-    id = "struct"
-
     def __init__(self):
         super().__init__()
         self.key = NullNode()
-        self.target = self
-        self.tags = set()
-        self.props = {
-            'name': {},
-            'concept': {},
-            'alias': {},
-            'format': {},
-            'doc': {},
-            'meta': {},
-        }
-
-    def _add_tag(self, node):
-        self.tags.add(node.value)
-
-    def _add_relation(self, node):
-        pass
-
-    def _add_object(self, node):
-        pass
-
-
-class ObjectNode(StructNode):
-    id = "object"
+        self.expressions = []
 
 
 class PrototypeNode(StructNode):
     id = "prototype"
 
 
+class ObjectNode(StructNode):
+    id = "object"
+
+
+class AnonymObjectNode(StructNode):
+    id = "anonym-object"
+
+
+class DefaultFormatNode(StructNode):
+    id = "default-fortmat"
+
+
+class DefaultDocNode(StructNode):
+    id = "default-doc"
+
+
 class QueryNode(StructNode):
     id = "query"
+
+
+class AnonymQueryNode(StructNode):
+    id = "anonym-query"
 
 
 # LIST ========================================================
@@ -192,7 +184,7 @@ class ListNode(Node):
     def eval(self, context):
         return {
             "id": self.id,
-            "nodes": [node.eval(context) for node in self.children]
+            "nodes": [node.eval(context) for node in self.expressions]
         }
 
 

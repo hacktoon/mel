@@ -131,7 +131,7 @@ def test_node_iteration(test_input, expected):
 
 # NODE INDEX ===========================================
 
-def test_node_children_index():
+def test_node_subnodes_index():
     node = parse("44 12")
     assert node[0].index == (0, 2)
     assert node[1].index == (3, 5)
@@ -481,15 +481,7 @@ def test_range_only_accepts_integers():
         parse("..3.4", parsing.RangeParser)
 
 
-# STRUCT ===================================================
-
-def test_tag_object():
-    node = parse("(a #bar #foo)", parsing.struct.ObjectParser)
-    assert 'bar' in node.tags
-    assert 'foo' in node.tags
-
-
-# SCOPE ===================================================
+# OBJECT ===================================================
 
 def test_object_with_key_and_no_value():
     node = parse("(a)", parsing.struct.ObjectParser)

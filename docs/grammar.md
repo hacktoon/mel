@@ -9,7 +9,7 @@
 ```
 root            =  expression*
 
-expression      =  tag | relation | value | prototype
+expression      =  tag | relation | prototype | value
 
 tag             =  '#' NAME
 
@@ -27,9 +27,9 @@ doc             =  '?' NAME
 
 sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-value           =  reference | literal | list | anonym-object | object
+prototype       =  '((' path expression* '))'
 
-prototype       =  '((' path expression+ '))'
+value           =  reference | literal | list | anonym-object | object
 
 reference       =  head-ref ( '/' child-ref )*
 head-ref        =  query | keyword

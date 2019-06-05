@@ -22,10 +22,10 @@ class ReferenceParser(BaseParser):
             return
         node = self.build_node()
         node.add(head)
-        self.parse_children(node)
+        self.parse_body(node)
         return node
 
-    def parse_children(self, node):
+    def parse_body(self, node):
         while self.stream.is_next(tokens.SubNodeToken):
             self.stream.read()
             self.parse_child(node)

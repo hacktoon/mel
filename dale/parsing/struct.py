@@ -12,7 +12,21 @@ from .base import (
 from ..exceptions import (KeyNotFoundError, ExpectedValueError)
 
 
-class BaseStructParser(BaseParser):
+class StructParser(BaseParser):
+    @indexed
+    def parse(self):
+        if not self.stream.is_next(self.FirstToken):
+            return
+        self.stream.read()
+        node = self.build_node()
+        node.key = self.parse_key()
+        node.expressions = self.parse_expressions()
+        self.stream.read(self.LastToken)
+        return node
+
+    def parse_key(self):
+        return nodes.NullNode()
+
     def parse_expressions(self):
         expressions = []
         while True:
@@ -23,127 +37,59 @@ class BaseStructParser(BaseParser):
         return expressions
 
 
-class BaseFormatStructParser(BaseParser):
-    Node = nodes.ObjectNode
-
-    def parse(self):
-        if not self.stream.is_next(tokens.DefaultFormatKeyToken):
-            return
-        self.stream.read()
-        node = self.build_node()
-        node.expressions = self.parse_expressions()
-        return node
-
-
-@subparser
-class PathStructParser(BaseStructParser):
-    Node = nodes.PathStructNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        node.path = self.parse_path()
-        node.expressions = self.parse_expressions()
-        return node
-
-    def parse_path(self):
-        if self.stream.is_next(tokens.NullPathToken):
-            self.stream.read()
-            return
-        path = self.subparse(nodes.PathNode)
-        if path:
-            return path
-        raise KeyNotFoundError(self.stream.peek())
-
-
-class SubTreeStructParser(PathStructParser):
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        node.path = self.parse_path()
-        node.expressions = self.parse_expressions()
-        return node
-
-
-class StructParser(BaseParser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.FirstToken):
-            return
-        node = self.build_node()
-        self.stream.read()
-        self.parse_key(node)
-        self.parse_expressions(node)
-        self.stream.read(self.LastToken)
-        return node
-
-    def parse_key(self, node):
-        path = self.parse_path()
-        node.key = path[0]
-        node.target = self.build_tree(node, path)
-
+class PathStructParser(BaseParser):
     def parse_path(self):
         path = self.subparse(nodes.PathNode)
         if path:
             return path
         raise KeyNotFoundError(self.stream.peek())
 
-    def build_tree(self, node, path):
-        for keyword in path[1:]:
-            _object = self.build_node()
-            _object.key = keyword
-            node.add(_object)
-            node = _object
-        return node
 
-    def parse_expressions(self, node):
-        while True:
-            expression = self.subparse(nodes.ExpressionNode)
-            if not expression:
-                break
-            node.add(expression)
+# DEFAULT STRUCTS ======================================================
+
+class DefaultFormatParser(StructParser):
+    Node = nodes.DefaultFormatNode
+    FirstToken = tokens.StartDefaultFormatToken
+    LastToken = tokens.EndObjectToken
+
+
+class DefaultDocParser(StructParser):
+    Node = nodes.DefaultDocNode
+    FirstToken = tokens.StartDefaultDocToken
+    LastToken = tokens.EndObjectToken
 
 
 # ROOT ======================================================
 
 @subparser
-class RootParser(BaseStructParser):
+class RootParser(StructParser):
     Node = nodes.RootNode
 
     @indexed
     def parse(self):
         node = self.build_node()
-        # TODO: move 'children' to 'expressions'
-        node.children = self.parse_expressions()
+        node.expressions = self.parse_expressions()
         return node
 
 
 # OBJECT ======================================================
 
 @subparser
-class ObjectParser(StructParser):
+class ObjectParser(StructParser, PathStructParser):
     Node = nodes.ObjectNode
     FirstToken = tokens.StartObjectToken
     LastToken = tokens.EndObjectToken
 
-    def parse_key(self, node):
-        if self.is_null_key():
-            self.stream.read()
-            return
+    def parse_key(self):
         path = self.parse_path()
-        node.key = path[0]
+        return path[0]
 
-    def is_null_key(self):
-        is_null = self.stream.is_next(tokens.NullPathToken)
-        is_default_fmt = self.stream.is_next(tokens.DefaultFormatKeyToken)
-        return is_null or is_default_fmt
 
-    def parse_expressions(self, node):
-        while True:
-            expression = self.subparse(nodes.ExpressionNode)
-            if not expression:
-                break
-            node.target.add(expression)
+@subparser
+class AnonymObjectParser(StructParser):
+    Node = nodes.AnonymObjectNode
+    FirstToken = tokens.StartAnonymObjectToken
+    LastToken = tokens.EndObjectToken
 
 
 # PROTOTYPE ======================================================
