@@ -210,7 +210,7 @@ def test_subparser_value(test_input):
     ]
 )
 def test_relation_components(test_input, key, sign, value):
-    node = parse(test_input, parsing.struct.RelationParser)
+    node = parse(test_input, parsing.relation.RelationParser)
     assert str(node.key) == key
     assert str(node.sign) == sign
     assert str(node.value) == value
@@ -227,7 +227,7 @@ def test_relation_components(test_input, key, sign, value):
 )
 def test_relation_value_expected(test_input):
     with pytest.raises(ExpectedValueError):
-        parse(test_input, parsing.struct.RelationParser)
+        parse(test_input, parsing.relation.RelationParser)
 
 
 #  LIST ======================================================

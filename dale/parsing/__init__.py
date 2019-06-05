@@ -5,6 +5,7 @@ from . import ( # noqa
     struct,
     reference,
     literal,
+    relation,
     keyword
 )
 from .base import (
