@@ -43,6 +43,7 @@ class HeadReferenceParser(MultiParser):
     Node = nodes.HeadReferenceNode
     options = (
         nodes.QueryNode,
+        nodes.AnonymQueryNode,
         nodes.KeywordNode
     )
 
@@ -57,6 +58,8 @@ class ChildReferenceParser(MultiParser):
         nodes.IntNode,
         nodes.ListNode,
         nodes.ObjectNode,
+        nodes.AnonymObjectNode,
         nodes.QueryNode,
+        nodes.AnonymQueryNode,
         nodes.KeywordNode
     )

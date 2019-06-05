@@ -6,6 +6,7 @@ class Node:
     id = "node"
 
     def __init__(self):
+        self.key = None
         self.expressions = []
         self.text = ""
         self.index = (0, 0)

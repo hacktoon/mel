@@ -12,19 +12,9 @@ from ..exceptions import KeyNotFoundError
 
 # STRUCT ==================================================
 
-class PathStructParser(BaseParser):
-    def parse_key(self):
-        path = self.parse_path()
-        return path[0]
-
-    def parse_path(self):
-        path = self.subparse(nodes.PathNode)
-        if path:
-            return path
-        raise KeyNotFoundError(self.stream.peek())
-
-
 class StructParser(BaseParser):
+    Expression = nodes.ExpressionNode
+
     @indexed
     def parse(self):
         if not self.stream.is_next(self.FirstToken):
@@ -37,16 +27,28 @@ class StructParser(BaseParser):
         return node
 
     def parse_key(self):
-        return nodes.NullNode()
+        return
 
     def parse_expressions(self):
         expressions = []
         while True:
-            expression = self.subparse(nodes.ExpressionNode)
+            expression = self.subparse(self.Expression)
             if not expression:
                 break
             expressions.append(expression)
         return expressions
+
+
+class PathStructParser(StructParser):
+    def parse_key(self):
+        path = self.parse_path()
+        return path[0]
+
+    def parse_path(self):
+        path = self.subparse(nodes.PathNode)
+        if path:
+            return path
+        raise KeyNotFoundError(self.stream.peek())
 
 
 # ROOT ======================================================
@@ -54,6 +56,7 @@ class StructParser(BaseParser):
 @subparser
 class RootParser(StructParser):
     Node = nodes.Node
+    Expression = nodes.ObjectExpressionNode
 
     @indexed
     def parse(self):
@@ -65,10 +68,11 @@ class RootParser(StructParser):
 # PROTOTYPE ======================================================
 
 @subparser
-class PrototypeParser(PathStructParser, StructParser):
+class PrototypeParser(PathStructParser):
     Node = nodes.PrototypeNode
     FirstToken = tokens.StartPrototypeToken
     LastToken = tokens.EndPrototypeToken
+    Expression = nodes.ObjectExpressionNode
 
 
 # DEFAULT EXPRESSION STRUCTS ==================================
@@ -90,10 +94,11 @@ class DefaultDocParser(StructParser):
 # OBJECT ======================================================
 
 @subparser
-class ObjectParser(PathStructParser, StructParser):
+class ObjectParser(PathStructParser):
     Node = nodes.ObjectNode
     FirstToken = tokens.StartObjectToken
     LastToken = tokens.EndObjectToken
+    Expression = nodes.ObjectExpressionNode
 
 
 @subparser
@@ -101,6 +106,7 @@ class AnonymObjectParser(StructParser):
     Node = nodes.AnonymObjectNode
     FirstToken = tokens.StartAnonymObjectToken
     LastToken = tokens.EndObjectToken
+    Expression = nodes.ObjectExpressionNode
 
 
 # QUERY ======================================================

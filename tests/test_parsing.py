@@ -1,6 +1,7 @@
 import pytest
 
 from dale import parsing
+from dale.parsing import struct
 from dale import nodes
 
 from dale.lexing import TokenStream
@@ -195,39 +196,6 @@ def test_tags(test_input):
 def test_subparser_value(test_input):
     parser = create_parser(test_input, parsing.ValueParser)
     assert parser.parse()
-
-
-# RELATION =================================================
-
-@pytest.mark.parametrize(
-    "test_input, key, sign, value",
-    [
-        ("x = 4", 'x', '=', '4'),
-        ("x >< -5", 'x', '><', '-5'),
-        ("a/b <> foo", 'a/b', '<>', 'foo'),
-        ("x/y != 64", 'x/y', '!=', '64'),
-        ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
-    ]
-)
-def test_relation_components(test_input, key, sign, value):
-    node = parse(test_input, parsing.relation.RelationParser)
-    assert str(node.key) == key
-    assert str(node.sign) == sign
-    assert str(node.value) == value
-
-
-@pytest.mark.parametrize(
-    "test_input",
-    [
-        "x = >",
-        "x <= ",
-        "x > <",
-        "x >= =",
-    ]
-)
-def test_relation_value_expected(test_input):
-    with pytest.raises(ExpectedValueError):
-        parse(test_input, parsing.relation.RelationParser)
 
 
 #  LIST ======================================================
@@ -481,16 +449,69 @@ def test_range_only_accepts_integers():
         parse("..3.4", parsing.RangeParser)
 
 
+# RELATION =================================================
+
+@pytest.mark.parametrize(
+    "test_input, key, sign, value",
+    [
+        ("x = 4", 'x', '=', '4'),
+        ("x >< -5", 'x', '><', '-5'),
+        ("a/b <> foo", 'a/b', '<>', 'foo'),
+        ("x/y != 64", 'x/y', '!=', '64'),
+        ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
+    ]
+)
+def test_relation_components(test_input, key, sign, value):
+    node = parse(test_input, parsing.relation.RelationParser)
+    assert str(node.key) == key
+    assert str(node.sign) == sign
+    assert str(node.value) == value
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        "x = >",
+        "x <= ",
+        "x > <",
+        "x >= =",
+    ]
+)
+def test_relation_value_expected(test_input):
+    with pytest.raises(ExpectedValueError):
+        parse(test_input, parsing.relation.RelationParser)
+
+
+# STRUCT ===================================================
+
+@pytest.mark.parametrize(
+    "test_input, Parser",
+    [
+        ("bar", struct.RootParser),
+        ("((abc foo bar))", struct.PrototypeParser),
+        ("(?: foo bar)", struct.DefaultDocParser),
+        ("(%: foo bar)", struct.DefaultFormatParser),
+        ("(abc foo bar)", struct.ObjectParser),
+        ("(: foo bar)", struct.AnonymObjectParser),
+        ("{abc foo bar}", struct.QueryParser),
+        ("{: foo bar}", struct.AnonymQueryParser),
+    ]
+)
+def test_struct_object_expression(test_input, Parser):
+    assert parse(test_input, Parser)
+    assert parse(test_input)
+
+
 # OBJECT ===================================================
 
 def test_object_with_key_and_no_value():
-    node = parse("(a)", parsing.struct.ObjectParser)
+    node = parse("(a)", struct.ObjectParser)
     assert str(node.key) == "a"
     assert len(node) == 0
 
 
 def test_object_key_assumes_first_value():
-    node = parse("(foo 42)", parsing.struct.ObjectParser)
+    node = parse("(foo 42)", struct.ObjectParser)
     assert str(node.key) == "foo"
 
 
@@ -503,7 +524,7 @@ def test_object_key_assumes_first_value():
     ]
 )
 def test_object_key_string_repr(test_input, value):
-    node = parse(test_input, parsing.struct.ObjectParser)
+    node = parse(test_input, struct.ObjectParser)
     assert str(node.key) == value
 
 
@@ -517,7 +538,7 @@ def test_object_key_string_repr(test_input, value):
 )
 def test_invalid_object_key(test_input):
     with pytest.raises(KeyNotFoundError):
-        parse(test_input, parsing.struct.ObjectParser)
+        parse(test_input, struct.ObjectParser)
 
 
 @pytest.mark.parametrize(
@@ -530,22 +551,36 @@ def test_invalid_object_key(test_input):
 )
 def test_object_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
-        parse(test_input, parsing.struct.ObjectParser)
+        parse(test_input, struct.ObjectParser)
+
+
+# ANONYM OBJECT ===============================================
+
+def test_anonym_object_value():
+    node = parse("(: x = 2)", struct.AnonymObjectParser)
+    assert not node.key
+    assert str(node[0]) == "x = 2"
 
 
 # QUERY ===============================================
 
-@pytest.mark.skip
 def test_query_key_single_value():
-    node = parse("{abc 42}", parsing.struct.QueryParser)
+    node = parse("{abc 42}", struct.QueryParser)
     assert str(node.key) == "abc"
+    assert node[0].value == 42
+
+
+# ANONYM QUERY ===============================================
+
+def test_anonym_query_value():
+    node = parse("{: 42}", struct.AnonymQueryParser)
+    assert not node.key
     assert node[0].value == 42
 
 
 # PROTOTYPE ===============================================
 
-@pytest.mark.skip
 def test_prototype_key_single_value():
-    node = parse("((abc 42))", parsing.struct.PrototypeParser)
+    node = parse("((abc 42))", struct.PrototypeParser)
     assert str(node.key) == "abc"
     assert node[0].value == 42

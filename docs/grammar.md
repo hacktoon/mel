@@ -7,11 +7,17 @@
 ## Grammar
 
 ```
-root            =  expression*
+root            =  object-expr*
 
-expression      =  tag | relation | prototype | value
+object-expr     =  default-format | default-doc | expression
+default-format  =  '(%:' expression* ')'
+default-doc     =  '(?:' expression* ')'
+
+expression      =  tag | prototype | relation | value
 
 tag             =  '#' NAME
+
+prototype       =  '((' path expression* '))'
 
 relation        =  path sign value
 
@@ -27,23 +33,18 @@ doc             =  '?' NAME
 
 sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-prototype       =  '((' path expression* '))'
-
-value           =  reference | literal | list | anonym-object | object
+value           =  reference | literal | list | object | anonym-object
 
 reference       =  head-ref ( '/' child-ref )*
-head-ref        =  query | keyword
-child-ref       =  RANGE | INT | tag | list | anonym-object | object |
-                   query | keyword | wildcard
+head-ref        =  query | anonym-query | keyword
+child-ref       =  RANGE | INT | tag | list | object | anonym-object |
+                   query | anonym-query | keyword | wildcard
 
 literal         =  INT | FLOAT | STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
 object          =  '(' path object-expr* ')'
-object-expr     =  expression | default-format | default-doc
-default-format  =  '(%:' expression* ')'
-default-doc     =  '(?:' expression* ')'
 
 anonym-object   =  '(:' object-expr* ')'
 
