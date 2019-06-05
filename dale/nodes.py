@@ -1,6 +1,3 @@
-def _default_evaluator(value, context):
-    return value
-
 
 class Node:
     id = "node"
@@ -34,17 +31,7 @@ class Node:
             yield node
 
     def add(self, node):
-        method_name = "_add_" + node.id
-        if hasattr(self, method_name):
-            method = getattr(self, method_name)
-            method(node)
         self.expressions.append(node)
-
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "nodes": [node.eval(context) for node in self.expressions]
-        }
 
 
 # EXPRESSSION =================================================
@@ -147,7 +134,7 @@ class AnonymObjectNode(StructNode):
 
 
 class DefaultFormatNode(StructNode):
-    id = "default-fortmat"
+    id = "default-format"
 
 
 class DefaultDocNode(StructNode):
@@ -166,12 +153,6 @@ class AnonymQueryNode(StructNode):
 
 class ListNode(Node):
     id = "list"
-
-    def eval(self, context):
-        return {
-            "id": self.id,
-            "nodes": [node.eval(context) for node in self.expressions]
-        }
 
 
 # KEYWORD ========================================================
@@ -239,9 +220,6 @@ class LiteralNode(Node):
     def __init__(self):
         super().__init__()
         self.value = None
-
-    def eval(self, context):
-        return self.value
 
 
 class IntNode(LiteralNode):
