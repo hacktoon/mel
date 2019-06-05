@@ -14,6 +14,18 @@ from ..exceptions import (KeyNotFoundError, ExpectedValueError)
 
 # STRUCT ==================================================
 
+class PathStructParser(BaseParser):
+    def parse_key(self):
+        path = self.parse_path()
+        return path[0]
+
+    def parse_path(self):
+        path = self.subparse(nodes.PathNode)
+        if path:
+            return path
+        raise KeyNotFoundError(self.stream.peek())
+
+
 class StructParser(BaseParser):
     @indexed
     def parse(self):
@@ -39,14 +51,6 @@ class StructParser(BaseParser):
         return expressions
 
 
-class PathStructParser(BaseParser):
-    def parse_path(self):
-        path = self.subparse(nodes.PathNode)
-        if path:
-            return path
-        raise KeyNotFoundError(self.stream.peek())
-
-
 # ROOT ======================================================
 
 @subparser
@@ -63,7 +67,7 @@ class RootParser(StructParser):
 # PROTOTYPE ======================================================
 
 @subparser
-class PrototypeParser(StructParser):
+class PrototypeParser(PathStructParser, StructParser):
     Node = nodes.PrototypeNode
     FirstToken = tokens.StartPrototypeToken
     LastToken = tokens.EndPrototypeToken
@@ -88,14 +92,10 @@ class DefaultDocParser(StructParser):
 # OBJECT ======================================================
 
 @subparser
-class ObjectParser(StructParser, PathStructParser):
+class ObjectParser(PathStructParser, StructParser):
     Node = nodes.ObjectNode
     FirstToken = tokens.StartObjectToken
     LastToken = tokens.EndObjectToken
-
-    def parse_key(self):
-        path = self.parse_path()
-        return path[0]
 
 
 @subparser
@@ -108,7 +108,7 @@ class AnonymObjectParser(StructParser):
 # QUERY ======================================================
 
 @subparser
-class QueryParser(StructParser):
+class QueryParser(PathStructParser, StructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken

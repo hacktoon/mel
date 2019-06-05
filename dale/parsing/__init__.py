@@ -37,8 +37,18 @@ class ExpressionParser(MultiParser):
     options = (
         nodes.TagNode,
         nodes.RelationNode,
-        nodes.ValueNode,
-        nodes.PrototypeNode
+        nodes.PrototypeNode,
+        nodes.ValueNode
+    )
+
+
+@subparser
+class ObjectExpressionParser(MultiParser):
+    Node = nodes.ObjectExpressionNode
+    options = (
+        nodes.ExpressionNode,
+        nodes.DefaultFormatNode,
+        nodes.DefaultDocNode
     )
 
 

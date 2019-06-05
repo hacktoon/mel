@@ -71,6 +71,10 @@ class ExpressionNode(Node):
     id = "expression"
 
 
+class ObjectExpressionNode(Node):
+    id = "object-expression"
+
+
 # RELATION ========================================================
 
 class RelationNode(Node):
