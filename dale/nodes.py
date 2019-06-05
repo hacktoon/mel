@@ -47,19 +47,6 @@ class Node:
         }
 
 
-class NullNode(Node):
-    id = "null"
-
-    def __bool__(self):
-        return False
-
-    def __str__(self):
-        return ""
-
-    def eval(self, context):
-        return
-
-
 # EXPRESSSION =================================================
 
 class ExpressionNode(Node):
@@ -77,9 +64,9 @@ class RelationNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = NullNode()
-        self.symbol = NullNode()
-        self.value = NullNode()
+        self.key = None
+        self.symbol = None
+        self.value = None
 
 
 class SymbolNode(Node):
@@ -143,7 +130,7 @@ class ChildReferenceNode(Node):
 class StructNode(Node):
     def __init__(self):
         super().__init__()
-        self.key = NullNode()
+        self.key = None
         self.expressions = []
 
 
