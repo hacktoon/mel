@@ -55,7 +55,7 @@ class StructParser(BaseParser):
 
 @subparser
 class RootParser(StructParser):
-    Node = nodes.RootNode
+    Node = nodes.Node
 
     @indexed
     def parse(self):

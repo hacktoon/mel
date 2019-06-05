@@ -39,13 +39,13 @@ def test_subparser_invalid_node_id():
 
 def test_empty_input_string():
     node = parse("")
-    assert node.id == nodes.RootNode.id
+    assert node.id == nodes.Node.id
     assert len(node) == 0
 
 
 def test_whitespace_only():
     node = parse("   ,,,\n ; , ;, \t ")
-    assert node.id == "root"
+    assert node.id == nodes.Node.id
     assert len(node) == 0
 
 

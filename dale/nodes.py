@@ -59,12 +59,6 @@ class NullNode(Node):
         return
 
 
-# ROOT ========================================================
-
-class RootNode(Node):
-    id = "root"
-
-
 # EXPRESSSION =================================================
 
 class ExpressionNode(Node):
