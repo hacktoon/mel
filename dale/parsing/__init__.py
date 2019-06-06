@@ -11,6 +11,7 @@ from . import ( # noqa
 from .base import (
     BaseParser,
     MultiParser,
+    TokenParser,
     subparser,
     indexed
 )
@@ -153,3 +154,9 @@ class RangeParser(BaseParser):
         if self.stream.is_next(tokens.IntToken):
             node.end = self.stream.read().value
         return True
+
+
+@subparser
+class WildcardParser(TokenParser):
+    Node = nodes.WildcardNode
+    Token = tokens.WildcardToken

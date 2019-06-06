@@ -238,6 +238,10 @@ class StringNode(LiteralNode):
     id = "string"
 
 
+class TemplateStringNode(LiteralNode):
+    id = "template-string"
+
+
 # PATH ========================================================
 
 class PathNode(Node):

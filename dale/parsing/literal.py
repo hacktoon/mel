@@ -32,18 +32,17 @@ class FloatParser(TokenParser):
 
 
 @subparser
-class StringParser(TokenParser):
-    Node = nodes.StringNode
-    Token = tokens.StringToken
-
-
-@subparser
 class BooleanParser(TokenParser):
     Node = nodes.BooleanNode
     Token = tokens.BooleanToken
 
 
 @subparser
-class WildcardParser(TokenParser):
-    Node = nodes.WildcardNode
-    Token = tokens.WildcardToken
+class StringParser(TokenParser):
+    Node = nodes.StringNode
+    Token = tokens.StringToken
+
+
+class TemplateStringParser(TokenParser):
+    Node = nodes.TemplateStringNode
+    Token = tokens.StringToken
