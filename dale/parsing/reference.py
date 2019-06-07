@@ -33,7 +33,7 @@ class ReferenceParser(BaseParser):
     def parse_child(self, node):
         child = self.subparse(nodes.ChildReferenceNode)
         if not child:
-            raise ExpectedKeywordError(self.stream.peek())
+            self.error(ExpectedKeywordError)
         node.add(child)
         return child
 

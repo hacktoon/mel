@@ -42,6 +42,9 @@ class BaseParser:
     def subparse(self, Node):
         return get_subparser(Node.id, self.stream).parse()
 
+    def error(self, Error, token=None):
+        raise Error(token or self.stream.peek())
+
 
 class MultiParser(BaseParser):
     options = tuple()

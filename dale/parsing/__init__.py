@@ -27,8 +27,7 @@ class Parser(BaseParser):
         node = self.subparse(nodes.RootNode)
         if self.stream.is_eof():
             return node
-        token = self.stream.peek()
-        raise UnexpectedTokenError(token)
+        self.error(UnexpectedTokenError)
 
 
 # EXPRESSION ======================================================
@@ -117,7 +116,7 @@ class PathParser(BaseParser):
             if _keyword:
                 node.add(_keyword)
             else:
-                raise KeywordNotFoundError(self.stream.peek())
+                self.error(KeywordNotFoundError)
 
 
 # RANGE ===========================
@@ -140,7 +139,7 @@ class RangeParser(BaseParser):
             return
         _range = self.stream.read()
         if not self.stream.is_next(tokens.IntToken):
-            raise InfiniteRangeError(_range)
+            self.error(InfiniteRangeError, _range)
         node.end = self.stream.read().value
         return True
 

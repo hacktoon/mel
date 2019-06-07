@@ -48,7 +48,7 @@ class PathStructParser(StructParser):
         path = self.subparse(nodes.PathNode)
         if path:
             return path
-        raise KeyNotFoundError(self.stream.peek())
+        self.error(KeyNotFoundError)
 
 
 # ROOT ======================================================

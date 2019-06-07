@@ -33,7 +33,7 @@ class RelationParser(BaseParser):
     def parse_value(self):
         value = self.subparse(nodes.ValueNode)
         if not value:
-            raise ExpectedValueError(self.stream.peek())
+            self.error(ExpectedValueError)
         return value
 
 

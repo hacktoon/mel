@@ -49,7 +49,7 @@ class PrefixedNameParser(BaseParser):
         if self.stream.is_next(tokens.NameToken):
             node.value = self.stream.read().value
             return node
-        raise NameNotFoundError(prefix)
+        self.error(NameNotFoundError, prefix)
 
 
 @subparser
