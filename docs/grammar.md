@@ -12,11 +12,9 @@ root            =  object-expr*
 
 object-expr     =  expression | default-format | default-doc
 
-expression      =  tag | prototype | relation | value
+expression      =  tag | relation | value
 
 tag             =  '#' NAME
-
-prototype       =  '%(' path expression* ')'
 
 relation        =  path sign value
 

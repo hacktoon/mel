@@ -233,12 +233,6 @@ class SubNodeToken(Token):
     regex = re.compile(r"/")
 
 
-class StartPrototypeToken(Token):
-    id = "%("
-    regex = re.compile(r"%\(")
-    priority = 1
-
-
 class StartObjectToken(Token):
     id = "("
     regex = re.compile(r"\(")

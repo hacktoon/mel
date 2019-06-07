@@ -488,7 +488,6 @@ def test_relation_value_expected(test_input):
     "test_input, Parser",
     [
         ("bar", struct.RootParser),
-        ("%(abc foo bar)", struct.PrototypeParser),
         ("(?: foo bar)", struct.DefaultDocParser),
         ("(%: foo bar)", struct.DefaultFormatParser),
         ("(abc foo bar)", struct.ObjectParser),
@@ -575,12 +574,4 @@ def test_query_key_single_value():
 def test_anonym_query_value():
     node = parse("{: 42}", struct.AnonymQueryParser)
     assert not node.key
-    assert node[0].value == 42
-
-
-# PROTOTYPE ===============================================
-
-def test_prototype_key_single_value():
-    node = parse("%(abc 42)", struct.PrototypeParser)
-    assert str(node.key) == "abc"
     assert node[0].value == 42

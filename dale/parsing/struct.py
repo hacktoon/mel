@@ -65,16 +65,6 @@ class RootParser(StructParser):
         return node
 
 
-# PROTOTYPE ======================================================
-
-@subparser
-class PrototypeParser(PathStructParser):
-    Node = nodes.PrototypeNode
-    FirstToken = tokens.StartPrototypeToken
-    LastToken = tokens.EndObjectToken
-    Expression = nodes.ObjectExpressionNode
-
-
 # DEFAULT EXPRESSION STRUCTS ==================================
 
 @subparser

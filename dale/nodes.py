@@ -127,10 +127,6 @@ class StructNode(Node):
         self.expressions = []
 
 
-class PrototypeNode(StructNode):
-    id = "prototype"
-
-
 class ObjectNode(StructNode):
     id = "object"
 
