@@ -43,6 +43,7 @@ class StringParser(TokenParser):
     Token = tokens.StringToken
 
 
+@subparser
 class TemplateStringParser(TokenParser):
     Node = nodes.TemplateStringNode
     Token = tokens.StringToken

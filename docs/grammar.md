@@ -7,11 +7,10 @@
 ## Grammar
 
 ```
+
 root            =  object-expr*
 
-object-expr     =  default-format | default-doc | expression
-default-format  =  '(%:' expression* ')'
-default-doc     =  '(?:' expression* ')'
+object-expr     =  expression | default-format | default-doc
 
 expression      =  tag | prototype | relation | value
 
@@ -39,6 +38,7 @@ reference       =  head-ref ( '/' child-ref )*
 head-ref        =  query | anonym-query | keyword
 child-ref       =  RANGE | INT | tag | list | object | anonym-object |
                    query | anonym-query | keyword | wildcard
+wildcard        =  '*'
 
 literal         =  INT | FLOAT | STRING | BOOLEAN
 
@@ -52,9 +52,9 @@ query           =  '{' path expression* '}'
 
 anonym-query    =  '{:' expression* '}'
 
-wildcard        =  '*'
+default-format  =  '(%:' expression* ')'
+default-doc     =  '(?:' expression* ')'
 
-comment         =  '--'
 ```
 
 
