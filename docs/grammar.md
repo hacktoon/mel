@@ -16,7 +16,7 @@ expression      =  tag | prototype | relation | value
 
 tag             =  '#' NAME
 
-prototype       =  '((' path expression* '))'
+prototype       =  '%(' path expression* ')'
 
 relation        =  path sign value
 

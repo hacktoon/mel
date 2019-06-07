@@ -234,14 +234,8 @@ class SubNodeToken(Token):
 
 
 class StartPrototypeToken(Token):
-    id = "(("
-    regex = re.compile(r"\(\(")
-    priority = 1
-
-
-class EndPrototypeToken(Token):
-    id = "))"
-    regex = re.compile(r"\)\)")
+    id = "%("
+    regex = re.compile(r"%\(")
     priority = 1
 
 

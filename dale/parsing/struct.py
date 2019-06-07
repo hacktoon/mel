@@ -71,7 +71,7 @@ class RootParser(StructParser):
 class PrototypeParser(PathStructParser):
     Node = nodes.PrototypeNode
     FirstToken = tokens.StartPrototypeToken
-    LastToken = tokens.EndPrototypeToken
+    LastToken = tokens.EndObjectToken
     Expression = nodes.ObjectExpressionNode
 
 
