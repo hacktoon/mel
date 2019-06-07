@@ -22,7 +22,7 @@ class RelationParser(BaseParser):
         key = self.subparse(nodes.PathNode)
         if not key:
             return
-        sign = self.subparse(nodes.SymbolNode)
+        sign = self.subparse(nodes.SignNode)
         if not sign:
             self.stream.restore()
             return
@@ -37,8 +37,8 @@ class RelationParser(BaseParser):
 
 
 @subparser
-class SymbolParser(MultiParser):
-    Node = nodes.SymbolNode
+class SignParser(MultiParser):
+    Node = nodes.SignNode
     options = (
         nodes.EqualNode,
         nodes.DifferentNode,
