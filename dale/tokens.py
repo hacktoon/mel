@@ -73,7 +73,20 @@ class CommentToken(Token):
 
 class StringToken(Token):
     id = "string"
-    regex = re.compile(r"{}|{}".format(r"'[^']*'", r'"[^"]*"'))
+    regex = re.compile(r"'[^']*'")
+
+    @property
+    def value(self):
+        return str(self)[1:-1]
+
+    @property
+    def newline(self):
+        return re.search(NewlineToken.regex, self.value)
+
+
+class TemplateStringToken(Token):
+    id = "template-string"
+    regex = re.compile(r'"[^"]*"')
 
     @property
     def value(self):

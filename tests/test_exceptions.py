@@ -18,7 +18,7 @@ def test_error_line_and_column():
 
 
 def test_error_text_and_index():
-    text = "name ~"
+    text = "name !!"
     try:
         parse(text)
     except BaseError as error:

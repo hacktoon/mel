@@ -185,8 +185,8 @@ def test_tags(test_input):
 @pytest.mark.parametrize(
     "test_input",
     [
-        ("'etc'"),
         ('"abc"'),
+        ("'etc'"),
         ('[1, -2.3, True]'),
         ('42'),
         ('a/b/c'),
@@ -402,7 +402,7 @@ def test_literal_non_acceptance(test_input):
     [
         ("3", parsing.literal.IntParser),
         ("-3.44", parsing.literal.FloatParser),
-        ('" aaa "', parsing.literal.StringParser),
+        ('" aaa "', parsing.literal.TemplateStringParser),
         ("'foo'", parsing.literal.StringParser),
         ("true", parsing.literal.BooleanParser),
         ("False", parsing.literal.BooleanParser),

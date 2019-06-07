@@ -15,6 +15,7 @@ class LiteralParser(MultiParser):
         nodes.IntNode,
         nodes.FloatNode,
         nodes.StringNode,
+        nodes.TemplateStringNode,
         nodes.BooleanNode
     )
 
@@ -46,4 +47,4 @@ class StringParser(TokenParser):
 @subparser
 class TemplateStringParser(TokenParser):
     Node = nodes.TemplateStringNode
-    Token = tokens.StringToken
+    Token = tokens.TemplateStringToken

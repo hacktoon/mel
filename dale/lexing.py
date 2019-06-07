@@ -31,7 +31,8 @@ class Lexer:
         raise InvalidSyntaxError(token)
 
     def build_token(self, Token=tokens.NullToken, index=None):
-        token = Token(self.text, index or (self.index,) * 2)
+        default_index = (self.index, ) * 2
+        token = Token(self.text, index or default_index)
         token.line = self.line
         token.column = self.column
         return token
