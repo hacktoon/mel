@@ -55,7 +55,7 @@ class PathStructParser(StructParser):
 
 @subparser
 class RootParser(StructParser):
-    Node = nodes.Node
+    Node = nodes.RootNode
     Expression = nodes.ObjectExpressionNode
 
     @indexed

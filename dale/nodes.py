@@ -34,6 +34,12 @@ class Node:
         self.expressions.append(node)
 
 
+# ROOT =================================================
+
+class RootNode(Node):
+    id = "root"
+
+
 # EXPRESSSION =================================================
 
 class ExpressionNode(Node):

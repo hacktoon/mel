@@ -24,7 +24,7 @@ from ..exceptions import (
 
 class Parser(BaseParser):
     def parse(self):
-        node = self.subparse(nodes.Node)
+        node = self.subparse(nodes.RootNode)
         if self.stream.is_eof():
             return node
         token = self.stream.peek()
