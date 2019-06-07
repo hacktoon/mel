@@ -19,21 +19,22 @@ class RelationParser(BaseParser):
     @indexed
     def parse(self):
         self.stream.save()
-        key = self.subparse(nodes.PathNode)
-        if not key:
+        node = self.build_node()
+        node.key = self.subparse(nodes.PathNode)
+        if not node.key:
             return
-        sign = self.subparse(nodes.SignNode)
-        if not sign:
+        node.sign = self.subparse(nodes.SignNode)
+        if not node.sign:
             self.stream.restore()
             return
+        node.value = self.parse_value()
+        return node
+
+    def parse_value(self):
         value = self.subparse(nodes.ValueNode)
         if not value:
             raise ExpectedValueError(self.stream.peek())
-        node = self.build_node()
-        node.key = key
-        node.sign = sign
-        node.value = value
-        return node
+        return value
 
 
 @subparser

@@ -40,7 +40,7 @@ child-ref       =  RANGE | INT | tag | list | object | anonym-object |
                    query | anonym-query | keyword | wildcard
 wildcard        =  '*'
 
-literal         =  INT | FLOAT | STRING | BOOLEAN
+literal         =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
