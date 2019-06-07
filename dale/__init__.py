@@ -32,6 +32,6 @@ def eval(text, context=Context()):
         tree = parse(text)
         context.tree = tree
         context.text = text
-        return tree.eval(context)
+        return tree
     except DaleError as error:
         raise error
