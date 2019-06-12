@@ -30,6 +30,9 @@ class Node:
     def add(self, node):
         self.expressions.append(node)
 
+    def eval(self):
+        return [expr.eval() for expr in self.expressions]
+
 
 # ROOT =================================================
 
@@ -219,6 +222,9 @@ class LiteralNode(Node):
     def __init__(self):
         super().__init__()
         self.value = None
+
+    def eval(self):
+        return self.value
 
 
 class IntNode(LiteralNode):
