@@ -114,7 +114,7 @@ class AnonymObjectParser(AnonymStructParser):
 # QUERY ======================================================
 
 @subparser
-class QueryParser(PathStructParser, StructParser):
+class QueryParser(PathStructParser):
     Node = nodes.QueryNode
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken
