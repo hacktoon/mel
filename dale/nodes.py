@@ -23,30 +23,30 @@ class Node:
 class CompoundNode(Node):
     def __init__(self):
         super().__init__()
-        self.expressions = []
+        self.subnodes = []
 
     def __len__(self):
-        return len(self.expressions)
+        return len(self.subnodes)
 
     def __iter__(self):
-        for node in self.expressions:
+        for node in self.subnodes:
             yield node
 
     def __getitem__(self, index):
-        return self.expressions[index]
+        return self.subnodes[index]
 
     def add(self, node):
-        self.expressions.append(node)
+        self.subnodes.append(node)
 
     def eval(self):
-        return [expr.eval() for expr in self.expressions]
+        return [expr.eval() for expr in self.subnodes]
 
 
 # STRUCT =================================================
 
 class StructNode(CompoundNode):
     def eval(self):
-        return [expr.eval() for expr in self.expressions]
+        return [expr.eval() for expr in self.subnodes]
 
 
 class RootNode(StructNode):
@@ -261,6 +261,9 @@ class TemplateStringNode(LiteralNode):
 
 class PathNode(CompoundNode):
     id = "path"
+
+    def eval(self):
+        return [kw.eval() for kw in self.subnodes]
 
 
 # WILDCARD ========================================================

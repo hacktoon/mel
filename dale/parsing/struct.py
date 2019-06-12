@@ -18,17 +18,15 @@ class StructParser(BaseParser):
     @indexed
     def parse(self):
         node = self.build_node()
-        node.expressions = self.parse_expressions()
+        self.parse_expressions(node)
         return node
 
-    def parse_expressions(self):
-        expressions = []
+    def parse_expressions(self, node):
         while True:
             expression = self.subparse(self.Expression)
             if not expression:
                 break
-            expressions.append(expression)
-        return expressions
+            node.add(expression)
 
 
 # ROOT ======================================================
@@ -48,19 +46,19 @@ class KeyStructParser(StructParser):
             return
         self.stream.read()
         node = self.build_node()
-        node.key = self.parse_key()
-        node.expressions = self.parse_expressions()
+        self.parse_key(node)
+        self.parse_expressions(node)
         self.stream.read(self.LastToken)
         return node
 
-    def parse_key(self):
+    def parse_key(self, _):
         return
 
 
 class PathStructParser(KeyStructParser):
-    def parse_key(self):
+    def parse_key(self, node):
         path = self.parse_path()
-        return path[0]
+        node.key = path[0]
 
     def parse_path(self):
         path = self.subparse(nodes.PathNode)
