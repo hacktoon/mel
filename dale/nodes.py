@@ -34,13 +34,48 @@ class Node:
         return [expr.eval() for expr in self.expressions]
 
 
-# ROOT =================================================
+# STRUCT =================================================
 
-class RootNode(Node):
+class StructNode(Node):
+    def eval(self):
+        return [expr.eval() for expr in self.expressions]
+
+
+class RootNode(StructNode):
     id = "root"
 
 
-# EXPRESSSION =================================================
+class KeyStructNode(StructNode):
+    def __init__(self):
+        super().__init__()
+        self.key = None
+
+
+class ObjectNode(KeyStructNode):
+    id = "object"
+
+
+class AnonymObjectNode(KeyStructNode):
+    id = "anonym-object"
+
+
+class DefaultFormatNode(KeyStructNode):
+    id = "default-format"
+
+
+class DefaultDocNode(KeyStructNode):
+    id = "default-doc"
+
+
+class QueryNode(KeyStructNode):
+    id = "query"
+
+
+class AnonymQueryNode(KeyStructNode):
+    id = "anonym-query"
+
+
+# EXPRESSION =================================================
 
 class ExpressionNode(Node):
     id = "expression"
@@ -116,39 +151,6 @@ class HeadReferenceNode(Node):
 
 class ChildReferenceNode(Node):
     id = "child-reference"
-
-
-# STRUCT ========================================================
-
-class StructNode(Node):
-    def __init__(self):
-        super().__init__()
-        self.key = None
-        self.expressions = []
-
-
-class ObjectNode(StructNode):
-    id = "object"
-
-
-class AnonymObjectNode(StructNode):
-    id = "anonym-object"
-
-
-class DefaultFormatNode(StructNode):
-    id = "default-format"
-
-
-class DefaultDocNode(StructNode):
-    id = "default-doc"
-
-
-class QueryNode(StructNode):
-    id = "query"
-
-
-class AnonymQueryNode(StructNode):
-    id = "anonym-query"
 
 
 # LIST ========================================================
