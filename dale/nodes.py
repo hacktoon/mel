@@ -1,7 +1,6 @@
 
 class Node:
     def __init__(self):
-        self.key = None
         self.expressions = []
         self.text = ""
         self.index = (0, 0)
@@ -193,7 +192,7 @@ class FormatNode(KeywordNode):
     id = "format"
 
 
-class MetaNode(Node):
+class MetaNode(KeywordNode):
     id = "meta"
 
 

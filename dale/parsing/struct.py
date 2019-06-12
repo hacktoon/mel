@@ -17,6 +17,33 @@ class StructParser(BaseParser):
 
     @indexed
     def parse(self):
+        node = self.build_node()
+        node.expressions = self.parse_expressions()
+        return node
+
+    def parse_expressions(self):
+        expressions = []
+        while True:
+            expression = self.subparse(self.Expression)
+            if not expression:
+                break
+            expressions.append(expression)
+        return expressions
+
+
+# ROOT ======================================================
+
+@subparser
+class RootParser(StructParser):
+    Node = nodes.RootNode
+    Expression = nodes.ObjectExpressionNode
+
+
+# KEY STRUCT  ============================================
+
+class KeyStructParser(StructParser):
+    @indexed
+    def parse(self):
         if not self.stream.is_next(self.FirstToken):
             return
         self.stream.read()
@@ -29,17 +56,8 @@ class StructParser(BaseParser):
     def parse_key(self):
         return
 
-    def parse_expressions(self):
-        expressions = []
-        while True:
-            expression = self.subparse(self.Expression)
-            if not expression:
-                break
-            expressions.append(expression)
-        return expressions
 
-
-class PathStructParser(StructParser):
+class PathStructParser(KeyStructParser):
     def parse_key(self):
         path = self.parse_path()
         return path[0]
@@ -51,31 +69,25 @@ class PathStructParser(StructParser):
         self.error(KeyNotFoundError)
 
 
-# ROOT ======================================================
+class AnonymStructParser(KeyStructParser):
+    pass
 
-@subparser
-class RootParser(StructParser):
-    Node = nodes.RootNode
-    Expression = nodes.ObjectExpressionNode
 
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        node.expressions = self.parse_expressions()
-        return node
+class DefaultStructParser(KeyStructParser):
+    pass
 
 
 # DEFAULT EXPRESSION STRUCTS ==================================
 
 @subparser
-class DefaultFormatParser(StructParser):
+class DefaultFormatParser(DefaultStructParser):
     Node = nodes.DefaultFormatNode
     FirstToken = tokens.StartDefaultFormatToken
     LastToken = tokens.EndObjectToken
 
 
 @subparser
-class DefaultDocParser(StructParser):
+class DefaultDocParser(DefaultStructParser):
     Node = nodes.DefaultDocNode
     FirstToken = tokens.StartDefaultDocToken
     LastToken = tokens.EndObjectToken
@@ -92,7 +104,7 @@ class ObjectParser(PathStructParser):
 
 
 @subparser
-class AnonymObjectParser(StructParser):
+class AnonymObjectParser(AnonymStructParser):
     Node = nodes.AnonymObjectNode
     FirstToken = tokens.StartAnonymObjectToken
     LastToken = tokens.EndObjectToken
@@ -109,7 +121,7 @@ class QueryParser(PathStructParser, StructParser):
 
 
 @subparser
-class AnonymQueryParser(StructParser):
+class AnonymQueryParser(AnonymStructParser):
     Node = nodes.AnonymQueryNode
     FirstToken = tokens.StartAnonymQueryToken
     LastToken = tokens.EndQueryToken
