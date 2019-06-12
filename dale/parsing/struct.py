@@ -81,14 +81,14 @@ class DefaultStructParser(KeyStructParser):
 
 @subparser
 class DefaultFormatParser(DefaultStructParser):
-    Node = nodes.DefaultFormatNode
+    Node = nodes.DefaultFormatKeywordNode
     FirstToken = tokens.StartDefaultFormatToken
     LastToken = tokens.EndObjectToken
 
 
 @subparser
 class DefaultDocParser(DefaultStructParser):
-    Node = nodes.DefaultDocNode
+    Node = nodes.DefaultDocKeywordNode
     FirstToken = tokens.StartDefaultDocToken
     LastToken = tokens.EndObjectToken
 

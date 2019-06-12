@@ -36,7 +36,7 @@ class Parser(BaseParser):
 class ExpressionParser(MultiParser):
     Node = nodes.ExpressionNode
     options = (
-        nodes.TagNode,
+        nodes.TagKeywordNode,
         nodes.RelationNode,
         nodes.ValueNode
     )
@@ -47,8 +47,8 @@ class ObjectExpressionParser(MultiParser):
     Node = nodes.ObjectExpressionNode
     options = (
         nodes.ExpressionNode,
-        nodes.DefaultFormatNode,
-        nodes.DefaultDocNode
+        nodes.DefaultFormatKeywordNode,
+        nodes.DefaultDocKeywordNode
     )
 
 

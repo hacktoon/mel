@@ -53,7 +53,7 @@ class ChildReferenceParser(MultiParser):
     Node = nodes.ChildReferenceNode
     options = (
         nodes.WildcardNode,
-        nodes.TagNode,
+        nodes.TagKeywordNode,
         nodes.RangeNode,
         nodes.IntNode,
         nodes.ListNode,

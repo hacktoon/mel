@@ -67,11 +67,11 @@ class AnonymObjectNode(KeyStructNode):
     id = "anonym-object"
 
 
-class DefaultFormatNode(KeyStructNode):
+class DefaultFormatKeywordNode(KeyStructNode):
     id = "default-format"
 
 
-class DefaultDocNode(KeyStructNode):
+class DefaultDocKeywordNode(KeyStructNode):
     id = "default-doc"
 
 
@@ -177,40 +177,40 @@ class KeywordNode(Node):
         self.value = ""
 
 
-class NameNode(KeywordNode):
-    id = "name"
+class NameKeywordNode(KeywordNode):
+    id = "name-keyword"
 
 
-class ConceptNode(NameNode):
-    id = "concept"
+class ConceptKeywordNode(NameKeywordNode):
+    id = "concept-keyword"
 
 
-class TagNode(KeywordNode):
-    id = "tag"
+class TagKeywordNode(KeywordNode):
+    id = "tag-keyword"
 
 
-class LogNode(KeywordNode):
-    id = "log"
+class LogKeywordNode(KeywordNode):
+    id = "log-keyword"
 
 
-class AliasNode(KeywordNode):
-    id = "alias"
+class AliasKeywordNode(KeywordNode):
+    id = "alias-keyword"
 
 
-class CacheNode(KeywordNode):
-    id = "cache"
+class CacheKeywordNode(KeywordNode):
+    id = "cache-keyword"
 
 
-class FormatNode(KeywordNode):
-    id = "format"
+class FormatKeywordNode(KeywordNode):
+    id = "format-keyword"
 
 
-class MetaNode(KeywordNode):
-    id = "meta"
+class MetaKeywordNode(KeywordNode):
+    id = "meta-keyword"
 
 
-class DocNode(KeywordNode):
-    id = "doc"
+class DocKeywordNode(KeywordNode):
+    id = "doc-keyword"
 
 
 # RANGE ========================================================

@@ -153,7 +153,7 @@ def test_object_index():
 @pytest.mark.parametrize(
     "test_input, refnode",
     [
-        ("#foo", nodes.TagNode),
+        ("#foo", nodes.TagKeywordNode),
         ("x = 3", nodes.RelationNode),
         ("x != 3", nodes.RelationNode),
         ("44", nodes.IntNode),
@@ -177,7 +177,7 @@ def test_expression(test_input, refnode):
 )
 def test_tags(test_input):
     node = parse(test_input, parsing.keyword.TagParser)
-    assert node.id == nodes.TagNode.id
+    assert node.id == nodes.TagKeywordNode.id
 
 
 # VALUE ======================================================
@@ -275,11 +275,11 @@ def test_path_length(test_input, total):
 @pytest.mark.parametrize(
     "test_input, expected",
     [
-        ("foo", nodes.NameNode),
-        ("Bar", nodes.ConceptNode),
-        ("@code", nodes.AliasNode),
-        ("%code", nodes.FormatNode),
-        ("?code", nodes.DocNode)
+        ("foo", nodes.NameKeywordNode),
+        ("Bar", nodes.ConceptKeywordNode),
+        ("@code", nodes.AliasKeywordNode),
+        ("%code", nodes.FormatKeywordNode),
+        ("?code", nodes.DocKeywordNode)
     ]
 )
 def test_path_single_node_ids(test_input, expected):

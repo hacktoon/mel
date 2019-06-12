@@ -16,26 +16,26 @@ from ..exceptions import NameNotFoundError
 class KeywordParser(MultiParser):
     Node = nodes.KeywordNode
     options = (
-        nodes.NameNode,
-        nodes.ConceptNode,
-        nodes.LogNode,
-        nodes.AliasNode,
-        nodes.CacheNode,
-        nodes.FormatNode,
-        nodes.MetaNode,
-        nodes.DocNode
+        nodes.NameKeywordNode,
+        nodes.ConceptKeywordNode,
+        nodes.LogKeywordNode,
+        nodes.AliasKeywordNode,
+        nodes.CacheKeywordNode,
+        nodes.FormatKeywordNode,
+        nodes.MetaKeywordNode,
+        nodes.DocKeywordNode
     )
 
 
 @subparser
 class NameParser(TokenParser):
-    Node = nodes.NameNode
+    Node = nodes.NameKeywordNode
     Token = tokens.NameToken
 
 
 @subparser
 class ConceptParser(TokenParser):
-    Node = nodes.ConceptNode
+    Node = nodes.ConceptKeywordNode
     Token = tokens.ConceptToken
 
 
@@ -54,41 +54,41 @@ class PrefixedNameParser(BaseParser):
 
 @subparser
 class TagParser(PrefixedNameParser):
-    Node = nodes.TagNode
+    Node = nodes.TagKeywordNode
     Token = tokens.TagPrefixToken
 
 
 @subparser
 class LogParser(PrefixedNameParser):
-    Node = nodes.LogNode
+    Node = nodes.LogKeywordNode
     Token = tokens.LogPrefixToken
 
 
 @subparser
 class AliasParser(PrefixedNameParser):
-    Node = nodes.AliasNode
+    Node = nodes.AliasKeywordNode
     Token = tokens.AliasPrefixToken
 
 
 @subparser
 class CacheParser(PrefixedNameParser):
-    Node = nodes.CacheNode
+    Node = nodes.CacheKeywordNode
     Token = tokens.CachePrefixToken
 
 
 @subparser
 class FormatParser(PrefixedNameParser):
-    Node = nodes.FormatNode
+    Node = nodes.FormatKeywordNode
     Token = tokens.FormatPrefixToken
 
 
 @subparser
 class DocParser(PrefixedNameParser):
-    Node = nodes.DocNode
+    Node = nodes.DocKeywordNode
     Token = tokens.DocPrefixToken
 
 
 @subparser
 class MetaParser(PrefixedNameParser):
-    Node = nodes.MetaNode
+    Node = nodes.MetaKeywordNode
     Token = tokens.MetaPrefixToken
