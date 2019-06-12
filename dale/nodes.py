@@ -1,15 +1,11 @@
 
 class Node:
     def __init__(self):
-        self.expressions = []
         self.text = ""
         self.index = (0, 0)
 
     def __bool__(self):
         return True
-
-    def __len__(self):
-        return len(self.expressions)
 
     def __str__(self):
         first, last = self.index
@@ -20,12 +16,24 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def __getitem__(self, index):
-        return self.expressions[index]
+    def eval(self):
+        return str(self)
+
+
+class CompoundNode(Node):
+    def __init__(self):
+        super().__init__()
+        self.expressions = []
+
+    def __len__(self):
+        return len(self.expressions)
 
     def __iter__(self):
         for node in self.expressions:
             yield node
+
+    def __getitem__(self, index):
+        return self.expressions[index]
 
     def add(self, node):
         self.expressions.append(node)
@@ -36,7 +44,7 @@ class Node:
 
 # STRUCT =================================================
 
-class StructNode(Node):
+class StructNode(CompoundNode):
     def eval(self):
         return [expr.eval() for expr in self.expressions]
 
@@ -141,7 +149,7 @@ class ValueNode(Node):
 
 # REFERENCE ========================================================
 
-class ReferenceNode(Node):
+class ReferenceNode(CompoundNode):
     id = "reference"
 
 
@@ -155,7 +163,7 @@ class ChildReferenceNode(Node):
 
 # LIST ========================================================
 
-class ListNode(Node):
+class ListNode(CompoundNode):
     id = "list"
 
 
@@ -251,7 +259,7 @@ class TemplateStringNode(LiteralNode):
 
 # PATH ========================================================
 
-class PathNode(Node):
+class PathNode(CompoundNode):
     id = "path"
 
 
