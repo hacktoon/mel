@@ -38,6 +38,8 @@ def test_subparser_invalid_node_id():
         parsing.base.get_subparser("x", stream)
 
 
+# PARSER ===========================================
+
 def test_empty_input_string():
     node = parse("")
     assert node.id == nodes.RootNode.id
@@ -49,6 +51,8 @@ def test_whitespace_only():
     assert node.id == nodes.RootNode.id
     assert len(node) == 0
 
+
+# TO STRING ===========================================
 
 @pytest.mark.parametrize(
     "test_input",
@@ -70,6 +74,8 @@ def test_string_representation(test_input):
     assert str(tree) == test_input
 
 
+# REPR ===========================================
+
 @pytest.mark.parametrize(
     "test_input, expected",
     [
@@ -78,7 +84,7 @@ def test_string_representation(test_input):
         ("id", "REFERENCE('id')"),
         ("@path", "REFERENCE('@path')"),
         ("(bar 42)", "OBJECT('(bar 42)')"),
-        ('[bar "etc"]', "LIST('[bar \"etc\"]')")
+        ('["bar" "etc"]', "LIST('[\"bar\" \"etc\"]')")
     ],
 )
 def test_node_representation(test_input, expected):
