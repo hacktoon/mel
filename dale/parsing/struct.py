@@ -37,9 +37,9 @@ class RootParser(StructParser):
     Expression = nodes.ObjectExpressionNode
 
 
-# KEY STRUCT  ============================================
+# SCOPE STRUCT  ============================================
 
-class KeyStructParser(StructParser):
+class ScopeStructParser(StructParser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.FirstToken):
@@ -55,7 +55,7 @@ class KeyStructParser(StructParser):
         return
 
 
-class PathStructParser(KeyStructParser):
+class PathStructParser(ScopeStructParser):
     def parse_key(self, node):
         path = self.parse_path()
         node.key = path[0]
@@ -67,25 +67,17 @@ class PathStructParser(KeyStructParser):
         self.error(KeyNotFoundError)
 
 
-class AnonymStructParser(KeyStructParser):
-    pass
-
-
-class DefaultStructParser(KeyStructParser):
-    pass
-
-
 # DEFAULT EXPRESSION STRUCTS ==================================
 
 @subparser
-class DefaultFormatParser(DefaultStructParser):
+class DefaultFormatParser(ScopeStructParser):
     Node = nodes.DefaultFormatKeywordNode
     FirstToken = tokens.StartDefaultFormatToken
     LastToken = tokens.EndObjectToken
 
 
 @subparser
-class DefaultDocParser(DefaultStructParser):
+class DefaultDocParser(ScopeStructParser):
     Node = nodes.DefaultDocKeywordNode
     FirstToken = tokens.StartDefaultDocToken
     LastToken = tokens.EndObjectToken
@@ -102,7 +94,7 @@ class ObjectParser(PathStructParser):
 
 
 @subparser
-class AnonymObjectParser(AnonymStructParser):
+class AnonymObjectParser(ScopeStructParser):
     Node = nodes.AnonymObjectNode
     FirstToken = tokens.StartAnonymObjectToken
     LastToken = tokens.EndObjectToken
@@ -119,7 +111,7 @@ class QueryParser(PathStructParser):
 
 
 @subparser
-class AnonymQueryParser(AnonymStructParser):
+class AnonymQueryParser(ScopeStructParser):
     Node = nodes.AnonymQueryNode
     FirstToken = tokens.StartAnonymQueryToken
     LastToken = tokens.EndQueryToken

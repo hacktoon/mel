@@ -53,33 +53,39 @@ class RootNode(StructNode):
     id = "root"
 
 
-class KeyStructNode(StructNode):
+class ScopeStructNode(StructNode):
     def __init__(self):
         super().__init__()
         self.key = None
 
 
-class ObjectNode(KeyStructNode):
+# OBJECT STRUCTS =================================================
+
+class ObjectNode(ScopeStructNode):
     id = "object"
 
 
-class AnonymObjectNode(KeyStructNode):
+class AnonymObjectNode(ScopeStructNode):
     id = "anonym-object"
 
 
-class DefaultFormatKeywordNode(KeyStructNode):
+# DEFAULT STRUCTS =================================================
+
+class DefaultFormatKeywordNode(ScopeStructNode):
     id = "default-format"
 
 
-class DefaultDocKeywordNode(KeyStructNode):
+class DefaultDocKeywordNode(ScopeStructNode):
     id = "default-doc"
 
 
-class QueryNode(KeyStructNode):
+# QUERY STRUCTS =================================================
+
+class QueryNode(ScopeStructNode):
     id = "query"
 
 
-class AnonymQueryNode(KeyStructNode):
+class AnonymQueryNode(ScopeStructNode):
     id = "anonym-query"
 
 
