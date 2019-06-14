@@ -29,15 +29,15 @@ class RelationParser(MultiParser):
 class PathRelationParser(BaseParser):
     @indexed
     def parse(self):
-        node = self.build_node()
         self.stream.save()
         path = self.subparse(nodes.PathNode)
         if not path:
             return
-        if not self.stream.is_next(self.Token):
+        if not self.stream.is_next(self.SignToken):
             self.stream.restore()
             return
         self.stream.read()
+        node = self.build_node()
         node.path = path
         node.value = self.parse_value()
         return node
@@ -52,46 +52,46 @@ class PathRelationParser(BaseParser):
 @subparser
 class EqualParser(PathRelationParser):
     Node = nodes.EqualNode
-    Token = tokens.EqualToken
+    SignToken = tokens.EqualToken
 
 
 @subparser
 class DifferentParser(PathRelationParser):
     Node = nodes.DifferentNode
-    Token = tokens.DifferentToken
+    SignToken = tokens.DifferentToken
 
 
 @subparser
 class GreaterThanParser(PathRelationParser):
     Node = nodes.GreaterThanNode
-    Token = tokens.GreaterThanToken
+    SignToken = tokens.GreaterThanToken
 
 
 @subparser
 class GreaterThanEqualParser(PathRelationParser):
     Node = nodes.GreaterThanEqualNode
-    Token = tokens.GreaterThanEqualToken
+    SignToken = tokens.GreaterThanEqualToken
 
 
 @subparser
 class LessThanParser(PathRelationParser):
     Node = nodes.LessThanNode
-    Token = tokens.LessThanToken
+    SignToken = tokens.LessThanToken
 
 
 @subparser
 class LessThanEqualParser(PathRelationParser):
     Node = nodes.LessThanEqualNode
-    Token = tokens.LessThanEqualToken
+    SignToken = tokens.LessThanEqualToken
 
 
 @subparser
 class InParser(PathRelationParser):
     Node = nodes.InNode
-    Token = tokens.InToken
+    SignToken = tokens.InToken
 
 
 @subparser
 class NotInParser(PathRelationParser):
     Node = nodes.NotInNode
-    Token = tokens.NotInToken
+    SignToken = tokens.NotInToken
