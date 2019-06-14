@@ -49,14 +49,14 @@ class StructNode(CompoundNode):
         return [expr.eval() for expr in self.subnodes]
 
 
-class RootNode(StructNode):
-    id = "root"
-
-
 class ScopeStructNode(StructNode):
     def __init__(self):
         super().__init__()
         self.key = None
+
+
+class RootNode(StructNode):
+    id = "root"
 
 
 # OBJECT STRUCTS =================================================
