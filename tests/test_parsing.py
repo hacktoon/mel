@@ -509,15 +509,9 @@ def test_struct_object_expression(test_input, Parser):
 
 # OBJECT ===================================================
 
-def test_object_with_key_and_no_value():
+def test_object_with_no_value():
     node = parse("(a)", struct.ObjectParser)
-    assert str(node.key) == "a"
     assert len(node) == 0
-
-
-def test_object_key_assumes_first_value():
-    node = parse("(foo 42)", struct.ObjectParser)
-    assert str(node.key) == "foo"
 
 
 @pytest.mark.parametrize(
@@ -525,12 +519,12 @@ def test_object_key_assumes_first_value():
     [
         ("(foo 42)", 'foo'),
         ("(etc 'test')", 'etc'),
-        ("(a/b 4 6 7)", 'a'),
+        ("(a/b 4 6 7)", 'a/b'),
     ]
 )
-def test_object_key_string_repr(test_input, value):
+def test_object_path_string_repr(test_input, value):
     node = parse(test_input, struct.ObjectParser)
-    assert str(node.key) == value
+    assert str(node.path) == value
 
 
 @pytest.mark.parametrize(
@@ -563,7 +557,6 @@ def test_object_unexpected_expression(test_input):
 
 def test_anonym_object_value():
     node = parse("(: x = 2)", struct.AnonymObjectParser)
-    assert not node.key
     assert str(node[0]) == "x = 2"
 
 
@@ -571,7 +564,6 @@ def test_anonym_object_value():
 
 def test_query_key_single_value():
     node = parse("{abc 42}", struct.QueryParser)
-    assert str(node.key) == "abc"
     assert node[0].value == 42
 
 
@@ -579,5 +571,4 @@ def test_query_key_single_value():
 
 def test_anonym_query_value():
     node = parse("{: 42}", struct.AnonymQueryParser)
-    assert not node.key
     assert node[0].value == 42

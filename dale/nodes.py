@@ -49,10 +49,14 @@ class StructNode(CompoundNode):
         return [expr.eval() for expr in self.subnodes]
 
 
-class ScopeStructNode(StructNode):
+class MetaStructNode(StructNode):
+    pass
+
+
+class PathStructNode(StructNode):
     def __init__(self):
         super().__init__()
-        self.key = None
+        self.path = PathNode()
 
 
 class RootNode(StructNode):
@@ -61,31 +65,31 @@ class RootNode(StructNode):
 
 # OBJECT STRUCTS =================================================
 
-class ObjectNode(ScopeStructNode):
+class ObjectNode(PathStructNode):
     id = "object"
 
 
-class AnonymObjectNode(ScopeStructNode):
+class AnonymObjectNode(MetaStructNode):
     id = "anonym-object"
 
 
 # DEFAULT STRUCTS =================================================
 
-class DefaultFormatKeywordNode(ScopeStructNode):
+class DefaultFormatKeywordNode(MetaStructNode):
     id = "default-format"
 
 
-class DefaultDocKeywordNode(ScopeStructNode):
+class DefaultDocKeywordNode(MetaStructNode):
     id = "default-doc"
 
 
 # QUERY STRUCTS =================================================
 
-class QueryNode(ScopeStructNode):
+class QueryNode(PathStructNode):
     id = "query"
 
 
-class AnonymQueryNode(ScopeStructNode):
+class AnonymQueryNode(MetaStructNode):
     id = "anonym-query"
 
 
