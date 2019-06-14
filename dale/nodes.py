@@ -110,44 +110,39 @@ class RelationNode(Node):
 
     def __init__(self):
         super().__init__()
-        self.key = None
-        self.sign = None
-        self.value = None
+        self.path = PathNode()
+        self.value = ValueNode()
 
 
-class SignNode(Node):
-    id = "sign"
-
-
-class EqualNode(SignNode):
+class EqualNode(RelationNode):
     id = "equal"
 
 
-class DifferentNode(SignNode):
+class DifferentNode(RelationNode):
     id = "different"
 
 
-class GreaterThanNode(SignNode):
+class GreaterThanNode(RelationNode):
     id = "greater_than"
 
 
-class GreaterThanEqualNode(SignNode):
+class GreaterThanEqualNode(RelationNode):
     id = "greater_than_equal"
 
 
-class LessThanNode(SignNode):
+class LessThanNode(RelationNode):
     id = "less_than"
 
 
-class LessThanEqualNode(SignNode):
+class LessThanEqualNode(RelationNode):
     id = "less_than_equal"
 
 
-class InNode(SignNode):
+class InNode(RelationNode):
     id = "in"
 
 
-class NotInNode(SignNode):
+class NotInNode(RelationNode):
     id = "not_in"
 
 

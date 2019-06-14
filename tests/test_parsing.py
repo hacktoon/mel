@@ -160,8 +160,8 @@ def test_object_index():
     "test_input, refnode",
     [
         ("#foo", nodes.TagKeywordNode),
-        ("x = 3", nodes.RelationNode),
-        ("x != 3", nodes.RelationNode),
+        ("x = 3", nodes.EqualNode),
+        ("x != 3", nodes.DifferentNode),
         ("44", nodes.IntNode),
         ("'foo'", nodes.StringNode),
     ]
@@ -458,19 +458,18 @@ def test_range_only_accepts_integers():
 # RELATION =================================================
 
 @pytest.mark.parametrize(
-    "test_input, key, sign, value",
+    "test_input, path, value",
     [
-        ("x = 4", 'x', '=', '4'),
-        ("x >< -5", 'x', '><', '-5'),
-        ("a/b <> foo", 'a/b', '<>', 'foo'),
-        ("x/y != 64", 'x/y', '!=', '64'),
-        ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '>', '[1, 2]'),
+        ("x = 4", 'x', '4'),
+        ("x >< -5", 'x', '-5'),
+        ("a/b <> foo", 'a/b', 'foo'),
+        ("x/y != 64", 'x/y', '64'),
+        ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '[1, 2]'),
     ]
 )
-def test_relation_components(test_input, key, sign, value):
+def test_relation_components(test_input, path, value):
     node = parse(test_input, parsing.relation.RelationParser)
-    assert str(node.key) == key
-    assert str(node.sign) == sign
+    assert str(node.path) == path
     assert str(node.value) == value
 
 
