@@ -24,6 +24,8 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.subnodes = []
+        self.props = {}
+        self.values = []
 
     def __len__(self):
         return len(self.subnodes)
