@@ -16,11 +16,11 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def eval(self):
+    def eval(self, _):
         return str(self)
 
 
-class CompoundNode(Node):
+class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.subnodes = []
@@ -38,16 +38,11 @@ class CompoundNode(Node):
     def add(self, node):
         self.subnodes.append(node)
 
-    def eval(self):
-        return [expr.eval() for expr in self.subnodes]
+    def eval(self, parent):
+        return [expr.eval(self) for expr in self.subnodes]
 
 
-# STRUCT =================================================
-
-class StructNode(CompoundNode):
-    def eval(self):
-        return [expr.eval() for expr in self.subnodes]
-
+# SPECIALIZED STRUCTS =================================================
 
 class MetaStructNode(StructNode):
     pass
@@ -58,6 +53,8 @@ class PathStructNode(StructNode):
         super().__init__()
         self.path = PathNode()
 
+
+# ROOT STRUCT =================================================
 
 class RootNode(StructNode):
     id = "root"
@@ -154,7 +151,7 @@ class ValueNode(Node):
 
 # REFERENCE ========================================================
 
-class ReferenceNode(CompoundNode):
+class ReferenceNode(StructNode):
     id = "reference"
 
 
@@ -168,7 +165,7 @@ class ChildReferenceNode(Node):
 
 # LIST ========================================================
 
-class ListNode(CompoundNode):
+class ListNode(StructNode):
     id = "list"
 
 
@@ -264,7 +261,7 @@ class TemplateStringNode(LiteralNode):
 
 # PATH ========================================================
 
-class PathNode(CompoundNode):
+class PathNode(StructNode):
     id = "path"
 
     def eval(self):
