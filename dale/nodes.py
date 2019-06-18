@@ -16,8 +16,8 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def eval(self, _):
-        return str(self)
+    def _hook_into(self, _):
+        return
 
 
 class StructNode(Node):
@@ -39,12 +39,10 @@ class StructNode(Node):
 
     def add(self, node):
         self.subnodes.append(node)
-
-    def eval(self, parent):
-        return [expr.eval(self) for expr in self.subnodes]
+        # node._hook_into(self)
 
 
-# SPECIALIZED STRUCTS =================================================
+# ABSTRACT STRUCTS =================================================
 
 class MetaStructNode(StructNode):
     pass
@@ -56,20 +54,28 @@ class PathStructNode(StructNode):
         self.path = PathNode()
 
 
-# ROOT STRUCT =================================================
+# ROOT STRUCT =========================================================
 
 class RootNode(StructNode):
     id = "root"
 
 
-# OBJECT STRUCTS =================================================
+# OBJECT STRUCTS ======================================================
 
 class ObjectNode(PathStructNode):
     id = "object"
 
+    def _hook_into(self, parent_struct):
+        key = self.path[0]
+        parent_struct.props[key.id][key.value] = self
+
 
 class AnonymObjectNode(MetaStructNode):
     id = "anonym-object"
+
+    def _hook_into(self, parent_struct):
+        for node in self.subnodes:
+            parent_struct.add(node)
 
 
 # DEFAULT STRUCTS =================================================
@@ -77,9 +83,15 @@ class AnonymObjectNode(MetaStructNode):
 class DefaultFormatKeywordNode(MetaStructNode):
     id = "default-format"
 
+    def _hook_into(self, parent_struct):
+        parent_struct.default_format = self
+
 
 class DefaultDocKeywordNode(MetaStructNode):
     id = "default-doc"
+
+    def _hook_into(self, parent_struct):
+        parent_struct.default_doc = self
 
 
 # QUERY STRUCTS =================================================
