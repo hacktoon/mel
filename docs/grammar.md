@@ -19,7 +19,6 @@ tag             =  '#' NAME
 relation        =  path sign value
 
 path            =  keyword ( '/' keyword )*
-
 keyword         =  NAME | CONCEPT | log | alias | cache | format | meta | doc
 log             =  '!' NAME
 alias           =  '@' NAME
