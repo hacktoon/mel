@@ -16,9 +16,6 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def _hook_into(self, _):
-        return
-
 
 class StructNode(Node):
     def __init__(self):
@@ -39,7 +36,6 @@ class StructNode(Node):
 
     def add(self, node):
         self.subnodes.append(node)
-        # node._hook_into(self)
 
 
 # ABSTRACT STRUCTS =================================================
@@ -65,17 +61,9 @@ class RootNode(StructNode):
 class ObjectNode(PathStructNode):
     id = "object"
 
-    def _hook_into(self, parent_struct):
-        key = self.path[0]
-        parent_struct.props[key.id][key.value] = self
-
 
 class AnonymObjectNode(MetaStructNode):
     id = "anonym-object"
-
-    def _hook_into(self, parent_struct):
-        for node in self.subnodes:
-            parent_struct.add(node)
 
 
 # DEFAULT STRUCTS =================================================
