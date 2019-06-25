@@ -95,6 +95,20 @@ class ObjectParser(PathStructParser):
     LastToken = tokens.EndObjectToken
     Expression = nodes.ObjectExpressionNode
 
+    def _build_path(self, node):
+        key, *keywords = node.path
+        node.key = key
+        for keyword in keywords:
+            subnode = self.build_node()
+            subnode.key = keyword
+            node.add(subnode)
+            node = subnode
+        return node
+
+    def parse_expressions(self, node):
+        node = self._build_path(node)
+        super().parse_expressions(node)
+
 
 @subparser
 class AnonymObjectParser(MetaStructParser):

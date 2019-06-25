@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 
 class Node:
     def __init__(self):
@@ -27,7 +29,7 @@ class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.subnodes = []
-        self.props = {}
+        self.props = defaultdict(dict)
         self.values = []
 
     def __len__(self):
@@ -45,8 +47,6 @@ class StructNode(Node):
         node._hook_into(self)
 
     def add_prop(self, id, name, node):
-        if id not in self.props:
-            return
         self.props[id][name] = node
 
     def eval(self):
@@ -77,7 +77,7 @@ class ObjectNode(PathStructNode):
     id = "object"
 
     def _hook_into(self, parent):
-        key = self.path[0]
+        key = self.key
         parent.add_prop(key.id, key.value, self)
 
     def eval(self):
