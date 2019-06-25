@@ -506,6 +506,18 @@ def test_struct_object_expression(test_input, Parser):
     assert parse(test_input)
 
 
+@pytest.mark.parametrize(
+    "test_input, tags",
+    [
+        ("(foo #bar)", ['bar']),
+        ("(foo #bar #baz)", ['bar', 'baz']),
+    ]
+)
+def test_struct_tags(test_input, tags):
+    _object = parse(test_input, struct.ObjectParser)
+    assert _object.tags == set(tags)
+
+
 # OBJECT ===================================================
 
 def test_object_with_no_value():

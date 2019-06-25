@@ -22,13 +22,14 @@ class Node:
         parent.values.append(self)
 
     def eval(self):
-        return str(self)
+        return
 
 
 class StructNode(Node):
     def __init__(self):
         super().__init__()
         self.subnodes = []
+        self.tags = set()
         self.props = defaultdict(dict)
         self.values = []
 
@@ -46,11 +47,11 @@ class StructNode(Node):
         self.subnodes.append(node)
         node._hook_into(self)
 
+    def add_tag(self, name):
+        self.tags.add(name)
+
     def add_prop(self, id, name, node):
         self.props[id][name] = node
-
-    def eval(self):
-        return str(self)
 
 
 # ABSTRACT STRUCTS =================================================
@@ -87,11 +88,9 @@ class ObjectNode(PathStructNode):
 class AnonymObjectNode(MetaStructNode):
     id = "anonym-object"
 
-    def _hook_into(self, _):
-        return
-
-    def eval(self):
-        return
+    def _hook_into(self, parent):
+        for node in self.subnodes:
+            parent.add(node)
 
 
 # DEFAULT STRUCTS =================================================
@@ -99,15 +98,15 @@ class AnonymObjectNode(MetaStructNode):
 class DefaultFormatKeywordNode(MetaStructNode):
     id = "default-format"
 
-    def _hook_into(self, parent_struct):
-        parent_struct.default_format = self
+    def _hook_into(self, parent):
+        parent.default_format = self
 
 
 class DefaultDocKeywordNode(MetaStructNode):
     id = "default-doc"
 
-    def _hook_into(self, parent_struct):
-        parent_struct.default_doc = self
+    def _hook_into(self, parent):
+        parent.default_doc = self
 
 
 # QUERY STRUCTS =================================================
@@ -220,6 +219,9 @@ class ConceptKeywordNode(NameKeywordNode):
 class TagKeywordNode(KeywordNode):
     id = "tag-keyword"
 
+    def _hook_into(self, parent):
+        parent.add_tag(self.value)
+
 
 class LogKeywordNode(KeywordNode):
     id = "log-keyword"
@@ -265,7 +267,7 @@ class LiteralNode(Node):
         super().__init__()
         self.value = None
 
-    def eval(self):
+    def eval(self, _):
         return self.value
 
 
@@ -293,9 +295,6 @@ class TemplateStringNode(LiteralNode):
 
 class PathNode(StructNode):
     id = "path"
-
-    def eval(self):
-        return [kw.eval() for kw in self.subnodes]
 
 
 # WILDCARD ========================================================
