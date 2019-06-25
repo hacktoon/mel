@@ -139,6 +139,9 @@ class RelationNode(Node):
         self.path = PathNode()
         self.value = ValueNode()
 
+    def _hook_into(self, parent):
+        pass #parent.add_prop()
+
 
 class EqualNode(RelationNode):
     id = "equal"

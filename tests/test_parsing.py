@@ -518,6 +518,19 @@ def test_struct_tags(test_input, tags):
     assert _object.tags == set(tags)
 
 
+@pytest.mark.parametrize(
+    "test_input, props",
+    [
+        ("(foo (etc 2))", [nodes.NameKeywordNode, 'etc']),
+        ("(foo (@abc test))", [nodes.AliasKeywordNode, 'abc']),
+    ]
+)
+def test_struct_props(test_input, props):
+    Node, name = props
+    _object = parse(test_input, struct.ObjectParser)
+    assert name in _object.props[Node.id]
+
+
 # OBJECT ===================================================
 
 def test_object_with_no_value():
