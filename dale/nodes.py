@@ -16,6 +16,12 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
+    def _hook_into(self, _):
+        return
+
+    def eval(self):
+        return str(self)
+
 
 class StructNode(Node):
     def __init__(self):
@@ -36,6 +42,15 @@ class StructNode(Node):
 
     def add(self, node):
         self.subnodes.append(node)
+        node._hook_into(self)
+
+    def add_prop(self, id, name, node):
+        if id not in self.props:
+            return
+        self.props[id][name] = node
+
+    def eval(self):
+        return str(self)
 
 
 # ABSTRACT STRUCTS =================================================
@@ -61,9 +76,22 @@ class RootNode(StructNode):
 class ObjectNode(PathStructNode):
     id = "object"
 
+    def _hook_into(self, parent):
+        key = self.path[0]
+        parent.add_prop(key.id, key.value, self)
+
+    def eval(self):
+        return str(self)
+
 
 class AnonymObjectNode(MetaStructNode):
     id = "anonym-object"
+
+    def _hook_into(self, _):
+        return
+
+    def eval(self):
+        return
 
 
 # DEFAULT STRUCTS =================================================
