@@ -18,8 +18,8 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def _hook_into(self, _):
-        return
+    def _hook_into(self, parent):
+        parent.values.append(self)
 
     def eval(self):
         return str(self)
