@@ -140,7 +140,8 @@ class RelationNode(Node):
         self.value = ValueNode()
 
     def _hook_into(self, parent):
-        pass  # parent.add_prop()
+        key = self.path[0]
+        parent.add_prop(key.id, key.value, self)
 
 
 class EqualNode(RelationNode):
