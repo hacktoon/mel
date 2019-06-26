@@ -584,7 +584,7 @@ def test_anonym_object_value():
     assert str(node[0]) == "x = 2"
 
 
-def test_struct_props():
+def test_anonym_object_props():
     _object = parse("(foo (: (abc 3)))", struct.ObjectParser)
     assert "abc" in _object.props[nodes.NameKeywordNode.id]
 

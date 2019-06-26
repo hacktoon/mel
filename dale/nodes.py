@@ -19,7 +19,7 @@ class Node:
         return template.format(id, self)
 
     def _hook_into(self, parent):
-        parent.values.append(self)
+        return
 
     def eval(self):
         return
@@ -140,7 +140,7 @@ class RelationNode(Node):
         self.value = ValueNode()
 
     def _hook_into(self, parent):
-        pass #parent.add_prop()
+        pass  # parent.add_prop()
 
 
 class EqualNode(RelationNode):
