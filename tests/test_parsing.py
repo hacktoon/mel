@@ -564,29 +564,11 @@ def test_object_unexpected_expression(test_input):
         parse(test_input, struct.ObjectParser)
 
 
-@pytest.mark.parametrize(
-    "test_input, props",
-    [
-        ("(foo (etc 2))", [nodes.NameKeywordNode, 'etc']),
-        ("(foo (@abc test))", [nodes.AliasKeywordNode, 'abc']),
-    ]
-)
-def test_struct_props(test_input, props):
-    Node, name = props
-    _object = parse(test_input, struct.ObjectParser)
-    assert name in _object.props[Node.id]
-
-
 # ANONYM OBJECT ===============================================
 
 def test_anonym_object_value():
     node = parse("(: x = 2)", struct.AnonymObjectParser)
     assert str(node[0]) == "x = 2"
-
-
-def test_anonym_object_props():
-    _object = parse("(foo (: (abc 3)))", struct.ObjectParser)
-    assert "abc" in _object.props[nodes.NameKeywordNode.id]
 
 
 # QUERY ===============================================

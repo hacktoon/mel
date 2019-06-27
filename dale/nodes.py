@@ -18,46 +18,52 @@ class Node:
         id = self.id.upper()
         return template.format(id, self)
 
-    def _hook_into(self, parent):
-        return
-
     def eval(self):
         return
 
 
-class StructNode(Node):
+class ContainerNode(Node):
     def __init__(self):
         super().__init__()
-        self.subnodes = []
-        self.tags = set()
-        self.props = defaultdict(dict)
-        self.values = []
+        self._subnodes = []
 
     def __len__(self):
-        return len(self.subnodes)
+        return len(self._subnodes)
 
     def __iter__(self):
-        for node in self.subnodes:
+        for node in self._subnodes:
             yield node
 
     def __getitem__(self, index):
-        return self.subnodes[index]
+        return self._subnodes[index]
 
     def add(self, node):
-        self.subnodes.append(node)
-        node._hook_into(self)
-
-    def add_tag(self, name):
-        self.tags.add(name)
-
-    def add_prop(self, id, name, node):
-        self.props[id][name] = node
+        self._subnodes.append(node)
 
 
 # ABSTRACT STRUCTS =================================================
 
-class MetaStructNode(StructNode):
-    pass
+class StructNode(ContainerNode):
+    def __init__(self):
+        super().__init__()
+        self.tags = set()
+        self.props = defaultdict(dict)
+        self.values = []
+
+    def add(self, node):
+        super().add(node)
+        id = node.id
+        if id == TagKeywordNode.id:
+            self.add_tag(node)
+
+    def add_tag(self, node):
+        self.tags.add(node.value)
+
+    def add_relation(self, node):
+        return
+
+    def add_struct(self, node):
+        return
 
 
 class PathStructNode(StructNode):
@@ -77,36 +83,22 @@ class RootNode(StructNode):
 class ObjectNode(PathStructNode):
     id = "object"
 
-    def _hook_into(self, parent):
-        key = self.key
-        parent.add_prop(key.id, key.value, self)
-
     def eval(self):
         return str(self)
 
 
-class AnonymObjectNode(MetaStructNode):
+class AnonymObjectNode(StructNode):
     id = "anonym-object"
-
-    def _hook_into(self, parent):
-        for node in self.subnodes:
-            parent.add(node)
 
 
 # DEFAULT STRUCTS =================================================
 
-class DefaultFormatKeywordNode(MetaStructNode):
+class DefaultFormatKeywordNode(StructNode):
     id = "default-format"
 
-    def _hook_into(self, parent):
-        parent.default_format = self
 
-
-class DefaultDocKeywordNode(MetaStructNode):
+class DefaultDocKeywordNode(StructNode):
     id = "default-doc"
-
-    def _hook_into(self, parent):
-        parent.default_doc = self
 
 
 # QUERY STRUCTS =================================================
@@ -115,7 +107,7 @@ class QueryNode(PathStructNode):
     id = "query"
 
 
-class AnonymQueryNode(MetaStructNode):
+class AnonymQueryNode(StructNode):
     id = "anonym-query"
 
 
@@ -138,10 +130,6 @@ class RelationNode(Node):
         super().__init__()
         self.path = PathNode()
         self.value = ValueNode()
-
-    def _hook_into(self, parent):
-        key = self.path[0]
-        parent.add_prop(key.id, key.value, self)
 
 
 class EqualNode(RelationNode):
@@ -184,7 +172,7 @@ class ValueNode(Node):
 
 # REFERENCE ========================================================
 
-class ReferenceNode(StructNode):
+class ReferenceNode(ContainerNode):
     id = "reference"
 
 
@@ -198,7 +186,7 @@ class ChildReferenceNode(Node):
 
 # LIST ========================================================
 
-class ListNode(StructNode):
+class ListNode(ContainerNode):
     id = "list"
 
 
@@ -222,9 +210,6 @@ class ConceptKeywordNode(NameKeywordNode):
 
 class TagKeywordNode(KeywordNode):
     id = "tag-keyword"
-
-    def _hook_into(self, parent):
-        parent.add_tag(self.value)
 
 
 class LogKeywordNode(KeywordNode):
@@ -297,7 +282,7 @@ class TemplateStringNode(LiteralNode):
 
 # PATH ========================================================
 
-class PathNode(StructNode):
+class PathNode(ContainerNode):
     id = "path"
 
 
