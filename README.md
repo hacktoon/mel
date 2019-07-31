@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/hacktoon/dale.svg?branch=master)](https://travis-ci.org/hacktoon/dale)
 
-# DALE
+# MEL
 
-Dale is a _**da**ta description **l**anguag**e**_ which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
+Mel is a data markup language which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Main objectives
@@ -45,17 +45,17 @@ make inspect
 ### Using system's Python
 
 ```
-./bin/dale examples/person
+./bin/mel examples/person
 ```
 
 ### Using Docker
 
 ```
-docker build -t dale .
-docker run dale examples/thumbnail
+docker build -t mel .
+docker run mel examples/thumbnail
 ```
 
 
 ## License
 
-Dale is distributed under the terms of the **MIT** license. See [LICENSE](LICENSE.md).
+Mel is distributed under the terms of the **MIT** license. See [LICENSE](LICENSE.md).
