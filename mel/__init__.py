@@ -1,9 +1,9 @@
-from dale.lexing import TokenStream
-from dale.parsing import Parser
+from mel.lexing import TokenStream
+from mel.parsing import Parser
 
-from dale.utils import Context
-from dale.exceptions import DaleError, BaseError
-from dale.exceptions.formatting import ErrorFormatter
+from mel.utils import Context
+from mel.exceptions import MelError, BaseError
+from mel.exceptions.formatting import ErrorFormatter
 
 
 def lex(text):
@@ -11,7 +11,7 @@ def lex(text):
         return TokenStream(text)
     except BaseError as error:
         message = ErrorFormatter(error).format()
-        raise DaleError(message)
+        raise MelError(message)
 
 
 def create_parser(text, Parser=Parser):
@@ -24,7 +24,7 @@ def parse(text, Parser=Parser):
         return create_parser(text, Parser).parse()
     except BaseError as error:
         message = ErrorFormatter(error).format()
-        raise DaleError(message)
+        raise MelError(message)
 
 
 def eval(text, context=Context()):
@@ -33,5 +33,5 @@ def eval(text, context=Context()):
         context.tree = tree
         context.text = text
         return tree
-    except DaleError as error:
+    except MelError as error:
         raise error

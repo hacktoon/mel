@@ -1,8 +1,8 @@
 import pytest
 
-from dale import tokens
-from dale.lexing import Lexer, TokenStream
-from dale.exceptions import InvalidSyntaxError, UnexpectedTokenError
+from mel import tokens
+from mel.lexing import Lexer, TokenStream
+from mel.exceptions import InvalidSyntaxError, UnexpectedTokenError
 
 
 def tokenize(text):

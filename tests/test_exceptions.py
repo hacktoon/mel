@@ -1,7 +1,7 @@
-from dale.parsing import Parser
-from dale.lexing import TokenStream
-from dale.exceptions import BaseError
-from dale.exceptions.formatting import ErrorFormatter
+from mel.parsing import Parser
+from mel.lexing import TokenStream
+from mel.exceptions import BaseError
+from mel.exceptions.formatting import ErrorFormatter
 
 
 def parse(text):

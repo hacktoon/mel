@@ -1,8 +1,8 @@
-class DaleError(Exception):
+class MelError(Exception):
     pass
 
 
-class BaseError(DaleError):
+class BaseError(MelError):
     def __init__(self, token, msg):
         super().__init__(msg)
         self.text = token.text

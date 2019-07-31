@@ -1,11 +1,11 @@
 import pytest
 
-from dale import parsing
-from dale.parsing import struct
-from dale import nodes
+from mel import parsing
+from mel.parsing import struct
+from mel import nodes
 
-from dale.lexing import TokenStream
-from dale.exceptions import (
+from mel.lexing import TokenStream
+from mel.exceptions import (
     UnexpectedTokenError,
     UnexpectedEOFError,
     KeywordNotFoundError,

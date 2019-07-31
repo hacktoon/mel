@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/hacktoon/dale.svg?branch=master)](https://travis-ci.org/hacktoon/dale)
+[![Build Status](https://travis-ci.org/hacktoon/mel.svg?branch=master)](https://travis-ci.org/hacktoon/mel)
 
 # MEL
 

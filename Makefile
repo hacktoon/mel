@@ -6,7 +6,7 @@ ifdef DEV
 endif
 	cp bin/pre-commit.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
-	chmod +x bin/dale
+	chmod +x bin/mel
 	pip install --upgrade pip
 	pip install -r requirements.txt
 
@@ -30,4 +30,4 @@ else
 endif
 
 docker-build:
-	docker build -t dale .
+	docker build -t mel .
