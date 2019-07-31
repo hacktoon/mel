@@ -2,7 +2,7 @@
 
 # MEL
 
-Mel is a data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
+Mel is a general purpose data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Main objectives
@@ -19,8 +19,6 @@ Mel is a data markup language which describes the metadata, context and relation
  * [Objects](docs/objects.md)
  * [Queries](docs/queries.md)
  * [Lists](docs/lists.md)
- * [Tags](docs/tags.md)
- * [Relations](docs/relations.md)
 
 
 ## Installation
