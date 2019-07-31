@@ -2,7 +2,7 @@
 
 # MEL
 
-Mel is a data markup language which describes the metadata, context and relations in a data model. Dale can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
+Mel is a data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Main objectives
