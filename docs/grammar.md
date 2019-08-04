@@ -8,49 +8,42 @@
 
 ```
 
-root            =  object-expr*
+root        =  expression*
 
-object-expr     =  expression | default-format | default-doc
+expression  =  tag | relation | value
 
-expression      =  tag | relation | value
+tag         =  '#' NAME
 
-tag             =  '#' NAME
+relation    =  path sign value
 
-relation        =  path sign value
+path        =  keyword ( '/' keyword )*
+keyword     =  NAME | CONCEPT | log | alias | cache | format | meta | doc
+log         =  '!' NAME
+alias       =  '@' NAME
+cache       =  '$' NAME
+format      =  '%' NAME
+meta        =  '.' NAME
+doc         =  '?' NAME
 
-path            =  keyword ( '/' keyword )*
-keyword         =  NAME | CONCEPT | log | alias | cache | format | meta | doc
-log             =  '!' NAME
-alias           =  '@' NAME
-cache           =  '$' NAME
-format          =  '%' NAME
-meta            =  '.' NAME
-doc             =  '?' NAME
+sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
 
-sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
+value       =  reference | literal | list | object
 
-value           =  reference | literal | list | object | anonym-object
+reference   =  head-ref ( '/' child-ref )*
+head-ref    =  query | keyword
+child-ref   =  RANGE | INT | tag | list | object | query | keyword | wildcard
+wildcard    =  '*'
 
-reference       =  head-ref ( '/' child-ref )*
-head-ref        =  query | anonym-query | keyword
-child-ref       =  RANGE | INT | tag | list | object | anonym-object |
-                   query | anonym-query | keyword | wildcard
-wildcard        =  '*'
+literal     =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
 
-literal         =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
+list        =  '[' value* ']'
 
-list            =  '[' value* ']'
+object      =  '(' object-key expression* ')'
+object-key  =  path | ':' | '%:' | '?:'
 
-object          =  '(' path object-expr* ')'
+query       =  '{' query-key expression* '}'
+query-key   =  path | ':'
 
-anonym-object   =  '(:' object-expr* ')'
-
-query           =  '{' path expression* '}'
-
-anonym-query    =  '{:' expression* '}'
-
-default-format  =  '(%:' expression* ')'
-default-doc     =  '(?:' expression* ')'
 
 ```
 
