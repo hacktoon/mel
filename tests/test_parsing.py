@@ -493,12 +493,12 @@ def test_relation_value_expected(test_input):
     "test_input, Parser",
     [
         ("bar", struct.RootParser),
-        ("(?: foo bar)", struct.DefaultDocParser),
-        ("(%: foo bar)", struct.DefaultFormatParser),
+        ("(?: foo bar)", struct.ObjectParser),
+        ("(%: foo bar)", struct.ObjectParser),
         ("(abc foo bar)", struct.ObjectParser),
-        ("(: foo bar)", struct.AnonymObjectParser),
+        ("(: foo bar)", struct.ObjectParser),
         ("{abc foo bar}", struct.QueryParser),
-        ("{: foo bar}", struct.AnonymQueryParser),
+        ("{: foo bar}", struct.QueryParser),
     ]
 )
 def test_struct_object_expression(test_input, Parser):
@@ -535,7 +535,7 @@ def test_object_with_no_value():
 )
 def test_object_path_string_repr(test_input, value):
     node = parse(test_input, struct.ObjectParser)
-    assert str(node.path) == value
+    assert str(node.key) == value
 
 
 @pytest.mark.parametrize(
@@ -567,7 +567,7 @@ def test_object_unexpected_expression(test_input):
 # ANONYM OBJECT ===============================================
 
 def test_anonym_object_value():
-    node = parse("(: x = 2)", struct.AnonymObjectParser)
+    node = parse("(: x = 2)", struct.ObjectParser)
     assert str(node[0]) == "x = 2"
 
 
@@ -581,5 +581,5 @@ def test_query_key_single_value():
 # ANONYM QUERY ===============================================
 
 def test_anonym_query_value():
-    node = parse("{: 42}", struct.AnonymQueryParser)
+    node = parse("{: 42}", struct.QueryParser)
     assert node[0].value == 42

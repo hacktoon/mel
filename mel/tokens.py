@@ -162,14 +162,37 @@ class FormatPrefixToken(Token):
     regex = re.compile(r"%")
 
 
+class DefaultFormatKeyToken(Token):
+    id = "%:"
+    regex = re.compile(r"%:")
+    priority = 1
+
+
 class DocPrefixToken(Token):
     id = "?"
     regex = re.compile(r"\?")
 
 
+class DefaultDocKeyToken(Token):
+    id = "?:"
+    regex = re.compile(r"\?:")
+    priority = 1
+
+
 class MetaPrefixToken(Token):
     id = "."
     regex = re.compile(r"\.")
+
+
+class RangeToken(Token):
+    id = ".."
+    regex = re.compile(r"\.\.")
+    priority = 1
+
+
+class AnonymKeyToken(Token):
+    id = ":"
+    regex = re.compile(r":")
 
 
 class EqualToken(Token):
@@ -222,12 +245,6 @@ class WildcardToken(Token):
     regex = re.compile(r"\*")
 
 
-class RangeToken(Token):
-    id = ".."
-    regex = re.compile(r"\.\.")
-    priority = 1
-
-
 class SubNodeToken(Token):
     id = "/"
     regex = re.compile(r"/")
@@ -243,24 +260,6 @@ class EndObjectToken(Token):
     regex = re.compile(r"\)")
 
 
-class StartAnonymObjectToken(Token):
-    id = "(:"
-    regex = re.compile(r"\(:")
-    priority = 1
-
-
-class StartDefaultFormatToken(Token):
-    id = "(%:"
-    regex = re.compile(r"\(%:")
-    priority = 1
-
-
-class StartDefaultDocToken(Token):
-    id = "(?:"
-    regex = re.compile(r"\(\?:")
-    priority = 1
-
-
 class StartQueryToken(Token):
     id = "{"
     regex = re.compile(r"\{")
@@ -269,12 +268,6 @@ class StartQueryToken(Token):
 class EndQueryToken(Token):
     id = "}"
     regex = re.compile(r"\}")
-
-
-class StartAnonymQueryToken(Token):
-    id = "{:"
-    regex = re.compile(r"\{:")
-    priority = 1
 
 
 class StartListToken(Token):

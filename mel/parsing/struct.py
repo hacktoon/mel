@@ -2,6 +2,8 @@ from .. import nodes
 from .. import tokens
 
 from .base import (
+    TokenParser,
+    MultiParser,
     BaseParser,
     subparser,
     indexed
@@ -13,55 +15,33 @@ from ..exceptions import KeyNotFoundError
 # STRUCT ==================================================
 
 class StructParser(BaseParser):
-    Expression = nodes.ExpressionNode
-
     def parse_expressions(self, node):
         while True:
-            expression = self.subparse(self.Expression)
+            expression = self.subparse(nodes.ExpressionNode)
             if not expression:
                 break
             node.add(expression)
 
 
-# ROOT ======================================================
+class KeyStructParser(StructParser):
+    Key = None
 
-@subparser
-class RootParser(StructParser):
-    Node = nodes.RootNode
-    Expression = nodes.ObjectExpressionNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        self.parse_expressions(node)
-        return node
-
-
-# SPECIALIZED STRUCTS  ======================================
-
-class MetaStructParser(StructParser):
     @indexed
     def parse(self):
         if not self.stream.is_next(self.FirstToken):
             return
         node = self.build_node()
         self.stream.read()
+        self.parse_key(node)
         self.parse_expressions(node)
         self.stream.read(self.LastToken)
         return node
 
-
-class PathStructParser(StructParser):
-    @indexed
-    def parse(self):
-        if not self.stream.is_next(self.FirstToken):
-            return
-        node = self.build_node()
-        self.stream.read()
-        self.parse_path(node)
-        self.parse_expressions(node)
-        self.stream.read(self.LastToken)
-        return node
+    def parse_key(self, node):
+        key = self.subparse(self.Key)
+        if not key:
+            self.error(KeyNotFoundError)
+        node.key = key
 
     def parse_path(self, node):
         path = self.subparse(nodes.PathNode)
@@ -70,30 +50,27 @@ class PathStructParser(StructParser):
         node.path = path
 
 
-# DEFAULT EXPRESSION STRUCTS ==================================
+# ROOT ======================================================
 
 @subparser
-class DefaultFormatParser(MetaStructParser):
-    Node = nodes.DefaultFormatKeywordNode
-    FirstToken = tokens.StartDefaultFormatToken
-    LastToken = tokens.EndObjectToken
+class RootParser(StructParser):
+    Node = nodes.RootNode
 
-
-@subparser
-class DefaultDocParser(MetaStructParser):
-    Node = nodes.DefaultDocKeywordNode
-    FirstToken = tokens.StartDefaultDocToken
-    LastToken = tokens.EndObjectToken
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        self.parse_expressions(node)
+        return node
 
 
 # OBJECT ======================================================
 
 @subparser
-class ObjectParser(PathStructParser):
+class ObjectParser(KeyStructParser):
     Node = nodes.ObjectNode
+    Key = nodes.ObjectKeyNode
     FirstToken = tokens.StartObjectToken
     LastToken = tokens.EndObjectToken
-    Expression = nodes.ObjectExpressionNode
 
     def _build_subtree(self, node):
         key, *keywords = node.path
@@ -106,29 +83,55 @@ class ObjectParser(PathStructParser):
         return node
 
     def parse_expressions(self, node):
-        node = self._build_subtree(node)
+        # node = self._build_subtree(node)
         super().parse_expressions(node)
-
-
-@subparser
-class AnonymObjectParser(MetaStructParser):
-    Node = nodes.AnonymObjectNode
-    FirstToken = tokens.StartAnonymObjectToken
-    LastToken = tokens.EndObjectToken
-    Expression = nodes.ObjectExpressionNode
 
 
 # QUERY ======================================================
 
 @subparser
-class QueryParser(PathStructParser):
+class QueryParser(KeyStructParser):
     Node = nodes.QueryNode
+    Key = nodes.QueryKeyNode
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken
 
 
+# STRUCT KEY ====================================================
+
 @subparser
-class AnonymQueryParser(MetaStructParser):
-    Node = nodes.AnonymQueryNode
-    FirstToken = tokens.StartAnonymQueryToken
-    LastToken = tokens.EndQueryToken
+class ObjectKeyParser(MultiParser):
+    Node = nodes.ObjectKeyNode
+    options = (
+        nodes.AnonymKeyNode,
+        nodes.DefaultDocKeyNode,
+        nodes.DefaultFormatKeyNode,
+        nodes.PathNode
+    )
+
+
+@subparser
+class QueryKeyParser(MultiParser):
+    Node = nodes.QueryKeyNode
+    options = (
+        nodes.AnonymKeyNode,
+        nodes.PathNode
+    )
+
+
+@subparser
+class AnonymKeyParser(TokenParser):
+    Node = nodes.AnonymKeyNode
+    Token = tokens.AnonymKeyToken
+
+
+@subparser
+class DefaultDocKeyParser(TokenParser):
+    Node = nodes.DefaultDocKeyNode
+    Token = tokens.DefaultDocKeyToken
+
+
+@subparser
+class DefaultFormatKeyParser(TokenParser):
+    Node = nodes.DefaultFormatKeyNode
+    Token = tokens.DefaultFormatKeyToken

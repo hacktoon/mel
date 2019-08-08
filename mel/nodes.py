@@ -41,6 +41,12 @@ class ContainerNode(Node):
         self._subnodes.append(node)
 
 
+# EXPRESSION =================================================
+
+class ExpressionNode(Node):
+    id = "expression"
+
+
 # ABSTRACT STRUCTS =================================================
 
 class StructNode(ContainerNode):
@@ -66,10 +72,10 @@ class StructNode(ContainerNode):
         return
 
 
-class PathStructNode(StructNode):
+class KeyStructNode(StructNode):
     def __init__(self):
         super().__init__()
-        self.path = PathNode()
+        self.key = Node()
 
 
 # ROOT STRUCT =========================================================
@@ -80,45 +86,39 @@ class RootNode(StructNode):
 
 # OBJECT STRUCTS ======================================================
 
-class ObjectNode(PathStructNode):
+class ObjectNode(KeyStructNode):
     id = "object"
 
     def eval(self):
         return str(self)
 
 
-class AnonymObjectNode(StructNode):
-    id = "anonym-object"
-
-
-# DEFAULT STRUCTS =================================================
-
-class DefaultFormatKeywordNode(StructNode):
-    id = "default-format"
-
-
-class DefaultDocKeywordNode(StructNode):
-    id = "default-doc"
-
-
 # QUERY STRUCTS =================================================
 
-class QueryNode(PathStructNode):
+class QueryNode(KeyStructNode):
     id = "query"
 
 
-class AnonymQueryNode(StructNode):
-    id = "anonym-query"
+# STRUCT KEYS =================================================
+
+class ObjectKeyNode(Node):
+    id = "object-key"
 
 
-# EXPRESSION =================================================
-
-class ExpressionNode(Node):
-    id = "expression"
+class QueryKeyNode(Node):
+    id = "query-key"
 
 
-class ObjectExpressionNode(Node):
-    id = "object-expression"
+class AnonymKeyNode(Node):
+    id = "anonym-key"
+
+
+class DefaultFormatKeyNode(Node):
+    id = "default-format-key"
+
+
+class DefaultDocKeyNode(Node):
+    id = "default-doc-key"
 
 
 # RELATION ========================================================

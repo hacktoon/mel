@@ -42,16 +42,6 @@ class ExpressionParser(MultiParser):
     )
 
 
-@subparser
-class ObjectExpressionParser(MultiParser):
-    Node = nodes.ObjectExpressionNode
-    options = (
-        nodes.ExpressionNode,
-        nodes.DefaultFormatKeywordNode,
-        nodes.DefaultDocKeywordNode
-    )
-
-
 # VALUE ======================================================
 
 @subparser
@@ -62,7 +52,6 @@ class ValueParser(MultiParser):
         nodes.LiteralNode,
         nodes.ListNode,
         nodes.ObjectNode,
-        nodes.AnonymObjectNode
     )
 
 
