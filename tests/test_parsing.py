@@ -467,7 +467,7 @@ def test_range_only_accepts_integers():
     ]
 )
 def test_relation_components(test_input, path, value):
-    node = parse(test_input, parsing.relation.RelationParser)
+    node = parse(test_input, parsing.RelationParser)
     assert str(node.path) == path
     assert str(node.value) == value
 
@@ -483,7 +483,7 @@ def test_relation_components(test_input, path, value):
 )
 def test_relation_value_expected(test_input):
     with pytest.raises(ExpectedValueError):
-        parse(test_input, parsing.relation.RelationParser)
+        parse(test_input, parsing.RelationParser)
 
 
 # STRUCT ===================================================
