@@ -11,14 +11,12 @@ from . import ( # noqa
 from .base import (
     BaseParser,
     MultiParser,
-    TokenParser,
     subparser,
     indexed
 )
 from ..exceptions import (
     UnexpectedTokenError,
-    KeywordNotFoundError,
-    InfiniteRangeError
+    KeywordNotFoundError
 )
 
 
@@ -69,11 +67,11 @@ class ListParser(BaseParser):
             return
         node = self.build_node()
         self.stream.read()
-        self.parse_expressions(node)
+        self.parse_values(node)
         self.stream.read(self.LastToken)
         return node
 
-    def parse_expressions(self, node):
+    def parse_values(self, node):
         while True:
             _object = self.subparse(nodes.ValueNode)
             if not _object:
@@ -105,45 +103,3 @@ class PathParser(BaseParser):
                 node.add(_keyword)
             else:
                 self.error(KeywordNotFoundError)
-
-
-# RANGE ===========================
-
-@subparser
-class RangeParser(BaseParser):
-    Node = nodes.RangeNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        if self._parse_left_open(node):
-            return node
-        if self._parse_left_bound(node):
-            return node
-        return
-
-    def _parse_left_open(self, node):
-        if not self.stream.is_next(tokens.RangeToken):
-            return
-        _range = self.stream.read()
-        if not self.stream.is_next(tokens.IntToken):
-            self.error(InfiniteRangeError, _range)
-        node.end = self.stream.read().value
-        return True
-
-    def _parse_left_bound(self, node):
-        first_is_int = self.stream.is_next(tokens.IntToken)
-        range_is_next = self.stream.peek(1) == tokens.RangeToken
-        if not (first_is_int and range_is_next):
-            return
-        node.start = self.stream.read().value
-        self.stream.read()
-        if self.stream.is_next(tokens.IntToken):
-            node.end = self.stream.read().value
-        return True
-
-
-@subparser
-class WildcardParser(TokenParser):
-    Node = nodes.WildcardNode
-    Token = tokens.WildcardToken

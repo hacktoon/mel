@@ -43,12 +43,6 @@ class KeyStructParser(StructParser):
             self.error(KeyNotFoundError)
         node.key = key
 
-    def parse_path(self, node):
-        path = self.subparse(nodes.PathNode)
-        if not path:
-            self.error(KeyNotFoundError)
-        node.path = path
-
 
 # ROOT ======================================================
 

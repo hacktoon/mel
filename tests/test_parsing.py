@@ -423,36 +423,36 @@ def test_literal_subparsers(test_input, parser):
 # RANGE ==================================================
 
 def test_range_id():
-    node = parse("2..4", parsing.RangeParser)
+    node = parse("2..4", parsing.literal.RangeParser)
     assert node.id == nodes.RangeNode.id
 
 
 def test_range_limit():
-    node = parse("0..-10", parsing.RangeParser)
+    node = parse("0..-10", parsing.literal.RangeParser)
     assert node.start == 0
     assert node.end == -10
 
 
 def test_range_without_specific_end():
-    node = parse("42..", parsing.RangeParser)
+    node = parse("42..", parsing.literal.RangeParser)
     assert node.start == 42
     assert node.end is None
 
 
 def test_range_without_specific_start():
-    node = parse("..33", parsing.RangeParser)
+    node = parse("..33", parsing.literal.RangeParser)
     assert node.start is None
     assert node.end == 33
 
 
 def test_range_must_have_at_least_one_int():
     with pytest.raises(InfiniteRangeError):
-        parse("..", parsing.RangeParser)
+        parse("..", parsing.literal.RangeParser)
 
 
 def test_range_only_accepts_integers():
     with pytest.raises(InfiniteRangeError):
-        parse("..3.4", parsing.RangeParser)
+        parse("..3.4", parsing.literal.RangeParser)
 
 
 # RELATION =================================================
