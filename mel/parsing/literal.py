@@ -13,18 +13,6 @@ from ..exceptions import InfiniteRangeError
 
 
 @subparser
-class LiteralParser(MultiParser):
-    Node = nodes.LiteralNode
-    options = (
-        nodes.IntNode,
-        nodes.FloatNode,
-        nodes.StringNode,
-        nodes.TemplateStringNode,
-        nodes.BooleanNode
-    )
-
-
-@subparser
 class IntParser(TokenParser):
     Node = nodes.IntNode
     Token = tokens.IntToken
@@ -52,6 +40,17 @@ class StringParser(TokenParser):
 class TemplateStringParser(TokenParser):
     Node = nodes.TemplateStringNode
     Token = tokens.TemplateStringToken
+
+
+@subparser
+class LiteralParser(MultiParser):
+    options = (
+        IntParser,
+        FloatParser,
+        StringParser,
+        TemplateStringParser,
+        BooleanParser
+    )
 
 
 # RANGE ===========================

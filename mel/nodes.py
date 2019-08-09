@@ -41,12 +41,6 @@ class ContainerNode(Node):
         self._subnodes.append(node)
 
 
-# EXPRESSION =================================================
-
-class ExpressionNode(Node):
-    id = "expression"
-
-
 # ABSTRACT STRUCTS =================================================
 
 class StructNode(ContainerNode):
@@ -101,14 +95,6 @@ class QueryNode(KeyStructNode):
 
 # STRUCT KEYS =================================================
 
-class ObjectKeyNode(Node):
-    id = "object-key"
-
-
-class QueryKeyNode(Node):
-    id = "query-key"
-
-
 class AnonymKeyNode(Node):
     id = "anonym-key"
 
@@ -129,7 +115,7 @@ class RelationNode(Node):
     def __init__(self):
         super().__init__()
         self.path = PathNode()
-        self.value = ValueNode()
+        self.value = None
 
 
 class EqualNode(RelationNode):
@@ -164,24 +150,10 @@ class NotInNode(RelationNode):
     id = "not_in"
 
 
-# VALUE ========================================================
-
-class ValueNode(Node):
-    id = "value"
-
-
 # REFERENCE ========================================================
 
 class ReferenceNode(ContainerNode):
     id = "reference"
-
-
-class HeadReferenceNode(Node):
-    id = "head-reference"
-
-
-class ChildReferenceNode(Node):
-    id = "child-reference"
 
 
 # LIST ========================================================

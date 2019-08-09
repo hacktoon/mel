@@ -13,21 +13,6 @@ from ..exceptions import NameNotFoundError
 
 
 @subparser
-class KeywordParser(MultiParser):
-    Node = nodes.KeywordNode
-    options = (
-        nodes.NameKeywordNode,
-        nodes.ConceptKeywordNode,
-        nodes.LogKeywordNode,
-        nodes.AliasKeywordNode,
-        nodes.CacheKeywordNode,
-        nodes.FormatKeywordNode,
-        nodes.MetaKeywordNode,
-        nodes.DocKeywordNode
-    )
-
-
-@subparser
 class NameParser(TokenParser):
     Node = nodes.NameKeywordNode
     Token = tokens.NameToken
@@ -92,3 +77,17 @@ class DocParser(PrefixedNameParser):
 class MetaParser(PrefixedNameParser):
     Node = nodes.MetaKeywordNode
     Token = tokens.MetaPrefixToken
+
+
+@subparser
+class KeywordParser(MultiParser):
+    options = (
+        NameParser,
+        ConceptParser,
+        LogParser,
+        AliasParser,
+        CacheParser,
+        FormatParser,
+        MetaParser,
+        DocParser
+    )

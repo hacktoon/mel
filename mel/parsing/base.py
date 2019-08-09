@@ -13,7 +13,7 @@ def get_subparser(id, stream):
 
 # decorator - register a Parser class as a subparser
 def subparser(cls):
-    _subparsers[cls.Node.id] = cls
+    _subparsers[cls.__name__] = cls
     return cls
 
 
@@ -39,8 +39,8 @@ class BaseParser:
     def build_node(self):
         return self.Node()
 
-    def subparse(self, Node):
-        return get_subparser(Node.id, self.stream).parse()
+    def subparse(self, Parser):
+        return get_subparser(Parser.__name__, self.stream).parse()
 
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
