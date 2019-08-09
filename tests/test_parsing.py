@@ -1,7 +1,6 @@
 import pytest
 
 from mel import parsing
-from mel.parsing import struct
 from mel import nodes
 
 from mel.lexing import TokenStream
@@ -243,7 +242,7 @@ def test_subparser_nested_list():
     ]
 )
 def test_reference_keywords(test_input):
-    parser = create_parser(test_input, parsing.reference.ReferenceParser)
+    parser = create_parser(test_input, parsing.ReferenceParser)
     assert parser.parse()
 
 
@@ -256,7 +255,7 @@ def test_reference_keywords(test_input):
 )
 def test_reference_expected_child(test_input):
     with pytest.raises(ExpectedKeywordError):
-        parse(test_input, parsing.reference.ReferenceParser)
+        parse(test_input, parsing.ReferenceParser)
 
 
 # PATH =================================================
@@ -492,13 +491,13 @@ def test_relation_value_expected(test_input):
 @pytest.mark.parametrize(
     "test_input, Parser",
     [
-        ("bar", struct.RootParser),
-        ("(?: foo bar)", struct.ObjectParser),
-        ("(%: foo bar)", struct.ObjectParser),
-        ("(abc foo bar)", struct.ObjectParser),
-        ("(: foo bar)", struct.ObjectParser),
-        ("{abc foo bar}", struct.QueryParser),
-        ("{: foo bar}", struct.QueryParser),
+        ("bar", parsing.RootParser),
+        ("(?: foo bar)", parsing.ObjectParser),
+        ("(%: foo bar)", parsing.ObjectParser),
+        ("(abc foo bar)", parsing.ObjectParser),
+        ("(: foo bar)", parsing.ObjectParser),
+        ("{abc foo bar}", parsing.QueryParser),
+        ("{: foo bar}", parsing.QueryParser),
     ]
 )
 def test_struct_object_expression(test_input, Parser):
@@ -514,14 +513,14 @@ def test_struct_object_expression(test_input, Parser):
     ]
 )
 def test_struct_tags(test_input, tags):
-    _object = parse(test_input, struct.ObjectParser)
+    _object = parse(test_input, parsing.ObjectParser)
     assert _object.tags == set(tags)
 
 
 # OBJECT ===================================================
 
 def test_object_with_no_value():
-    node = parse("(a)", struct.ObjectParser)
+    node = parse("(a)", parsing.ObjectParser)
     assert len(node) == 0
 
 
@@ -534,7 +533,7 @@ def test_object_with_no_value():
     ]
 )
 def test_object_path_string_repr(test_input, value):
-    node = parse(test_input, struct.ObjectParser)
+    node = parse(test_input, parsing.ObjectParser)
     assert str(node.key) == value
 
 
@@ -548,7 +547,7 @@ def test_object_path_string_repr(test_input, value):
 )
 def test_invalid_object_key(test_input):
     with pytest.raises(KeyNotFoundError):
-        parse(test_input, struct.ObjectParser)
+        parse(test_input, parsing.ObjectParser)
 
 
 @pytest.mark.parametrize(
@@ -561,25 +560,25 @@ def test_invalid_object_key(test_input):
 )
 def test_object_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
-        parse(test_input, struct.ObjectParser)
+        parse(test_input, parsing.ObjectParser)
 
 
 # ANONYM OBJECT ===============================================
 
 def test_anonym_object_value():
-    node = parse("(: x = 2)", struct.ObjectParser)
+    node = parse("(: x = 2)", parsing.ObjectParser)
     assert str(node[0]) == "x = 2"
 
 
 # QUERY ===============================================
 
 def test_query_key_single_value():
-    node = parse("{abc 42}", struct.QueryParser)
+    node = parse("{abc 42}", parsing.QueryParser)
     assert node[0].value == 42
 
 
 # ANONYM QUERY ===============================================
 
 def test_anonym_query_value():
-    node = parse("{: 42}", struct.QueryParser)
+    node = parse("{: 42}", parsing.QueryParser)
     assert node[0].value == 42
