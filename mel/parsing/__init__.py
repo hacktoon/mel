@@ -1,8 +1,14 @@
 from .. import tokens
 from .. import nodes
 
-from .literal import LiteralParser, IntParser, RangeParser, WildcardParser
 from .keyword import KeywordParser, TagParser
+
+from .literal import (
+    LiteralParser,
+    IntParser,
+    RangeParser,
+    WildcardParser
+)
 
 from .base import (
     BaseParser,
@@ -11,6 +17,7 @@ from .base import (
     subparser,
     indexed
 )
+
 from ..exceptions import (
     UnexpectedTokenError,
     KeywordNotFoundError,
@@ -19,6 +26,8 @@ from ..exceptions import (
     KeyNotFoundError
 )
 
+
+# MAIN PARSER ===============================================
 
 class Parser(BaseParser):
     def parse(self):
@@ -80,7 +89,7 @@ class PathParser(BaseParser):
                 self.error(KeywordNotFoundError)
 
 
-# STRUCT ==================================================
+# BASE STRUCT ===============================================
 
 class StructParser(BaseParser):
     def parse_expressions(self, node):
@@ -171,20 +180,6 @@ class ObjectParser(KeyStructParser):
     KeyParser = ObjectKeyParser
     FirstToken = tokens.StartObjectToken
     LastToken = tokens.EndObjectToken
-
-    def _build_subtree(self, node):
-        key, *keywords = node.path
-        node.key = key
-        for _keyword in keywords:
-            subnode = self.build_node()
-            subnode.key = _keyword
-            node.add(subnode)
-            node = subnode
-        return node
-
-    def parse_expressions(self, node):
-        # node = self._build_subtree(node)
-        super().parse_expressions(node)
 
 
 # QUERY ======================================================
