@@ -313,18 +313,19 @@ def test_path_keyword_not_found(test_input):
 @pytest.mark.parametrize(
     "test_input, expected",
     [
+        ("!baz", "baz"),
+        (".ba_r2", "ba_r2"),
         ("foo", "foo"),
         ("Foo", "Foo"),
         ("@foo", "foo"),
         ("%foo", "foo"),
-        ("!baz", "baz"),
-        ("?foo", "foo"),
-        (".ba_r2", "ba_r2")
+        ("?foo", "foo")
     ]
 )
 def test_keyword_acceptance(test_input, expected):
     parser = create_parser(test_input, parsing.keyword.KeywordParser)
     node = parser.parse()
+    assert node is not None
     assert node.value == expected
 
 

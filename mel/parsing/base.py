@@ -1,22 +1,6 @@
 import functools
 
 
-_subparsers = {}
-
-
-@functools.lru_cache()
-def get_subparser(id, stream):
-    if id in _subparsers:
-        return _subparsers[id](stream)
-    raise Exception('Invalid subparser: ' + id)
-
-
-# decorator - register a Parser class as a subparser
-def subparser(cls):
-    _subparsers[cls.__name__] = cls
-    return cls
-
-
 # decorator - add stream data to node instance via parser method
 def indexed(parse_method):
     @functools.wraps(parse_method)
@@ -35,12 +19,20 @@ def indexed(parse_method):
 class BaseParser:
     def __init__(self, stream):
         self.stream = stream
+        self._subparsers = {}
 
     def build_node(self):
         return self.Node()
 
     def subparse(self, Parser):
-        return get_subparser(Parser.__name__, self.stream).parse()
+        subparser = self.get_subparser(Parser, self.stream)
+        return subparser.parse()
+
+    def get_subparser(self, Parser, stream):
+        name = Parser.__name__
+        if name not in self._subparsers:
+            self._subparsers[name] = Parser(stream)
+        return self._subparsers[name]
 
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())

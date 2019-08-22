@@ -14,7 +14,6 @@ from .base import (
     BaseParser,
     TokenParser,
     MultiParser,
-    subparser,
     indexed
 )
 
@@ -39,7 +38,6 @@ class Parser(BaseParser):
 
 # LIST ======================================================
 
-@subparser
 class ListParser(BaseParser):
     Node = nodes.ListNode
     FirstToken = tokens.StartListToken
@@ -65,7 +63,6 @@ class ListParser(BaseParser):
 
 # PATH ======================================================
 
-@subparser
 class PathParser(BaseParser):
     Node = nodes.PathNode
 
@@ -123,7 +120,6 @@ class KeyStructParser(StructParser):
 
 # ROOT ======================================================
 
-@subparser
 class RootParser(StructParser):
     Node = nodes.RootNode
 
@@ -136,25 +132,21 @@ class RootParser(StructParser):
 
 # STRUCT KEY ====================================================
 
-@subparser
 class AnonymKeyParser(TokenParser):
     Node = nodes.AnonymKeyNode
     Token = tokens.AnonymKeyToken
 
 
-@subparser
 class DefaultDocKeyParser(TokenParser):
     Node = nodes.DefaultDocKeyNode
     Token = tokens.DefaultDocKeyToken
 
 
-@subparser
 class DefaultFormatKeyParser(TokenParser):
     Node = nodes.DefaultFormatKeyNode
     Token = tokens.DefaultFormatKeyToken
 
 
-@subparser
 class ObjectKeyParser(MultiParser):
     options = (
         AnonymKeyParser,
@@ -164,7 +156,6 @@ class ObjectKeyParser(MultiParser):
     )
 
 
-@subparser
 class QueryKeyParser(MultiParser):
     options = (
         AnonymKeyParser,
@@ -174,7 +165,6 @@ class QueryKeyParser(MultiParser):
 
 # OBJECT ======================================================
 
-@subparser
 class ObjectParser(KeyStructParser):
     Node = nodes.ObjectNode
     KeyParser = ObjectKeyParser
@@ -184,7 +174,6 @@ class ObjectParser(KeyStructParser):
 
 # QUERY ======================================================
 
-@subparser
 class QueryParser(KeyStructParser):
     Node = nodes.QueryNode
     KeyParser = QueryKeyParser
@@ -194,7 +183,6 @@ class QueryParser(KeyStructParser):
 
 # REFERENCE ====================================================
 
-@subparser
 class ReferenceParser(BaseParser):
     Node = nodes.ReferenceNode
 
@@ -221,7 +209,6 @@ class ReferenceParser(BaseParser):
         return child
 
 
-@subparser
 class HeadReferenceParser(MultiParser):
     options = (
         QueryParser,
@@ -229,7 +216,6 @@ class HeadReferenceParser(MultiParser):
     )
 
 
-@subparser
 class ChildReferenceParser(MultiParser):
     options = (
         WildcardParser,
@@ -268,55 +254,46 @@ class PathRelationParser(BaseParser):
         return value
 
 
-@subparser
 class EqualParser(PathRelationParser):
     Node = nodes.EqualNode
     SignToken = tokens.EqualToken
 
 
-@subparser
 class DifferentParser(PathRelationParser):
     Node = nodes.DifferentNode
     SignToken = tokens.DifferentToken
 
 
-@subparser
 class GreaterThanParser(PathRelationParser):
     Node = nodes.GreaterThanNode
     SignToken = tokens.GreaterThanToken
 
 
-@subparser
 class GreaterThanEqualParser(PathRelationParser):
     Node = nodes.GreaterThanEqualNode
     SignToken = tokens.GreaterThanEqualToken
 
 
-@subparser
 class LessThanParser(PathRelationParser):
     Node = nodes.LessThanNode
     SignToken = tokens.LessThanToken
 
 
-@subparser
 class LessThanEqualParser(PathRelationParser):
     Node = nodes.LessThanEqualNode
     SignToken = tokens.LessThanEqualToken
 
 
-@subparser
 class InParser(PathRelationParser):
     Node = nodes.InNode
     SignToken = tokens.InToken
 
 
-@subparser
 class NotInParser(PathRelationParser):
     Node = nodes.NotInNode
     SignToken = tokens.NotInToken
 
 
-@subparser
 class RelationParser(MultiParser):
     options = (
         EqualParser,
@@ -332,7 +309,6 @@ class RelationParser(MultiParser):
 
 # VALUE ======================================================
 
-@subparser
 class ValueParser(MultiParser):
     options = (
         ReferenceParser,
@@ -344,7 +320,6 @@ class ValueParser(MultiParser):
 
 # EXPRESSION ======================================================
 
-@subparser
 class ExpressionParser(MultiParser):
     options = (
         TagParser,
