@@ -29,14 +29,6 @@ def parse_one(text):
     return create_parser(text).parse()[0]
 
 
-# BASE PARSER ===========================================
-
-def test_subparser_invalid_node_id():
-    stream = TokenStream("foo")
-    with pytest.raises(Exception):
-        parsing.base.get_subparser("x", stream)
-
-
 # PARSER ===========================================
 
 def test_empty_input_string():

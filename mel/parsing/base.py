@@ -17,9 +17,9 @@ def indexed(parse_method):
 
 
 class BaseParser:
-    def __init__(self, stream):
+    def __init__(self, stream, subparsers=None):
         self.stream = stream
-        self._subparsers = {}
+        self._subparsers = subparsers or {}
 
     def build_node(self):
         return self.Node()
@@ -31,7 +31,8 @@ class BaseParser:
     def get_subparser(self, Parser, stream):
         name = Parser.__name__
         if name not in self._subparsers:
-            self._subparsers[name] = Parser(stream)
+            parser = Parser(stream, subparsers=self._subparsers)
+            self._subparsers[name] = parser
         return self._subparsers[name]
 
     def error(self, Error, token=None):
