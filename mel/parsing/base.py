@@ -19,6 +19,7 @@ def indexed(parse_method):
 class BaseParser:
     def __init__(self, stream, subparsers=None):
         self.stream = stream
+        # TODO: convert to parsing_context?
         self._subparsers = subparsers or {}
 
     def build_node(self):

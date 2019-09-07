@@ -64,11 +64,6 @@ class DocParser(PrefixedNameParser):
     Token = tokens.DocPrefixToken
 
 
-class MetaParser(PrefixedNameParser):
-    Node = nodes.MetaKeywordNode
-    Token = tokens.MetaPrefixToken
-
-
 class KeywordParser(MultiParser):
     options = (
         NameParser,
@@ -77,6 +72,5 @@ class KeywordParser(MultiParser):
         AliasParser,
         CacheParser,
         FormatParser,
-        MetaParser,
         DocParser
     )

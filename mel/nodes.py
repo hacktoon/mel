@@ -200,10 +200,6 @@ class FormatKeywordNode(KeywordNode):
     id = "format-keyword"
 
 
-class MetaKeywordNode(KeywordNode):
-    id = "meta-keyword"
-
-
 class DocKeywordNode(KeywordNode):
     id = "doc-keyword"
 
@@ -256,6 +252,14 @@ class TemplateStringNode(LiteralNode):
 
 class PathNode(ContainerNode):
     id = "path"
+
+
+class ChildPathNode(Node):
+    id = "child-path"
+
+
+class MetaPathNode(Node):
+    id = "meta-path"
 
 
 # WILDCARD ========================================================

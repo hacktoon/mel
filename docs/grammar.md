@@ -8,42 +8,46 @@
 
 ```
 
-root        =  expression*
+root            =  expression*
 
-expression  =  tag | relation | value
+expression      =  tag | relation | value
 
-tag         =  '#' NAME
+relation        =  path sign value
 
-relation    =  path sign value
+path            =  keyword ( access keyword )*
+keyword         =  NAME | CONCEPT | log | alias | cache | format | meta | doc
 
-path        =  keyword ( '/' keyword )*
-keyword     =  NAME | CONCEPT | log | alias | cache | format | meta | doc
-log         =  '!' NAME
-alias       =  '@' NAME
-cache       =  '$' NAME
-format      =  '%' NAME
-meta        =  '.' NAME
-doc         =  '?' NAME
+value           =  reference | literal | list | object
 
-sign        =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
+reference       =  head-ref ( access tail-ref )*
+head-ref        =  query | keyword
+tail-ref        =  RANGE | INT | tag | list | object | query | keyword | wildcard
 
-value       =  reference | literal | list | object
+literal         =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
 
-reference   =  head-ref ( '/' child-ref )*
-head-ref    =  query | keyword
-child-ref   =  RANGE | INT | tag | list | object | query | keyword | wildcard
-wildcard    =  '*'
+list            =  '[' value* ']'
 
-literal     =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
+object          =  '(' object-key expression* ')'
+object-key      =  path | anonym-path | default-format | default-doc
 
-list        =  '[' value* ']'
+query           =  '{' query-key expression* '}'
+query-key       =  path | anonym-path
 
-object      =  '(' object-key expression* ')'
-object-key  =  path | ':' | '%:' | '?:'
+sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
+access          =  '/' | '.'
+wildcard        =  '*'
 
-query       =  '{' query-key expression* '}'
-query-key   =  path | ':'
+tag             =  '#' NAME
+log             =  '!' NAME
+alias           =  '@' NAME
+cache           =  '$' NAME
+format          =  '%' NAME
+meta            =  '.' NAME
+doc             =  '?' NAME
 
+default-doc     =  '?:'
+default-format  =  '%:'
+anonym-path     =  ':'
 
 ```
 

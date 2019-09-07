@@ -225,7 +225,7 @@ def test_subparser_nested_list():
     "test_input",
     [
         "etc",
-        "bar/.name",
+        "bar/?name",
         'foo/#bar',
         '!foo/@bar',
         '%foo/$bar',
@@ -258,6 +258,8 @@ def test_reference_expected_child(test_input):
         ("foo", 1),
         ("Bar", 1),
         ("Bar/$redis", 2),
+        ("Bar.name", 2),
+        ("Bar.name/%upper", 3),
         ("Foo/bar/?baz", 3),
         ("foo/Bar/%baz", 3),
         ("!foo/Etc/@bar/baz", 4)
@@ -306,7 +308,6 @@ def test_path_keyword_not_found(test_input):
     "test_input, expected",
     [
         ("!baz", "baz"),
-        (".ba_r2", "ba_r2"),
         ("foo", "foo"),
         ("Foo", "Foo"),
         ("@foo", "foo"),
@@ -353,7 +354,6 @@ def test_name_not_found_after_prefix():
         ("@foo", parsing.keyword.AliasParser),
         ("%foo", parsing.keyword.FormatParser),
         ("?foo", parsing.keyword.DocParser),
-        (".fo_o", parsing.keyword.MetaParser)
     ]
 )
 def test_keyword_subparsers(test_input, parser):

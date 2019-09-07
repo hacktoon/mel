@@ -179,7 +179,12 @@ class DefaultDocKeyToken(Token):
     priority = 1
 
 
-class MetaPrefixToken(Token):
+class SubNodeToken(Token):
+    id = "/"
+    regex = re.compile(r"/")
+
+
+class MetaNodeToken(Token):
     id = "."
     regex = re.compile(r"\.")
 
@@ -243,11 +248,6 @@ class NotInToken(Token):
 class WildcardToken(Token):
     id = "*"
     regex = re.compile(r"\*")
-
-
-class SubNodeToken(Token):
-    id = "/"
-    regex = re.compile(r"/")
 
 
 class StartObjectToken(Token):

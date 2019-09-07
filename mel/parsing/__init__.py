@@ -18,8 +18,8 @@ from .base import (
 )
 
 from ..exceptions import (
-    UnexpectedTokenError,
     KeywordNotFoundError,
+    UnexpectedTokenError,
     ExpectedKeywordError,
     ExpectedValueError,
     KeyNotFoundError
@@ -77,13 +77,41 @@ class PathParser(BaseParser):
         return node
 
     def parse_tail(self, node):
-        while self.stream.is_next(tokens.SubNodeToken):
-            self.stream.read()
-            _keyword = self.subparse(KeywordParser)
-            if _keyword:
-                node.add(_keyword)
-            else:
-                self.error(KeywordNotFoundError)
+        while True:
+            tail = self.subparse(PathTailParser)
+            if not tail:
+                break
+            node.add(tail)
+
+
+class AccessPathParser(BaseParser):
+    def parse(self):
+        if not self.stream.is_next(self.Token):
+            return
+        self.stream.read()
+        node = self.build_node()
+        tail = self.subparse(KeywordParser)
+        if not tail:
+            self.error(KeywordNotFoundError)
+        node.tail = tail
+        return node
+
+
+class ChildPathParser(AccessPathParser):
+    Node = nodes.ChildPathNode
+    Token = tokens.SubNodeToken
+
+
+class MetaPathParser(AccessPathParser):
+    Node = nodes.MetaPathNode
+    Token = tokens.MetaNodeToken
+
+
+class PathTailParser(MultiParser):
+    options = (
+        ChildPathParser,
+        MetaPathParser,
+    )
 
 
 # BASE STRUCT ===============================================
