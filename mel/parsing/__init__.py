@@ -5,6 +5,7 @@ from .keyword import KeywordParser, TagParser
 
 from .literal import (
     LiteralParser,
+    RangeParser,
     IntParser,
 )
 
@@ -17,7 +18,6 @@ from .base import (
 )
 
 from ..exceptions import (
-    InfiniteRangeError,
     UnexpectedTokenError,
     ExpectedKeywordError,
     ExpectedValueError,
@@ -39,17 +39,17 @@ class Parser(BaseParser):
 
 class ListParser(BaseParser):
     Node = nodes.ListNode
-    FirstToken = tokens.StartListToken
-    LastToken = tokens.EndListToken
+    PrefixToken = tokens.StartListToken
+    SuffixToken = tokens.EndListToken
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.FirstToken):
+        if not self.stream.is_next(self.PrefixToken):
             return
         node = self.build_node()
         self.stream.read()
         self.parse_values(node)
-        self.stream.read(self.LastToken)
+        self.stream.read(self.SuffixToken)
         return node
 
     def parse_values(self, node):
@@ -58,46 +58,6 @@ class ListParser(BaseParser):
             if not _object:
                 break
             node.add(_object)
-
-
-# RANGE ===========================
-
-class RangeParser(BaseParser):
-    Node = nodes.RangeNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        if self._parse_left_open(node):
-            return node
-        if self._parse_left_bound(node):
-            return node
-        return
-
-    def _parse_left_open(self, node):
-        if not self.stream.is_next(tokens.RangeToken):
-            return
-        _range = self.stream.read()
-        if not self.stream.is_next(tokens.IntToken):
-            self.error(InfiniteRangeError, _range)
-        node.end = self.stream.read().value
-        return True
-
-    def _parse_left_bound(self, node):
-        first_is_int = self.stream.is_next(tokens.IntToken)
-        range_is_next = self.stream.peek(1) == tokens.RangeToken
-        if not (first_is_int and range_is_next):
-            return
-        node.start = self.stream.read().value
-        self.stream.read()
-        if self.stream.is_next(tokens.IntToken):
-            node.end = self.stream.read().value
-        return True
-
-
-class WildcardParser(TokenParser):
-    Node = nodes.WildcardNode
-    Token = tokens.WildcardToken
 
 
 # BASE STRUCT ===============================================
@@ -116,13 +76,13 @@ class KeyStructParser(StructParser):
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.FirstToken):
+        if not self.stream.is_next(self.PrefixToken):
             return
         node = self.build_node()
         self.stream.read()
         self.parse_key(node)
         self.parse_expressions(node)
-        self.stream.read(self.LastToken)
+        self.stream.read(self.SuffixToken)
         return node
 
     def parse_key(self, node):
@@ -165,8 +125,8 @@ class DefaultFormatKeyParser(TokenParser):
 
 class ObjectParser(KeyStructParser):
     Node = nodes.ObjectNode
-    FirstToken = tokens.StartObjectToken
-    LastToken = tokens.EndObjectToken
+    PrefixToken = tokens.StartObjectToken
+    SuffixToken = tokens.EndObjectToken
     key_parsers = (
         AnonymKeyParser,
         DefaultDocKeyParser,
@@ -179,12 +139,19 @@ class ObjectParser(KeyStructParser):
 
 class QueryParser(KeyStructParser):
     Node = nodes.QueryNode
-    FirstToken = tokens.StartQueryToken
-    LastToken = tokens.EndQueryToken
+    PrefixToken = tokens.StartQueryToken
+    SuffixToken = tokens.EndQueryToken
     key_parsers = (
         AnonymKeyParser,
         PathParser
     )
+
+
+# WILDCARD ===============================================
+
+class WildcardParser(TokenParser):
+    Node = nodes.WildcardNode
+    Token = tokens.WildcardToken
 
 
 # REFERENCE ====================================================
