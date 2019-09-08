@@ -3,7 +3,6 @@ from .. import tokens
 
 from .base import (
     BaseParser,
-    MultiParser,
     TokenParser,
     indexed
 )
@@ -64,13 +63,14 @@ class DocParser(PrefixedNameParser):
     Token = tokens.DocPrefixToken
 
 
-class KeywordParser(MultiParser):
-    options = (
-        NameParser,
-        ConceptParser,
-        LogParser,
-        AliasParser,
-        CacheParser,
-        FormatParser,
-        DocParser
-    )
+class KeywordParser(BaseParser):
+    def parse(self):
+        return self.read_any([
+            NameParser,
+            ConceptParser,
+            LogParser,
+            AliasParser,
+            CacheParser,
+            FormatParser,
+            DocParser
+        ])

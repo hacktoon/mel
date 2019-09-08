@@ -3,7 +3,6 @@ from .. import tokens
 
 from .base import (
     BaseParser,
-    MultiParser,
     TokenParser,
     indexed
 )
@@ -36,14 +35,15 @@ class TemplateStringParser(TokenParser):
     Token = tokens.TemplateStringToken
 
 
-class LiteralParser(MultiParser):
-    options = (
-        IntParser,
-        FloatParser,
-        StringParser,
-        TemplateStringParser,
-        BooleanParser
-    )
+class LiteralParser(BaseParser):
+    def parse(self):
+        return self.read_any([
+            IntParser,
+            FloatParser,
+            StringParser,
+            TemplateStringParser,
+            BooleanParser
+        ])
 
 
 # RANGE ===========================

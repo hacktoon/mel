@@ -13,7 +13,6 @@ from .literal import (
 from .base import (
     BaseParser,
     TokenParser,
-    MultiParser,
     indexed
 )
 
@@ -30,7 +29,7 @@ from ..exceptions import (
 
 class Parser(BaseParser):
     def parse(self):
-        node = self.subparse(RootParser)
+        node = self.read(RootParser)
         if self.stream.is_eof():
             return node
         self.error(UnexpectedTokenError)
@@ -55,7 +54,7 @@ class ListParser(BaseParser):
 
     def parse_values(self, node):
         while True:
-            _object = self.subparse(ValueParser)
+            _object = self.read(ValueParser)
             if not _object:
                 break
             node.add(_object)
@@ -63,33 +62,12 @@ class ListParser(BaseParser):
 
 # PATH ======================================================
 
-class PathParser(BaseParser):
-    Node = nodes.PathNode
-
-    @indexed
-    def parse(self):
-        _keyword = self.subparse(KeywordParser)
-        if not _keyword:
-            return
-        node = self.build_node()
-        node.add(_keyword)
-        self.parse_tail(node)
-        return node
-
-    def parse_tail(self, node):
-        while True:
-            tail = self.subparse(PathTailParser)
-            if not tail:
-                break
-            node.add(tail)
-
-
 class SubPathParser(BaseParser):
     def parse(self):
         if not self.stream.is_next(self.Token):
             return
         self.stream.read()
-        _keyword = self.subparse(KeywordParser)
+        _keyword = self.read(KeywordParser)
         if not _keyword:
             self.error(KeywordNotFoundError)
         node = self.build_node()
@@ -107,11 +85,29 @@ class MetaPathParser(SubPathParser):
     Token = tokens.MetaNodeToken
 
 
-class PathTailParser(MultiParser):
-    options = (
+class PathParser(BaseParser):
+    Node = nodes.PathNode
+    subparsers = [
         ChildPathParser,
         MetaPathParser,
-    )
+    ]
+
+    @indexed
+    def parse(self):
+        _keyword = self.read(KeywordParser)
+        if not _keyword:
+            return
+        node = self.build_node()
+        node.add(_keyword)
+        self.parse_tail(node)
+        return node
+
+    def parse_tail(self, node):
+        while True:
+            tail = self.read_any(self.subparsers)
+            if not tail:
+                break
+            node.add(tail)
 
 
 # BASE STRUCT ===============================================
@@ -119,14 +115,14 @@ class PathTailParser(MultiParser):
 class StructParser(BaseParser):
     def parse_expressions(self, node):
         while True:
-            expression = self.subparse(ExpressionParser)
+            expression = self.read(ExpressionParser)
             if not expression:
                 break
             node.add(expression)
 
 
 class KeyStructParser(StructParser):
-    KeyParser = None
+    key_parsers = []
 
     @indexed
     def parse(self):
@@ -140,7 +136,7 @@ class KeyStructParser(StructParser):
         return node
 
     def parse_key(self, node):
-        key = self.subparse(self.KeyParser)
+        key = self.read_any(self.key_parsers)
         if not key:
             self.error(KeyNotFoundError)
         node.key = key
@@ -175,8 +171,13 @@ class DefaultFormatKeyParser(TokenParser):
     Token = tokens.DefaultFormatKeyToken
 
 
-class ObjectKeyParser(MultiParser):
-    options = (
+# OBJECT ======================================================
+
+class ObjectParser(KeyStructParser):
+    Node = nodes.ObjectNode
+    FirstToken = tokens.StartObjectToken
+    LastToken = tokens.EndObjectToken
+    key_parsers = (
         AnonymKeyParser,
         DefaultDocKeyParser,
         DefaultFormatKeyParser,
@@ -184,39 +185,36 @@ class ObjectKeyParser(MultiParser):
     )
 
 
-class QueryKeyParser(MultiParser):
-    options = (
-        AnonymKeyParser,
-        PathParser
-    )
-
-
-# OBJECT ======================================================
-
-class ObjectParser(KeyStructParser):
-    Node = nodes.ObjectNode
-    KeyParser = ObjectKeyParser
-    FirstToken = tokens.StartObjectToken
-    LastToken = tokens.EndObjectToken
-
-
 # QUERY ======================================================
 
 class QueryParser(KeyStructParser):
     Node = nodes.QueryNode
-    KeyParser = QueryKeyParser
     FirstToken = tokens.StartQueryToken
     LastToken = tokens.EndQueryToken
+    key_parsers = (
+        AnonymKeyParser,
+        PathParser
+    )
 
 
 # REFERENCE ====================================================
 
 class ReferenceParser(BaseParser):
     Node = nodes.ReferenceNode
+    tail_parsers = (
+        WildcardParser,
+        TagParser,
+        RangeParser,
+        IntParser,
+        ListParser,
+        ObjectParser,
+        QueryParser,
+        KeywordParser
+    )
 
     @indexed
     def parse(self):
-        head = self.subparse(HeadReferenceParser)
+        head = self.read_any([QueryParser, KeywordParser])
         if not head:
             return
         node = self.build_node()
@@ -230,31 +228,11 @@ class ReferenceParser(BaseParser):
             self.parse_child(node)
 
     def parse_child(self, node):
-        child = self.subparse(ChildReferenceParser)
+        child = self.read_any(self.tail_parsers)
         if not child:
             self.error(ExpectedKeywordError)
         node.add(child)
         return child
-
-
-class HeadReferenceParser(MultiParser):
-    options = (
-        QueryParser,
-        KeywordParser
-    )
-
-
-class ChildReferenceParser(MultiParser):
-    options = (
-        WildcardParser,
-        TagParser,
-        RangeParser,
-        IntParser,
-        ListParser,
-        ObjectParser,
-        QueryParser,
-        KeywordParser
-    )
 
 
 # RELATION ====================================================
@@ -263,7 +241,7 @@ class PathRelationParser(BaseParser):
     @indexed
     def parse(self):
         self.stream.save()
-        path = self.subparse(PathParser)
+        path = self.read(PathParser)
         if not path:
             return
         if not self.stream.is_next(self.SignToken):
@@ -276,7 +254,7 @@ class PathRelationParser(BaseParser):
         return node
 
     def parse_value(self):
-        value = self.subparse(ValueParser)
+        value = self.read(ValueParser)
         if not value:
             self.error(ExpectedValueError)
         return value
@@ -322,35 +300,38 @@ class NotInParser(PathRelationParser):
     SignToken = tokens.NotInToken
 
 
-class RelationParser(MultiParser):
-    options = (
-        EqualParser,
-        DifferentParser,
-        GreaterThanParser,
-        GreaterThanEqualParser,
-        LessThanParser,
-        LessThanEqualParser,
-        InParser,
-        NotInParser
-    )
+class RelationParser(BaseParser):
+    def parse(self):
+        return self.read_any([
+            EqualParser,
+            DifferentParser,
+            GreaterThanParser,
+            GreaterThanEqualParser,
+            LessThanParser,
+            LessThanEqualParser,
+            InParser,
+            NotInParser
+        ])
 
 
 # VALUE ======================================================
 
-class ValueParser(MultiParser):
-    options = (
-        ReferenceParser,
-        LiteralParser,
-        ListParser,
-        ObjectParser,
-    )
+class ValueParser(BaseParser):
+    def parse(self):
+        return self.read_any([
+            ReferenceParser,
+            LiteralParser,
+            ListParser,
+            ObjectParser,
+        ])
 
 
 # EXPRESSION ======================================================
 
-class ExpressionParser(MultiParser):
-    options = (
-        TagParser,
-        RelationParser,
-        ValueParser
-    )
+class ExpressionParser(BaseParser):
+    def parse(self):
+        return self.read_any([
+            TagParser,
+            RelationParser,
+            ValueParser
+        ])

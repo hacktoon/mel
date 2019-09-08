@@ -25,31 +25,26 @@ class BaseParser:
     def build_node(self):
         return self.Node()
 
-    def subparse(self, Parser):
-        subparser = self.get_subparser(Parser, self.stream)
+    def read(self, Parser):
+        subparser = self._get_parser(Parser, self.stream)
         return subparser.parse()
 
-    def get_subparser(self, Parser, stream):
+    def read_any(self, parsers):
+        for parser in parsers:
+            node = self.read(parser)
+            if node:
+                return node
+        return
+
+    def error(self, Error, token=None):
+        raise Error(token or self.stream.peek())
+
+    def _get_parser(self, Parser, stream):
         name = Parser.__name__
         if name not in self._subparsers:
             parser = Parser(stream, subparsers=self._subparsers)
             self._subparsers[name] = parser
         return self._subparsers[name]
-
-    def error(self, Error, token=None):
-        raise Error(token or self.stream.peek())
-
-
-class MultiParser(BaseParser):
-    options = tuple()
-
-    @indexed
-    def parse(self):
-        for option in self.options:
-            node = self.subparse(option)
-            if node:
-                return node
-        return
 
 
 class TokenParser(BaseParser):
