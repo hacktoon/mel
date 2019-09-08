@@ -84,25 +84,25 @@ class PathParser(BaseParser):
             node.add(tail)
 
 
-class AccessPathParser(BaseParser):
+class SubPathParser(BaseParser):
     def parse(self):
         if not self.stream.is_next(self.Token):
             return
         self.stream.read()
-        node = self.build_node()
-        tail = self.subparse(KeywordParser)
-        if not tail:
+        _keyword = self.subparse(KeywordParser)
+        if not _keyword:
             self.error(KeywordNotFoundError)
-        node.tail = tail
+        node = self.build_node()
+        node.keyword = _keyword
         return node
 
 
-class ChildPathParser(AccessPathParser):
+class ChildPathParser(SubPathParser):
     Node = nodes.ChildPathNode
     Token = tokens.SubNodeToken
 
 
-class MetaPathParser(AccessPathParser):
+class MetaPathParser(SubPathParser):
     Node = nodes.MetaPathNode
     Token = tokens.MetaNodeToken
 
