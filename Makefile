@@ -1,4 +1,4 @@
-PYTHON_DEBUGGER=pudb.set_trace
+PYTHON_DEBUGGER=ipdb.set_trace
 
 install:
 ifdef DEV

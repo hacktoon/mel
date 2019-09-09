@@ -16,22 +16,46 @@ def indexed(parse_method):
     return surrogate
 
 
+# decorator - register parsing classes as subparsers in ParserMap
+def subparser(cls):
+    ParserMap.set(cls)
+    return cls
+
+
+# references parser classes by its id
+class ParserMap:
+    _map = {}
+
+    @classmethod
+    def set(cls, _parser):
+        cls._map[_parser.id] = _parser
+
+    @classmethod
+    def get(cls, _id):
+        return cls._map.get(_id)
+
+
+# BASE PARSER =============================================
+
 class BaseParser:
     def __init__(self, stream, subparsers=None):
         self.stream = stream
         # TODO: convert to parsing_context?
-        self._subparsers = subparsers or {}
+        self.subparsers = subparsers or {}
+
+    def parse(self):
+        raise NotImplementedError
 
     def build_node(self):
         return self.Node()
 
-    def read(self, Parser):
-        subparser = self._get_parser(Parser, self.stream)
-        return subparser.parse()
+    def read(self, _id):
+        parser = self._get_parser(_id, self.stream)
+        return parser.parse()
 
-    def read_any(self, parsers):
-        for parser in parsers:
-            node = self.read(parser)
+    def read_any(self, ids):
+        for _id in ids:
+            node = self.read(_id)
             if node:
                 return node
         return
@@ -39,12 +63,12 @@ class BaseParser:
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
 
-    def _get_parser(self, Parser, stream):
-        name = Parser.__name__
-        if name not in self._subparsers:
-            parser = Parser(stream, subparsers=self._subparsers)
-            self._subparsers[name] = parser
-        return self._subparsers[name]
+    def _get_parser(self, _id, stream):
+        if _id not in self.subparsers:
+            Parser = ParserMap.get(_id)
+
+            self.subparsers[_id] = Parser(stream, subparsers=self.subparsers)
+        return self.subparsers[_id]
 
 
 class TokenParser(BaseParser):

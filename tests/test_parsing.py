@@ -158,7 +158,7 @@ def test_object_index():
     ]
 )
 def test_expression(test_input, refnode):
-    node = parse(test_input, parsing.ExpressionParser)
+    node = parse(test_input, parsing.expression.ExpressionParser)
     assert node.id == refnode.id
 
 
@@ -191,29 +191,29 @@ def test_tags(test_input):
     ]
 )
 def test_subparser_value(test_input):
-    parser = create_parser(test_input, parsing.ValueParser)
+    parser = create_parser(test_input, parsing.value.ValueParser)
     assert parser.parse()
 
 
 #  LIST ======================================================
 
 def test_subparser_empty_list():
-    parser = create_parser("[]", parsing.ListParser)
+    parser = create_parser("[]", parsing.literal.ListParser)
     assert parser.parse().id == nodes.ListNode.id
 
 
 def test_subparser_literal_list():
-    parser = create_parser("[1, 2]", parsing.ListParser)
+    parser = create_parser("[1, 2]", parsing.literal.ListParser)
     assert parser.parse().id == nodes.ListNode.id
 
 
 def test_list_size():
-    parser = create_parser("[1, 2, 'abc']", parsing.ListParser)
+    parser = create_parser("[1, 2, 'abc']", parsing.literal.ListParser)
     assert len(parser.parse()) == 3
 
 
 def test_subparser_nested_list():
-    parser = create_parser("[[], [1, 2]]", parsing.ListParser)
+    parser = create_parser("[[], [1, 2]]", parsing.literal.ListParser)
     node = parser.parse()
     assert node[0].id == nodes.ListNode.id
     assert node[1].id == nodes.ListNode.id
@@ -234,7 +234,7 @@ def test_subparser_nested_list():
     ]
 )
 def test_reference_keywords(test_input):
-    parser = create_parser(test_input, parsing.ReferenceParser)
+    parser = create_parser(test_input, parsing.reference.ReferenceParser)
     assert parser.parse()
 
 
@@ -247,7 +247,7 @@ def test_reference_keywords(test_input):
 )
 def test_reference_expected_child(test_input):
     with pytest.raises(ExpectedKeywordError):
-        parse(test_input, parsing.ReferenceParser)
+        parse(test_input, parsing.reference.ReferenceParser)
 
 
 # PATH =================================================
@@ -266,7 +266,7 @@ def test_reference_expected_child(test_input):
     ]
 )
 def test_path_length(test_input, total):
-    parser = create_parser(test_input, parsing.PathParser)
+    parser = create_parser(test_input, parsing.path.PathParser)
     node = parser.parse()
     assert len(node) == total
 
@@ -282,7 +282,7 @@ def test_path_length(test_input, total):
     ]
 )
 def test_path_single_node_ids(test_input, expected):
-    parser = create_parser(test_input, parsing.PathParser)
+    parser = create_parser(test_input, parsing.path.PathParser)
     node = parser.parse()
     assert node[0].id == expected.id
 
@@ -297,7 +297,7 @@ def test_path_single_node_ids(test_input, expected):
     ]
 )
 def test_path_keyword_not_found(test_input):
-    parser = create_parser(test_input, parsing.PathParser)
+    parser = create_parser(test_input, parsing.path.PathParser)
     with pytest.raises(KeywordNotFoundError):
         parser.parse()
 
@@ -415,36 +415,36 @@ def test_literal_subparsers(test_input, parser):
 # RANGE ==================================================
 
 def test_range_id():
-    node = parse("2..4", parsing.RangeParser)
+    node = parse("2..4", parsing.literal.RangeParser)
     assert node.id == nodes.RangeNode.id
 
 
 def test_range_limit():
-    node = parse("0..-10", parsing.RangeParser)
+    node = parse("0..-10", parsing.literal.RangeParser)
     assert node.start == 0
     assert node.end == -10
 
 
 def test_range_without_specific_end():
-    node = parse("42..", parsing.RangeParser)
+    node = parse("42..", parsing.literal.RangeParser)
     assert node.start == 42
     assert node.end is None
 
 
 def test_range_without_specific_start():
-    node = parse("..33", parsing.RangeParser)
+    node = parse("..33", parsing.literal.RangeParser)
     assert node.start is None
     assert node.end == 33
 
 
 def test_range_must_have_at_least_one_int():
     with pytest.raises(InfiniteRangeError):
-        parse("..", parsing.RangeParser)
+        parse("..", parsing.literal.RangeParser)
 
 
 def test_range_only_accepts_integers():
     with pytest.raises(InfiniteRangeError):
-        parse("..3.4", parsing.RangeParser)
+        parse("..3.4", parsing.literal.RangeParser)
 
 
 # RELATION =================================================
@@ -460,7 +460,7 @@ def test_range_only_accepts_integers():
     ]
 )
 def test_relation_components(test_input, path, value):
-    node = parse(test_input, parsing.RelationParser)
+    node = parse(test_input, parsing.relation.RelationParser)
     assert str(node.path) == path
     assert str(node.value) == value
 
@@ -476,7 +476,7 @@ def test_relation_components(test_input, path, value):
 )
 def test_relation_value_expected(test_input):
     with pytest.raises(ExpectedValueError):
-        parse(test_input, parsing.RelationParser)
+        parse(test_input, parsing.relation.RelationParser)
 
 
 # STRUCT ===================================================
@@ -484,13 +484,13 @@ def test_relation_value_expected(test_input):
 @pytest.mark.parametrize(
     "test_input, Parser",
     [
-        ("bar", parsing.RootParser),
-        ("(?: foo bar)", parsing.ObjectParser),
-        ("(%: foo bar)", parsing.ObjectParser),
-        ("(abc foo bar)", parsing.ObjectParser),
-        ("(: foo bar)", parsing.ObjectParser),
-        ("{abc foo bar}", parsing.QueryParser),
-        ("{: foo bar}", parsing.QueryParser),
+        ("bar", parsing.struct.RootParser),
+        ("(?: foo bar)", parsing.struct.ObjectParser),
+        ("(%: foo bar)", parsing.struct.ObjectParser),
+        ("(abc foo bar)", parsing.struct.ObjectParser),
+        ("(: foo bar)", parsing.struct.ObjectParser),
+        ("{abc foo bar}", parsing.struct.QueryParser),
+        ("{: foo bar}", parsing.struct.QueryParser),
     ]
 )
 def test_struct_object_expression(test_input, Parser):
@@ -506,14 +506,14 @@ def test_struct_object_expression(test_input, Parser):
     ]
 )
 def test_struct_tags(test_input, tags):
-    _object = parse(test_input, parsing.ObjectParser)
+    _object = parse(test_input, parsing.struct.ObjectParser)
     assert _object.tags == set(tags)
 
 
 # OBJECT ===================================================
 
 def test_object_with_no_value():
-    node = parse("(a)", parsing.ObjectParser)
+    node = parse("(a)", parsing.struct.ObjectParser)
     assert len(node) == 0
 
 
@@ -526,7 +526,7 @@ def test_object_with_no_value():
     ]
 )
 def test_object_path_string_repr(test_input, value):
-    node = parse(test_input, parsing.ObjectParser)
+    node = parse(test_input, parsing.struct.ObjectParser)
     assert str(node.key) == value
 
 
@@ -540,7 +540,7 @@ def test_object_path_string_repr(test_input, value):
 )
 def test_invalid_object_key(test_input):
     with pytest.raises(KeyNotFoundError):
-        parse(test_input, parsing.ObjectParser)
+        parse(test_input, parsing.struct.ObjectParser)
 
 
 @pytest.mark.parametrize(
@@ -553,25 +553,25 @@ def test_invalid_object_key(test_input):
 )
 def test_object_unexpected_expression(test_input):
     with pytest.raises(UnexpectedTokenError):
-        parse(test_input, parsing.ObjectParser)
+        parse(test_input, parsing.struct.ObjectParser)
 
 
 # ANONYM OBJECT ===============================================
 
 def test_anonym_object_value():
-    node = parse("(: x = 2)", parsing.ObjectParser)
+    node = parse("(: x = 2)", parsing.struct.ObjectParser)
     assert str(node[0]) == "x = 2"
 
 
 # QUERY ===============================================
 
 def test_query_key_single_value():
-    node = parse("{abc 42}", parsing.QueryParser)
+    node = parse("{abc 42}", parsing.struct.QueryParser)
     assert node[0].value == 42
 
 
 # ANONYM QUERY ===============================================
 
 def test_anonym_query_value():
-    node = parse("{: 42}", parsing.QueryParser)
+    node = parse("{: 42}", parsing.struct.QueryParser)
     assert node[0].value == 42
