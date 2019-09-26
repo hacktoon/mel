@@ -65,11 +65,11 @@ class BaseParser:
 
     def read_zero_many(self, rule):
         nodes = []
-        try:
+        while True:
             node = self.read_rule(rule, optional=True)
-            nodes.add(node)
-        except Exception:
-            pass
+            if not node:
+                break
+            nodes.append(node)
         return nodes
 
     def read_token(self, Token):

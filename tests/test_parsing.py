@@ -484,30 +484,18 @@ def test_relation_value_expected(test_input):
 @pytest.mark.parametrize(
     "test_input, Parser",
     [
-        ("bar", parsing.struct.RootParser),
-        ("(?: foo bar)", parsing.struct.ObjectParser),
-        ("(%: foo bar)", parsing.struct.ObjectParser),
-        ("(abc foo bar)", parsing.struct.ObjectParser),
-        ("(: foo bar)", parsing.struct.ObjectParser),
-        ("{abc foo bar}", parsing.struct.QueryParser),
+        # ("bar", parsing.struct.RootParser),
+        # ("(?: foo bar)", parsing.struct.ObjectParser),
+        # ("(%: foo bar)", parsing.struct.ObjectParser),
+        # ("(abc foo bar)", parsing.struct.ObjectParser),
+        # ("(: foo bar)", parsing.struct.ObjectParser),
+        # ("{abc foo bar}", parsing.struct.QueryParser),
         ("{: foo bar}", parsing.struct.QueryParser),
     ]
 )
 def test_struct_object_expression(test_input, Parser):
     assert parse(test_input, Parser)
     assert parse(test_input)
-
-
-@pytest.mark.parametrize(
-    "test_input, tags",
-    [
-        ("(foo #bar)", ['bar']),
-        ("(foo #bar #baz)", ['bar', 'baz']),
-    ]
-)
-def test_struct_tags(test_input, tags):
-    _object = parse(test_input, parsing.struct.ObjectParser)
-    assert _object.tags == set(tags)
 
 
 # OBJECT ===================================================

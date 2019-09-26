@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 
 class Node:
     def __init__(self):
@@ -37,36 +35,14 @@ class ContainerNode(Node):
     def __getitem__(self, index):
         return self._subnodes[index]
 
-    def add(self, node):
-        self._subnodes.append(node)
+    def add(self, *nodes):
+        for node in nodes:
+            self._subnodes.append(node)
 
 
 # ABSTRACT STRUCTS =================================================
 
-class StructNode(ContainerNode):
-    def __init__(self):
-        super().__init__()
-        self.tags = set()
-        self.props = defaultdict(dict)
-        self.values = []
-
-    def add(self, node):
-        super().add(node)
-        id = node.id
-        if id == TagKeywordNode.id:
-            self.add_tag(node)
-
-    def add_tag(self, node):
-        self.tags.add(node.value)
-
-    def add_relation(self, node):
-        return
-
-    def add_struct(self, node):
-        return
-
-
-class KeyStructNode(StructNode):
+class KeyStructNode(ContainerNode):
     def __init__(self):
         super().__init__()
         self.key = Node()
@@ -74,7 +50,7 @@ class KeyStructNode(StructNode):
 
 # ROOT STRUCT =========================================================
 
-class RootNode(StructNode):
+class RootNode(ContainerNode):
     id = "root"
 
 

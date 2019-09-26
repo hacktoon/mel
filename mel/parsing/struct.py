@@ -21,20 +21,24 @@ from .base import (
 from ..exceptions import KeyNotFoundError
 
 
-# BASE STRUCT ===============================================
+# ROOT STRUCT ================================================
 
-class StructParser(BaseParser):
-    def parse_expressions(self, node):
-        while True:
-            expression = self.read_rule(EXPRESSION)
-            if not expression:
-                break
-            node.add(expression)
+@subparser
+class RootParser(BaseParser):
+    id = ROOT
+    Node = nodes.RootNode
+
+    @indexed
+    def parse(self):
+        node = self.build_node()
+        expressions = self.read_zero_many(EXPRESSION)
+        node.add(*expressions)
+        return node
 
 
 # KEY STRUCT =================================================
 
-class KeyStructParser(StructParser):
+class StructParser(BaseParser):
     key_parsers = []
 
     @indexed
@@ -44,7 +48,8 @@ class KeyStructParser(StructParser):
         node = self.build_node()
         self.stream.read()
         self.parse_key(node)
-        self.parse_expressions(node)
+        expressions = self.read_zero_many(EXPRESSION)
+        node.add(*expressions)
         self.stream.read(self.SuffixToken)
         return node
 
@@ -53,20 +58,6 @@ class KeyStructParser(StructParser):
         if not key:
             self.error(KeyNotFoundError)
         node.key = key
-
-
-# ROOT STRUCT ================================================
-
-@subparser
-class RootParser(StructParser):
-    id = ROOT
-    Node = nodes.RootNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        self.parse_expressions(node)
-        return node
 
 
 # STRUCT KEY ====================================================
@@ -95,7 +86,7 @@ class DefaultFormatKeyParser(TokenParser):
 # OBJECT ======================================================
 
 @subparser
-class ObjectParser(KeyStructParser):
+class ObjectParser(StructParser):
     id = OBJECT
     Node = nodes.ObjectNode
     PrefixToken = tokens.StartObjectToken
@@ -106,7 +97,7 @@ class ObjectParser(KeyStructParser):
 # QUERY ======================================================
 
 @subparser
-class QueryParser(KeyStructParser):
+class QueryParser(StructParser):
     id = QUERY
     Node = nodes.QueryNode
     PrefixToken = tokens.StartQueryToken
