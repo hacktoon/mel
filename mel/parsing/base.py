@@ -56,9 +56,9 @@ class BaseParser:
             return
         return node
 
-    def read_any(self, *ids):
-        for _id in ids:
-            node = self.read_rule(_id, optional=True)
+    def read_any(self, *rules):
+        for rule in rules:
+            node = self.read_rule(rule, optional=True)
             if node:
                 return node
         return

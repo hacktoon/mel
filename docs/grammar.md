@@ -7,6 +7,27 @@
 ## Grammar
 
 ```
+TAG             =  '#'
+LOG             =  '!'
+ALIAS           =  '@'
+CACHE           =  '$'
+FORMAT          =  '%'
+META            =  '.'
+DOC             =  '?'
+EQUAL           =  '='
+DIFFERENT       =  '!='
+LT              =  '<'
+LTE             =  '<='
+GT              =  '>'
+GTE             =  '>='
+IN              =  '><'
+NOT-IN          =  '<>'
+SUB-PATH        =  '/'
+META-PATH       =  '.'
+WILDCARD        =  '*'
+DEFAULT-DOC     =  '?:'
+DEFAULT-FORMAT  =  '%:'
+ANONYM-PATH     =  ':'
 
 root            =  expression*
 
@@ -14,41 +35,29 @@ expression      =  tag | relation | value
 
 relation        =  path sign value
 
-path            =  keyword ( access keyword )*
-keyword         =  NAME | CONCEPT | log | alias | cache | format | meta | doc
+path            =  keyword ( separator keyword )*
+keyword         =  NAME | CONCEPT | meta-keyword
+meta-keyword    =  ( LOG | ALIAS | CACHE | FORMAT | META | DOC ) NAME
+
+separator       =  SUB-PATH | META-PATH
+
+sign            =  EQUAL | DIFFERENT | LT | LTE | GT | GTE | IN | NOT-IN
 
 value           =  reference | literal | list | object
 
-reference       =  head-ref ( access tail-ref )*
+reference       =  head-ref ( separator sub-ref )*
 head-ref        =  query | keyword
-tail-ref        =  RANGE | INT | tag | list | object | query | keyword | wildcard
+sub-ref         =  RANGE | INT | tag | list | object | query | keyword | wildcard
 
 literal         =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
 object          =  '(' object-key expression* ')'
-object-key      =  path | anonym-path | default-format | default-doc
+object-key      =  ANONYM-PATH | DEFAULT-FORMAT | DEFAULT-DOC | path
 
 query           =  '{' query-key expression* '}'
-query-key       =  path | anonym-path
-
-sign            =  '=' | '!=' | '<' | '<=' | '>' | '>=' | '><' | '<>'
-access          =  '/' | '.'
-wildcard        =  '*'
-
-tag             =  '#' NAME
-log             =  '!' NAME
-alias           =  '@' NAME
-cache           =  '$' NAME
-format          =  '%' NAME
-meta            =  '.' NAME
-doc             =  '?' NAME
-
-default-doc     =  '?:'
-default-format  =  '%:'
-anonym-path     =  ':'
-
+query-key       =  ANONYM-PATH | path
 ```
 
 
