@@ -2,7 +2,6 @@ from .. import nodes
 from .. import tokens
 
 from .constants import (
-    ROOT,
     EXPRESSION,
     ANONYM_KEY,
     DEFAULT_DOC,
@@ -19,21 +18,6 @@ from .base import (
 )
 
 from ..exceptions import KeyNotFoundError
-
-
-# ROOT STRUCT ================================================
-
-@subparser
-class RootParser(BaseParser):
-    id = ROOT
-    Node = nodes.RootNode
-
-    @indexed
-    def parse(self):
-        node = self.build_node()
-        expressions = self.read_zero_many(EXPRESSION)
-        node.add(*expressions)
-        return node
 
 
 # KEY STRUCT =================================================

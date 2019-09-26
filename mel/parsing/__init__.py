@@ -4,6 +4,7 @@ from .constants import ROOT
 from .base import BaseParser
 
 from . import ( # noqa
+    root,
     expression,
     keyword,
     literal,

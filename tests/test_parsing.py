@@ -484,7 +484,7 @@ def test_relation_value_expected(test_input):
 @pytest.mark.parametrize(
     "test_input, Parser",
     [
-        ("bar", parsing.struct.RootParser),
+        ("bar", parsing.root.RootParser),
         ("(?: foo bar)", parsing.struct.ObjectParser),
         ("(%: foo bar)", parsing.struct.ObjectParser),
         ("(abc foo bar)", parsing.struct.ObjectParser),
