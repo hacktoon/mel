@@ -40,7 +40,7 @@ class ReferenceParser(BaseParser):
 
     @indexed
     def parse(self):
-        head = self.read_any([QUERY, KEYWORD])
+        head = self.read_any(QUERY, KEYWORD)
         if not head:
             return
         node = self.build_node()
@@ -54,7 +54,7 @@ class ReferenceParser(BaseParser):
             self.parse_child(node)
 
     def parse_child(self, node):
-        child = self.read_any(TAIL_PARSERS)
+        child = self.read_any(*TAIL_PARSERS)
         if not child:
             self.error(ExpectedKeywordError)
         node.add(child)

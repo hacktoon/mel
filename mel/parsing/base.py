@@ -1,5 +1,7 @@
 import functools
 
+from ..exceptions import ParsingError
+
 
 # decorator - add stream data to node instance via parser method
 def indexed(parse_method):
@@ -55,9 +57,12 @@ class BaseParser:
 
     def read_optional(self, _id):
         parser = self._get_parser(_id, self.stream)
-        return parser.parse()
+        try:
+            return parser.parse()
+        except ParsingError:
+            return
 
-    def read_any(self, ids):
+    def read_any(self, *ids):
         for _id in ids:
             node = self.read(_id)
             if node:

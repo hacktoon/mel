@@ -49,7 +49,7 @@ class KeyStructParser(StructParser):
         return node
 
     def parse_key(self, node):
-        key = self.read_any(self.key_parsers)
+        key = self.read_any(*self.key_parsers)
         if not key:
             self.error(KeyNotFoundError)
         node.key = key

@@ -7,4 +7,4 @@ class ExpressionParser(BaseParser):
     id = EXPRESSION
 
     def parse(self):
-        return self.read_any([TAG, RELATION, VALUE])
+        return self.read_any(TAG, RELATION, VALUE)

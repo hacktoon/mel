@@ -24,7 +24,7 @@ class RelationParser(BaseParser):
     id = RELATION
 
     def parse(self):
-        return self.read_any([
+        return self.read_any(
             EQUAL,
             DIFFERENT,
             GREATER_THAN,
@@ -33,7 +33,7 @@ class RelationParser(BaseParser):
             LESS_THAN_EQUAL,
             IN,
             NOT_IN,
-        ])
+        )
 
 
 class SignedValueParser(BaseParser):
