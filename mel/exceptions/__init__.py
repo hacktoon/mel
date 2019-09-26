@@ -2,7 +2,11 @@ class MelError(Exception):
     pass
 
 
-class BaseError(MelError):
+class ParsingError(Exception):
+    pass
+
+
+class LexingError(MelError):
     def __init__(self, token, msg):
         super().__init__(msg)
         self.text = token.text
@@ -11,47 +15,47 @@ class BaseError(MelError):
         self.column = token.column
 
 
-class InvalidSyntaxError(BaseError):
+class InvalidSyntaxError(LexingError):
     def __init__(self, token):
         super().__init__(token, "This expression is not valid.")
 
 
-class UnexpectedTokenError(BaseError):
+class UnexpectedTokenError(LexingError):
     def __init__(self, token):
         super().__init__(token, "This token is not expected here.")
 
 
-class UnexpectedEOFError(BaseError):
+class UnexpectedEOFError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Reached end of text while parsing.")
 
 
-class KeywordNotFoundError(BaseError):
+class KeywordNotFoundError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Expected a keyword.")
 
 
-class KeyNotFoundError(BaseError):
+class KeyNotFoundError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Expected a path or ':'.")
 
 
-class ExpectedValueError(BaseError):
+class ExpectedValueError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Expected a value.")
 
 
-class ExpectedKeywordError(BaseError):
+class ExpectedKeywordError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Expected a keyword.")
 
 
-class NameNotFoundError(BaseError):
+class NameNotFoundError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Expected a name after this symbol.")
 
 
-class InfiniteRangeError(BaseError):
+class InfiniteRangeError(LexingError):
     def __init__(self, token):
         message = "Expected an integer before or after a range symbol."
         super().__init__(token, message)

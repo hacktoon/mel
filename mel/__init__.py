@@ -2,14 +2,14 @@ from mel.lexing import TokenStream
 from mel.parsing import Parser
 
 from mel.utils import Context
-from mel.exceptions import MelError, BaseError
+from mel.exceptions import MelError, LexingError
 from mel.exceptions.formatting import ErrorFormatter
 
 
 def lex(text):
     try:
         return TokenStream(text)
-    except BaseError as error:
+    except LexingError as error:
         message = ErrorFormatter(error).format()
         raise MelError(message)
 
@@ -22,7 +22,7 @@ def create_parser(text, Parser=Parser):
 def parse(text, Parser=Parser):
     try:
         return create_parser(text, Parser).parse()
-    except BaseError as error:
+    except LexingError as error:
         message = ErrorFormatter(error).format()
         raise MelError(message)
 
