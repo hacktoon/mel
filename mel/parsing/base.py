@@ -53,12 +53,21 @@ class BaseParser:
         parser = self._get_parser(_id, self.stream)
         return parser.parse()
 
+    def read_optional(self, _id):
+        parser = self._get_parser(_id, self.stream)
+        return parser.parse()
+
     def read_any(self, ids):
         for _id in ids:
             node = self.read(_id)
             if node:
                 return node
         return
+
+    def read_token(self, Token):
+        if not self.stream.is_next(Token):
+            return
+        return self.stream.read()
 
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
@@ -74,8 +83,9 @@ class BaseParser:
 class TokenParser(BaseParser):
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.Token):
+        token = self.read_token(self.Token)
+        if not token:
             return
         node = self.build_node()
-        node.value = self.stream.read().value
+        node.value = token.value
         return node
