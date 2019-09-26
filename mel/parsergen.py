@@ -42,17 +42,17 @@ class Parser:
     def _read_lexeme(self, pattern):
         return re.match(pattern, self.text[self.index:])
 
-    def parse_rule(text):
+    def parse_rule(self, text):
         self.read_space()
-        name = self.read(NAME)
+        self.read(RULE)
         self.read_space()
         self.read(EQUALS)
         self.read_space()
-        parser = self.parse_rule_body()
+        self.parse_rule_body()
         self.read_newline()
 
     def parse_rule_body(self):
-        expr = self.read_any(RULE, REGEX, STRING)
+        self.read_any(RULE, REGEX, STRING)
 
     def error(self, msg):
         raise Exception(msg)
