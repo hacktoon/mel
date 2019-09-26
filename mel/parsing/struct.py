@@ -26,7 +26,7 @@ from ..exceptions import KeyNotFoundError
 class StructParser(BaseParser):
     def parse_expressions(self, node):
         while True:
-            expression = self.read(EXPRESSION)
+            expression = self.read_rule(EXPRESSION)
             if not expression:
                 break
             node.add(expression)

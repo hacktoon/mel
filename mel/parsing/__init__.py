@@ -18,7 +18,7 @@ from . import ( # noqa
 class Parser(BaseParser):
     def parse(self):
         try:
-            node = self.read(ROOT)
+            node = self.read_rule(ROOT)
         except ParsingError:
             self.error(UnexpectedTokenError)
         if self.stream.is_eof():

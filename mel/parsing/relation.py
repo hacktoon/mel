@@ -40,7 +40,7 @@ class SignedValueParser(BaseParser):
     @indexed
     def parse(self):
         self.stream.save()
-        path = self.read(PATH)
+        path = self.read_rule(PATH)
         if not path:
             return
         if not self.stream.is_next(self.SignToken):
@@ -53,7 +53,7 @@ class SignedValueParser(BaseParser):
         return node
 
     def parse_value(self):
-        value = self.read(VALUE)
+        value = self.read_rule(VALUE)
         if not value:
             self.error(ExpectedValueError)
         return value

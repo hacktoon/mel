@@ -126,7 +126,7 @@ class ListParser(BaseParser):
 
     def parse_values(self, node):
         while True:
-            _object = self.read(VALUE)
+            _object = self.read_rule(VALUE)
             if not _object:
                 break
             node.add(_object)

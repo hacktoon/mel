@@ -16,7 +16,7 @@ class SubPathParser(BaseParser):
         if not self.stream.is_next(self.Token):
             return
         self.stream.read()
-        _keyword = self.read(KEYWORD)
+        _keyword = self.read_rule(KEYWORD)
         if not _keyword:
             self.error(KeywordNotFoundError)
         node = self.build_node()
@@ -45,7 +45,7 @@ class PathParser(BaseParser):
 
     @indexed
     def parse(self):
-        _keyword = self.read(KEYWORD)
+        _keyword = self.read_rule(KEYWORD)
         if not _keyword:
             return
         node = self.build_node()
