@@ -43,10 +43,10 @@ class StructParser(BaseParser):
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.PrefixToken):
+        token = self.read_token(self.PrefixToken)
+        if not token:
             return
         node = self.build_node()
-        self.stream.read()
         self.parse_key(node)
         expressions = self.read_zero_many(EXPRESSION)
         node.add(*expressions)

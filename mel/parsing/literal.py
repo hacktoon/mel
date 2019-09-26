@@ -87,12 +87,13 @@ class RangeParser(BaseParser):
         return
 
     def _parse_left_open(self, node):
-        if not self.stream.is_next(tokens.RangeToken):
+        _range = self.read_token(tokens.RangeToken)
+        if not _range:
             return
-        _range = self.stream.read()
-        if not self.stream.is_next(tokens.IntToken):
+        int_token = self.read_token(tokens.IntToken)
+        if not int_token:
             self.error(InfiniteRangeError, _range)
-        node.end = self.stream.read().value
+        node.end = int_token.value
         return True
 
     def _parse_left_bound(self, node):
@@ -102,8 +103,9 @@ class RangeParser(BaseParser):
             return
         node.start = self.stream.read().value
         self.stream.read()
-        if self.stream.is_next(tokens.IntToken):
-            node.end = self.stream.read().value
+        token = self.read_token(tokens.IntToken)
+        if token:
+            node.end = token.value
         return True
 
 
@@ -116,17 +118,9 @@ class ListParser(BaseParser):
 
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.PrefixToken):
+        if not self.read_token(self.PrefixToken):
             return
         node = self.build_node()
-        self.stream.read()
-        self.parse_values(node)
+        node.add(*self.read_zero_many(VALUE))
         self.stream.read(self.SuffixToken)
         return node
-
-    def parse_values(self, node):
-        while True:
-            _object = self.read_rule(VALUE)
-            if not _object:
-                break
-            node.add(_object)

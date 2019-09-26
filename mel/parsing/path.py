@@ -13,9 +13,9 @@ from ..exceptions import KeywordNotFoundError
 
 class SubPathParser(BaseParser):
     def parse(self):
-        if not self.stream.is_next(self.Token):
+        token = self.read_token(self.Token)
+        if not token:
             return
-        self.stream.read()
         _keyword = self.read_rule(KEYWORD)
         if not _keyword:
             self.error(KeywordNotFoundError)

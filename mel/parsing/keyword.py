@@ -39,12 +39,13 @@ class ConceptParser(TokenParser):
 class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
-        if not self.stream.is_next(self.Token):
+        prefix = self.read_token(self.Token)
+        if not prefix:
             return
-        prefix = self.stream.read()
         node = self.build_node()
-        if self.stream.is_next(tokens.NameToken):
-            node.value = self.stream.read().value
+        token = self.read_token(tokens.NameToken)
+        if token:
+            node.value = token.value
             return node
         self.error(NameNotFoundError, prefix)
 

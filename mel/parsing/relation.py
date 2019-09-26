@@ -43,10 +43,10 @@ class SignedValueParser(BaseParser):
         path = self.read_rule(PATH)
         if not path:
             return
-        if not self.stream.is_next(self.SignToken):
+        token = self.read_token(self.SignToken)
+        if not token:
             self.stream.restore()
             return
-        self.stream.read()
         node = self.build_node()
         node.path = path
         node.value = self.parse_value()
