@@ -72,8 +72,8 @@ class BaseParser:
             nodes.append(node)
         return nodes
 
-    def read_token(self, Token):
-        if not self.stream.is_next(Token):
+    def read_token(self, Token=None):
+        if Token and not self.stream.is_next(Token):
             return
         return self.stream.read()
 

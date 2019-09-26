@@ -101,8 +101,8 @@ class RangeParser(BaseParser):
         range_is_next = self.stream.peek(1) == tokens.RangeToken
         if not (first_is_int and range_is_next):
             return
-        node.start = self.stream.read().value
-        self.stream.read()
+        node.start = self.read_token().value
+        self.read_token()
         token = self.read_token(tokens.IntToken)
         if token:
             node.end = token.value
