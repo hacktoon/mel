@@ -2,7 +2,10 @@ import pytest
 
 from mel import tokens
 from mel.lexing import Lexer, TokenStream
-from mel.exceptions import InvalidSyntaxError, UnexpectedTokenError
+from mel.exceptions import (
+    ParsingError,
+    InvalidSyntaxError,
+)
 
 
 def tokenize(text):
@@ -141,7 +144,7 @@ def test_double_quoted_string_doesnt_allow_same_quote_symbol():
 
 def test_that_read_unexpected_token_raises_error():
     stream = create_stream('"string"')
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(ParsingError):
         stream.read(tokens.IntToken)
 
 

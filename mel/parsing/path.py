@@ -55,7 +55,7 @@ class PathParser(BaseParser):
 
     def parse_tail(self, node):
         while True:
-            tail = self.read_any(CHILD_PATH, META_PATH)
+            tail = self.read_one(CHILD_PATH, META_PATH)
             if not tail:
                 break
             node.add(tail)

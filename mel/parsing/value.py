@@ -7,4 +7,4 @@ class ValueParser(BaseParser):
     id = VALUE
 
     def parse(self):
-        return self.read_any(REFERENCE, LITERAL, LIST, OBJECT)
+        return self.read_one(REFERENCE, LITERAL, LIST, OBJECT)

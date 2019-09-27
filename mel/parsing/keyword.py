@@ -97,7 +97,7 @@ class KeywordParser(BaseParser):
     id = KEYWORD
 
     def parse(self):
-        return self.read_any(
+        return self.read_one(
             NAME,
             CONCEPT,
             LOG,

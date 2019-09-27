@@ -1,4 +1,4 @@
-from ..exceptions import ParsingError, UnexpectedTokenError
+from ..exceptions import UnexpectedTokenError
 
 from .constants import ROOT
 from .base import BaseParser
@@ -18,10 +18,7 @@ from . import ( # noqa
 
 class Parser(BaseParser):
     def parse(self):
-        try:
-            node = self.read_rule(ROOT)
-        except ParsingError:
-            self.error(UnexpectedTokenError)
+        node = self.read_rule(ROOT)
         if self.stream.is_eof():
             return node
         self.error(UnexpectedTokenError)

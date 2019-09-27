@@ -52,7 +52,7 @@ class Parser:
         self.read_newline()
 
     def parse_rule_body(self):
-        self.read_any(RULE, REGEX, STRING)
+        self.read_one(RULE, REGEX, STRING)
 
     def error(self, msg):
         raise Exception(msg)

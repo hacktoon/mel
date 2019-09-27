@@ -1,7 +1,7 @@
 from . import tokens
 from .exceptions import (
+    ParsingError,
     InvalidSyntaxError,
-    UnexpectedTokenError,
     UnexpectedEOFError
 )
 
@@ -69,7 +69,7 @@ class TokenStream:
         if token and not self.is_next(token):
             if self.is_eof():
                 raise UnexpectedEOFError(self.peek(-1))
-            raise UnexpectedTokenError(current)
+            raise ParsingError(current)
         self.index += 1
         return current
 

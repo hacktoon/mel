@@ -1,5 +1,7 @@
 import functools
 
+from ..exceptions import ParsingError
+
 
 # decorator - add stream data to node instance via parser method
 def indexed(parse_method):
@@ -49,33 +51,32 @@ class BaseParser:
     def build_node(self):
         return self.Node()
 
-    def read_rule(self, rule, optional=False):
+    def read_rule(self, rule):
         parser = self._get_parser(rule, self.stream)
-        node = parser.parse()
-        if optional and not node:
-            return
-        return node
+        return parser.parse()
 
-    def read_any(self, *rules):
+    def read_one(self, *rules):
         for rule in rules:
-            node = self.read_rule(rule, optional=True)
-            if node:
-                return node
-        return
+            try:
+                return self.read_rule(rule)
+            except ParsingError:
+                pass
+        raise ParsingError
 
     def read_zero_many(self, rule):
         nodes = []
         while True:
-            node = self.read_rule(rule, optional=True)
+            node = self.read_rule(rule)
             if not node:
                 break
             nodes.append(node)
         return nodes
 
-    def read_token(self, Token=None):
-        if Token and not self.stream.is_next(Token):
-            return
-        return self.stream.read()
+    def read_token(self, Token):
+        token = self.stream.read(Token)
+        if not token:
+            raise ParsingError
+        return token
 
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
@@ -83,7 +84,6 @@ class BaseParser:
     def _get_parser(self, _id, stream):
         if _id not in self.subparsers:
             Parser = ParserMap.get(_id)
-
             self.subparsers[_id] = Parser(stream, subparsers=self.subparsers)
         return self.subparsers[_id]
 
@@ -92,8 +92,6 @@ class TokenParser(BaseParser):
     @indexed
     def parse(self):
         token = self.read_token(self.Token)
-        if not token:
-            return
         node = self.build_node()
         node.value = token.value
         return node
