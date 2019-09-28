@@ -19,8 +19,6 @@ from .base import (
     subparser
 )
 
-from ..exceptions import NameNotFoundError
-
 
 @subparser
 class NameParser(TokenParser):
@@ -39,15 +37,11 @@ class ConceptParser(TokenParser):
 class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
-        prefix = self.read_token(self.Token)
-        if not prefix:
-            return
-        node = self.build_node()
+        self.read_token(self.Token)
         token = self.read_token(tokens.NameToken)
-        if token:
-            node.value = token.value
-            return node
-        self.error(NameNotFoundError, prefix)
+        node = self.build_node()
+        node.value = token.value
+        return node
 
 
 @subparser

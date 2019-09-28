@@ -10,7 +10,6 @@ from mel.exceptions import (
     UnexpectedEOFError,
     KeywordNotFoundError,
     KeyNotFoundError,
-    NameNotFoundError,
     InfiniteRangeError,
     ExpectedValueError,
     ExpectedKeywordError
@@ -338,7 +337,6 @@ def test_path_keyword_not_found(test_input):
         ("?foo", "foo")
     ]
 )
-@pytest.mark.skip()
 def test_keyword_acceptance(test_input, expected):
     parser = create_parser(test_input, parsing.keyword.KeywordParser)
     node = parser.parse()
@@ -363,10 +361,16 @@ def test_keyword_non_acceptance(test_input):
     assert parser.parse() is None
 
 
-@pytest.mark.skip()
 def test_name_not_found_after_prefix():
-    with pytest.raises(NameNotFoundError):
-        parse("(@ )")
+    parser = create_parser("@", parsing.keyword.KeywordParser)
+    with pytest.raises(UnexpectedEOFError):
+        parser.parse()
+
+
+def test_expected_name_instead_of_int():
+    parser = create_parser("$ 4", parsing.keyword.KeywordParser)
+    with pytest.raises(ParsingError):
+        parser.parse()
 
 
 @pytest.mark.parametrize(
