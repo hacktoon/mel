@@ -68,13 +68,26 @@ class BaseParser:
                 pass
         raise ParsingError
 
+    # TODO: read_once_repeat
+
     def read_zero_many(self, rule):
         nodes = []
         while True:
-            node = self.read_rule(rule)
-            if not node:
+            try:
+                node = self.read_rule(rule)
+                nodes.append(node)
+            except ParsingError:
                 break
-            nodes.append(node)
+        return nodes
+
+    def read_zero_many_of(self, *rules):
+        nodes = []
+        while True:
+            try:
+                node = self.read_one(*rules)
+                nodes.append(node)
+            except ParsingError:
+                break
         return nodes
 
     def read_token(self, Token):

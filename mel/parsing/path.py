@@ -8,8 +8,6 @@ from .base import (
     subparser
 )
 
-from ..exceptions import ParsingError
-
 
 class SubPathParser(BaseParser):
     def parse(self):
@@ -44,13 +42,6 @@ class PathParser(BaseParser):
         _keyword = self.read_rule(KEYWORD)
         node = self.build_node()
         node.add(_keyword)
-        self.parse_tail(node)
+        subnodes = self.read_zero_many_of(CHILD_PATH, META_PATH)
+        node.add(*subnodes)
         return node
-
-    def parse_tail(self, node):
-        while True:
-            try:
-                tail = self.read_one(CHILD_PATH, META_PATH)
-                node.add(tail)
-            except ParsingError:
-                break
