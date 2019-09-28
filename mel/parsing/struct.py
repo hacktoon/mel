@@ -27,18 +27,18 @@ class StructParser(BaseParser):
 
     @indexed
     def parse(self):
-        token = self.read_token(self.PrefixToken)
+        token = self.parse_token(self.PrefixToken)
         if not token:
             return
         node = self.build_node()
         self.parse_key(node)
-        expressions = self.read_zero_many(EXPRESSION)
+        expressions = self.parse_zero_many(EXPRESSION)
         node.add(*expressions)
         self.stream.read(self.SuffixToken)
         return node
 
     def parse_key(self, node):
-        key = self.read_one(*self.key_parsers)
+        key = self.parse_alternative(*self.key_parsers)
         if not key:
             self.error(KeyNotFoundError)
         node.key = key

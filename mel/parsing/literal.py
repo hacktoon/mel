@@ -63,7 +63,7 @@ class LiteralParser(BaseParser):
     id = LITERAL
 
     def parse(self):
-        return self.read_one(
+        return self.parse_alternative(
             INT,
             FLOAT,
             BOOLEAN,
@@ -87,10 +87,10 @@ class RangeParser(BaseParser):
         return
 
     def _parse_left_open(self, node):
-        _range = self.read_token(tokens.RangeToken)
+        _range = self.parse_token(tokens.RangeToken)
         if not _range:
             return
-        int_token = self.read_token(tokens.IntToken)
+        int_token = self.parse_token(tokens.IntToken)
         if not int_token:
             self.error(InfiniteRangeError, _range)
         node.end = int_token.value
@@ -101,9 +101,9 @@ class RangeParser(BaseParser):
         range_is_next = self.stream.peek(1) == tokens.RangeToken
         if not (first_is_int and range_is_next):
             return
-        node.start = self.read_token().value
-        self.read_token()
-        token = self.read_token(tokens.IntToken)
+        node.start = self.parse_token().value
+        self.parse_token()
+        token = self.parse_token(tokens.IntToken)
         if token:
             node.end = token.value
         return True
@@ -118,9 +118,9 @@ class ListParser(BaseParser):
 
     @indexed
     def parse(self):
-        if not self.read_token(self.PrefixToken):
+        if not self.parse_token(self.PrefixToken):
             return
         node = self.build_node()
-        node.add(*self.read_zero_many(VALUE))
+        node.add(*self.parse_zero_many(VALUE))
         self.stream.read(self.SuffixToken)
         return node

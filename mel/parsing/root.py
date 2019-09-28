@@ -16,6 +16,6 @@ class RootParser(BaseParser):
     @indexed
     def parse(self):
         node = self.build_node()
-        expressions = self.read_zero_many(EXPRESSION)
+        expressions = self.parse_zero_many(EXPRESSION)
         node.add(*expressions)
         return node

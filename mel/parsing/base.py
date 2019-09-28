@@ -45,8 +45,11 @@ class BaseParser:
         # TODO: convert to parsing_context?
         self.subparsers = subparsers or {}
 
-    def parse(self):
-        raise NotImplementedError
+    def _get_parser(self, _id, stream):
+        if _id not in self.subparsers:
+            Parser = ParserMap.get(_id)
+            self.subparsers[_id] = Parser(stream, subparsers=self.subparsers)
+        return self.subparsers[_id]
 
     def build_node(self):
         return self.Node()
@@ -60,7 +63,7 @@ class BaseParser:
             self.stream.restore()
             raise error
 
-    def read_one(self, *rules):
+    def parse_alternative(self, *rules):
         for rule in rules:
             try:
                 return self.read_rule(rule)
@@ -70,7 +73,7 @@ class BaseParser:
 
     # TODO: read_once_repeat
 
-    def read_zero_many(self, rule):
+    def parse_zero_many(self, rule):
         nodes = []
         while True:
             try:
@@ -80,17 +83,18 @@ class BaseParser:
                 break
         return nodes
 
-    def read_zero_many_of(self, *rules):
+    # TODO: remove later
+    def parse_zero_many_alternative(self, *rules):
         nodes = []
         while True:
             try:
-                node = self.read_one(*rules)
+                node = self.parse_alternative(*rules)
                 nodes.append(node)
             except ParsingError:
                 break
         return nodes
 
-    def read_token(self, Token):
+    def parse_token(self, Token):
         token = self.stream.read(Token)
         if not token:
             raise ParsingError
@@ -99,17 +103,14 @@ class BaseParser:
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
 
-    def _get_parser(self, _id, stream):
-        if _id not in self.subparsers:
-            Parser = ParserMap.get(_id)
-            self.subparsers[_id] = Parser(stream, subparsers=self.subparsers)
-        return self.subparsers[_id]
+    def parse(self):
+        raise NotImplementedError
 
 
 class TokenParser(BaseParser):
     @indexed
     def parse(self):
-        token = self.read_token(self.Token)
+        token = self.parse_token(self.Token)
         node = self.build_node()
         node.value = token.value
         return node

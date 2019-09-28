@@ -37,8 +37,8 @@ class ConceptParser(TokenParser):
 class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
-        self.read_token(self.Token)
-        token = self.read_token(tokens.NameToken)
+        self.parse_token(self.Token)
+        token = self.parse_token(tokens.NameToken)
         node = self.build_node()
         node.value = token.value
         return node
@@ -91,7 +91,7 @@ class KeywordParser(BaseParser):
     id = KEYWORD
 
     def parse(self):
-        return self.read_one(
+        return self.parse_alternative(
             NAME,
             CONCEPT,
             LOG,

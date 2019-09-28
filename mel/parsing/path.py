@@ -11,7 +11,7 @@ from .base import (
 
 class SubPathParser(BaseParser):
     def parse(self):
-        self.read_token(self.Token)
+        self.parse_token(self.Token)
         _keyword = self.read_rule(KEYWORD)
         node = self.build_node()
         node.keyword = _keyword
@@ -42,6 +42,6 @@ class PathParser(BaseParser):
         _keyword = self.read_rule(KEYWORD)
         node = self.build_node()
         node.add(_keyword)
-        subnodes = self.read_zero_many_of(CHILD_PATH, META_PATH)
+        subnodes = self.parse_zero_many_alternative(CHILD_PATH, META_PATH)
         node.add(*subnodes)
         return node

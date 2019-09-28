@@ -24,7 +24,7 @@ class RelationParser(BaseParser):
     id = RELATION
 
     def parse(self):
-        return self.read_one(
+        return self.parse_alternative(
             EQUAL,
             DIFFERENT,
             GREATER_THAN,
@@ -43,7 +43,7 @@ class SignedValueParser(BaseParser):
         path = self.read_rule(PATH)
         if not path:
             return
-        token = self.read_token(self.SignToken)
+        token = self.parse_token(self.SignToken)
         if not token:
             self.stream.restore()
             return
