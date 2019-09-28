@@ -8,17 +8,13 @@ from .base import (
     subparser
 )
 
-from ..exceptions import KeywordNotFoundError
+from ..exceptions import ParsingError
 
 
 class SubPathParser(BaseParser):
     def parse(self):
-        token = self.read_token(self.Token)
-        if not token:
-            return
+        self.read_token(self.Token)
         _keyword = self.read_rule(KEYWORD)
-        if not _keyword:
-            self.error(KeywordNotFoundError)
         node = self.build_node()
         node.keyword = _keyword
         return node
@@ -28,7 +24,7 @@ class SubPathParser(BaseParser):
 class ChildPathParser(SubPathParser):
     id = CHILD_PATH
     Node = nodes.ChildPathNode
-    Token = tokens.SubNodeToken
+    Token = tokens.ChildPathToken
 
 
 @subparser
@@ -46,8 +42,6 @@ class PathParser(BaseParser):
     @indexed
     def parse(self):
         _keyword = self.read_rule(KEYWORD)
-        if not _keyword:
-            return
         node = self.build_node()
         node.add(_keyword)
         self.parse_tail(node)
@@ -55,7 +49,8 @@ class PathParser(BaseParser):
 
     def parse_tail(self, node):
         while True:
-            tail = self.read_one(CHILD_PATH, META_PATH)
-            if not tail:
+            try:
+                tail = self.read_one(CHILD_PATH, META_PATH)
+                node.add(tail)
+            except ParsingError:
                 break
-            node.add(tail)

@@ -1,9 +1,5 @@
 from . import tokens
-from .exceptions import (
-    ParsingError,
-    InvalidSyntaxError,
-    UnexpectedEOFError
-)
+from .exceptions import ParsingError
 
 
 class Lexer:
@@ -28,7 +24,7 @@ class Lexer:
             if match:
                 return self.build_token(Token, match.span())
         token = self.build_token()
-        raise InvalidSyntaxError(token)
+        raise ParsingError(token)
 
     def build_token(self, Token=tokens.NullToken, index=None):
         index = index or (self.index, self.index)
@@ -68,7 +64,7 @@ class TokenStream:
         current = self.peek()
         if token and not self.is_next(token):
             if self.is_eof():
-                raise UnexpectedEOFError(self.peek(-1))
+                raise ParsingError(self.peek(-1))
             raise ParsingError(current)
         self.index += 1
         return current

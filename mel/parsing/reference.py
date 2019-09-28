@@ -49,7 +49,7 @@ class ReferenceParser(BaseParser):
         return node
 
     def parse_tail(self, node):
-        while self.stream.is_next(tokens.SubNodeToken):
+        while self.stream.is_next(tokens.ChildPathToken):
             self.read_token()
             self.parse_child(node)
 

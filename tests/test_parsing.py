@@ -8,7 +8,6 @@ from mel.exceptions import (
     ParsingError,
     UnexpectedTokenError,
     UnexpectedEOFError,
-    KeywordNotFoundError,
     KeyNotFoundError,
     InfiniteRangeError,
     ExpectedValueError,
@@ -284,7 +283,6 @@ def test_reference_expected_child(test_input):
         ("!foo/Etc/@bar/baz", 4)
     ]
 )
-@pytest.mark.skip()
 def test_path_length(test_input, total):
     parser = create_parser(test_input, parsing.path.PathParser)
     node = parser.parse()
@@ -301,27 +299,10 @@ def test_path_length(test_input, total):
         ("?code", nodes.DocKeywordNode)
     ]
 )
-@pytest.mark.skip()
 def test_path_single_node_ids(test_input, expected):
     parser = create_parser(test_input, parsing.path.PathParser)
     node = parser.parse()
     assert node[0].id == expected.id
-
-
-@pytest.mark.parametrize(
-    "test_input",
-    [
-        "foo/",
-        "Foo/",
-        "%foo/a/",
-        "@etc/bar/Tsc/",
-    ]
-)
-@pytest.mark.skip()
-def test_path_keyword_not_found(test_input):
-    parser = create_parser(test_input, parsing.path.PathParser)
-    with pytest.raises(KeywordNotFoundError):
-        parser.parse()
 
 
 # KEYWORD ======================================================
@@ -363,7 +344,7 @@ def test_keyword_non_acceptance(test_input):
 
 def test_name_not_found_after_prefix():
     parser = create_parser("@", parsing.keyword.KeywordParser)
-    with pytest.raises(UnexpectedEOFError):
+    with pytest.raises(ParsingError):
         parser.parse()
 
 

@@ -53,7 +53,12 @@ class BaseParser:
 
     def read_rule(self, rule):
         parser = self._get_parser(rule, self.stream)
-        return parser.parse()
+        self.stream.save()
+        try:
+            return parser.parse()
+        except ParsingError as error:
+            self.stream.restore()
+            raise error
 
     def read_one(self, *rules):
         for rule in rules:

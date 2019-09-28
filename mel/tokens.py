@@ -179,7 +179,7 @@ class DefaultDocKeyToken(Token):
     priority = 1
 
 
-class SubNodeToken(Token):
+class ChildPathToken(Token):
     id = "/"
     regex = re.compile(r"/")
 
