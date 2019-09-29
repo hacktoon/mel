@@ -9,6 +9,8 @@ from .constants import (
     TEMPLATE_STRING,
     LITERAL,
     RANGE,
+    LEFT_BOUND_RANGE,
+    RIGHT_BOUND_RANGE,
     VALUE,
     LIST,
     WILDCARD
@@ -21,7 +23,7 @@ from .base import (
     subparser
 )
 
-from ..exceptions import InfiniteRangeError
+from ..exceptions import ParsingError
 
 
 @subparser
@@ -76,38 +78,41 @@ class LiteralParser(BaseParser):
 @subparser
 class RangeParser(BaseParser):
     id = RANGE
-    Node = nodes.RangeNode
 
     @indexed
     def parse(self):
+        return self.parse_alternative(LEFT_BOUND_RANGE, RIGHT_BOUND_RANGE)
+
+
+@subparser
+class RightBoundRangeParser(BaseParser):
+    id = RIGHT_BOUND_RANGE
+    Node = nodes.RangeNode
+
+    def parse(self):
+        self.parse_token(tokens.RangeToken)
         node = self.build_node()
-        if self._parse_left_open(node):
-            return node
-        if self._parse_left_bound(node):
-            return node
-        return
-
-    def _parse_left_open(self, node):
-        _range = self.parse_token(tokens.RangeToken)
-        if not _range:
-            return
-        int_token = self.parse_token(tokens.IntToken)
-        if not int_token:
-            self.error(InfiniteRangeError, _range)
-        node.end = int_token.value
-        return True
-
-    def _parse_left_bound(self, node):
-        first_is_int = self.stream.is_next(tokens.IntToken)
-        range_is_next = self.stream.peek(1) == tokens.RangeToken
-        if not (first_is_int and range_is_next):
-            return
-        node.start = self.parse_token().value
-        self.parse_token()
         token = self.parse_token(tokens.IntToken)
-        if token:
-            node.end = token.value
-        return True
+        node.end = token.value
+        return node
+
+
+@subparser
+class LeftBoundRangeParser(BaseParser):
+    id = LEFT_BOUND_RANGE
+    Node = nodes.RangeNode
+
+    def parse(self):
+        node = self.build_node()
+        start = self.parse_token(tokens.IntToken)
+        node.start = start.value
+        self.parse_token(tokens.RangeToken)
+        try:
+            end = self.parse_token(tokens.IntToken)
+            node.end = end.value
+        except ParsingError:
+            pass
+        return node
 
 
 @subparser
