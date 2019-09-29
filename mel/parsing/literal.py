@@ -10,7 +10,8 @@ from .constants import (
     LITERAL,
     RANGE,
     VALUE,
-    LIST
+    LIST,
+    WILDCARD
 )
 
 from .base import (
@@ -118,9 +119,17 @@ class ListParser(BaseParser):
 
     @indexed
     def parse(self):
-        if not self.parse_token(self.PrefixToken):
-            return
+        self.parse_token(self.PrefixToken)
         node = self.build_node()
         node.add(*self.parse_zero_many(VALUE))
-        self.stream.read(self.SuffixToken)
+        self.parse_token(self.SuffixToken)
         return node
+
+
+# WILDCARD ===============================================
+
+@subparser
+class WildcardParser(TokenParser):
+    id = WILDCARD
+    Node = nodes.WildcardNode
+    Token = tokens.WildcardToken

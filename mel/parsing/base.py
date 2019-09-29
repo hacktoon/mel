@@ -9,8 +9,6 @@ def indexed(parse_method):
     def surrogate(self):
         first = self.stream.peek()
         node = parse_method(self)
-        if not node:
-            return
         last = self.stream.peek(-1)
         node.index = first.index[0], last.index[1]
         node.text = self.stream.text
@@ -56,17 +54,22 @@ class BaseParser:
 
     def read_rule(self, rule):
         parser = self._get_parser(rule, self.stream)
-        self.stream.save()
+        index = self.stream.save()
         try:
             return parser.parse()
         except ParsingError as error:
-            self.stream.restore()
+            self.stream.restore(index)
             raise error
 
     def parse_alternative(self, *rules):
         for rule in rules:
             try:
-                return self.read_rule(rule)
+                node = self.read_rule(rule)
+                if isinstance(node, list):
+                    for n in node:
+                        return n
+                else:
+                    return node
             except ParsingError:
                 pass
         raise ParsingError
@@ -78,7 +81,11 @@ class BaseParser:
         while True:
             try:
                 node = self.read_rule(rule)
-                nodes.append(node)
+                if isinstance(node, list):
+                    for n in node:
+                        nodes.append(n)
+                else:
+                    nodes.append(node)
             except ParsingError:
                 break
         return nodes
@@ -89,7 +96,11 @@ class BaseParser:
         while True:
             try:
                 node = self.parse_alternative(*rules)
-                nodes.append(node)
+                if isinstance(node, list):
+                    for n in node:
+                        nodes.append(n)
+                else:
+                    nodes.append(node)
             except ParsingError:
                 break
         return nodes

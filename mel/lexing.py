@@ -50,15 +50,12 @@ class TokenStream:
         self.tokens = self.lexer.tokenize()
         self.text = text
         self.index = 0
-        self.savepoint = 0
 
     def save(self):
-        self.savepoint = self.index
         return self.index
 
-    def restore(self):
-        self.index = self.savepoint
-        return self.index
+    def restore(self, index):
+        self.index = index
 
     def read(self, token=None):
         current = self.peek()

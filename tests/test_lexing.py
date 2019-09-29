@@ -160,7 +160,7 @@ def test_stream_default_savepoint():
     stream = create_stream("1 2")
     token = stream.read()
     assert token.value == 1
-    stream.restore()
+    stream.restore(0)
     token = stream.read()
     assert token.value == 1
 
@@ -168,9 +168,9 @@ def test_stream_default_savepoint():
 def test_stream_savepoint():
     stream = create_stream("1 2 3")
     stream.read()
-    stream.save()
+    index = stream.save()
     stream.read()
     stream.read()
-    stream.restore()
+    stream.restore(index)
     token = stream.read()
     assert token.value == 2

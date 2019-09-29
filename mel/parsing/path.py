@@ -10,6 +10,7 @@ from .base import (
 
 
 class SubPathParser(BaseParser):
+    @indexed
     def parse(self):
         self.parse_token(self.Token)
         _keyword = self.read_rule(KEYWORD)

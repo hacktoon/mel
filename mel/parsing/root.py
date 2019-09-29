@@ -1,6 +1,6 @@
 from .. import nodes
 
-from .constants import ROOT, EXPRESSION
+from .constants import ROOT, TAG, RELATION, VALUE
 from .base import (
     BaseParser,
     indexed,
@@ -16,6 +16,6 @@ class RootParser(BaseParser):
     @indexed
     def parse(self):
         node = self.build_node()
-        expressions = self.parse_zero_many(EXPRESSION)
+        expressions = self.parse_zero_many_alternative(TAG, RELATION, VALUE)
         node.add(*expressions)
         return node

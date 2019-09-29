@@ -2,13 +2,15 @@ from .. import nodes
 from .. import tokens
 
 from .constants import (
-    EXPRESSION,
     ANONYM_KEY,
     DEFAULT_DOC,
     DEFAULT_FORMAT,
     OBJECT,
     QUERY,
-    PATH
+    PATH,
+    TAG,
+    RELATION,
+    VALUE
 )
 from .base import (
     BaseParser,
@@ -16,8 +18,6 @@ from .base import (
     indexed,
     subparser
 )
-
-from ..exceptions import KeyNotFoundError
 
 
 # KEY STRUCT =================================================
@@ -27,21 +27,12 @@ class StructParser(BaseParser):
 
     @indexed
     def parse(self):
-        token = self.parse_token(self.PrefixToken)
-        if not token:
-            return
+        self.parse_token(self.PrefixToken)
         node = self.build_node()
-        self.parse_key(node)
-        expressions = self.parse_zero_many(EXPRESSION)
-        node.add(*expressions)
-        self.stream.read(self.SuffixToken)
+        node.key = self.parse_alternative(*self.key_parsers)
+        node.add(*self.parse_zero_many_alternative(TAG, RELATION, VALUE))
+        self.parse_token(self.SuffixToken)
         return node
-
-    def parse_key(self, node):
-        key = self.parse_alternative(*self.key_parsers)
-        if not key:
-            self.error(KeyNotFoundError)
-        node.key = key
 
 
 # STRUCT KEY ====================================================

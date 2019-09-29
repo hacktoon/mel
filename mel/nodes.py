@@ -132,6 +132,10 @@ class ReferenceNode(ContainerNode):
     id = "reference"
 
 
+class SubReferenceNode(Node):
+    id = "sub-reference"
+
+
 # LIST ========================================================
 
 class ListNode(ContainerNode):

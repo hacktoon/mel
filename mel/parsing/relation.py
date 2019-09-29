@@ -1,6 +1,5 @@
 from .. import nodes
 from .. import tokens
-from ..exceptions import ExpectedValueError
 
 from .constants import (
     PATH,
@@ -39,24 +38,11 @@ class RelationParser(BaseParser):
 class SignedValueParser(BaseParser):
     @indexed
     def parse(self):
-        self.stream.save()
-        path = self.read_rule(PATH)
-        if not path:
-            return
-        token = self.parse_token(self.SignToken)
-        if not token:
-            self.stream.restore()
-            return
         node = self.build_node()
-        node.path = path
-        node.value = self.parse_value()
+        node.path = self.read_rule(PATH)
+        node.sign = self.parse_token(self.SignToken)
+        node.value = self.read_rule(VALUE)
         return node
-
-    def parse_value(self):
-        value = self.read_rule(VALUE)
-        if not value:
-            self.error(ExpectedValueError)
-        return value
 
 
 @subparser

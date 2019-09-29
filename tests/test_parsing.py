@@ -7,7 +7,7 @@ from mel.lexing import TokenStream
 from mel.exceptions import (
     ParsingError,
     UnexpectedTokenError,
-    UnexpectedEOFError,
+    EOFError,
     KeyNotFoundError,
     InfiniteRangeError,
     ExpectedValueError,
@@ -99,7 +99,7 @@ def test_node_representation(test_input, expected):
 @pytest.mark.skip()
 def test_incomplete_input_EOF(test_input):
     parser = create_parser(test_input)
-    with pytest.raises(UnexpectedEOFError):
+    with pytest.raises(EOFError):
         parser.parse()
 
 
@@ -154,24 +154,6 @@ def test_object_index():
     assert _object.index == (0, 5)
 
 
-# EXPRESSION =================================================
-
-@pytest.mark.parametrize(
-    "test_input, refnode",
-    [
-        ("#foo", nodes.TagKeywordNode),
-        ("x = 3", nodes.EqualNode),
-        ("x != 3", nodes.DifferentNode),
-        ("44", nodes.IntNode),
-        ("'foo'", nodes.StringNode),
-    ]
-)
-@pytest.mark.skip()
-def test_expression(test_input, refnode):
-    node = parse(test_input, parsing.expression.ExpressionParser)
-    assert node.id == refnode.id
-
-
 # TAG =================================================
 
 @pytest.mark.parametrize(
@@ -209,13 +191,11 @@ def test_subparser_value(test_input):
 
 #  LIST ======================================================
 
-@pytest.mark.skip()
 def test_subparser_empty_list():
     parser = create_parser("[]", parsing.literal.ListParser)
     assert parser.parse().id == nodes.ListNode.id
 
 
-@pytest.mark.skip()
 def test_subparser_literal_list():
     parser = create_parser("[1, 2]", parsing.literal.ListParser)
     assert parser.parse().id == nodes.ListNode.id
@@ -223,11 +203,10 @@ def test_subparser_literal_list():
 
 @pytest.mark.skip()
 def test_list_size():
-    parser = create_parser("[1, 2, 'abc']", parsing.literal.ListParser)
+    parser = create_parser("[-1, (x 2), 'abc']", parsing.literal.ListParser)
     assert len(parser.parse()) == 3
 
 
-@pytest.mark.skip()
 def test_subparser_nested_list():
     parser = create_parser("[[], [1, 2]]", parsing.literal.ListParser)
     node = parser.parse()
@@ -504,8 +483,7 @@ def test_relation_value_expected(test_input):
 @pytest.mark.parametrize(
     "test_input, Parser",
     [
-        ("bar", parsing.root.RootParser),
-        ("(?: foo bar)", parsing.struct.ObjectParser),
+        ("(?: 2)", parsing.struct.ObjectParser),
         ("(%: foo bar)", parsing.struct.ObjectParser),
         ("(abc foo bar)", parsing.struct.ObjectParser),
         ("(: foo bar)", parsing.struct.ObjectParser),
@@ -513,7 +491,6 @@ def test_relation_value_expected(test_input):
         ("{: foo bar}", parsing.struct.QueryParser),
     ]
 )
-@pytest.mark.skip()
 def test_struct_object_expression(test_input, Parser):
     assert parse(test_input, Parser)
     assert parse(test_input)
@@ -521,7 +498,6 @@ def test_struct_object_expression(test_input, Parser):
 
 # OBJECT ===================================================
 
-@pytest.mark.skip()
 def test_object_with_no_value():
     node = parse("(a)", parsing.struct.ObjectParser)
     assert len(node) == 0

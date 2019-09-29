@@ -25,7 +25,7 @@ class UnexpectedTokenError(LexingError):
         super().__init__(token, "This token is not expected here.")
 
 
-class UnexpectedEOFError(LexingError):
+class EOFError(LexingError):
     def __init__(self, token):
         super().__init__(token, "Reached end of text while parsing.")
 
