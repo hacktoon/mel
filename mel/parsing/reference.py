@@ -28,7 +28,7 @@ class SubReferenceParser(BaseParser):
     @indexed
     def parse(self):
         self.parse_token(tokens.ChildPathToken)
-        return self.read_alternative([
+        return self.parse_alternative(
             WILDCARD,
             TAG,
             RANGE,
@@ -37,7 +37,7 @@ class SubReferenceParser(BaseParser):
             OBJECT,
             QUERY,
             KEYWORD
-        ])
+        )
 
 
 @subparser

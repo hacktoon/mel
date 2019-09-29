@@ -4,15 +4,7 @@ from mel import parsing
 from mel import nodes
 
 from mel.lexing import TokenStream
-from mel.exceptions import (
-    ParsingError,
-    UnexpectedTokenError,
-    EOFError,
-    KeyNotFoundError,
-    InfiniteRangeError,
-    ExpectedValueError,
-    ExpectedKeywordError
-)
+from mel.exceptions import ParsingError
 
 
 def create_parser(text, Parser=parsing.Parser):
@@ -30,14 +22,12 @@ def parse_one(text):
 
 # PARSER ===========================================
 
-@pytest.mark.skip()
 def test_empty_input_string():
     node = parse("")
     assert node.id == nodes.RootNode.id
     assert len(node) == 0
 
 
-@pytest.mark.skip()
 def test_whitespace_only():
     node = parse("   ,,,\n ; , ;, \t ")
     assert node.id == nodes.RootNode.id
@@ -61,7 +51,6 @@ def test_whitespace_only():
         ('?foo "test"')
     ],
 )
-@pytest.mark.skip()
 def test_string_representation(test_input):
     tree = parse(test_input)
     assert str(tree) == test_input
@@ -80,7 +69,6 @@ def test_string_representation(test_input):
         ('["bar" "etc"]', "LIST('[\"bar\" \"etc\"]')")
     ],
 )
-@pytest.mark.skip()
 def test_node_representation(test_input, expected):
     node = parse_one(test_input)
     assert repr(node) == expected
@@ -96,10 +84,9 @@ def test_node_representation(test_input, expected):
         "{a x=2 [55, 'foo' ",
     ]
 )
-@pytest.mark.skip()
 def test_incomplete_input_EOF(test_input):
     parser = create_parser(test_input)
-    with pytest.raises(EOFError):
+    with pytest.raises(ParsingError):
         parser.parse()
 
 
@@ -111,10 +98,9 @@ def test_incomplete_input_EOF(test_input):
         "44}",
     ]
 )
-@pytest.mark.skip()
 def test_incomplete_input_token(test_input):
     parser = create_parser(test_input)
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(ParsingError):
         parser.parse()
 
 
@@ -126,7 +112,6 @@ def test_incomplete_input_token(test_input):
 
     ],
 )
-@pytest.mark.skip()
 def test_node_iteration(test_input, expected):
     node = parse(test_input)
     for index, child in enumerate(node):
@@ -135,20 +120,17 @@ def test_node_iteration(test_input, expected):
 
 # NODE INDEX ===========================================
 
-@pytest.mark.skip()
 def test_node_subnodes_index():
     node = parse("44 12")
     assert node[0].index == (0, 2)
     assert node[1].index == (3, 5)
 
 
-@pytest.mark.skip()
 def test_list_index():
     node = parse("[1, 2]")
     assert node.index == (0, 6)
 
 
-@pytest.mark.skip()
 def test_object_index():
     _object = parse("(a 2)")
     assert _object.index == (0, 5)
@@ -164,7 +146,6 @@ def test_object_index():
         "#fA_o",
     ]
 )
-@pytest.mark.skip()
 def test_tags(test_input):
     node = parse(test_input, parsing.keyword.TagParser)
     assert node.id == nodes.TagKeywordNode.id
@@ -183,7 +164,6 @@ def test_tags(test_input):
         ('(a 3)'),
     ]
 )
-@pytest.mark.skip()
 def test_subparser_value(test_input):
     parser = create_parser(test_input, parsing.value.ValueParser)
     assert parser.parse()
@@ -201,7 +181,6 @@ def test_subparser_literal_list():
     assert parser.parse().id == nodes.ListNode.id
 
 
-@pytest.mark.skip()
 def test_list_size():
     parser = create_parser("[-1, (x 2), 'abc']", parsing.literal.ListParser)
     assert len(parser.parse()) == 3
@@ -228,23 +207,9 @@ def test_subparser_nested_list():
         'abc/[1 2]'
     ]
 )
-@pytest.mark.skip()
 def test_reference_keywords(test_input):
     parser = create_parser(test_input, parsing.reference.ReferenceParser)
     assert parser.parse()
-
-
-@pytest.mark.parametrize(
-    "test_input",
-    [
-        "etc/bar/",
-        "!etc/@bar/",
-    ]
-)
-@pytest.mark.skip()
-def test_reference_expected_child(test_input):
-    with pytest.raises(ExpectedKeywordError):
-        parse(test_input, parsing.reference.ReferenceParser)
 
 
 # PATH =================================================
@@ -300,7 +265,6 @@ def test_path_single_node_ids(test_input, expected):
 def test_keyword_acceptance(test_input, expected):
     parser = create_parser(test_input, parsing.keyword.KeywordParser)
     node = parser.parse()
-    assert node is not None
     assert node.value == expected
 
 
@@ -315,10 +279,10 @@ def test_keyword_acceptance(test_input, expected):
         "[1 2]"
     ]
 )
-@pytest.mark.skip()
 def test_keyword_non_acceptance(test_input):
     parser = create_parser(test_input, parsing.keyword.KeywordParser)
-    assert parser.parse() is None
+    with pytest.raises(ParsingError):
+        parser.parse()
 
 
 def test_name_not_found_after_prefix():
@@ -346,10 +310,9 @@ def test_expected_name_instead_of_int():
         ("?foo", parsing.keyword.DocParser),
     ]
 )
-@pytest.mark.skip()
 def test_keyword_subparsers(test_input, parser):
     parser = create_parser(test_input, parser)
-    assert parser.parse() is not None
+    assert parser.parse()
 
 
 # LITERAL =================================================
@@ -434,13 +397,13 @@ def test_range_without_specific_start():
 
 @pytest.mark.skip()
 def test_range_must_have_at_least_one_int():
-    with pytest.raises(InfiniteRangeError):
+    with pytest.raises(ParsingError):
         parse("..", parsing.literal.RangeParser)
 
 
 @pytest.mark.skip()
 def test_range_only_accepts_integers():
-    with pytest.raises(InfiniteRangeError):
+    with pytest.raises(ParsingError):
         parse("..3.4", parsing.literal.RangeParser)
 
 
@@ -456,7 +419,6 @@ def test_range_only_accepts_integers():
         ("a/pid/f_a > [1, 2]", 'a/pid/f_a', '[1, 2]'),
     ]
 )
-@pytest.mark.skip()
 def test_relation_components(test_input, path, value):
     node = parse(test_input, parsing.relation.RelationParser)
     assert str(node.path) == path
@@ -472,9 +434,8 @@ def test_relation_components(test_input, path, value):
         "x >= =",
     ]
 )
-@pytest.mark.skip()
 def test_relation_value_expected(test_input):
-    with pytest.raises(ExpectedValueError):
+    with pytest.raises(ParsingError):
         parse(test_input, parsing.relation.RelationParser)
 
 
@@ -511,7 +472,6 @@ def test_object_with_no_value():
         ("(a/b 4 6 7)", 'a/b'),
     ]
 )
-@pytest.mark.skip()
 def test_object_path_string_repr(test_input, value):
     node = parse(test_input, parsing.struct.ObjectParser)
     assert str(node.key) == value
@@ -525,9 +485,8 @@ def test_object_path_string_repr(test_input, value):
         "('test')"
     ]
 )
-@pytest.mark.skip()
 def test_invalid_object_key(test_input):
-    with pytest.raises(KeyNotFoundError):
+    with pytest.raises(ParsingError):
         parse(test_input, parsing.struct.ObjectParser)
 
 
@@ -539,15 +498,13 @@ def test_invalid_object_key(test_input):
         "(@var != 'foo')"
     ]
 )
-@pytest.mark.skip()
 def test_object_unexpected_expression(test_input):
-    with pytest.raises(UnexpectedTokenError):
+    with pytest.raises(ParsingError):
         parse(test_input, parsing.struct.ObjectParser)
 
 
 # ANONYM OBJECT ===============================================
 
-@pytest.mark.skip()
 def test_anonym_object_value():
     node = parse("(: x = 2)", parsing.struct.ObjectParser)
     assert str(node[0]) == "x = 2"
@@ -555,7 +512,6 @@ def test_anonym_object_value():
 
 # QUERY ===============================================
 
-@pytest.mark.skip()
 def test_query_key_single_value():
     node = parse("{abc 42}", parsing.struct.QueryParser)
     assert node[0].value == 42
@@ -563,7 +519,6 @@ def test_query_key_single_value():
 
 # ANONYM QUERY ===============================================
 
-@pytest.mark.skip()
 def test_anonym_query_value():
     node = parse("{: 42}", parsing.struct.QueryParser)
     assert node[0].value == 42
