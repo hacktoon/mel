@@ -109,7 +109,13 @@ class BaseParser:
         token = self.stream.read(Token)
         if not token:
             raise ParsingError
-        return token
+        return token.value
+
+    def parse_token_optional(self, Token):
+        try:
+            return self.parse_token(Token)
+        except ParsingError:
+            return
 
     def error(self, Error, token=None):
         raise Error(token or self.stream.peek())
@@ -121,7 +127,6 @@ class BaseParser:
 class TokenParser(BaseParser):
     @indexed
     def parse(self):
-        token = self.parse_token(self.Token)
         node = self.build_node()
-        node.value = token.value
+        node.value = self.parse_token(self.Token)
         return node

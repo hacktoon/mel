@@ -91,6 +91,7 @@ class RelationNode(Node):
     def __init__(self):
         super().__init__()
         self.path = PathNode()
+        self.sign = None
         self.value = None
 
 

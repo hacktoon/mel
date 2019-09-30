@@ -368,40 +368,34 @@ def test_literal_subparsers(test_input, parser):
 
 # RANGE ==================================================
 
-@pytest.mark.skip()
 def test_range_id():
     node = parse("2..4", parsing.literal.RangeParser)
     assert node.id == nodes.RangeNode.id
 
 
-@pytest.mark.skip()
 def test_range_limit():
     node = parse("0..-10", parsing.literal.RangeParser)
     assert node.start == 0
     assert node.end == -10
 
 
-@pytest.mark.skip()
 def test_range_without_specific_end():
     node = parse("42..", parsing.literal.RangeParser)
     assert node.start == 42
     assert node.end is None
 
 
-@pytest.mark.skip()
 def test_range_without_specific_start():
     node = parse("..33", parsing.literal.RangeParser)
     assert node.start is None
     assert node.end == 33
 
 
-@pytest.mark.skip()
 def test_range_must_have_at_least_one_int():
     with pytest.raises(ParsingError):
         parse("..", parsing.literal.RangeParser)
 
 
-@pytest.mark.skip()
 def test_range_only_accepts_integers():
     with pytest.raises(ParsingError):
         parse("..3.4", parsing.literal.RangeParser)

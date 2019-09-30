@@ -23,8 +23,6 @@ from .base import (
     subparser
 )
 
-from ..exceptions import ParsingError
-
 
 @subparser
 class IntParser(TokenParser):
@@ -81,7 +79,7 @@ class RangeParser(BaseParser):
 
     @indexed
     def parse(self):
-        return self.parse_alternative(LEFT_BOUND_RANGE, RIGHT_BOUND_RANGE)
+        return self.parse_alternative(RIGHT_BOUND_RANGE, LEFT_BOUND_RANGE)
 
 
 @subparser
@@ -92,8 +90,7 @@ class RightBoundRangeParser(BaseParser):
     def parse(self):
         self.parse_token(tokens.RangeToken)
         node = self.build_node()
-        token = self.parse_token(tokens.IntToken)
-        node.end = token.value
+        node.end = self.parse_token(tokens.IntToken)
         return node
 
 
@@ -104,14 +101,9 @@ class LeftBoundRangeParser(BaseParser):
 
     def parse(self):
         node = self.build_node()
-        start = self.parse_token(tokens.IntToken)
-        node.start = start.value
+        node.start = self.parse_token(tokens.IntToken)
         self.parse_token(tokens.RangeToken)
-        try:
-            end = self.parse_token(tokens.IntToken)
-            node.end = end.value
-        except ParsingError:
-            pass
+        node.end = self.parse_token_optional(tokens.IntToken)
         return node
 
 

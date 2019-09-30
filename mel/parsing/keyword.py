@@ -38,9 +38,8 @@ class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
         self.parse_token(self.Token)
-        token = self.parse_token(tokens.NameToken)
         node = self.build_node()
-        node.value = token.value
+        node.value = self.parse_token(tokens.NameToken)
         return node
 
 
