@@ -61,8 +61,8 @@ class TokenStream:
         current = self.peek()
         if token and not self.is_next(token):
             if self.is_eof():
-                raise ParsingError(self.peek(-1))
-            raise ParsingError(current)
+                self.error(ParsingError, self.peek(-1))
+            self.error(ParsingError)
         self.index += 1
         return current
 
@@ -77,3 +77,6 @@ class TokenStream:
             return self.tokens[self.index + offset]
         except IndexError:
             return self.lexer.build_token()
+
+    def error(self, Error, token=None):
+        raise Error(token or self.peek())

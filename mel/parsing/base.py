@@ -72,7 +72,7 @@ class BaseParser:
                     return node
             except ParsingError:
                 pass
-        raise ParsingError
+        self.error(ParsingError)
 
     # TODO: read_once_repeat
 
@@ -108,7 +108,7 @@ class BaseParser:
     def parse_token(self, Token):
         token = self.stream.read(Token)
         if not token:
-            raise ParsingError
+            self.error(ParsingError)
         return token.value
 
     def parse_token_optional(self, Token):
