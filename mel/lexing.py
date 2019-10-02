@@ -13,7 +13,6 @@ class Lexer:
         _tokens = []
         while self.index < len(self.text):
             token = self.lex()
-            self._update_counters(token)
             if not token.skip:
                 _tokens.append(token)
         return _tokens
@@ -23,25 +22,12 @@ class Lexer:
             match = Token.regex.match(self.text, self.index)
             if match:
                 return self.build_token(Token, match.span())
-        token = self.build_token()
-        raise ParsingError(token)
+        raise ParsingError(self.build_token())
 
-    def build_token(self, Token=tokens.NullToken, index=None):
+    def build_token(self, Token=tokens.Token, index=None):
         index = index or (self.index, self.index)
         token = Token(self.text, index)
-        token.line = self.line
-        token.column = self.column
         return token
-
-    def _update_counters(self, token):
-        self.index += len(token)
-        self.column += len(token)
-        if not token.newline:
-            return
-        lines = token.value.splitlines()
-        *_, end = lines
-        self.column = len(end) + 1 if end else 0
-        self.line += max(1, len(lines) - 1)
 
 
 class TokenStream:

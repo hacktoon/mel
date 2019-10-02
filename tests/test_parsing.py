@@ -320,13 +320,13 @@ def test_keyword_subparsers(test_input, parser):
 @pytest.mark.parametrize(
     "test_input, expected",
     [
-        ("2", 2),
-        ("4.7e3", 4.7e3),
-        ("'foo'", 'foo'),
-        ("true", True),
-        ("True", True),
-        ("false", False),
-        ("False", False)
+        ("2", "2"),
+        ("4.7e3", "4.7e3"),
+        ("'foo'", "'foo'"),
+        ("true", "true"),
+        ("True", "True"),
+        ("false", "false"),
+        ("False", "False")
     ]
 )
 def test_literal_acceptance(test_input, expected):
@@ -375,20 +375,20 @@ def test_range_id():
 
 def test_range_limit():
     node = parse("0..-10", parsing.literal.RangeParser)
-    assert node.start == 0
-    assert node.end == -10
+    assert node.start == "0"
+    assert node.end == "-10"
 
 
 def test_range_without_specific_end():
     node = parse("42..", parsing.literal.RangeParser)
-    assert node.start == 42
+    assert node.start == "42"
     assert node.end is None
 
 
 def test_range_without_specific_start():
     node = parse("..33", parsing.literal.RangeParser)
     assert node.start is None
-    assert node.end == 33
+    assert node.end == "33"
 
 
 def test_range_must_have_at_least_one_int():
@@ -508,11 +508,11 @@ def test_anonym_object_value():
 
 def test_query_key_single_value():
     node = parse("{abc 42}", parsing.struct.QueryParser)
-    assert node[0].value == 42
+    assert node[0].value == "42"
 
 
 # ANONYM QUERY ===============================================
 
 def test_anonym_query_value():
     node = parse("{: 42}", parsing.struct.QueryParser)
-    assert node[0].value == 42
+    assert node[0].value == "42"
