@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import (
     REFERENCE,
@@ -27,7 +26,7 @@ class SubReferenceParser(BaseParser):
 
     @indexed
     def parse(self):
-        self.parse_token(tokens.ChildPathToken)
+        self.parse_token('/')
         return self.parse_alternative(
             WILDCARD,
             TAG,

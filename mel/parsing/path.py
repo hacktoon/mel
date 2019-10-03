@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import PATH, KEYWORD, CHILD_PATH, META_PATH
 from .base import (
@@ -12,8 +11,8 @@ from .base import (
 class SubPathParser(BaseParser):
     @indexed
     def parse(self):
-        self.parse_token(self.Token)
-        _keyword = self.read_rule(KEYWORD)
+        self.parse_token(self.separator_token)
+        _keyword = self.parse_rule(KEYWORD)
         node = self.build_node()
         node.keyword = _keyword
         return node
@@ -23,14 +22,14 @@ class SubPathParser(BaseParser):
 class ChildPathParser(SubPathParser):
     id = CHILD_PATH
     Node = nodes.ChildPathNode
-    Token = tokens.ChildPathToken
+    separator_token = '/'
 
 
 @subparser
 class MetaPathParser(SubPathParser):
     id = META_PATH
     Node = nodes.MetaPathNode
-    Token = tokens.MetaNodeToken
+    separator_token = '.'
 
 
 @subparser
@@ -40,7 +39,7 @@ class PathParser(BaseParser):
 
     @indexed
     def parse(self):
-        _keyword = self.read_rule(KEYWORD)
+        _keyword = self.parse_rule(KEYWORD)
         node = self.build_node()
         node.add(_keyword)
         subnodes = self.parse_zero_many_alternative(CHILD_PATH, META_PATH)

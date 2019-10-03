@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import (
     INT,
@@ -28,35 +27,35 @@ from .base import (
 class IntParser(TokenParser):
     id = INT
     Node = nodes.IntNode
-    Token = tokens.IntToken
+    token = 'int'
 
 
 @subparser
 class FloatParser(TokenParser):
     id = FLOAT
     Node = nodes.FloatNode
-    Token = tokens.FloatToken
+    token = 'float'
 
 
 @subparser
 class BooleanParser(TokenParser):
     id = BOOLEAN
     Node = nodes.BooleanNode
-    Token = tokens.BooleanToken
+    token = 'boolean'
 
 
 @subparser
 class StringParser(TokenParser):
     id = STRING
     Node = nodes.StringNode
-    Token = tokens.StringToken
+    token = 'string'
 
 
 @subparser
 class TemplateStringParser(TokenParser):
     id = TEMPLATE_STRING
     Node = nodes.TemplateStringNode
-    Token = tokens.TemplateStringToken
+    token = 'template-string'
 
 
 @subparser
@@ -88,9 +87,9 @@ class RightBoundRangeParser(BaseParser):
     Node = nodes.RangeNode
 
     def parse(self):
-        self.parse_token(tokens.RangeToken)
+        self.parse_token('range')
         node = self.build_node()
-        node.end = self.parse_token(tokens.IntToken)
+        node.end = self.parse_token('int')
         return node
 
 
@@ -101,9 +100,9 @@ class LeftBoundRangeParser(BaseParser):
 
     def parse(self):
         node = self.build_node()
-        node.start = self.parse_token(tokens.IntToken)
-        self.parse_token(tokens.RangeToken)
-        node.end = self.parse_token_optional(tokens.IntToken)
+        node.start = self.parse_token('int')
+        self.parse_token('range')
+        node.end = self.parse_token_optional('int')
         return node
 
 
@@ -111,15 +110,13 @@ class LeftBoundRangeParser(BaseParser):
 class ListParser(BaseParser):
     id = LIST
     Node = nodes.ListNode
-    PrefixToken = tokens.StartListToken
-    SuffixToken = tokens.EndListToken
 
     @indexed
     def parse(self):
-        self.parse_token(self.PrefixToken)
+        self.parse_token('[')
         node = self.build_node()
         node.add(*self.parse_zero_many(VALUE))
-        self.parse_token(self.SuffixToken)
+        self.parse_token(']')
         return node
 
 
@@ -129,4 +126,4 @@ class ListParser(BaseParser):
 class WildcardParser(TokenParser):
     id = WILDCARD
     Node = nodes.WildcardNode
-    Token = tokens.WildcardToken
+    token = '*'

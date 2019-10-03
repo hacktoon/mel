@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import (
     ANONYM_KEY,
@@ -27,11 +26,11 @@ class StructParser(BaseParser):
 
     @indexed
     def parse(self):
-        self.parse_token(self.PrefixToken)
+        self.parse_token(self.first_token)
         node = self.build_node()
         node.key = self.parse_alternative(*self.key_parsers)
         node.add(*self.parse_zero_many_alternative(TAG, RELATION, VALUE))
-        self.parse_token(self.SuffixToken)
+        self.parse_token(self.last_token)
         return node
 
 
@@ -41,21 +40,21 @@ class StructParser(BaseParser):
 class AnonymKeyParser(TokenParser):
     id = ANONYM_KEY
     Node = nodes.AnonymKeyNode
-    Token = tokens.AnonymKeyToken
+    token = ':'
 
 
 @subparser
 class DefaultDocKeyParser(TokenParser):
     id = DEFAULT_DOC
     Node = nodes.DefaultDocKeyNode
-    Token = tokens.DefaultDocKeyToken
+    token = '?:'
 
 
 @subparser
 class DefaultFormatKeyParser(TokenParser):
     id = DEFAULT_FORMAT
     Node = nodes.DefaultFormatKeyNode
-    Token = tokens.DefaultFormatKeyToken
+    token = '%:'
 
 
 # OBJECT ======================================================
@@ -64,8 +63,8 @@ class DefaultFormatKeyParser(TokenParser):
 class ObjectParser(StructParser):
     id = OBJECT
     Node = nodes.ObjectNode
-    PrefixToken = tokens.StartObjectToken
-    SuffixToken = tokens.EndObjectToken
+    first_token = '('
+    last_token = ')'
     key_parsers = ANONYM_KEY, DEFAULT_DOC, DEFAULT_FORMAT, PATH
 
 
@@ -75,6 +74,6 @@ class ObjectParser(StructParser):
 class QueryParser(StructParser):
     id = QUERY
     Node = nodes.QueryNode
-    PrefixToken = tokens.StartQueryToken
-    SuffixToken = tokens.EndQueryToken
+    first_token = '{'
+    last_token = '}'
     key_parsers = ANONYM_KEY, PATH

@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import (
     PATH,
@@ -39,9 +38,9 @@ class SignedValueParser(BaseParser):
     @indexed
     def parse(self):
         node = self.build_node()
-        node.path = self.read_rule(PATH)
-        node.sign = self.parse_token(self.SignToken)
-        node.value = self.read_rule(VALUE)
+        node.path = self.parse_rule(PATH)
+        node.sign = self.parse_token(self.sign_token)
+        node.value = self.parse_rule(VALUE)
         return node
 
 
@@ -49,53 +48,53 @@ class SignedValueParser(BaseParser):
 class EqualParser(SignedValueParser):
     id = EQUAL
     Node = nodes.EqualNode
-    SignToken = tokens.EqualToken
+    sign_token = '='
 
 
 @subparser
 class DifferentParser(SignedValueParser):
     id = DIFFERENT
     Node = nodes.DifferentNode
-    SignToken = tokens.DifferentToken
+    sign_token = '!='
 
 
 @subparser
 class GreaterThanParser(SignedValueParser):
     id = GREATER_THAN
     Node = nodes.GreaterThanNode
-    SignToken = tokens.GreaterThanToken
+    sign_token = '>'
 
 
 @subparser
 class GreaterThanEqualParser(SignedValueParser):
     id = GREATER_THAN_EQUAL
     Node = nodes.GreaterThanEqualNode
-    SignToken = tokens.GreaterThanEqualToken
+    sign_token = '>='
 
 
 @subparser
 class LessThanParser(SignedValueParser):
     id = LESS_THAN
     Node = nodes.LessThanNode
-    SignToken = tokens.LessThanToken
+    sign_token = '<'
 
 
 @subparser
 class LessThanEqualParser(SignedValueParser):
     id = LESS_THAN_EQUAL
     Node = nodes.LessThanEqualNode
-    SignToken = tokens.LessThanEqualToken
+    sign_token = '<='
 
 
 @subparser
 class InParser(SignedValueParser):
     id = IN
     Node = nodes.InNode
-    SignToken = tokens.InToken
+    sign_token = '><'
 
 
 @subparser
 class NotInParser(SignedValueParser):
     id = NOT_IN
     Node = nodes.NotInNode
-    SignToken = tokens.NotInToken
+    sign_token = '<>'

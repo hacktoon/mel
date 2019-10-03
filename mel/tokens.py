@@ -2,24 +2,44 @@ import re
 
 from .exceptions import ParsingError
 
-_parsers = {}
+parsers = {}
 
 
-def token(id, regex=None):
+class Token:
+    def __init__(self, id, text, index):
+        self.id = id
+        self.text = text
+        self.index = index
+
+    def __eq__(self, token):
+        return self.id == token.id
+
+    def __len__(self):
+        return len(self.text)
+
+    def __repr__(self):
+        return "TOKEN({!r})".format(self.text)
+
+    def __str__(self):
+        start, end = self.index
+        return self.text[start:end]
+
+
+def token(id, regex=None, skip=False):
     regex = re.compile(regex or re.escape(id))
 
-    def parser(text, index):
+    def parser(text, index=0):
         match = regex.match(text, index)
         if match:
-            return match.string
+            return Token(id, match.string, match.span())
         raise ParsingError
-    _parsers[id] = parser
+    parsers[id] = parser
+    return parser
 
 
-# special tokens
-token("whitespace", r"([^\S\n\r]|;|,)+")
-token("newline", r"\r?\n|\r")
-token("comment", r"--[^\n\r]*")
+token("whitespace", r"([^\S\n\r]|;|,)+", skip=True)
+token("newline", r"\r?\n|\r", skip=True)
+token("comment", r"--[^\n\r]*", skip=True)
 
 token("string", r"'[^']*'")
 token("template-string", r'"[^"]*"')

@@ -1,5 +1,4 @@
 from .. import nodes
-from .. import tokens
 
 from .constants import (
     KEYWORD,
@@ -24,22 +23,22 @@ from .base import (
 class NameParser(TokenParser):
     id = NAME
     Node = nodes.NameKeywordNode
-    Token = tokens.NameToken
+    token = 'name'
 
 
 @subparser
 class ConceptParser(TokenParser):
     id = CONCEPT
     Node = nodes.ConceptKeywordNode
-    Token = tokens.ConceptToken
+    token = 'concept'
 
 
 class PrefixedNameParser(BaseParser):
     @indexed
     def parse(self):
-        self.parse_token(self.Token)
+        self.parse_token(self.token)
         node = self.build_node()
-        node.value = self.parse_token(tokens.NameToken)
+        node.value = self.parse_token('name')
         return node
 
 
@@ -47,42 +46,42 @@ class PrefixedNameParser(BaseParser):
 class TagParser(PrefixedNameParser):
     id = TAG
     Node = nodes.TagKeywordNode
-    Token = tokens.TagPrefixToken
+    token = 'tag'
 
 
 @subparser
 class LogParser(PrefixedNameParser):
     id = LOG
     Node = nodes.LogKeywordNode
-    Token = tokens.LogPrefixToken
+    token = 'log'
 
 
 @subparser
 class AliasParser(PrefixedNameParser):
     id = ALIAS
     Node = nodes.AliasKeywordNode
-    Token = tokens.AliasPrefixToken
+    token = 'alias'
 
 
 @subparser
 class CacheParser(PrefixedNameParser):
     id = CACHE
     Node = nodes.CacheKeywordNode
-    Token = tokens.CachePrefixToken
+    token = 'cache'
 
 
 @subparser
 class FormatParser(PrefixedNameParser):
     id = FORMAT
     Node = nodes.FormatKeywordNode
-    Token = tokens.FormatPrefixToken
+    token = 'format'
 
 
 @subparser
 class DocParser(PrefixedNameParser):
     id = DOC
     Node = nodes.DocKeywordNode
-    Token = tokens.DocPrefixToken
+    token = 'doc'
 
 
 @subparser

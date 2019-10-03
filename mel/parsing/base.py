@@ -52,7 +52,7 @@ class BaseParser:
     def build_node(self):
         return self.Node()
 
-    def read_rule(self, rule):
+    def parse_rule(self, rule):
         parser = self._get_parser(rule, self.stream)
         index = self.stream.save()
         try:
@@ -64,7 +64,7 @@ class BaseParser:
     def parse_alternative(self, *rules):
         for rule in rules:
             try:
-                node = self.read_rule(rule)
+                node = self.parse_rule(rule)
                 if isinstance(node, list):
                     for n in node:
                         return n
@@ -72,7 +72,7 @@ class BaseParser:
                     return node
             except ParsingError:
                 pass
-        self.error(ParsingError)
+        raise ParsingError
 
     # TODO: read_once_repeat
 
@@ -80,7 +80,7 @@ class BaseParser:
         nodes = []
         while True:
             try:
-                node = self.read_rule(rule)
+                node = self.parse_rule(rule)
                 if isinstance(node, list):
                     for n in node:
                         nodes.append(n)
@@ -108,7 +108,7 @@ class BaseParser:
     def parse_token(self, Token):
         token = self.stream.read(Token)
         if not token:
-            self.error(ParsingError)
+            raise ParsingError
         return token.value
 
     def parse_token_optional(self, Token):
@@ -116,9 +116,6 @@ class BaseParser:
             return self.parse_token(Token)
         except ParsingError:
             return
-
-    def error(self, Error, token=None):
-        raise Error(token or self.stream.peek())
 
     def parse(self):
         raise NotImplementedError

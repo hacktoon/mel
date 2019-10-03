@@ -37,16 +37,16 @@ class Parser:
         self.read_optional(SPACE)
 
     def read_newline(self):
-        self.read_rule(NEWLINE)
+        self.parse_rule(NEWLINE)
 
     def _read_lexeme(self, pattern):
         return re.match(pattern, self.text[self.index:])
 
     def parse_rule(self, text):
         self.read_space()
-        self.read_rule(RULE)
+        self.parse_rule(RULE)
         self.read_space()
-        self.read_rule(EQUALS)
+        self.parse_rule(EQUALS)
         self.read_space()
         self.parse_rule_body()
         self.read_newline()
