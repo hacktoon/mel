@@ -7,18 +7,6 @@ from .exceptions import ParsingError
 _parsers = {}
 
 
-def token(id, regex=None):
-    regex = re.compile(regex or re.escape(id))
-
-    def parser(text, index=0):
-        match = regex.match(text, index)
-        if match:
-            return Token(id, match.group(0), match.span())
-        raise ParsingError
-    _parsers[id] = parser
-    return parser
-
-
 class Token:
     def __init__(self, id, text, index):
         self.id = id
@@ -55,3 +43,55 @@ class TokenStream:
         token = parser(self.text, self.index)
         self.index += len(token)
         return token
+
+
+def token(id, regex=None):
+    regex = re.compile(regex or re.escape(id))
+
+    def parser(text, index=0):
+        match = regex.match(text, index)
+        if match:
+            return Token(id, match.group(0), match.span())
+        raise ParsingError
+    _parsers[id] = parser
+    return parser
+
+
+# MEL GRAMMAR
+# TODO: move to file
+
+token("space", r"(\s|;|,)*", skip=True)
+token("comment", r"--[^\n\r]*", skip=True)
+token("string", r"'[^']*'")
+token("template-string", r'"[^"]*"')
+token("float", r"-?\d*\.\d+([eE][-+]?\d+)?\b")
+token("int", r"-?\d+\b")
+token("name", r"[a-z]\w*")
+token("concept", r"[A-Z]\w*")
+token("!=")
+token("!")
+token("@")
+token("$")
+token("#")
+token("%:")
+token("%")
+token("?:")
+token("?")
+token("/")
+token(".")
+token("..")
+token(":")
+token("=")
+token("><")
+token(">=")
+token(">")
+token("<>")
+token("<=")
+token("<")
+token("*")
+token("(")
+token(")")
+token("{")
+token("}")
+token("[")
+token("]")
