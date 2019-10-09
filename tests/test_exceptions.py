@@ -1,3 +1,5 @@
+import pytest
+
 from mel.parsing import Parser
 from mel.lexing import TokenStream
 from mel.exceptions import ParsingError
@@ -9,6 +11,7 @@ def parse(text):
     return Parser(stream).parse()
 
 
+@pytest.mark.skip()
 def test_error_line_and_column():
     try:
         parse("33 #")
@@ -17,6 +20,7 @@ def test_error_line_and_column():
         assert error.column == 3
 
 
+@pytest.mark.skip()
 def test_error_text_and_index():
     text = "name !!"
     try:
@@ -26,6 +30,7 @@ def test_error_text_and_index():
         assert error.index == 5
 
 
+@pytest.mark.skip()
 def test_error_message_header():
     header = "Error at line 2, column 1."
     try:
@@ -35,6 +40,7 @@ def test_error_message_header():
         assert header in message
 
 
+@pytest.mark.skip()
 def test_error_message_snippet():
     snippet = "\n".join([
         "1 | 42",

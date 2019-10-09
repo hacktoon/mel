@@ -1,5 +1,4 @@
 import re
-import tokens  # noqa
 
 from .exceptions import ParsingError
 
@@ -60,8 +59,8 @@ def token(id, regex=None):
 # MEL GRAMMAR
 # TODO: move to file
 
-token("space", r"(\s|;|,)*", skip=True)
-token("comment", r"--[^\n\r]*", skip=True)
+token("space", r"(\s|;|,)*")
+token("comment", r"--[^\n\r]*")
 token("string", r"'[^']*'")
 token("template-string", r'"[^"]*"')
 token("float", r"-?\d*\.\d+([eE][-+]?\d+)?\b")

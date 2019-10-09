@@ -1,20 +1,31 @@
 import pytest
 
 from mel.lexing import TokenStream
-# from mel.exceptions import ParsingError
+from mel.exceptions import ParsingError
 
 
 def create_stream(text):
     return TokenStream(text)
 
 
-@pytest.mark.parametrize(
-    "test_input, expected",
-    [
-        ("56.75", 56.75),
-        ("foo\n / bar", "foo"),
-    ],
-)
-def test_token_value_attribute(test_input, expected):
-    tokens = create_stream(test_input)
-    assert tokens[0].value == expected
+def test_valid_token_texts():
+    stream = create_stream('abc 24')
+    assert stream.parse('name').text == 'abc'
+    assert stream.parse('space')
+    assert stream.parse('int').text == '24'
+
+
+def test_invalid_tokens():
+    stream = create_stream('54')
+    with pytest.raises(ParsingError):
+        assert stream.parse('name')
+
+
+def test_save_restore():
+    stream = create_stream('    ')
+    index = stream.save()
+    try:
+        stream.parse('string')
+    except ParsingError:
+        stream.restore(index)
+    assert stream.parse('space')
