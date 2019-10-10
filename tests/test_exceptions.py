@@ -1,7 +1,6 @@
 import pytest
 
-from mel.parsing import Parser
-from mel.lexing import TokenStream
+from mel.parsing import TokenStream, Parser
 from mel.exceptions import ParsingError
 from mel.exceptions.formatting import ErrorFormatter
 

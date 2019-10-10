@@ -1,5 +1,4 @@
-from mel.lexing import TokenStream
-from mel.parsing import Parser
+from mel.parsing import TokenStream, Parser
 
 from mel.utils import Context
 from mel.exceptions import MelError, ParsingError
