@@ -1,10 +1,11 @@
 import pytest
 
-from mel.parsing import TokenStream, Parser, t, r
+from mel.nodes import Node
+from mel.parsing import TokenStream, Parser, zero_many, seq, t, r
 from mel.exceptions import ParsingError
 
 
-# HELPERS
+# HELPERS =========================================
 
 def create_parser(text):
     stream = TokenStream(text)
@@ -19,7 +20,7 @@ def create_stream(text):
     return TokenStream(text)
 
 
-# BEGIN TESTS
+# BEGIN TESTS ========================================
 
 def test_valid_token_texts():
     stream = create_stream('abc 24')
@@ -30,10 +31,10 @@ def test_valid_token_texts():
 
 def test_valid_symbols():
     stream = create_stream('[]{}')
-    assert stream.read('open_list')
-    assert stream.read('close_list')
-    assert stream.read('open_query')
-    assert stream.read('close_query')
+    assert stream.read('[')
+    assert stream.read(']')
+    assert stream.read('{')
+    assert stream.read('}')
 
 
 def test_invalid_tokens():
@@ -54,7 +55,7 @@ def test_save_restore():
 
 # PARSER ===========================================
 
-def test_int_parser():
+def test_token_parser():
     parser = t('int')
     stream = TokenStream('42')
     assert parser(stream).value == '42'
@@ -63,4 +64,28 @@ def test_int_parser():
 def test_rule_parser():
     parser = r('tag')
     stream = TokenStream('#foo')
-    return parser, stream
+    assert parser(stream)
+
+
+def test_token_parser_node():
+    parser = t('name')
+    stream = TokenStream('foo')
+    assert isinstance(parser(stream), Node)
+
+
+def test_string_token_parser():
+    parser = t('string')
+    stream = TokenStream('"test"')
+    assert parser(stream)
+
+
+def test_seq_parser():
+    parser = seq(t('string'), t('name'))
+    stream = TokenStream('"test"foo')
+    assert parser(stream)
+
+
+def test_zero_many_parser():
+    parser = zero_many(r('log'))
+    stream = TokenStream('!foo')
+    assert parser(stream)

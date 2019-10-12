@@ -13,8 +13,7 @@ class Node:
 
     def __repr__(self):
         template = "{}('{}')"
-        id = self.id.upper()
-        return template.format(id, self)
+        return template.format(self)
 
     def __len__(self):
         return len(self.subnodes)

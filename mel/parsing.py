@@ -10,12 +10,13 @@ _parsers = {}
 # CLASSES =======================================
 
 class Parser:
-    def __init__(self, source, grammar):
+    def __init__(self, source, grammar=None):
         self.source = source
         self.grammar = grammar
 
     def parse(self):
-        pass
+        stream = TokenStream(self.source)
+        return _parsers['root'](stream)
 
 
 class TokenStream:
@@ -28,8 +29,8 @@ class TokenStream:
         self.index_cache = self.index
         return self.index
 
-    def restore(self, index):
-        index = self.index_cache if index is None else index
+    def restore(self, _index):
+        index = self.index_cache if _index is None else _index
         self.index = index
 
     def read(self, id):
@@ -56,7 +57,7 @@ class Token:
         return self.text[start:end]
 
 
-# PARSERS =======================================
+# REGISTERS =======================================
 
 def rule(id, parser):
     def _parser(stream):
@@ -70,8 +71,8 @@ def rule(id, parser):
     return _parser
 
 
-def token(id, string):
-    pattern = re.compile(string)
+def token(id, string=None):
+    pattern = re.compile(string or re.escape(id))
 
     def parser(text, index=0):
         match = pattern.match(text, index)
@@ -82,89 +83,112 @@ def token(id, string):
     return parser
 
 
-def zero_many(rule):
-    def parser(stream):
+# PARSERS =======================================
+
+def zero_many(parser):
+    def _parser(stream):
         nodes = []
         while True:
             try:
-                node = rule(stream)
+                node = parser(stream)
                 nodes.append(node)
             except ParsingError:
                 break
         return nodes
-    return parser
+    return _parser
 
 
-def one_of(*rules):
-    def parser(stream):
-        for rule in rules:
+def one_of(*parsers):
+    def _parser(stream):
+        for parser in parsers:
             try:
-                node = r(rule)
+                node = r(parser)
                 return node
             except ParsingError:
                 pass
         raise ParsingError
-    return parser
+    return _parser
 
 
-def seq(*rules):
-    pass
+def maybe(parser):
+    def _parser(stream):
+        try:
+            node = parser(stream)
+        except ParsingError:
+            return
+        return node
+    return _parser
 
 
-def group(*rules):
+def seq(*parsers):
+    def parse(stream):
+        nodes = []
+        for parser in parsers:
+            node = parser(stream)
+            nodes.append(node)
+        return nodes
+    return parse
+
+
+def group(*parsers):
     pass
 
 
 def r(id):
-    def parser(stream):
+    def parse(stream):
         return _parsers[id](stream)
-    return parser
+    return parse
 
 
 def t(id):
-    def parser(stream):
+    def parse(stream):
         token = stream.read(id)
         return Node(token.text)
-    return parser
+    return parse
+
+
+def s(id):
+    def parse(stream):
+        return stream.read(id)
+    return parse
 
 
 # GRAMMAR TOKENS ===================================
 
 token("space", r"(\s|;|,)*")
 token("comment", r"--[^\n\r]*")
-token("string", r"'[^']*'")
-token("template-string", r'"[^"]*"')
+token("string", r"'[^']*'|\"[^\"]*\"")
 token("float", r"-?\d*\.\d+([eE][-+]?\d+)?\b")
 token("int", r"-?\d+\b")
 token("name", r"[a-z]\w*")
 token("concept", r"[A-Z]\w*")
-token("equal", r"=")
-token("different", r"!=")
-token("log", r"!")
-token("alias", r"@")
-token("cache", r"\$")
-token("tag", r"#")
 token("default-format", r"%:")
-token("format", r"%")
 token("default-doc", r"\?:")
-token("doc", r"\?")
-token("sub-path", r"/")
-token("meta-path", r"\.")
-token("range", r"\.\.")
 token("anonym", r":")
-token("in", r"><")
-token("gte", r">=")
-token("gt", r">")
-token("not-in", r"<>")
-token("lte", r"<=")
-token("lt", r"<")
 token("wildcard", r"\*")
-token("open_list", r"\[")
-token("close_list", r"\]")
-token("open_object", r"\(")
-token("close_object", r"\)")
-token("open_query", r"\{")
-token("close_query", r"\}")
+token("..")
+token("><")
+token(">=")
+token("<>")
+token("<=")
+token("!=")
+token("/")
+token(".")
+token(">")
+token("<")
+token("#")
+token("?")
+token("=")
+token("!")
+token("%")
+token("@")
+token("$")
+token("[")
+token("]")
+token("(")
+token(")")
+token("{")
+token("}")
 
 
 # GRAMMAR RULES ===================================
@@ -173,53 +197,64 @@ rule('root', zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
 
-rule('relation', seq(r('path'), r('sign'), r('value')))
+rule('relation', seq(r('path'), one_of(
+    t('equal'), t('diff'), t('lt'), t('lte'),
+    t('gt'), t('gte'), t('in'), t('out')
+)))
+rule('equal', seq(s('='), r('value')))
+rule('diff', seq(s('!='), r('value')))
+rule('lt', seq(s('<'), r('value')))
+rule('lte', seq(s('<='), r('value')))
+rule('gt', seq(s('>'), r('value')))
+rule('gte', seq(s('>='), r('value')))
+rule('in', seq(s('><'), r('value')))
+rule('out', seq(s('<>'), r('value')))
 
-rule('tag', seq(t('#'), t('name')))
+rule('tag', seq(s('#'), t('name')))
 
-rule('path', seq(r('keyword'), zero_many(seq(r('separator'), r('keyword')))))
+rule('path', seq(r('keyword'), zero_many(
+    one_of(r('sub-path'), r('meta-path')))
+))
+rule('sub-path', seq(s('/'), r('keyword')))
+rule('meta-path', seq(s('.'), r('keyword')))
+
 rule('keyword', one_of(
     t('name'), t('concept'), r('log'), r('alias'),
     r('cache'), r('format'), r('meta'), r('doc')
 ))
-rule('log', seq(t('!'), t('name')))
-rule('alias', seq(t('@'), t('name')))
-rule('cache', seq(t('$'), t('name')))
-rule('format', seq(t('%'), t('name')))
-rule('meta', seq(t('_'), t('name')))
-rule('doc', seq(t('?'), t('name')))
-
-rule('separator', one_of(t('sub-path'), t('meta-path')))
-
-rule('sign', one_of(
-    t('equal'), t('different'),
-    t('lt'), t('lte'),
-    t('gt'), t('gte'),
-    t('in'), t('not-in')
-))
+rule('log', seq(s('!'), t('name')))
+rule('alias', seq(s('@'), t('name')))
+rule('cache', seq(s('$'), t('name')))
+rule('format', seq(s('%'), t('name')))
+rule('meta', seq(s('_'), t('name')))
+rule('doc', seq(s('?'), t('name')))
 
 rule('value', one_of(r('reference'), r('literal'), r('list'), r('object')))
 
 rule('reference', seq(
-    r('head-ref'),
-    zero_many(seq(r('separator'), r('sub-ref')))
+    one_of(r('query'), r('keyword')),
+    zero_many(r('sub-reference'))
 ))
-rule('head-ref', one_of(r('query'), r('keyword')))
-rule('sub-ref', one_of(
-    t('range'), t('int'), r('tag'), r('list'), r('object'),
+rule('sub-reference', seq(s('/'), one_of(
+    r('range'), t('int'), r('tag'), r('list'), r('object'),
     r('query'), r('keyword'), t('wildcard')
-))
+)))
 
 rule('literal', one_of(t('int'), t('float'), t('string'), t('boolean')))
 
-rule('list', seq(t('['), zero_many(r('value')), t(']')))
+rule('list', seq(s('['), zero_many(r('value')), s(']')))
+
+rule('range', one_of(
+    seq(s('..'), t('int')),
+    seq(t('int'), s('..'), maybe(t('int')))
+))
 
 rule('object', seq(
-    t('('), r('object-key'), zero_many(r('expression')), t(')')
+    s('('), r('object-key'), zero_many(r('expression')), s(')')
 ))
 rule('object-key', one_of(
     t('anonym-path'), t('default-format'), t('default-doc'), r('path')
 ))
 
-rule('query', seq(t('{'), r('query-key'), zero_many(r('expression')), t('}')))
+rule('query', seq(s('{'), r('query-key'), zero_many(r('expression')), s('}')))
 rule('query-key', one_of(t('anonym-path'), r('path')))
