@@ -60,33 +60,34 @@ class Token:
 # REGISTERS =======================================
 
 def rule(id, parser):
-    def _parser(stream):
+    def base_rule_parser(stream):
         index = stream.save()
         try:
             return parser(stream)
         except ParsingError as error:
             stream.restore(index)
             raise error
-    _parsers[id] = _parser
-    return _parser
+    _parsers[id] = base_rule_parser
+    return base_rule_parser
 
 
 def token(id, string=None):
     pattern = re.compile(string or re.escape(id))
 
-    def parser(text, index=0):
+    def base_token_parser(text, index=0):
         match = pattern.match(text, index)
         if match:
-            return Token(id, match.group(0), match.span())
+            text, index = match.group(0), match.span()
+            return Token(id, text, index)
         raise ParsingError
-    _parsers[id] = parser
-    return parser
+    _parsers[id] = base_token_parser
+    return base_token_parser
 
 
 # PARSERS =======================================
 
 def zero_many(parser):
-    def _parser(stream):
+    def zero_many_parser(stream):
         nodes = []
         while True:
             try:
@@ -95,39 +96,38 @@ def zero_many(parser):
             except ParsingError:
                 break
         return nodes
-    return _parser
+    return zero_many_parser
 
 
 def one_of(*parsers):
-    def _parser(stream):
+    def one_of_parser(stream):
         for parser in parsers:
             try:
-                node = r(parser)
+                node = parser(stream)
                 return node
             except ParsingError:
                 pass
         raise ParsingError
-    return _parser
+    return one_of_parser
 
 
 def maybe(parser):
-    def _parser(stream):
+    def maybe_parser(stream):
         try:
-            node = parser(stream)
+            return parser(stream)
         except ParsingError:
             return
-        return node
-    return _parser
+    return maybe_parser
 
 
 def seq(*parsers):
-    def parse(stream):
+    def seq_parser(stream):
         nodes = []
         for parser in parsers:
             node = parser(stream)
             nodes.append(node)
         return nodes
-    return parse
+    return seq_parser
 
 
 def group(*parsers):
@@ -135,22 +135,22 @@ def group(*parsers):
 
 
 def r(id):
-    def parse(stream):
+    def rule_parser(stream):
         return _parsers[id](stream)
-    return parse
+    return rule_parser
 
 
 def t(id):
-    def parse(stream):
+    def token_parser(stream):
         token = stream.read(id)
         return Node(token.text)
-    return parse
+    return token_parser
 
 
 def s(id):
-    def parse(stream):
+    def string_parser(stream):
         return stream.read(id)
-    return parse
+    return string_parser
 
 
 # GRAMMAR TOKENS ===================================
@@ -183,6 +183,7 @@ token("!")
 token("%")
 token("@")
 token("$")
+token("_")
 token("[")
 token("]")
 token("(")
@@ -197,9 +198,11 @@ rule('root', zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
 
+rule('tag', seq(s('#'), t('name')))
+
 rule('relation', seq(r('path'), one_of(
-    t('equal'), t('diff'), t('lt'), t('lte'),
-    t('gt'), t('gte'), t('in'), t('out')
+    t('equal'), t('diff'), t('lte'), t('lt'),
+    t('gte'), t('gt'), t('in'), t('out')
 )))
 rule('equal', seq(s('='), r('value')))
 rule('diff', seq(s('!='), r('value')))
@@ -209,8 +212,6 @@ rule('gt', seq(s('>'), r('value')))
 rule('gte', seq(s('>='), r('value')))
 rule('in', seq(s('><'), r('value')))
 rule('out', seq(s('<>'), r('value')))
-
-rule('tag', seq(s('#'), t('name')))
 
 rule('path', seq(r('keyword'), zero_many(
     one_of(r('sub-path'), r('meta-path')))

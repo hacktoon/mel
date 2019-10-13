@@ -1,7 +1,9 @@
 import pytest
 
 from mel.nodes import Node
-from mel.parsing import TokenStream, Parser, zero_many, seq, t, r
+from mel.parsing import (
+    TokenStream, Parser, one_of, zero_many, seq, t, r
+)
 from mel.exceptions import ParsingError
 
 
@@ -86,6 +88,18 @@ def test_seq_parser():
 
 
 def test_zero_many_parser():
-    parser = zero_many(r('log'))
+    # TODO: grammar = '''
+    # INT = \d+
+    # NAME = [a-z]+
+    # value = INT | NAME
+    # '''
+    parser = zero_many(r('keyword'))
     stream = TokenStream('!foo')
     assert parser(stream)
+
+
+def test_one_of_parser():
+    parser = one_of(t('name'), t('int'), t('string'))
+    assert parser(TokenStream('556'))
+    assert parser(TokenStream('foo'))
+    assert parser(TokenStream('"abc"'))
