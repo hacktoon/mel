@@ -88,14 +88,14 @@ def token(id, string=None):
 
 def zero_many(parser):
     def zero_many_parser(stream):
-        nodes = []
+        node = Node()
         while True:
             try:
-                node = parser(stream)
-                nodes.append(node)
+                child = parser(stream)
+                node.add(child)
             except ParsingError:
                 break
-        return nodes
+        return node
     return zero_many_parser
 
 
@@ -103,8 +103,7 @@ def one_of(*parsers):
     def one_of_parser(stream):
         for parser in parsers:
             try:
-                node = parser(stream)
-                return node
+                return parser(stream)
             except ParsingError:
                 pass
         raise ParsingError
@@ -116,17 +115,17 @@ def maybe(parser):
         try:
             return parser(stream)
         except ParsingError:
-            return
+            return Node()
     return maybe_parser
 
 
 def seq(*parsers):
     def seq_parser(stream):
-        nodes = []
+        node = Node()
         for parser in parsers:
-            node = parser(stream)
-            nodes.append(node)
-        return nodes
+            child = parser(stream)
+            node.add(child)
+        return node
     return seq_parser
 
 
@@ -143,13 +142,14 @@ def r(id):
 def t(id):
     def token_parser(stream):
         token = stream.read(id)
-        return Node(token.text)
+        return Node(id, token.text, token.index)
     return token_parser
 
 
 def s(id):
     def string_parser(stream):
-        return stream.read(id)
+        token = stream.read(id)
+        return Node(id, token.text, token.index)
     return string_parser
 
 

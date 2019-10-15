@@ -60,7 +60,7 @@ def test_save_restore():
 def test_token_parser():
     parser = t('int')
     stream = TokenStream('42')
-    assert parser(stream).value == '42'
+    assert str(parser(stream)) == '42'
 
 
 def test_rule_parser():
@@ -94,7 +94,7 @@ def test_zero_many_parser():
     # value = INT | NAME
     # '''
     parser = zero_many(r('keyword'))
-    stream = TokenStream('!foo')
+    stream = TokenStream('!foo@test')
     assert parser(stream)
 
 
