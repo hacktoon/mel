@@ -1,71 +1,62 @@
-rules = {}
 
+SPACE = r'(\s|;|,)*'
+COMMENT = r'--[^\n\r]*'
 
-def rule(name, _rule):
-    rules[name] = _rule
+string = r'"[^\"]*"|\'[^']*\''
+float = r'-?\d*\.\d+([eE][-+]?\d+)?\b'
+int = r'-?\d+\b'
+name = r'[a-z]\w*'
+concept = r'[A-Z]\w*'
+anonym = ':'
+default-doc = '?:'
+default-format = '%:'
+wildcard = '*'
 
+root = expression*
 
-def zero_many(*rules):
-    pass
+expression = tag | relation | value
 
+tag = '#' name
 
-def any(*rules):
-    for rule in rules:
-        parser = get_parser(rule)
-        if parser:
-            return parser
-    return
+relation = path sign value
+sign = equal | diff | lte | lt | gte | gt | in | out
+equal = '='
+diff = '!='
+lt = '<'
+lte = '<='
+gt = '>'
+gte = '>='
+in = '><'
+out = '<>'
 
+path = keyword ( sub-path | meta-path )*
+sub-path = '/' keyword
+meta-path = '.' keyword
 
+keyword = name | concept | log | alias | cache | format | meta | doc
+log = '!' name
+alias = '@' name
+cache = '$' name
+format = '%' name
+meta = '_' name
+doc = '?' name
 
-class ZeroManyParser:
-    pass
+value = reference | literal | list | object
 
+reference = head-reference sub-reference*
+head-reference = query | keyword
+sub-reference = '/' (
+    range | int | tag | list | object | query | keyword | wildcard
+)
 
-token('*')
-token('[')
-token(']')
+literal = int | float | string | boolean
 
+list = '[' value* ']'
 
-rule('root'           , zero_many('expression'))
+range = '..' int | int '..' int?
 
-rule('expression'     , any('tag', 'relation', 'value'))
+object = '(' object-key expression* ')'
+object-key = anonym-path | default-format | default-doc | path
 
-rule('relation'       , seq('path', 'sign', 'value'))
-
-rule('path'           , seq('keyword', zero_many('access', 'keyword')))
-
-rule('keyword'        , any('name', 'concept', 'log', 'alias', 'cache', 'format', 'meta', 'doc'))
-
-rule('value'          , any('reference', 'literal', 'list', 'object'))
-
-rule('reference'      , seq('head-ref', zero_many('access', 'tail-ref')))
-rule('head-ref'       , any('query', 'keyword'))
-rule('tail-ref'       , any('head-ref', 'range', 'int', 'tag', 'list', 'object', 'wildcard'))
-
-rule('literal'        , any('int', 'float', 'string', 'template-string', 'boolean'))
-
-rule('list'           , seq('[', zero_many('value'), ']'))
-
-rule('object'         , seq('(', 'object-key', zero_many('expression'), ')'))
-rule('object-key'     , any('path', 'anonym-path', 'default-format', 'default-doc'))
-
-rule('query'          , seq('{', 'query-key', zero_many('expression'), '}'))
-rule('query-key'      , any('path', 'anonym-path'))
-
-rule('sign'           , any('=', '!=', '<', '<=', '>', '>=', '><', '<>'))
-
-rule('tag'            , seq('#', 'name'))
-rule('log'            , seq('!', 'name'))
-rule('alias'          , seq('@', 'name'))
-rule('cache'          , seq('$', 'name'))
-rule('format'         , seq('%', 'name'))
-rule('meta'           , seq('.', 'name'))
-rule('doc'            , seq('?', 'name'))
-
-rule('access'         , any('/', '.'))
-rule('wildcard'       , '*')
-
-rule('default-doc'    , '?:')
-rule('default-format' , '%:')
-rule('anonym-path'    , ':')
+query = '{' query-key expression* '}'
+query-key = anonym-path | path

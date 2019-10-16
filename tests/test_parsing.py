@@ -87,15 +87,16 @@ def test_seq_parser():
     assert parser(stream)
 
 
-def test_zero_many_parser():
-    # TODO: grammar = '''
-    # INT = \d+
-    # NAME = [a-z]+
-    # value = INT | NAME
-    # '''
+def test_seq_parser_children_count():
+    parser = seq(t('string'), t('name'))
+    stream = TokenStream('"test"foo')
+    assert len(parser(stream)) == 2
+
+
+def test_zero_many_children_count():
     parser = zero_many(r('keyword'))
     stream = TokenStream('!foo@test')
-    assert parser(stream)
+    assert len(parser(stream)) == 2
 
 
 def test_one_of_parser():

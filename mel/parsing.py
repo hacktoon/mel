@@ -1,6 +1,6 @@
 import re
 
-from .nodes import Node
+from .nodes import RuleNode, TokenNode, StringNode, NullNode
 from .exceptions import ParsingError
 
 
@@ -84,11 +84,11 @@ def token(id, string=None):
     return base_token_parser
 
 
-# PARSERS =======================================
+# PARSER GENERATORS =======================================
 
 def zero_many(parser):
     def zero_many_parser(stream):
-        node = Node()
+        node = RuleNode()
         while True:
             try:
                 child = parser(stream)
@@ -115,13 +115,13 @@ def maybe(parser):
         try:
             return parser(stream)
         except ParsingError:
-            return Node()
+            return NullNode()
     return maybe_parser
 
 
 def seq(*parsers):
     def seq_parser(stream):
-        node = Node()
+        node = RuleNode()
         for parser in parsers:
             child = parser(stream)
             node.add(child)
@@ -141,19 +141,17 @@ def r(id):
 
 def t(id):
     def token_parser(stream):
-        token = stream.read(id)
-        return Node(id, token.text, token.index)
+        return TokenNode(id, stream.read(id))
     return token_parser
 
 
 def s(id):
     def string_parser(stream):
-        token = stream.read(id)
-        return Node(id, token.text, token.index)
+        return StringNode(id, stream.read(id))
     return string_parser
 
 
-# GRAMMAR TOKENS ===================================
+# GRAMMAR ===================================
 
 token("space", r"(\s|;|,)*")
 token("comment", r"--[^\n\r]*")
@@ -191,8 +189,6 @@ token(")")
 token("{")
 token("}")
 
-
-# GRAMMAR RULES ===================================
 
 rule('root', zero_many(r('expression')))
 
