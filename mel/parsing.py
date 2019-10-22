@@ -4,7 +4,11 @@ from .nodes import RuleNode, TokenNode, StringNode, NullNode
 from .exceptions import ParsingError
 
 
-_parsers = {}
+SPACE_TOKEN_ID = '_MEL_SPACE_ID'
+COMMENT_TOKEN_ID = '_MEL_COMMENT_ID'
+ROOT_RULE_ID = '_MEL_ROOT_ID'
+
+_PARSERS = {}
 
 
 # CLASSES =======================================
@@ -16,7 +20,7 @@ class Parser:
 
     def parse(self):
         stream = TokenStream(self.source)
-        return _parsers['root'](stream)
+        return _PARSERS[ROOT_RULE_ID](stream)
 
 
 class TokenStream:
@@ -33,11 +37,25 @@ class TokenStream:
         index = self.index_cache if _index is None else _index
         self.index = index
 
-    def read(self, id):
-        parser = _parsers[id]
+    def read_token(self, id):
+        parser = _PARSERS[id]
         token = parser(self.text, self.index)
         self.index += len(token)
         return token
+
+    def read_string(self, string):
+        if self.text[self.index:].startswith(string):
+            length = len(string)
+            token_index = (self.index, self.index + length)
+            self.index += length
+            return Token(string, string, token_index)
+        raise ParsingError
+
+    def read_space(self):
+        return self.read_token(SPACE_TOKEN_ID)
+
+    def read_comment(self):
+        return self.read_token(COMMENT_TOKEN_ID)
 
 
 class Token:
@@ -67,11 +85,11 @@ def rule(id, parser):
         except ParsingError as error:
             stream.restore(index)
             raise error
-    _parsers[id] = base_rule_parser
+    _PARSERS[id] = base_rule_parser
     return base_rule_parser
 
 
-def token(id, string=None):
+def token(id, string=None, skip=False):
     pattern = re.compile(string or re.escape(id))
 
     def base_token_parser(text, index=0):
@@ -80,8 +98,20 @@ def token(id, string=None):
             text, index = match.group(0), match.span()
             return Token(id, text, index)
         raise ParsingError
-    _parsers[id] = base_token_parser
+    _PARSERS[id] = base_token_parser
     return base_token_parser
+
+
+def root(parser):
+    return rule(ROOT_RULE_ID, parser)
+
+
+def space(string, skip=False):
+    return token(SPACE_TOKEN_ID, string, skip)
+
+
+def comment(string, skip=False):
+    return token(COMMENT_TOKEN_ID, string, skip)
 
 
 # PARSER GENERATORS =======================================
@@ -110,13 +140,13 @@ def one_of(*parsers):
     return one_of_parser
 
 
-def maybe(parser):
-    def maybe_parser(stream):
+def opt(parser):
+    def opt_parser(stream):
         try:
             return parser(stream)
         except ParsingError:
             return NullNode()
-    return maybe_parser
+    return opt_parser
 
 
 def seq(*parsers):
@@ -135,26 +165,27 @@ def group(*parsers):
 
 def r(id):
     def rule_parser(stream):
-        return _parsers[id](stream)
+        return _PARSERS[id](stream)
     return rule_parser
 
 
 def t(id):
     def token_parser(stream):
-        return TokenNode(id, stream.read(id))
+        return TokenNode(id, stream.read_token(id))
     return token_parser
 
 
-def s(id):
+def s(string):
     def string_parser(stream):
-        return StringNode(id, stream.read(id))
+        return StringNode(string, stream.read_string(string))
     return string_parser
 
 
 # GRAMMAR ===================================
 
-token("space", r"(\s|;|,)*")
-token("comment", r"--[^\n\r]*")
+space(r"(\s|;|,)*")
+comment(r"--[^\n\r]*")
+
 token("string", r"'[^']*'|\"[^\"]*\"")
 token("float", r"-?\d*\.\d+([eE][-+]?\d+)?\b")
 token("int", r"-?\d+\b")
@@ -164,33 +195,8 @@ token("default-format", r"%:")
 token("default-doc", r"\?:")
 token("anonym", r":")
 token("wildcard", r"\*")
-token("..")
-token("><")
-token(">=")
-token("<>")
-token("<=")
-token("!=")
-token("/")
-token(".")
-token(">")
-token("<")
-token("#")
-token("?")
-token("=")
-token("!")
-token("%")
-token("@")
-token("$")
-token("_")
-token("[")
-token("]")
-token("(")
-token(")")
-token("{")
-token("}")
 
-
-rule('root', zero_many(r('expression')))
+root(zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
 
@@ -243,7 +249,7 @@ rule('list', seq(s('['), zero_many(r('value')), s(']')))
 
 rule('range', one_of(
     seq(s('..'), t('int')),
-    seq(t('int'), s('..'), maybe(t('int')))
+    seq(t('int'), s('..'), opt(t('int')))
 ))
 
 rule('object', seq(

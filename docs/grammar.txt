@@ -1,15 +1,15 @@
 
-SPACE = r'(\s|;|,)*'
-COMMENT = r'--[^\n\r]*'
+@space = r'(\s|;|,)*'
+@comment = r'--[^\n\r]*'
 
-string = r'"[^\"]*"|\'[^']*\''
-float = r'-?\d*\.\d+([eE][-+]?\d+)?\b'
-int = r'-?\d+\b'
-name = r'[a-z]\w*'
-concept = r'[A-Z]\w*'
-anonym = ':'
-default-doc = '?:'
-default-format = '%:'
+STRING = r'"[^\"]*"|\'[^']*\''
+FLOAT = r'-?\d*\.\d+([eE][-+]?\d+)?\b'
+INT = r'-?\d+\b'
+NAME = r'[a-z]\w*'
+CONCEPT = r'[A-Z]\w*'
+default-path = ':'
+default-doc = ':?'
+default-format = ':%'
 wildcard = '*'
 
 root = expression*
@@ -56,7 +56,7 @@ list = '[' value* ']'
 range = '..' int | int '..' int?
 
 object = '(' object-key expression* ')'
-object-key = anonym-path | default-format | default-doc | path
+object-key = default-path | default-format | default-doc | path
 
 query = '{' query-key expression* '}'
-query-key = anonym-path | path
+query-key = default-path | path

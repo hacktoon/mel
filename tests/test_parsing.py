@@ -26,33 +26,33 @@ def create_stream(text):
 
 def test_valid_token_texts():
     stream = create_stream('abc 24')
-    assert stream.read('name').text == 'abc'
-    assert stream.read('space')
-    assert stream.read('int').text == '24'
+    assert stream.read_token('name').text == 'abc'
+    assert stream.read_space()
+    assert stream.read_token('int').text == '24'
 
 
 def test_valid_symbols():
     stream = create_stream('[]{}')
-    assert stream.read('[')
-    assert stream.read(']')
-    assert stream.read('{')
-    assert stream.read('}')
+    assert stream.read_string('[')
+    assert stream.read_string(']')
+    assert stream.read_string('{')
+    assert stream.read_string('}')
 
 
 def test_invalid_tokens():
     stream = create_stream('54')
     with pytest.raises(ParsingError):
-        assert stream.read('name')
+        assert stream.read_token('name')
 
 
 def test_save_restore():
     stream = create_stream('    ')
     index = stream.save()
     try:
-        stream.read('string')
+        stream.read_token('string')
     except ParsingError:
         stream.restore(index)
-    assert stream.read('space')
+    assert stream.read_space()
 
 
 # PARSER ===========================================
