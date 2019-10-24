@@ -22,7 +22,7 @@ class Node:
         return str(self)
 
 
-class NullNode(Node):
+class EmptyNode(Node):
     skip = True
 
     def __init__(self):

@@ -1,6 +1,6 @@
 import re
 
-from .nodes import RuleNode, TokenNode, StringNode, NullNode
+from .nodes import RuleNode, TokenNode, StringNode, EmptyNode
 from .exceptions import ParsingError
 
 
@@ -34,8 +34,7 @@ class TokenStream:
         return self.index
 
     def restore(self, _index):
-        index = self.index_cache if _index is None else _index
-        self.index = index
+        self.index = self.index_cache if _index is None else _index
 
     def read_token(self, id):
         parser = _PARSERS[id]
@@ -44,18 +43,24 @@ class TokenStream:
         return token
 
     def read_string(self, string):
-        if self.text[self.index:].startswith(string):
-            length = len(string)
-            token_index = (self.index, self.index + length)
-            self.index += length
-            return Token(string, string, token_index)
-        raise ParsingError
+        text = self.text[self.index:]
+        if not text.startswith(string):
+            raise ParsingError
+        token_index = self.index, self.index + len(string)
+        self.index += len(string)
+        return Token(string, string, token_index)
 
     def read_space(self):
-        return self.read_token(SPACE_TOKEN_ID)
+        try:
+            return self.read_token(SPACE_TOKEN_ID)
+        except ParsingError:
+            pass
 
     def read_comment(self):
-        return self.read_token(COMMENT_TOKEN_ID)
+        try:
+            return self.read_token(COMMENT_TOKEN_ID)
+        except ParsingError:
+            pass
 
 
 class Token:
@@ -71,11 +76,10 @@ class Token:
         return "TOKEN({!r})".format(self.text)
 
     def __str__(self):
-        start, end = self.index
-        return self.text[start:end]
+        return self.text
 
 
-# REGISTERS =======================================
+# RULE REGISTERS =======================================
 
 def rule(id, parser):
     def base_rule_parser(stream):
@@ -89,29 +93,29 @@ def rule(id, parser):
     return base_rule_parser
 
 
-def token(id, string=None, skip=False):
-    pattern = re.compile(string or re.escape(id))
+def token(id, string):
+    pattern = re.compile(string)
 
-    def base_token_parser(text, index=0):
+    def token_parser(text, index=0):
         match = pattern.match(text, index)
         if match:
             text, index = match.group(0), match.span()
             return Token(id, text, index)
         raise ParsingError
-    _PARSERS[id] = base_token_parser
-    return base_token_parser
+    _PARSERS[id] = token_parser
+    return token_parser
 
 
 def root(parser):
     return rule(ROOT_RULE_ID, parser)
 
 
-def space(string, skip=False):
-    return token(SPACE_TOKEN_ID, string, skip)
+def space(string):
+    return token(SPACE_TOKEN_ID, string)
 
 
-def comment(string, skip=False):
-    return token(COMMENT_TOKEN_ID, string, skip)
+def comment(string):
+    return token(COMMENT_TOKEN_ID, string)
 
 
 # PARSER GENERATORS =======================================
@@ -145,7 +149,7 @@ def opt(parser):
         try:
             return parser(stream)
         except ParsingError:
-            return NullNode()
+            return EmptyNode()
     return opt_parser
 
 
@@ -183,7 +187,7 @@ def s(string):
 
 # GRAMMAR ===================================
 
-space(r"(\s|;|,)*")
+space(r"(\s|\n|\r|;|,)+")
 comment(r"--[^\n\r]*")
 
 token("string", r"'[^']*'|\"[^\"]*\"")

@@ -63,6 +63,12 @@ def test_token_parser():
     assert str(parser(stream)) == '42'
 
 
+def test_parse_space():
+    stream = TokenStream('    \n         ')
+    stream.read_space()
+    assert stream.index == len(stream.text)
+
+
 def test_rule_parser():
     parser = r('tag')
     stream = TokenStream('#foo')
