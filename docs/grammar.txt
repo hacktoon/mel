@@ -1,21 +1,11 @@
 @SPACE = r'(\s|;|,)*'
 @COMMENT = r'--[^\n\r]*'
 
-@HINTS = '"
 STRING = r'"[^\"]*"|\'[^']*\''
-
-@HINTS = @DIGIT
 FLOAT = r'-?\d*\.\d+([eE][-+]?\d+)?\b'
-
-@HINTS = @DIGIT
 INT = r'-?\d+\b'
-
-@HINTS = @LOWERCHAR
 NAME = r'[a-z]\w*'
-
-@HINTS = @UPPERCHAR
 CONCEPT = r'[A-Z]\w*'
-
 
 default-path = ':'
 default-doc = ':?'
@@ -26,7 +16,6 @@ root = expression*
 
 expression = tag | relation | value
 
-@HINTS = #
 tag = '#' name
 
 relation = path sign value

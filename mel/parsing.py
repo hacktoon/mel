@@ -1,6 +1,13 @@
 import re
 
-from .nodes import RuleNode, TokenNode, StringNode, EmptyNode
+from .nodes import (
+    RuleNode,
+    StringNode,
+    PatternNode,
+    EmptyNode,
+    CommentNode,
+    SpaceNode
+)
 from .exceptions import ParsingError
 
 
@@ -19,53 +26,44 @@ class Parser:
         self.grammar = grammar
 
     def parse(self):
-        stream = TokenStream(self.source)
+        stream = Stream(self.source)
         return _PARSERS[ROOT_RULE_ID](stream)
 
 
-class TokenStream:
+class Stream:
     def __init__(self, text):
         self.text = text
         self.index = 0
-        self.index_cache = 0
+        self._index_cache = 0
 
     def save(self):
-        self.index_cache = self.index
+        self._index_cache = self.index
         return self.index
 
     def restore(self, _index):
-        self.index = self.index_cache if _index is None else _index
+        self.index = self._index_cache if _index is None else _index
 
-    def read_token(self, id):
-        parser = _PARSERS[id]
-        token = parser(self.text, self.index)
-        self.index += len(token)
-        return token
+    def read_pattern(self, pattern_string):
+        match = re.match(pattern_string, self.text[self.index:])
+        if not match:
+            raise ParsingError
+        string, index = match.group(0), match.span()
+        return self._read(string, index)
 
     def read_string(self, string):
         text = self.text[self.index:]
         if not text.startswith(string):
             raise ParsingError
-        token_index = self.index, self.index + len(string)
+        index = self.index, self.index + len(string)
+        return self._read(string, index)
+
+    def _read(self, string, index):
         self.index += len(string)
-        return Token(string, string, token_index)
-
-    def read_space(self):
-        try:
-            return self.read_token(SPACE_TOKEN_ID)
-        except ParsingError:
-            pass
-
-    def read_comment(self):
-        try:
-            return self.read_token(COMMENT_TOKEN_ID)
-        except ParsingError:
-            pass
+        return string, index
 
 
 class Token:
-    def __init__(self, id, text, index):
-        self.id = id
+    def __init__(self, text, index):
         self.text = text
         self.index = index
 
@@ -82,28 +80,15 @@ class Token:
 # RULE REGISTERS =======================================
 
 def rule(id, parser):
-    def base_rule_parser(stream):
+    def rule_parser(stream):
         index = stream.save()
         try:
             return parser(stream)
         except ParsingError as error:
             stream.restore(index)
             raise error
-    _PARSERS[id] = base_rule_parser
-    return base_rule_parser
-
-
-def token(id, string):
-    pattern = re.compile(string)
-
-    def token_parser(text, index=0):
-        match = pattern.match(text, index)
-        if match:
-            text, index = match.group(0), match.span()
-            return Token(id, text, index)
-        raise ParsingError
-    _PARSERS[id] = token_parser
-    return token_parser
+    _PARSERS[id] = rule_parser
+    return rule_parser
 
 
 def root(parser):
@@ -111,11 +96,17 @@ def root(parser):
 
 
 def space(string):
-    return token(SPACE_TOKEN_ID, string)
+    def space_parser(stream):
+        text, index = stream.read_pattern(string)
+        return SpaceNode(text, index)
+    return rule(SPACE_TOKEN_ID, space_parser)
 
 
 def comment(string):
-    return token(COMMENT_TOKEN_ID, string)
+    def comment_parser(stream):
+        text, index = stream.read_pattern(string)
+        return CommentNode(text, index)
+    return rule(COMMENT_TOKEN_ID, comment_parser)
 
 
 # PARSER GENERATORS =======================================
@@ -163,52 +154,40 @@ def seq(*parsers):
     return seq_parser
 
 
-def group(*parsers):
-    pass
-
-
 def r(id):
     def rule_parser(stream):
         return _PARSERS[id](stream)
     return rule_parser
 
 
-def t(id):
-    def token_parser(stream):
-        return TokenNode(id, stream.read_token(id))
-    return token_parser
+def p(string):
+    def pattern_parser(stream):
+        text, index = stream.read_pattern(string)
+        return PatternNode(text, index)
+    return pattern_parser
 
 
 def s(string):
     def string_parser(stream):
-        return StringNode(string, stream.read_string(string))
+        text, index = stream.read_string(string)
+        return StringNode(text, index)
     return string_parser
 
 
-# GRAMMAR ===================================
+# GRAMMAR ===================================================
 
-space(r"(\s|\n|\r|;|,)+")
+space(r"(\s|\n|\r|,)+")
 comment(r"--[^\n\r]*")
-
-token("string", r"'[^']*'|\"[^\"]*\"")
-token("float", r"-?\d*\.\d+([eE][-+]?\d+)?\b")
-token("int", r"-?\d+\b")
-token("name", r"[a-z]\w*")
-token("concept", r"[A-Z]\w*")
-token("default-format", r"%:")
-token("default-doc", r"\?:")
-token("anonym", r":")
-token("wildcard", r"\*")
 
 root(zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
 
-rule('tag', seq(s('#'), t('name')))
+rule('tag', seq(s('#'), r('name')))
 
 rule('relation', seq(r('path'), one_of(
-    t('equal'), t('diff'), t('lte'), t('lt'),
-    t('gte'), t('gt'), t('in'), t('out')
+    r('equal'), r('diff'), r('lte'), r('lt'),
+    r('gte'), r('gt'), r('in'), r('out')
 )))
 rule('equal', seq(s('='), r('value')))
 rule('diff', seq(s('!='), r('value')))
@@ -226,15 +205,15 @@ rule('sub-path', seq(s('/'), r('keyword')))
 rule('meta-path', seq(s('.'), r('keyword')))
 
 rule('keyword', one_of(
-    t('name'), t('concept'), r('log'), r('alias'),
+    r('name'), r('concept'), r('log'), r('alias'),
     r('cache'), r('format'), r('meta'), r('doc')
 ))
-rule('log', seq(s('!'), t('name')))
-rule('alias', seq(s('@'), t('name')))
-rule('cache', seq(s('$'), t('name')))
-rule('format', seq(s('%'), t('name')))
-rule('meta', seq(s('_'), t('name')))
-rule('doc', seq(s('?'), t('name')))
+rule('log', seq(s('!'), r('name')))
+rule('alias', seq(s('@'), r('name')))
+rule('cache', seq(s('$'), r('name')))
+rule('format', seq(s('%'), r('name')))
+rule('meta', seq(s('_'), r('name')))
+rule('doc', seq(s('?'), r('name')))
 
 rule('value', one_of(r('reference'), r('literal'), r('list'), r('object')))
 
@@ -243,25 +222,36 @@ rule('reference', seq(
     zero_many(r('sub-reference'))
 ))
 rule('sub-reference', seq(s('/'), one_of(
-    r('range'), t('int'), r('tag'), r('list'), r('object'),
-    r('query'), r('keyword'), t('wildcard')
+    r('range'), r('int'), r('tag'), r('list'), r('object'),
+    r('query'), r('keyword'), r('wildcard')
 )))
 
-rule('literal', one_of(t('int'), t('float'), t('string'), t('boolean')))
+rule('literal', one_of(r('int'), r('float'), r('string'), r('boolean')))
 
 rule('list', seq(s('['), zero_many(r('value')), s(']')))
 
 rule('range', one_of(
-    seq(s('..'), t('int')),
-    seq(t('int'), s('..'), opt(t('int')))
+    seq(s('..'), r('int')),
+    seq(r('int'), s('..'), opt(r('int')))
 ))
 
 rule('object', seq(
     s('('), r('object-key'), zero_many(r('expression')), s(')')
 ))
 rule('object-key', one_of(
-    t('anonym-path'), t('default-format'), t('default-doc'), r('path')
+    r('anonym-path'), r('default-format'), r('default-doc'), r('path')
 ))
 
 rule('query', seq(s('{'), r('query-key'), zero_many(r('expression')), s('}')))
-rule('query-key', one_of(t('anonym-path'), r('path')))
+rule('query-key', one_of(r('anonym-path'), r('path')))
+
+rule("default-format", s('%:'))
+rule("default-doc", s('?:'))
+rule("anonym", s(':'))
+rule("wildcard", s('*'))
+
+rule("string", p(r"'[^']*'|\"[^\"]*\""))
+rule("float", p(r"-?\d*\.\d+([eE][-+]?\d+)?\b"))
+rule("int", p(r"-?\d+\b"))
+rule("name", p(r"[a-z]\w*"))
+rule("concept", p(r"[A-Z]\w*"))
