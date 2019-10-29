@@ -4,18 +4,17 @@ from .nodes import (
     RuleNode,
     StringNode,
     PatternNode,
-    EmptyNode,
-    CommentNode,
-    SpaceNode
+    EmptyNode
 )
 from .exceptions import ParsingError
 
 
-SPACE_TOKEN_ID = '_MEL_SPACE_ID'
-COMMENT_TOKEN_ID = '_MEL_COMMENT_ID'
-ROOT_RULE_ID = '_MEL_ROOT_ID'
+SPACE_PARSER_ID = '_MEL_SPACE_ID'
+COMMENT_PARSER_ID = '_MEL_COMMENT_ID'
+ROOT_PARSER_ID = '_MEL_ROOT_ID'
 
 _PARSERS = {}
+_SKIP_PATTERNS = []
 
 
 # CLASSES =======================================
@@ -27,7 +26,8 @@ class Parser:
 
     def parse(self):
         stream = Stream(self.source)
-        return _PARSERS[ROOT_RULE_ID](stream)
+        parser = _PARSERS[ROOT_PARSER_ID]
+        return parser(stream)
 
 
 class Stream:
@@ -62,21 +62,6 @@ class Stream:
         return string, index
 
 
-class Token:
-    def __init__(self, text, index):
-        self.text = text
-        self.index = index
-
-    def __len__(self):
-        return len(self.text)
-
-    def __repr__(self):
-        return "TOKEN({!r})".format(self.text)
-
-    def __str__(self):
-        return self.text
-
-
 # RULE REGISTERS =======================================
 
 def rule(id, parser):
@@ -87,26 +72,25 @@ def rule(id, parser):
         except ParsingError as error:
             stream.restore(index)
             raise error
+
     _PARSERS[id] = rule_parser
     return rule_parser
 
 
 def root(parser):
-    return rule(ROOT_RULE_ID, parser)
+    return rule(ROOT_PARSER_ID, parser)
 
 
-def space(string):
-    def space_parser(stream):
-        text, index = stream.read_pattern(string)
-        return SpaceNode(text, index)
-    return rule(SPACE_TOKEN_ID, space_parser)
+def space(pattern_string):
+    parser = opt(p(pattern_string))
+    _SKIP_PATTERNS.append(parser)
+    return rule(SPACE_PARSER_ID, parser)
 
 
-def comment(string):
-    def comment_parser(stream):
-        text, index = stream.read_pattern(string)
-        return CommentNode(text, index)
-    return rule(COMMENT_TOKEN_ID, comment_parser)
+def comment(pattern_string):
+    parser = opt(p(pattern_string))
+    _SKIP_PATTERNS.append(parser)
+    return rule(COMMENT_PARSER_ID, parser)
 
 
 # PARSER GENERATORS =======================================
@@ -162,6 +146,7 @@ def r(id):
 
 def p(string):
     def pattern_parser(stream):
+        # pattern_skip(stream)
         text, index = stream.read_pattern(string)
         return PatternNode(text, index)
     return pattern_parser
@@ -169,22 +154,28 @@ def p(string):
 
 def s(string):
     def string_parser(stream):
+        # pattern_skip(stream)
         text, index = stream.read_string(string)
         return StringNode(text, index)
     return string_parser
 
 
+def pattern_skip(stream):
+    while True:
+        for pattern in _SKIP_PATTERNS:
+            nodes = stream.read_pattern(pattern)
+        if not any(nodes):
+            break
+
+
 # GRAMMAR ===================================================
 
-space(r"(\s|\n|\r|,)+")
+space(r"[\s\n\r,]+")
 comment(r"--[^\n\r]*")
-
 root(zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
-
 rule('tag', seq(s('#'), r('name')))
-
 rule('relation', seq(r('path'), one_of(
     r('equal'), r('diff'), r('lte'), r('lt'),
     r('gte'), r('gt'), r('in'), r('out')
@@ -197,13 +188,11 @@ rule('gt', seq(s('>'), r('value')))
 rule('gte', seq(s('>='), r('value')))
 rule('in', seq(s('><'), r('value')))
 rule('out', seq(s('<>'), r('value')))
-
 rule('path', seq(r('keyword'), zero_many(
     one_of(r('sub-path'), r('meta-path')))
 ))
 rule('sub-path', seq(s('/'), r('keyword')))
 rule('meta-path', seq(s('.'), r('keyword')))
-
 rule('keyword', one_of(
     r('name'), r('concept'), r('log'), r('alias'),
     r('cache'), r('format'), r('meta'), r('doc')
@@ -214,9 +203,7 @@ rule('cache', seq(s('$'), r('name')))
 rule('format', seq(s('%'), r('name')))
 rule('meta', seq(s('_'), r('name')))
 rule('doc', seq(s('?'), r('name')))
-
 rule('value', one_of(r('reference'), r('literal'), r('list'), r('object')))
-
 rule('reference', seq(
     one_of(r('query'), r('keyword')),
     zero_many(r('sub-reference'))
@@ -225,31 +212,24 @@ rule('sub-reference', seq(s('/'), one_of(
     r('range'), r('int'), r('tag'), r('list'), r('object'),
     r('query'), r('keyword'), r('wildcard')
 )))
-
 rule('literal', one_of(r('int'), r('float'), r('string'), r('boolean')))
-
 rule('list', seq(s('['), zero_many(r('value')), s(']')))
-
 rule('range', one_of(
     seq(s('..'), r('int')),
     seq(r('int'), s('..'), opt(r('int')))
 ))
-
 rule('object', seq(
     s('('), r('object-key'), zero_many(r('expression')), s(')')
 ))
 rule('object-key', one_of(
     r('anonym-path'), r('default-format'), r('default-doc'), r('path')
 ))
-
 rule('query', seq(s('{'), r('query-key'), zero_many(r('expression')), s('}')))
 rule('query-key', one_of(r('anonym-path'), r('path')))
-
 rule("default-format", s('%:'))
 rule("default-doc", s('?:'))
 rule("anonym", s(':'))
 rule("wildcard", s('*'))
-
 rule("string", p(r"'[^']*'|\"[^\"]*\""))
 rule("float", p(r"-?\d*\.\d+([eE][-+]?\d+)?\b"))
 rule("int", p(r"-?\d+\b"))

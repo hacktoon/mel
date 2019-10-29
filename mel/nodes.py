@@ -1,6 +1,6 @@
 
 class Node:
-    def __init__(self, text, index):
+    def __init__(self, text='', index=(0, 0)):
         self.text = text
         self.index = index
 
@@ -25,18 +25,7 @@ class PatternNode(Node):
     pass
 
 
-class SpaceNode(Node):
-    pass
-
-
-class CommentNode(Node):
-    pass
-
-
 class EmptyNode(Node):
-    def __init__(self):
-        super().__init__('', (-1, -1))
-
     def __bool__(self):
         return False
 

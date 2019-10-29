@@ -115,3 +115,8 @@ def test_one_of_parser():
     assert parser(Stream('556'))
     assert parser(Stream('foo'))
     assert parser(Stream('"abc"'))
+
+
+# def test_space_skip():
+#     parser = r('name')
+#     assert parser(Stream('    556'))
