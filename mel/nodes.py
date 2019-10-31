@@ -38,6 +38,9 @@ class RuleNode(Node):
     def __len__(self):
         return len(self.children)
 
+    def __getitem__(self, index):
+        return self.children[index]
+
     def __iter__(self):
         for child in self.children:
             yield child

@@ -156,7 +156,7 @@ def p(string):
 
 def s(string):
     def string_parser(stream):
-        # _parser_skip(stream)
+        _parser_skip(stream)
         text, index = stream.read_string(string)
         return StringNode(text, index)
     return string_parser
@@ -214,7 +214,7 @@ rule('sub-reference', seq(s('/'), one_of(
     r('range'), r('int'), r('tag'), r('list'), r('object'),
     r('query'), r('keyword'), r('wildcard')
 )))
-rule('literal', one_of(r('int'), r('float'), r('string'), r('boolean')))
+rule('literal', one_of(r('int'), r('float'), r('string')))
 rule('list', seq(s('['), zero_many(r('value')), s(']')))
 rule('range', one_of(
     seq(s('..'), r('int')),

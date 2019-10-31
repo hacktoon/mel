@@ -119,4 +119,11 @@ def test_one_of_parser():
 
 def test_space_skip():
     parser = r('int')
-    assert parser(Stream('    556'))
+    assert parser(Stream('    556   '))
+
+
+def test_space_skip_between_rules():
+    parser = zero_many(r('literal'))
+    node = parser(Stream('   556  "ser" '))
+    assert node[0].text == '556'
+    assert node[1].text == '"ser"'
