@@ -9,12 +9,10 @@ from .nodes import (
 from .exceptions import ParsingError
 
 
-SPACE_PARSER_ID = '_MEL_SPACE_ID'
-COMMENT_PARSER_ID = '_MEL_COMMENT_ID'
 ROOT_PARSER_ID = '_MEL_ROOT_ID'
 
 _PARSERS = {}
-_SKIP_PATTERNS = []
+_SKIP_PARSERS = {}
 
 
 # CLASSES =======================================
@@ -35,6 +33,10 @@ class Stream:
         self.text = text
         self.index = 0
         self._index_cache = 0
+        self._log = []
+
+    def log(self, msg):
+        self._log.append(msg)
 
     def save(self):
         self._index_cache = self.index
@@ -62,7 +64,7 @@ class Stream:
         return string, index
 
 
-# RULE REGISTERS =======================================
+# PARSER REGISTERS =======================================
 
 def rule(id, parser):
     def rule_parser(stream):
@@ -77,20 +79,20 @@ def rule(id, parser):
     return rule_parser
 
 
+def skp(id, pattern_string):
+    def skip_rule_parser(stream):
+        try:
+            text, index = stream.read_pattern(pattern_string)
+            return PatternNode(text, index)
+        except ParsingError:
+            return EmptyNode()
+
+    _SKIP_PARSERS[id] = skip_rule_parser
+    return skip_rule_parser
+
+
 def root(parser):
     return rule(ROOT_PARSER_ID, parser)
-
-
-def space(pattern_string):
-    parser = opt(p(pattern_string))
-    _SKIP_PATTERNS.append(parser)
-    return rule(SPACE_PARSER_ID, parser)
-
-
-def comment(pattern_string):
-    parser = opt(p(pattern_string))
-    _SKIP_PATTERNS.append(parser)
-    return rule(COMMENT_PARSER_ID, parser)
 
 
 # PARSER GENERATORS =======================================
@@ -146,7 +148,7 @@ def r(id):
 
 def p(string):
     def pattern_parser(stream):
-        # pattern_skip(stream)
+        _parser_skip(stream)
         text, index = stream.read_pattern(string)
         return PatternNode(text, index)
     return pattern_parser
@@ -154,24 +156,24 @@ def p(string):
 
 def s(string):
     def string_parser(stream):
-        # pattern_skip(stream)
+        # _parser_skip(stream)
         text, index = stream.read_string(string)
         return StringNode(text, index)
     return string_parser
 
 
-def pattern_skip(stream):
+def _parser_skip(stream):
     while True:
-        for pattern in _SKIP_PATTERNS:
-            nodes = stream.read_pattern(pattern)
-        if not any(nodes):
+        count = [True for parser in _SKIP_PARSERS.values() if parser(stream)]
+        if len(count) == 0:
             break
 
 
 # GRAMMAR ===================================================
 
-space(r"[\s\n\r,]+")
-comment(r"--[^\n\r]*")
+skp('space', r'[\s\n\r,]+')
+skp('comment', r'--[^\n\r]*')
+
 root(zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
