@@ -127,3 +127,8 @@ def test_space_skip_between_rules():
     node = parser(Stream('   556  "ser" '))
     assert node[0].text == '556'
     assert node[1].text == '"ser"'
+
+
+def test_comment_skip():
+    parser = r('int')
+    assert parser(Stream(' -- test \n  556   '))
