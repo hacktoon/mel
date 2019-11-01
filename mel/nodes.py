@@ -35,6 +35,9 @@ class RuleNode(Node):
         self.id = id
         self.children = []
 
+    def __bool__(self):
+        return len(self.children) > 0
+
     def __len__(self):
         return len(self.children)
 
@@ -57,4 +60,6 @@ class RuleNode(Node):
         return first[0], last[1]
 
     def add(self, child):
+        if not child:
+            return
         self.children.append(child)

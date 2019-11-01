@@ -9,7 +9,7 @@ from .nodes import (
 from .exceptions import ParsingError
 
 
-ROOT_PARSER_ID = '_MEL_ROOT_ID'
+GRAMMAR_PARSER_ID = '_MEL_GRAMMAR_ID'
 
 _PARSERS = {}
 _SKIP_PARSERS = {}
@@ -24,7 +24,7 @@ class Parser:
 
     def parse(self):
         stream = Stream(self.source)
-        parser = _PARSERS[ROOT_PARSER_ID]
+        parser = _PARSERS[GRAMMAR_PARSER_ID]
         return parser(stream)
 
 
@@ -91,8 +91,17 @@ def skip(id, pattern_string):
     return skip_rule_parser
 
 
-def root(parser):
-    return rule(ROOT_PARSER_ID, parser)
+def grammar(name, parser):
+    grammar_parser = rule(GRAMMAR_PARSER_ID, parser)
+    return _context(grammar_parser)
+
+
+def _context(grammar_parser):
+    context = {}
+
+    def context_parser(stream):
+        return grammar_parser(stream, context)
+    return context_parser
 
 
 # PARSER GENERATORS =======================================
@@ -171,10 +180,10 @@ def _parse_skip_rules(stream):
 
 # GRAMMAR ===================================================
 
+grammar('mel', zero_many(r('expression')))
+
 skip('space', r'[\s\n\r,]+')
 skip('comment', r'--[^\n\r]*')
-
-root(zero_many(r('expression')))
 
 rule('expression', one_of(r('tag'), r('relation'), r('value')))
 rule('tag', seq(s('#'), r('name')))
