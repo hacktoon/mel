@@ -79,7 +79,7 @@ def rule(id, parser):
     return rule_parser
 
 
-def skp(id, pattern_string):
+def skip(id, pattern_string):
     def skip_rule_parser(stream):
         try:
             text, index = stream.read_pattern(pattern_string)
@@ -148,7 +148,7 @@ def r(id):
 
 def p(string):
     def pattern_parser(stream):
-        _parser_skip(stream)
+        _parse_skip_rules(stream)
         text, index = stream.read_pattern(string)
         return PatternNode(text, index)
     return pattern_parser
@@ -156,13 +156,13 @@ def p(string):
 
 def s(string):
     def string_parser(stream):
-        _parser_skip(stream)
+        _parse_skip_rules(stream)
         text, index = stream.read_string(string)
         return StringNode(text, index)
     return string_parser
 
 
-def _parser_skip(stream):
+def _parse_skip_rules(stream):
     while True:
         count = [True for parser in _SKIP_PARSERS.values() if parser(stream)]
         if len(count) == 0:
@@ -171,8 +171,8 @@ def _parser_skip(stream):
 
 # GRAMMAR ===================================================
 
-skp('space', r'[\s\n\r,]+')
-skp('comment', r'--[^\n\r]*')
+skip('space', r'[\s\n\r,]+')
+skip('comment', r'--[^\n\r]*')
 
 root(zero_many(r('expression')))
 
@@ -190,8 +190,8 @@ rule('gt', seq(s('>'), r('value')))
 rule('gte', seq(s('>='), r('value')))
 rule('in', seq(s('><'), r('value')))
 rule('out', seq(s('<>'), r('value')))
-rule('path', seq(r('keyword'), zero_many(
-    one_of(r('sub-path'), r('meta-path')))
+rule('path', seq(
+    r('keyword'), zero_many(one_of(r('sub-path'), r('meta-path')))
 ))
 rule('sub-path', seq(s('/'), r('keyword')))
 rule('meta-path', seq(s('.'), r('keyword')))
@@ -224,10 +224,10 @@ rule('object', seq(
     s('('), r('object-key'), zero_many(r('expression')), s(')')
 ))
 rule('object-key', one_of(
-    r('default-path'), r('default-format'), r('default-doc'), r('path')
+    r('path'), r('default-path'), r('default-format'), r('default-doc')
 ))
 rule('query', seq(s('{'), r('query-key'), zero_many(r('expression')), s('}')))
-rule('query-key', one_of(r('anonym-path'), r('path')))
+rule('query-key', one_of(r('path'), r('anonym-path')))
 rule("default-format", s('%:'))
 rule("default-doc", s('?:'))
 rule("default-path", s(':'))

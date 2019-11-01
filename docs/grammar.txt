@@ -1,11 +1,11 @@
-@SPACE = r'(\s|;|,)*'
-@COMMENT = r'--[^\n\r]*'
+-SPACE   = (\s|;|,)*
+-COMMENT = --[^\n\r]*
 
-STRING = r'"[^\"]*"|\'[^']*\''
-FLOAT = r'-?\d*\.\d+([eE][-+]?\d+)?\b'
-INT = r'-?\d+\b'
-NAME = r'[a-z]\w*'
-CONCEPT = r'[A-Z]\w*'
+STRING = "[^\"]*"|'[^']*'
+FLOAT = -?\d*\.\d+([eE][-+]?\d+)?\b
+INT = -?\d+\b
+NAME = [a-z]\w*
+CONCEPT = [A-Z]\w*
 
 default-path = ':'
 default-doc = ':?'
@@ -46,17 +46,17 @@ value = reference | literal | list | object
 reference = head-reference sub-reference*
 head-reference = query | keyword
 sub-reference = '/' (
-    range | int | tag | list | object | query | keyword | wildcard
+    range | INT | tag | list | object | query | keyword | wildcard
 )
 
-literal = int | float | string | boolean
+literal = INT | FLOAT | STRING | BOOLEAN
 
 list = '[' value* ']'
 
-range = '..' int | int '..' int?
+range = '..' INT | INT '..' INT?
 
 object = '(' object-key expression* ')'
-object-key = default-path | default-format | default-doc | path
+object-key = path | default-path | default-format | default-doc
 
 query = '{' query-key expression* '}'
 query-key = default-path | path
