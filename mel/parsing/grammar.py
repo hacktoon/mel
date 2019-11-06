@@ -112,75 +112,75 @@ class Grammar:
 
 
 # MEL GRAMMAR ===================================================
-g = mel_grammar = Grammar('mel')
+_ = mel_grammar = Grammar('mel')
 
-g.root(g.zero_many(g.r('expression')))
+_.root(_.zero_many(_.r('expression')))
 
-g.skip('space', r'[\s\n\r,]+')
-g.skip('comment', r'--[^\n\r]*')
+_.skip('space', r'[\s\n\r,]+')
+_.skip('comment', r'--[^\n\r]*')
 
-g.rule('expression', g.one_of(g.r('tag'), g.r('relation'), g.r('value')))
-g.rule('tag', g.seq(g.s('#'), g.r('name')))
-g.rule('relation', g.seq(g.r('path'), g.one_of(
-    g.r('equal'), g.r('diff'), g.r('lte'), g.r('lt'),
-    g.r('gte'), g.r('gt'), g.r('in'), g.r('out')
+_.rule('expression', _.one_of(_.r('tag'), _.r('relation'), _.r('value')))
+_.rule('tag', _.seq(_.s('#'), _.r('name')))
+_.rule('relation', _.seq(_.r('path'), _.one_of(
+    _.r('equal'), _.r('diff'), _.r('lte'), _.r('lt'),
+    _.r('gte'), _.r('gt'), _.r('in'), _.r('out')
 )))
-g.rule('equal', g.seq(g.s('='), g.r('value')))
-g.rule('diff', g.seq(g.s('!='), g.r('value')))
-g.rule('lt', g.seq(g.s('<'), g.r('value')))
-g.rule('lte', g.seq(g.s('<='), g.r('value')))
-g.rule('gt', g.seq(g.s('>'), g.r('value')))
-g.rule('gte', g.seq(g.s('>='), g.r('value')))
-g.rule('in', g.seq(g.s('><'), g.r('value')))
-g.rule('out', g.seq(g.s('<>'), g.r('value')))
-g.rule('path', g.seq(
-    g.r('keyword'), g.zero_many(g.one_of(g.r('sub-path'), g.r('meta-path')))
+_.rule('equal', _.seq(_.s('='), _.r('value')))
+_.rule('diff', _.seq(_.s('!='), _.r('value')))
+_.rule('lt', _.seq(_.s('<'), _.r('value')))
+_.rule('lte', _.seq(_.s('<='), _.r('value')))
+_.rule('gt', _.seq(_.s('>'), _.r('value')))
+_.rule('gte', _.seq(_.s('>='), _.r('value')))
+_.rule('in', _.seq(_.s('><'), _.r('value')))
+_.rule('out', _.seq(_.s('<>'), _.r('value')))
+_.rule('path', _.seq(
+    _.r('keyword'), _.zero_many(_.one_of(_.r('sub-path'), _.r('meta-path')))
 ))
-g.rule('sub-path', g.seq(g.s('/'), g.r('keyword')))
-g.rule('meta-path', g.seq(g.s('.'), g.r('keyword')))
-g.rule('keyword', g.one_of(
-    g.r('name'), g.r('concept'), g.r('log'), g.r('alias'),
-    g.r('cache'), g.r('format'), g.r('meta'), g.r('doc')
+_.rule('sub-path', _.seq(_.s('/'), _.r('keyword')))
+_.rule('meta-path', _.seq(_.s('.'), _.r('keyword')))
+_.rule('keyword', _.one_of(
+    _.r('name'), _.r('concept'), _.r('log'), _.r('alias'),
+    _.r('cache'), _.r('format'), _.r('meta'), _.r('doc')
 ))
-g.rule('log', g.seq(g.s('!'), g.r('name')))
-g.rule('alias', g.seq(g.s('@'), g.r('name')))
-g.rule('cache', g.seq(g.s('$'), g.r('name')))
-g.rule('format', g.seq(g.s('%'), g.r('name')))
-g.rule('meta', g.seq(g.s('_'), g.r('name')))
-g.rule('doc', g.seq(g.s('?'), g.r('name')))
-g.rule('value', g.one_of(
-    g.r('reference'), g.r('literal'), g.r('list'), g.r('object'))
+_.rule('log', _.seq(_.s('!'), _.r('name')))
+_.rule('alias', _.seq(_.s('@'), _.r('name')))
+_.rule('cache', _.seq(_.s('$'), _.r('name')))
+_.rule('format', _.seq(_.s('%'), _.r('name')))
+_.rule('meta', _.seq(_.s('_'), _.r('name')))
+_.rule('doc', _.seq(_.s('?'), _.r('name')))
+_.rule('value', _.one_of(
+    _.r('reference'), _.r('literal'), _.r('list'), _.r('object'))
 )
-g.rule('reference', g.seq(
-    g.one_of(g.r('query'), g.r('keyword')),
-    g.zero_many(g.r('sub-reference'))
+_.rule('reference', _.seq(
+    _.one_of(_.r('query'), _.r('keyword')),
+    _.zero_many(_.r('sub-reference'))
 ))
-g.rule('sub-reference', g.seq(g.s('/'), g.one_of(
-    g.r('range'), g.r('int'), g.r('tag'), g.r('list'), g.r('object'),
-    g.r('query'), g.r('keyword'), g.r('wildcard')
+_.rule('sub-reference', _.seq(_.s('/'), _.one_of(
+    _.r('range'), _.r('int'), _.r('tag'), _.r('list'), _.r('object'),
+    _.r('query'), _.r('keyword'), _.r('wildcard')
 )))
-g.rule('literal', g.one_of(g.r('int'), g.r('float'), g.r('string')))
-g.rule('list', g.seq(g.s('['), g.zero_many(g.r('value')), g.s(']')))
-g.rule('range', g.one_of(
-    g.seq(g.s('..'), g.r('int')),
-    g.seq(g.r('int'), g.s('..'), g.opt(g.r('int')))
+_.rule('literal', _.one_of(_.r('int'), _.r('float'), _.r('string')))
+_.rule('list', _.seq(_.s('['), _.zero_many(_.r('value')), _.s(']')))
+_.rule('range', _.one_of(
+    _.seq(_.s('..'), _.r('int')),
+    _.seq(_.r('int'), _.s('..'), _.opt(_.r('int')))
 ))
-g.rule('object', g.seq(
-    g.s('('), g.r('object-key'), g.zero_many(g.r('expression')), g.s(')')
+_.rule('object', _.seq(
+    _.s('('), _.r('object-key'), _.zero_many(_.r('expression')), _.s(')')
 ))
-g.rule('object-key', g.one_of(
-    g.r('path'), g.r('default-path'), g.r('default-format'), g.r('default-doc')
+_.rule('object-key', _.one_of(
+    _.r('path'), _.r('default-path'), _.r('default-format'), _.r('default-doc')
 ))
-g.rule('query', g.seq(
-    g.s('{'), g.r('query-key'), g.zero_many(g.r('expression')), g.s('}'))
+_.rule('query', _.seq(
+    _.s('{'), _.r('query-key'), _.zero_many(_.r('expression')), _.s('}'))
 )
-g.rule('query-key', g.one_of(g.r('path'), g.r('anonym-path')))
-g.rule('default-format', g.s('%:'))
-g.rule('default-doc', g.s('?:'))
-g.rule('default-path', g.s(':'))
-g.rule('wildcard', g.s('*'))
-g.rule('string', g.p(r"'[^']*'|\"[^\"]*\""))
-g.rule('float', g.p(r'-?\d*\.\d+([eE][-+]?\d+)?\b'))
-g.rule('int', g.p(r'-?\d+\b'))
-g.rule('name', g.p(r'[a-z]\w*'))
-g.rule('concept', g.p(r'[A-Z]\w*'))
+_.rule('query-key', _.one_of(_.r('path'), _.r('anonym-path')))
+_.rule('default-format', _.s('%:'))
+_.rule('default-doc', _.s('?:'))
+_.rule('default-path', _.s(':'))
+_.rule('wildcard', _.s('*'))
+_.rule('string', _.p(r"'[^']*'|\"[^\"]*\""))
+_.rule('float', _.p(r'-?\d*\.\d+([eE][-+]?\d+)?\b'))
+_.rule('int', _.p(r'-?\d+\b'))
+_.rule('name', _.p(r'[a-z]\w*'))
+_.rule('concept', _.p(r'[A-Z]\w*'))

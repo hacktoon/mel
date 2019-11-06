@@ -93,25 +93,30 @@ def test_zero_many_children_count():
     assert len(node) == 3
 
 
-# def test_one_of_parser():
-#     parser = one_of(r('name'), r('int'), r('string'))
-#     assert parser(Stream('556'))
-#     assert parser(Stream('foo'))
-#     assert parser(Stream('"abc"'))
+def test_one_of_parser():
+    g = Grammar()
+    g.rule('digit', g.p(r'[0-9]'))
+    g.rule('char', g.p(r'[a-z]'))
+    g.root(g.one_of(g.r('digit'), g.r('char')))
+    parser = Parser(g)
+    assert parser.parse(Stream('5'))
+    assert parser.parse(Stream('f'))
 
 
-# def test_space_skip():
-#     parser = r('int')
-#     assert parser(Stream('    556   '))
+def test_space_skip():
+    g = Grammar()
+    g.skip('space', r'\s+')
+    g.rule('name', g.p(r'\w+'))
+    g.root(g.r('name'))
+    stream = Stream('    556   ')
+    assert Parser(g).parse(stream)
 
 
-# def test_space_skip_between_rules():
-#     parser = zero_many(r('literal'))
-#     node = parser(Stream('   556  "ser" '))
-#     assert node[0].text == '556'
-#     assert node[1].text == '"ser"'
-
-
-# def test_comment_skip():
-#     parser = r('int')
-#     assert parser(Stream(' -- test \n  556   '))
+def test_space_skip_between_rules():
+    g = Grammar()
+    g.skip('space', r'\s+')
+    g.rule('name', g.p(r'\w+'))
+    g.root(g.zero_many(g.r('name')))
+    node = Parser(g).parse(Stream('   foo  bar '))
+    assert node[0].text == 'foo'
+    assert node[1].text == 'bar'
