@@ -1,18 +1,18 @@
--SPACE   = (\s|;|,)*
--COMMENT = --[^\n\r]*
+@ROOT = expression*
 
-STRING = "[^\"]*"|'[^']*'
-FLOAT = -?\d*\.\d+([eE][-+]?\d+)?\b
-INT = -?\d+\b
-NAME = [a-z]\w*
-CONCEPT = [A-Z]\w*
+-SPACE   = /(\s|;|,)*/
+-COMMENT = /--[^\n\r]*/
+
+STRING = /"[^\"]*"|'[^']*'/
+FLOAT = /-?\d*\.\d+([eE][-+]?\d+)?\b/
+INT = /-?\d+\b/
+NAME = /[a-z]\w*/
+CONCEPT = /[A-Z]\w*/
 
 default-path = ':'
 default-doc = ':?'
 default-format = ':%'
 wildcard = '*'
-
-root = expression*
 
 expression = tag | relation | value
 
@@ -60,3 +60,11 @@ object-key = path | default-path | default-format | default-doc
 
 query = '{' query-key expression* '}'
 query-key = default-path | path
+
+======================================================
+
+g = Grammar('name')
+
+g.root('expression*')
+def parse_root(node):
+    pass

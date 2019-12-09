@@ -184,3 +184,21 @@ _.rule('float', _.p(r'-?\d*\.\d+([eE][-+]?\d+)?\b'))
 _.rule('int', _.p(r'-?\d+\b'))
 _.rule('name', _.p(r'[a-z]\w*'))
 _.rule('concept', _.p(r'[A-Z]\w*'))
+
+
+# MEG GRAMMAR ===================================================
+g = Grammar('mel')
+
+g.root(g.zero_many(g.r('rule')))
+
+g.skip('space', r'\s+')
+g.skip('comment', r'#[^\n\r]*')
+
+g.rule('rule', g.seq(g.r('alternative'), g.p(r'[\n\r]+')))
+g.rule('alternative', g.seq(
+        g.r('sequence'),
+        g.zero_many(g.seq(g.s('|'), g.r('sequence')))
+    )
+)
+
+# g.rule('sequence', g.one_many(g.r('expression')))
