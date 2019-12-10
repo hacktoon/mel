@@ -1,7 +1,6 @@
 import pytest
 
-from mel.parsing import Parser
-from mel.parsing.stream import Stream
+from mel.parsing import Parser, Stream
 from mel.exceptions import ParsingError
 from mel.exceptions.formatting import ErrorFormatter
 
