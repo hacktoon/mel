@@ -1,14 +1,10 @@
-from .grammar import mel_grammar
+from .stream import Stream
 
 
 class Parser:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    def parse(self, stream):
-        return self.grammar.parse(stream)
-
-
-class MelParser(Parser):
-    def __init__(self):
-        super().__init__(mel_grammar)
+    def parse(self, text):
+        stream = Stream(text)
+        return self.grammar.match(stream)
