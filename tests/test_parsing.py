@@ -88,14 +88,13 @@ def test_zero_many_children_count():
     assert len(node) == 3
 
 
-def test_one_of_parser():
+def test_one_of_rule_parser():
     g = Grammar()
-    g.rule('digit', g.p(r'[0-9]'))
-    g.rule('char', g.p(r'[a-z]'))
-    g.root(g.one_of(g.r('digit'), g.r('char')))
-    parser = Parser(g)
-    assert parser.parse('5')
-    assert parser.parse('f')
+    g.root(g.one_of(g.r('tag'), g.r('name')))
+    g.rule('tag', g.seq(g.s('#'), g.r('name')))
+    g.rule('name', g.p(r'[a-z]+'))
+    node = Parser(g).parse('#etc')
+    assert node.id == 'tag'
 
 
 def test_space_skip():
@@ -108,9 +107,9 @@ def test_space_skip():
 
 def test_space_skip_between_rules():
     g = Grammar()
+    g.root(g.zero_many(g.r('name')))
     g.skip('space', r'\s+')
     g.rule('name', g.p(r'\w+'))
-    g.root(g.zero_many(g.r('name')))
     node = Parser(g).parse('   foo  bar ')
     assert node[0].text == 'foo'
     assert node[1].text == 'bar'

@@ -1,14 +1,18 @@
 '''
-mel = Grammar('Mel')
+Mel: expression*
+---
 
-@mel.rule("object", " '(' key expression* ')' ")
-def parse_rule(id, node):
-    return Node(node)
+expression = tag | relation | value
+
+'''
 
 
-@mel.rule("int", "/-?[d]+/")
-def parse_int(id, node):
-    return Node(node)
+'''
+Meg: expression*
+---
+
+expression = tag | relation | value
+tag = '#' name
 
 
 '''

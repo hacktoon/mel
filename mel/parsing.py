@@ -117,6 +117,7 @@ class Grammar:
                 except ParsingError:
                     pass
             raise ParsingError
+        one_of_parser.name = 'one of'
         return one_of_parser
 
     def opt(self, parser):
@@ -137,7 +138,9 @@ class Grammar:
 
     def r(self, id):
         def rule_parser(stream):
-            return self._rule_parsers[id](stream)
+            node = self._rule_parsers[id](stream)
+            node.id = id
+            return node
         return rule_parser
 
     def p(self, string):
