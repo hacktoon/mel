@@ -97,6 +97,15 @@ def test_one_of_rule_parser():
     assert node.id == 'tag'
 
 
+def test_one_many_rule_parser():
+    g = Grammar()
+    g.root(g.one_many(g.r('tag')))
+    g.rule('tag', g.seq(g.s('#'), g.r('name')))
+    g.rule('name', g.p(r'[a-z]+'))
+    node = Parser(g).parse('#abc #etc')
+    assert node[0].id == 'tag'
+
+
 def test_space_skip():
     g = Grammar()
     g.skip('space', r'\s+')
