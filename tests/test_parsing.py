@@ -68,7 +68,7 @@ def test_parser_returns_node():
 def test_seq_parser():
     g = Grammar()
     g.rule('int', g.p(r'\d+'))
-    g.root(g.seq(g.r('int'), g.p('foo')))
+    g.root(g.seq(g.r('int'), g.p(r'foo')))
     assert Parser(g).parse('42foo')
 
 
