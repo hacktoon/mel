@@ -1,10 +1,5 @@
 import re
 
-from .nodes import (
-    RuleNode,
-    SymbolNode,
-    EmptyNode
-)
 from .exceptions import ParsingError
 
 
@@ -34,8 +29,8 @@ class Stream:
         match = re.match(pattern_string, self.text[self.index:])
         if not match:
             raise ParsingError
-        index = [offset + self.index for offset in match.span()]
-        return self._read(match.group(0), index)
+        start, end = [offset + self.index for offset in match.span()]
+        return self._read(match.group(0), (start, end))
 
     def read_string(self, string):
         text = self.text[self.index:]
@@ -53,146 +48,133 @@ class Stream:
         return self.index >= len(self.text)
 
 
+class Rule:
+    def __init__(self, id, parser):
+        self.id = id
+        self.parser = parser
+
+
 class Grammar:
-    def __init__(self, text=''):
-        self._root_parser = None
-        self._rule_parsers = {}
-        self._skip_parsers = {}
-        self.text = text
+    def __init__(self):
+        self._rules = {}
+        self._skip_rules = {}
 
     def match(self, stream):
-        rule_parsers = iter(self._rule_parsers.values())
-        root_parser = self._root_parser or next(rule_parsers)
-        tree = root_parser(stream)
+        rule_parsers = iter(self._rules.values())
+        rule = next(rule_parsers)
+        tree = rule.parser(stream)
         self._parse_skip_rules(stream)
         if not stream.eof:
             raise ParsingError
         return tree
 
-    def root(self, parser):
-        self._root_parser = parser
-
-    def rule(self, id, parser):
-        # interceptor to save/restore
-        # TODO: maybe use node cache too?
+    def rule(self, id, rule):
         def rule_parser(stream):
             index = stream.save()
             try:
-                return parser(stream)
+                return rule.parser(stream)
             except ParsingError as error:
                 stream.restore(index)
                 raise error
 
-        self._rule_parsers[id] = rule_parser
-        return self.parse_wrap(rule_parser)
+        self._rules[id] = Rule(id, rule_parser)
 
     def skip(self, id, string):
         def skip_rule_parser(stream):
             try:
-                text, index = stream.read_pattern(string)
-                return [text]
+                stream.read_pattern(string)
             except ParsingError:
-                return []
+                return
 
-        self._skip_parsers[id] = skip_rule_parser
-        return self.parse_wrap(skip_rule_parser)
+        self._skip_rules[id] = Rule(id, skip_rule_parser)
 
-    def zero_many(self, parser):
+    def zero_many(self, rule):
         def zero_many_parser(stream):
-            node = RuleNode('0..n')
+            nodes = []
             while True:
                 try:
-                    node.add(parser(stream))
+                    nodes.append(rule.parser(stream))
                 except ParsingError:
                     break
-            return node
-        return self.parse_wrap(zero_many_parser)
+            return nodes
+        return Rule('id', zero_many_parser)
 
-    def one_many(self, parser):
+    def one_many(self, rule):
         def one_many_parser(stream):
-            node = RuleNode('1..n')
-            node.add(parser(stream))
+            nodes = [rule.parser(stream)]
             while True:
                 try:
-                    node.append(parser(stream))
+                    nodes.append(rule.parser(stream))
                 except ParsingError:
                     break
-            return node
-        return self.parse_wrap(one_many_parser)
+            return nodes
+        return Rule('id', one_many_parser)
 
-    def one_of(self, *parsers):
+    def seq(self, *rules):
+        def seq_parser(stream):
+            nodes = []
+            for rule in rules:
+                nodes.append(rule.parser(stream))
+            return nodes
+        return Rule('Sequence', seq_parser)
+
+    def one_of(self, *rules):
         def one_of_parser(stream):
-            for parser in parsers:
+            for rule in rules:
                 try:
-                    return parser(stream)
+                    return rule.parser(stream)
                 except ParsingError:
                     pass
             raise ParsingError
-        return self.parse_wrap(one_of_parser)
+        return Rule('One of', one_of_parser)
 
-    def opt(self, parser):
+    def opt(self, rule):
         def opt_parser(stream):
             try:
-                return parser(stream)
+                return rule.parser(stream)
             except ParsingError:
-                return EmptyNode()
-        return self.parse_wrap(opt_parser)
-
-    def seq(self, *parsers):
-        def seq_parser(stream):
-            node = RuleNode('seq')
-            for parser in parsers:
-                node.add(parser(stream))
-            return node
-        return self.parse_wrap(seq_parser)
+                return []
+        return Rule('Optional', opt_parser)
 
     def r(self, id):
         def rule_parser(stream):
-            return self._rule_parsers[id](stream)
-        return self.parse_wrap(rule_parser)
+            rule = self._rules[id]
+            return rule.parser(stream)
+        return Rule(id, rule_parser)
 
     def p(self, string):
         def pattern_parser(stream):
             self._parse_skip_rules(stream)
-            text, index = stream.read_pattern(string)
-            return SymbolNode(text, index)
-        return self.parse_wrap(pattern_parser)
+            text, _ = stream.read_pattern(string)
+            return text
+        return Rule(string, pattern_parser)
 
     def s(self, string):
         def string_parser(stream):
             self._parse_skip_rules(stream)
-            text, index = stream.read_string(string)
-            return SymbolNode(text, index)
-        return self.parse_wrap(string_parser)
-
-    @property
-    def NEWLINE(self):
-        def newline_parser(stream):
-            self._parse_skip_rules(stream)
-            stream.read_pattern(r'[\r\n]*')
-            return EmptyNode()
-        return newline_parser
+            text, _ = stream.read_string(string)
+            return text
+        return Rule(string, string_parser)
 
     def _parse_skip_rules(self, stream):
-        parsers = self._skip_parsers.values()
+        rules = self._skip_rules.values()
         while True:
-            skipped = [True for parser in parsers if parser(stream)]
+            skipped = [True for rule in rules if rule.parser(stream)]
             if len(skipped) == 0:
                 break
 
-    def parse_wrap(self, parser):
-        return parser
+    @property
+    def NEWLINE(self):
+        return self.p(r'[\r\n]+')
 
-    def __str__(self):
-        return self.text
+    @property
+    def INT(self):
+        return self.p(r'[0-9]+')
 
+    @property
+    def FLOAT(self):
+        return self.p(r'-?\d*\.\d+([eE][-+]?\d+)?')
 
-def builtin_string_parser(stream):
-    pattern = r'"[^"]*"' + r"|'[^']*'"
-    text, index = stream.read_pattern(pattern)
-    return StringNode(text, index)
-
-
-# FLOAT = -?\d*\.\d+([eE][-+]?\d+)?
-# D-STRING = "[^\"]*"
-# S-STRING = '[^\']*'
+    @property
+    def STRING(self):
+        return self.p(r'"[^\"]*"|\'[^\']*\'')

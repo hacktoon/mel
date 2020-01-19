@@ -1,7 +1,6 @@
 import pytest
 
-from mel.nodes import Node
-from mel.parsing import Stream, Parser, Grammar
+from mel.parsing import Stream
 from mel.exceptions import ParsingError
 
 
