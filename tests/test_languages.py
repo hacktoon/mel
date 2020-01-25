@@ -6,12 +6,12 @@ def test_base_rule():
     g = Grammar()
     g.rule('root', g.zero_many(g.r('rule')))
     g.rule('rule', g.seq(
-        g.r('name'), g.s('='), g.r('sequence'), g.s(';')
+        g.r('name'), g.s('='), g.r('alternative'), g.s(';')
     ))
-    # g.rule('alternative', g.seq(
-    #     g.r('sequence'),
-    #     g.zero_many(g.seq(g.s('|'), g.r('sequence')))
-    # ))
+    g.rule('alternative', g.seq(
+        g.r('sequence'),
+        g.zero_many(g.seq(g.s('|'), g.r('sequence')))
+    ))
     g.rule('sequence', g.zero_many(g.r('name')))
     g.rule('name', g.p(r'[a-z]+'))
 

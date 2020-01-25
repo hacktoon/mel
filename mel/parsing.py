@@ -48,7 +48,7 @@ class Stream:
         return self.index >= len(self.text)
 
 
-class Rule:
+class ParserObj:
     def __init__(self, id, parser):
         self.id = id
         self.parser = parser
@@ -68,16 +68,16 @@ class Grammar:
             raise ParsingError
         return tree
 
-    def rule(self, id, rule):
+    def rule(self, id, parser):
         def rule_parser(stream):
             index = stream.save()
             try:
-                return rule.parser(stream)
+                return parser.parser(stream)
             except ParsingError as error:
                 stream.restore(index)
                 raise error
 
-        self._rules[id] = Rule(id, rule_parser)
+        self._rules[id] = ParserObj(id, rule_parser)
 
     def skip(self, id, string):
         def skip_rule_parser(stream):
@@ -86,7 +86,7 @@ class Grammar:
             except ParsingError:
                 return
 
-        self._skip_rules[id] = Rule(id, skip_rule_parser)
+        self._skip_rules[id] = ParserObj(id, skip_rule_parser)
 
     def zero_many(self, rule):
         def zero_many_parser(stream):
@@ -97,7 +97,7 @@ class Grammar:
                 except ParsingError:
                     break
             return nodes
-        return Rule('id', zero_many_parser)
+        return ParserObj('id', zero_many_parser)
 
     def one_many(self, rule):
         def one_many_parser(stream):
@@ -108,7 +108,7 @@ class Grammar:
                 except ParsingError:
                     break
             return nodes
-        return Rule('id', one_many_parser)
+        return ParserObj('id', one_many_parser)
 
     def seq(self, *rules):
         def seq_parser(stream):
@@ -116,7 +116,7 @@ class Grammar:
             for rule in rules:
                 nodes.append(rule.parser(stream))
             return nodes
-        return Rule('Sequence', seq_parser)
+        return ParserObj('Sequence', seq_parser)
 
     def one_of(self, *rules):
         def one_of_parser(stream):
@@ -126,7 +126,7 @@ class Grammar:
                 except ParsingError:
                     pass
             raise ParsingError
-        return Rule('One of', one_of_parser)
+        return ParserObj('One of', one_of_parser)
 
     def opt(self, rule):
         def opt_parser(stream):
@@ -134,27 +134,27 @@ class Grammar:
                 return rule.parser(stream)
             except ParsingError:
                 return []
-        return Rule('Optional', opt_parser)
+        return ParserObj('Optional', opt_parser)
 
     def r(self, id):
         def rule_parser(stream):
             rule = self._rules[id]
             return rule.parser(stream)
-        return Rule(id, rule_parser)
+        return ParserObj(id, rule_parser)
 
     def p(self, string):
         def pattern_parser(stream):
             self._parse_skip_rules(stream)
             text, _ = stream.read_pattern(string)
             return text
-        return Rule(string, pattern_parser)
+        return ParserObj(string, pattern_parser)
 
     def s(self, string):
         def string_parser(stream):
             self._parse_skip_rules(stream)
             text, _ = stream.read_string(string)
             return text
-        return Rule(string, string_parser)
+        return ParserObj(string, string_parser)
 
     def _parse_skip_rules(self, stream):
         rules = self._skip_rules.values()
