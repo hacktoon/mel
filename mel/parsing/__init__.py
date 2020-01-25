@@ -1,6 +1,6 @@
 import re
 
-from .exceptions import ParsingError
+from ..exceptions import ParsingError
 
 
 class Parser:
