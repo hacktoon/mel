@@ -68,16 +68,8 @@ class Grammar:
             raise ParsingError
         return tree
 
-    def rule(self, id, parser):
-        def rule_parser(stream):
-            index = stream.save()
-            try:
-                return parser.parser(stream)
-            except ParsingError as error:
-                stream.restore(index)
-                raise error
-
-        self._rules[id] = ParserObj(id, rule_parser)
+    def rule(self, id, rule):
+        self._rules[id] = rule
 
     def skip(self, id, string):
         def skip_rule_parser(stream):
@@ -139,7 +131,12 @@ class Grammar:
     def r(self, id):
         def rule_parser(stream):
             rule = self._rules[id]
-            return rule.parser(stream)
+            index = stream.save()
+            try:
+                return rule.parser(stream)
+            except ParsingError as error:
+                stream.restore(index)
+                raise error
         return ParserObj(id, rule_parser)
 
     def p(self, string):
