@@ -65,14 +65,102 @@ class ParserObj:
         self.parser = parser
 
 
+# ZERO MANY PARSER GENERATOR ==========================================
+
+def zero_many(*rules):
+    # HELPER FUNCTION
+    def parse_rules(stream, node):
+        index = stream.save()
+        try:
+            for rule in rules:
+                node.add(rule.parser(stream))
+        except ParsingError as error:
+            stream.restore(index)
+            raise error
+        return node
+
+    def zero_many_parser(stream):
+        node = ZeroManyNode()
+        while True:
+            try:
+                node = parse_rules(stream, node)
+            except ParsingError:
+                break
+        return node
+
+    return ParserObj('Zero Many', zero_many_parser)
+
+
+# SEQUENCE PARSER GENERATOR ==========================================
+
+def seq(*rules):
+    def seq_parser(stream):
+        node = SequenceNode()
+        index = stream.save()
+        try:
+            for rule in rules:
+                node.add(rule.parser(stream))
+        except ParsingError as error:
+            stream.restore(index)
+            raise error
+        return node
+    return ParserObj('Sequence', seq_parser)
+
+
+# ONE MANY PARSER GENERATOR ==========================================
+
+def one_many(*rules):
+    def one_many_parser(stream):
+        node = OneManyNode()
+        while True:
+            try:
+                for rule in rules:
+                    node.add(rule.parser(stream))
+            except ParsingError:
+                break
+        if len(node):  # TODO: remove this check
+            return node
+        raise ParsingError
+    return ParserObj('One Many', one_many_parser)
+
+
+# ONE OF PARSER GENERATOR ==========================================
+
+def one_of(self, *rules):  # TODO: use `rules` to build error messages
+    def one_of_parser(stream):
+        node = OneOfNode()
+        for rule in rules:
+            try:
+                node.add(rule.parser(stream))
+                return node
+            except ParsingError:
+                pass
+        raise ParsingError
+    return ParserObj('One of', one_of_parser)
+
+
+# OPTIONAL PARSER GENERATOR ==========================================
+
+def opt(self, rule):
+    def opt_parser(stream):
+        node = OptionalNode()
+        try:
+            node.add(rule.parser(stream))
+        except ParsingError:
+            pass
+        return node
+    return ParserObj('Optional', opt_parser)
+
+
+# BASE PARSER GENERATOR ==========================================
+
 class Grammar:
-    def __init__(self, start=None):
+    def __init__(self):
         self.rules = {}
-        self.start_rule = start
         self.skip_rules = {}
 
     def match(self, stream):
-        rule = self.start_rule or next(iter(self.rules.values()))
+        rule = next(iter(self.rules.values()))
         tree = RootNode()
         tree.add(rule.parser(stream))
         self._parse_skip_rules(stream)
@@ -91,62 +179,6 @@ class Grammar:
                 return
 
         self.skip_rules[id] = ParserObj(id, skip_rule_parser)
-
-    def zero_many(self, *rules):
-        def zero_many_parser(stream):
-            node = ZeroManyNode()
-            while True:
-                try:
-                    for rule in rules:
-                        node.add(rule.parser(stream))
-                except ParsingError:
-                    break
-            return node
-        return ParserObj('id', zero_many_parser)
-
-    def one_many(self, *rules):
-        def one_many_parser(stream):
-            node = OneManyNode()
-            while True:
-                try:
-                    for rule in rules:
-                        node.add(rule.parser(stream))
-                except ParsingError:
-                    break
-            if len(node):
-                return node
-            raise ParsingError
-        return ParserObj('id', one_many_parser)
-
-    def seq(self, *rules):
-        def seq_parser(stream):
-            node = SequenceNode()
-            for rule in rules:
-                node.add(rule.parser(stream))
-            return node
-        return ParserObj('Sequence', seq_parser)
-
-    def one_of(self, *rules):  # TODO: use rules to build error messages
-        def one_of_parser(stream):
-            node = OneOfNode()
-            for rule in rules:
-                try:
-                    node.add(rule.parser(stream))
-                    return node
-                except ParsingError:
-                    pass
-            raise ParsingError
-        return ParserObj('One of', one_of_parser)
-
-    def opt(self, rule):
-        def opt_parser(stream):
-            node = OptionalNode()
-            try:
-                node.add(rule.parser(stream))
-            except ParsingError:
-                pass
-            return node
-        return ParserObj('Optional', opt_parser)
 
     def r(self, id):
         def rule_parser(stream):
@@ -181,19 +213,3 @@ class Grammar:
             skipped = [True for rule in rules if rule.parser(stream)]
             if len(skipped) == 0:
                 break
-
-    @property
-    def NEWLINE(self):
-        return self.p(r'[\r\n]+')
-
-    @property
-    def INT(self):
-        return self.p(r'[0-9]+')
-
-    @property
-    def FLOAT(self):
-        return self.p(r'-?\d*\.\d+([eE][-+]?\d+)?')
-
-    @property
-    def STRING(self):
-        return self.p(r'"[^\"]*"|\'[^\']*\'')
