@@ -1,25 +1,25 @@
 from mel.languages import Language
-from mel.parsing import Grammar, zero_many, seq, one_many
+from mel.parsing import ParserGenerator, ZeroMany, Seq, OneMany
 
 # TODO: need build the entire grammar tree to "unparse" example from it
 
 
 def test_base_rule():
-    g = Grammar()
-    g.rule('root', zero_many(g.r('rule')))
-    g.rule('rule', seq(
-        g.r('name'), g.s('='), g.r('alternative')
+    p = ParserGenerator()
+    p.rule('root', ZeroMany(p.r('rule')))
+    p.rule('rule', Seq(
+        p.r('name'), p.s('='), p.r('alternative')
     ))
-    g.rule('alternative', seq(
-        g.r('sequence'),
-        zero_many(g.s('|'), g.r('sequence'))
+    p.rule('alternative', Seq(
+        p.r('sequence'),
+        ZeroMany(p.s('|'), p.r('sequence'))
     ))
-    g.rule('sequence', one_many(g.r('name')))
-    g.rule('name', g.p(r'[a-z]+'))
+    p.rule('sequence', OneMany(p.r('name')))
+    p.rule('name', p.p(r'[a-z]+'))
 
-    g.skip('space', r'[ \t]+')
-    g.skip('comment', r'--[^\n\r]*')
+    p.skip('space', r'[ \t]+')
+    p.skip('comment', r'--[^\n\r]*')
 
-    lang = Language('Foo', g)
+    lang = Language('Foo', p)
     node = lang.parse('address = end|start about')
     assert node

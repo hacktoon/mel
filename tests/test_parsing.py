@@ -51,28 +51,28 @@ def test_read_pattern_advances_index():
 # PARSER TESTS ========================================
 
 # def test_rule_parser():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.p(r'\d+'))
 #     parser = Parser(g)
 #     assert str(parser.parse('42')) == '42'
 
 
 # def test_parser_returns_node():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.p(r'-\d+'))
 #     parser = Parser(g)
 #     assert isinstance(parser.parse('-333'), Node)
 
 
 # def test_seq_parser():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.seq(g.r('int'), g.p(r'foo')))
 #     g.rule('int', g.p(r'\d+'))
 #     assert Parser(g).parse('42foo')
 
 
 # def test_seq_parser_children_count():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.seq(g.r('abc'), g.s('--')))
 #     g.rule('abc', g.p(r'[abc]+'))
 #     node = Parser(g).parse('abbbcaa--')
@@ -80,7 +80,7 @@ def test_read_pattern_advances_index():
 
 
 # def test_zero_many_children_count():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.zero_many(g.r('digit')))
 #     g.rule('digit', g.p(r'[0-9]'))
 #     node = Parser(g).parse('145')
@@ -88,7 +88,7 @@ def test_read_pattern_advances_index():
 
 
 # def test_one_of_rule_parser():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.one_of(g.r('tag'), g.r('name')))
 #     g.rule('tag', g.seq(g.s('#'), g.r('name')))
 #     g.rule('name', g.p(r'[a-z]+'))
@@ -97,7 +97,7 @@ def test_read_pattern_advances_index():
 
 
 # def test_one_many_rule_parser():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.one_many(g.r('tag')))
 #     g.rule('tag', g.seq(g.s('#'), g.r('name')))
 #     g.rule('name', g.p(r'[a-z]+'))
@@ -106,7 +106,7 @@ def test_read_pattern_advances_index():
 
 
 # def test_space_skip():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.r('name'))
 #     g.skip('space', r'\s+')
 #     g.rule('name', g.p(r'\w+'))
@@ -114,7 +114,7 @@ def test_read_pattern_advances_index():
 
 
 # def test_space_skip_between_rules():
-#     g = Grammar()
+#     g = ParserGenerator()
 #     g.rule('foo', g.zero_many(g.r('name')))
 #     g.skip('space', r'\s+')
 #     g.rule('name', g.p(r'\w+'))
