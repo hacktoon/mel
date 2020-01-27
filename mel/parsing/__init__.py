@@ -92,27 +92,30 @@ class Grammar:
 
         self.skip_rules[id] = ParserObj(id, skip_rule_parser)
 
-    def zero_many(self, rule):
+    def zero_many(self, *rules):
         def zero_many_parser(stream):
             node = ZeroManyNode()
             while True:
                 try:
-                    node.add(rule.parser(stream))
+                    for rule in rules:
+                        node.add(rule.parser(stream))
                 except ParsingError:
                     break
             return node
         return ParserObj('id', zero_many_parser)
 
-    def one_many(self, rule):
+    def one_many(self, *rules):
         def one_many_parser(stream):
             node = OneManyNode()
-            node.add(rule.parser(stream))
             while True:
                 try:
-                    node.add(rule.parser(stream))
+                    for rule in rules:
+                        node.add(rule.parser(stream))
                 except ParsingError:
                     break
-            return node
+            if len(node):
+                return node
+            raise ParsingError
         return ParserObj('id', one_many_parser)
 
     def seq(self, *rules):

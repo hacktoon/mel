@@ -12,7 +12,7 @@ def test_base_rule():
     ))
     g.rule('alternative', g.seq(
         g.r('sequence'),
-        g.zero_many(g.seq(g.s('|'), g.r('sequence')))
+        g.zero_many(g.s('|'), g.r('sequence'))
     ))
     g.rule('sequence', g.zero_many(g.r('name')))
     g.rule('name', g.p(r'[a-z]+'))
@@ -22,5 +22,5 @@ def test_base_rule():
 
     lang = Language('Foo', g)
     node = lang.parse('address = street num; x = app;')
-    breakpoint()
+
     assert node
