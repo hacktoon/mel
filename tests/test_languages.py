@@ -1,6 +1,8 @@
 from mel.languages import Language
 from mel.parsing import Grammar
 
+# TODO: need build the entire grammar tree to "unparse" example from it
+
 
 def test_base_rule():
     g = Grammar()
@@ -20,4 +22,5 @@ def test_base_rule():
 
     lang = Language('Foo', g)
     node = lang.parse('address = street num; x = app;')
+    breakpoint()
     assert node

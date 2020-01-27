@@ -1,14 +1,16 @@
 
-class Node:
+class BaseNode:
     def __bool__(self):
         return True
 
+    def __len__(self):
+        return 0
+
     def __repr__(self):
-        name = self.__class__.__name__.upper()
-        return "{}({})".format(name, self)
+        return f'{self.__class__.__name__}()'
 
 
-class SymbolNode(Node):
+class StringNode(BaseNode):
     def __init__(self, text='', index=(0, 0)):
         self.text = text
         self.index = index
@@ -16,21 +18,17 @@ class SymbolNode(Node):
     def __len__(self):
         return len(self.text)
 
-    def __str__(self):
-        return self.text
+    def __repr__(self):
+        return f'String({self.text})'
 
 
-class EmptyNode(Node):
-    def __bool__(self):
-        return False
-
-    def __str__(self):
-        return ''
+class PatternNode(StringNode):
+    def __repr__(self):
+        return f'Pattern({self.text})'
 
 
-class RuleNode(Node):
-    def __init__(self, id=''):
-        self.id = id
+class Node(BaseNode):
+    def __init__(self):
         self.children = []
 
     def __bool__(self):
@@ -39,21 +37,56 @@ class RuleNode(Node):
     def __len__(self):
         return len(self.children)
 
+    def __repr__(self):
+        name = self.__class__.__name__
+        children = ', '.join(repr(child) for child in self.children)
+        return f'{name}({children})'
+
     def __getitem__(self, index):
         return self.children[index]
 
-    def __str__(self):
-        return ' '.join(str(child) for child in self.children)
-
     @property
     def index(self):
-        if len(self.children) == 0:
-            return ('aa', 0)
+        if len(self) == 0:
+            return (0, 0)
         first = self.children[0].index
         last = self.children[-1].index
-        return first[0], last[1]
+        return (first[0], last[1])
 
     def add(self, child):
-        if not child:
-            return
         self.children.append(child)
+
+
+class RuleNode(Node):
+    def __init__(self, id):
+        super().__init__()
+        self.id = id
+
+    def __repr__(self):
+        name = self.__class__.__name__
+        children = ', '.join(repr(child) for child in self.children)
+        return f'{name}("{self.id}", {children})'
+
+
+class RootNode(Node):
+    pass
+
+
+class ZeroManyNode(Node):
+    pass
+
+
+class OneManyNode(Node):
+    pass
+
+
+class OptionalNode(Node):
+    pass
+
+
+class SequenceNode(Node):
+    pass
+
+
+class OneOfNode(Node):
+    pass

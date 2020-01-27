@@ -1,6 +1,17 @@
 import re
 
 from ..exceptions import ParsingError
+from .nodes import (
+    RootNode,
+    RuleNode,
+    StringNode,
+    PatternNode,
+    ZeroManyNode,
+    OneManyNode,
+    OneOfNode,
+    SequenceNode,
+    OptionalNode,
+)
 
 
 class Parser:
@@ -55,21 +66,22 @@ class ParserObj:
 
 
 class Grammar:
-    def __init__(self):
-        self._rules = {}
-        self._skip_rules = {}
+    def __init__(self, start=None):
+        self.rules = {}
+        self.start_rule = start
+        self.skip_rules = {}
 
     def match(self, stream):
-        rule_parsers = iter(self._rules.values())
-        rule = next(rule_parsers)
-        tree = rule.parser(stream)
+        rule = self.start_rule or next(iter(self.rules.values()))
+        tree = RootNode()
+        tree.add(rule.parser(stream))
         self._parse_skip_rules(stream)
         if not stream.eof:
             raise ParsingError
         return tree
 
     def rule(self, id, rule):
-        self._rules[id] = rule
+        self.rules[id] = rule
 
     def skip(self, id, string):
         def skip_rule_parser(stream):
@@ -78,43 +90,46 @@ class Grammar:
             except ParsingError:
                 return
 
-        self._skip_rules[id] = ParserObj(id, skip_rule_parser)
+        self.skip_rules[id] = ParserObj(id, skip_rule_parser)
 
     def zero_many(self, rule):
         def zero_many_parser(stream):
-            nodes = []
+            node = ZeroManyNode()
             while True:
                 try:
-                    nodes.append(rule.parser(stream))
+                    node.add(rule.parser(stream))
                 except ParsingError:
                     break
-            return nodes
+            return node
         return ParserObj('id', zero_many_parser)
 
     def one_many(self, rule):
         def one_many_parser(stream):
-            nodes = [rule.parser(stream)]
+            node = OneManyNode()
+            node.add(rule.parser(stream))
             while True:
                 try:
-                    nodes.append(rule.parser(stream))
+                    node.add(rule.parser(stream))
                 except ParsingError:
                     break
-            return nodes
+            return node
         return ParserObj('id', one_many_parser)
 
     def seq(self, *rules):
         def seq_parser(stream):
-            nodes = []
+            node = SequenceNode()
             for rule in rules:
-                nodes.append(rule.parser(stream))
-            return nodes
+                node.add(rule.parser(stream))
+            return node
         return ParserObj('Sequence', seq_parser)
 
-    def one_of(self, *rules):
+    def one_of(self, *rules):  # TODO: use rules to build error messages
         def one_of_parser(stream):
+            node = OneOfNode()
             for rule in rules:
                 try:
-                    return rule.parser(stream)
+                    node.add(rule.parser(stream))
+                    return node
                 except ParsingError:
                     pass
             raise ParsingError
@@ -122,39 +137,43 @@ class Grammar:
 
     def opt(self, rule):
         def opt_parser(stream):
+            node = OptionalNode()
             try:
-                return rule.parser(stream)
+                node.add(rule.parser(stream))
             except ParsingError:
-                return []
+                pass
+            return node
         return ParserObj('Optional', opt_parser)
 
     def r(self, id):
         def rule_parser(stream):
-            rule = self._rules[id]
+            rule = self.rules[id]
+            node = RuleNode(id)
             index = stream.save()
             try:
-                return rule.parser(stream)
+                node.add(rule.parser(stream))
             except ParsingError as error:
                 stream.restore(index)
                 raise error
+            return node
         return ParserObj(id, rule_parser)
 
     def p(self, string):
         def pattern_parser(stream):
             self._parse_skip_rules(stream)
-            text, _ = stream.read_pattern(string)
-            return text
+            text, index = stream.read_pattern(string)
+            return PatternNode(text, index)
         return ParserObj(string, pattern_parser)
 
     def s(self, string):
         def string_parser(stream):
             self._parse_skip_rules(stream)
-            text, _ = stream.read_string(string)
-            return text
+            text, index = stream.read_string(string)
+            return StringNode(text, index)
         return ParserObj(string, string_parser)
 
     def _parse_skip_rules(self, stream):
-        rules = self._skip_rules.values()
+        rules = self.skip_rules.values()
         while True:
             skipped = [True for rule in rules if rule.parser(stream)]
             if len(skipped) == 0:
