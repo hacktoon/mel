@@ -18,6 +18,13 @@ class Symbol:
         self.id = id
         self.parser = parser
 
+    def _skip_symbols(self, context):
+        rules = context.skip_symbols.values()
+        while True:
+            skipped = [True for rule in rules if rule.parse(context)]
+            if len(skipped) == 0:
+                break
+
 
 # ZERO MANY SYMBOL ==========================================
 
@@ -123,8 +130,8 @@ class Rule(Symbol):
         self.id = id
 
     def parse(self, context):
-        rule = context.symbols[id]
-        node = RuleNode(id)
+        rule = context.symbols[self.id]
+        node = RuleNode(self.id)
         index = context.stream.save()
         try:
             node.add(rule.parse(context))
@@ -141,7 +148,7 @@ class Str(Symbol):
         self.string = string
 
     def parse(self, context):
-        context._skip_symbols(context.stream)
+        self._skip_symbols(context)
         text, index = context.stream.read_string(self.string)
         return StringNode(text, index)
 
@@ -150,7 +157,7 @@ class Str(Symbol):
 
 class Regex(Str):
     def parse(self, context):
-        context._skip_symbols(context.stream)
+        self._skip_symbols(context)
         text, index = context.stream.read_pattern(self.string)
         return PatternNode(text, index)
 
@@ -164,7 +171,7 @@ class Context:
         self.stream = kw.get('stream', Stream())
 
 
-class Grammar:
+class Grammar(Symbol):
     def __init__(self):
         self.symbols = {}
         self.skip_symbols = {}
@@ -195,10 +202,3 @@ class Grammar:
                 return
 
         self.skip_symbols[id] = Symbol(id, skip_rule_parser)
-
-    def _skip_symbols(self, context):
-        rules = self.skip_symbols.values()
-        while True:
-            skipped = [True for rule in rules if rule.parse(context)]
-            if len(skipped) == 0:
-                break
