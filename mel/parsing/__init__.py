@@ -1,6 +1,5 @@
-import re
-
 from ..exceptions import ParsingError
+from .stream import Stream
 from .nodes import (
     RootNode,
     RuleNode,
@@ -14,60 +13,15 @@ from .nodes import (
 )
 
 
-class Parser:
-    def __init__(self, grammar):
-        self.grammar = grammar
-
-    def parse(self, text):
-        stream = Stream(text)
-        return self.grammar.match(stream)
-
-
-class Stream:
-    def __init__(self, text):
-        self.text = text
-        self.index = 0
-        self._index_cache = 0
-
-    def save(self):
-        self._index_cache = self.index
-        return self.index
-
-    def restore(self, _index):
-        self.index = self._index_cache if _index is None else _index
-
-    def read_pattern(self, pattern_string):
-        match = re.match(pattern_string, self.text[self.index:])
-        if not match:
-            raise ParsingError
-        start, end = [offset + self.index for offset in match.span()]
-        return self._read(match.group(0), (start, end))
-
-    def read_string(self, string):
-        text = self.text[self.index:]
-        if not text.startswith(string):
-            raise ParsingError
-        index = self.index, self.index + len(string)
-        return self._read(string, index)
-
-    def _read(self, string, index):
-        self.index += len(string)
-        return string, index
-
-    @property
-    def eof(self):
-        return self.index >= len(self.text)
-
-
-class SubParser:
+class Symbol:
     def __init__(self, id, parser):
         self.id = id
         self.parser = parser
 
 
-# ZERO MANY PARSER GENERATOR ==========================================
+# ZERO MANY SYMBOL ==========================================
 
-class ZeroMany(SubParser):
+class ZeroMany(Symbol):
     def __init__(self, *rules):
         self.rules = rules
 
@@ -92,9 +46,9 @@ class ZeroMany(SubParser):
         return node
 
 
-# SEQUENCE PARSER GENERATOR ==========================================
+# SEQUENCE SYMBOL ==========================================
 
-class Seq(SubParser):
+class Seq(Symbol):
     def __init__(self, *rules):
         self.rules = rules
 
@@ -110,9 +64,9 @@ class Seq(SubParser):
         return node
 
 
-# ONE MANY PARSER GENERATOR ==========================================
+# ONE MANY SYMBOL ==========================================
 
-class OneMany(SubParser):
+class OneMany(Symbol):
     def __init__(self, *rules):
         self.rules = rules
 
@@ -129,9 +83,9 @@ class OneMany(SubParser):
         raise ParsingError
 
 
-# ONE OF PARSER GENERATOR ==========================================
+# ONE OF SYMBOL ==========================================
 
-class OneOf(SubParser):
+class OneOf(Symbol):
     def __init__(self, *rules):
         self.rules = rules
         # TODO: use `rules` to build error messages
@@ -147,13 +101,13 @@ class OneOf(SubParser):
         raise ParsingError
 
 
-# OPTIONAL PARSER GENERATOR ==========================================
+# OPTIONAL SYMBOL ==========================================
 
-class Opt(SubParser):
+class Opt(Symbol):
     def __init__(self, rule):
         self.rule = rule
 
-    def parser(stream):
+    def parser(self, stream):
         node = OptionalNode()
         try:
             node.add(self.rule.parser(stream))
@@ -162,24 +116,37 @@ class Opt(SubParser):
         return node
 
 
-# BASE PARSER GENERATOR ==========================================
+# GRAMMAR ==========================================
 
-class ParserGenerator:
+class Context:
+    def __init__(self, **kw):
+        self.symbols = kw.get('symbols', {})
+        self.skip_symbols = kw.get('skip_symbols', {})
+        self.stream = kw.get('stream', Stream())
+
+
+class Grammar:
     def __init__(self):
-        self.subparsers = {}
-        self.skip_subparsers = {}
+        self.symbols = {}
+        self.skip_symbols = {}
 
-    def match(self, stream):
-        rule = next(iter(self.subparsers.values()))
+    def set(self, id, rule):
+        self.symbols[id] = rule
+
+    def parse(self, text):
+        stream = Stream(text)
+        rule = next(iter(self.symbols.values()))
+        context = Context(
+            skip_symbols=self.skip_symbols,
+            symbols=self.symbols,
+            stream=stream
+        )
         tree = RootNode()
         tree.add(rule.parser(stream))
-        self._skip_subparsers(stream)
+        self._skip_symbols(stream)
         if not stream.eof:
             raise ParsingError
         return tree
-
-    def rule(self, id, rule):
-        self.subparsers[id] = rule
 
     def skip(self, id, string):
         def skip_rule_parser(stream):
@@ -188,11 +155,11 @@ class ParserGenerator:
             except ParsingError:
                 return
 
-        self.skip_subparsers[id] = SubParser(id, skip_rule_parser)
+        self.skip_symbols[id] = Symbol(id, skip_rule_parser)
 
     def r(self, id):
         def rule_parser(stream):
-            rule = self.subparsers[id]
+            rule = self.symbols[id]
             node = RuleNode(id)
             index = stream.save()
             try:
@@ -201,24 +168,24 @@ class ParserGenerator:
                 stream.restore(index)
                 raise error
             return node
-        return SubParser(id, rule_parser)
+        return Symbol(id, rule_parser)
 
     def p(self, string):
         def pattern_parser(stream):
-            self._skip_subparsers(stream)
+            self._skip_symbols(stream)
             text, index = stream.read_pattern(string)
             return PatternNode(text, index)
-        return SubParser(string, pattern_parser)
+        return Symbol(string, pattern_parser)
 
     def s(self, string):
         def string_parser(stream):
-            self._skip_subparsers(stream)
+            self._skip_symbols(stream)
             text, index = stream.read_string(string)
             return StringNode(text, index)
-        return SubParser(string, string_parser)
+        return Symbol(string, string_parser)
 
-    def _skip_subparsers(self, stream):
-        rules = self.skip_subparsers.values()
+    def _skip_symbols(self, stream):
+        rules = self.skip_symbols.values()
         while True:
             skipped = [True for rule in rules if rule.parser(stream)]
             if len(skipped) == 0:
