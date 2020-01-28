@@ -162,6 +162,16 @@ class Regex(Str):
         return PatternNode(text, index)
 
 
+# SKIP SYMBOL ==========================================
+
+class Skip(Str):
+    def parse(self, context):
+        try:
+            context.stream.read_pattern(self.string)
+        except ParsingError:
+            return
+
+
 # GRAMMAR ==========================================
 
 class Context:
@@ -176,19 +186,19 @@ class Grammar(Symbol):
         self.symbols = {}
         self.skip_symbols = {}
 
-    def set(self, id, rule):
-        self.symbols[id] = rule
+    def set(self, id, symbol):
+        self.symbols[id] = symbol
 
     def parse(self, text):
         stream = Stream(text)
-        rule = next(iter(self.symbols.values()))
+        symbol = next(iter(self.symbols.values()))
         context = Context(
             skip_symbols=self.skip_symbols,
             symbols=self.symbols,
             stream=stream
         )
         tree = RootNode()
-        tree.add(rule.parse(context))
+        tree.add(symbol.parse(context))
         self._skip_symbols(context)
         if not stream.eof:
             raise ParsingError
