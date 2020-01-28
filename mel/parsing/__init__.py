@@ -189,6 +189,9 @@ class Grammar(Symbol):
     def set(self, id, symbol):
         self.symbols[id] = symbol
 
+    def skip(self, id, string):
+        self.skip_symbols[id] = Skip(string)
+
     def parse(self, text):
         stream = Stream(text)
         symbol = next(iter(self.symbols.values()))
@@ -203,12 +206,3 @@ class Grammar(Symbol):
         if not stream.eof:
             raise ParsingError
         return tree
-
-    def skip(self, id, string):
-        def skip_rule_parser(context):
-            try:
-                context.stream.read_pattern(string)
-            except ParsingError:
-                return
-
-        self.skip_symbols[id] = Symbol(id, skip_rule_parser)

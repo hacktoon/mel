@@ -16,8 +16,8 @@ def test_base_rule():
     # g.set('sequence', OneMany(Rule('name')))
     # g.set('name', Regex(r'[a-z]+'))
 
-    # g.skip('space', r'[ \t]+')
-    # g.skip('comment', r'--[^\n\r]*')
+    g.skip('space', r'[ \t]+')
+    g.skip('comment', r'--[^\n\r]*')
 
     node = g.parse('aa')
 
