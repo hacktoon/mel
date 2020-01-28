@@ -26,21 +26,21 @@ class ZeroMany(Symbol):
         self.rules = rules
 
     # HELPER FUNCTION
-    def _parse_rules(self, stream, node):
-        index = stream.save()
+    def _parse_rules(self, context, node):
+        index = context.stream.save()
         try:
             for rule in self.rules:
-                node.add(rule.parser(stream))
+                node.add(rule.parser(context))
         except ParsingError as error:
-            stream.restore(index)
+            context.stream.restore(index)
             raise error
         return node
 
-    def parser(self, stream):
+    def parser(self, context):
         node = ZeroManyNode()
         while True:
             try:
-                node = self._parse_rules(stream, node)
+                node = self._parse_rules(context, node)
             except ParsingError:
                 break
         return node
@@ -52,14 +52,14 @@ class Seq(Symbol):
     def __init__(self, *rules):
         self.rules = rules
 
-    def parser(self, stream):
+    def parser(self, context):
         node = SequenceNode()
-        index = stream.save()
+        index = context.stream.save()
         try:
             for rule in self.rules:
-                node.add(rule.parser(stream))
+                node.add(rule.parser(context))
         except ParsingError as error:
-            stream.restore(index)
+            context.stream.restore(index)
             raise error
         return node
 
@@ -70,12 +70,12 @@ class OneMany(Symbol):
     def __init__(self, *rules):
         self.rules = rules
 
-    def parser(self, stream):
+    def parser(self, context):
         node = OneManyNode()
         while True:
             try:
                 for rule in self.rules:
-                    node.add(rule.parser(stream))
+                    node.add(rule.parser(context))
             except ParsingError:
                 break
         if len(node):  # TODO: remove this check
@@ -90,11 +90,11 @@ class OneOf(Symbol):
         self.rules = rules
         # TODO: use `rules` to build error messages
 
-    def parser(self, stream):
+    def parser(self, context):
         node = OneOfNode()
         for rule in self.rules:
             try:
-                node.add(rule.parser(stream))
+                node.add(rule.parser(context))
                 return node
             except ParsingError:
                 pass
@@ -107,12 +107,30 @@ class Opt(Symbol):
     def __init__(self, rule):
         self.rule = rule
 
-    def parser(self, stream):
+    def parser(self, context):
         node = OptionalNode()
         try:
-            node.add(self.rule.parser(stream))
+            node.add(self.rule.parser(context))
         except ParsingError:
             pass
+        return node
+
+
+# RULE SYMBOL ==========================================
+
+class Rule(Symbol):
+    def __init__(self, id):
+        self.id = id
+
+    def parser(self, context):
+        rule = context.symbols[id]
+        node = RuleNode(id)
+        index = context.stream.save()
+        try:
+            node.add(rule.parser(context))
+        except ParsingError as error:
+            context.stream.restore(index)
+            raise error
         return node
 
 
@@ -142,51 +160,38 @@ class Grammar:
             stream=stream
         )
         tree = RootNode()
-        tree.add(rule.parser(stream))
-        self._skip_symbols(stream)
+        tree.add(rule.parser(context))
+        self._skip_symbols(context)
         if not stream.eof:
             raise ParsingError
         return tree
 
     def skip(self, id, string):
-        def skip_rule_parser(stream):
+        def skip_rule_parser(context):
             try:
-                stream.read_pattern(string)
+                context.stream.read_pattern(string)
             except ParsingError:
                 return
 
         self.skip_symbols[id] = Symbol(id, skip_rule_parser)
 
-    def r(self, id):
-        def rule_parser(stream):
-            rule = self.symbols[id]
-            node = RuleNode(id)
-            index = stream.save()
-            try:
-                node.add(rule.parser(stream))
-            except ParsingError as error:
-                stream.restore(index)
-                raise error
-            return node
-        return Symbol(id, rule_parser)
-
     def p(self, string):
-        def pattern_parser(stream):
-            self._skip_symbols(stream)
-            text, index = stream.read_pattern(string)
+        def pattern_parser(context):
+            self._skip_symbols(context.stream)
+            text, index = context.stream.read_pattern(string)
             return PatternNode(text, index)
         return Symbol(string, pattern_parser)
 
     def s(self, string):
-        def string_parser(stream):
-            self._skip_symbols(stream)
-            text, index = stream.read_string(string)
+        def string_parser(context):
+            self._skip_symbols(context.stream)
+            text, index = context.stream.read_string(string)
             return StringNode(text, index)
         return Symbol(string, string_parser)
 
-    def _skip_symbols(self, stream):
+    def _skip_symbols(self, context):
         rules = self.skip_symbols.values()
         while True:
-            skipped = [True for rule in rules if rule.parser(stream)]
+            skipped = [True for rule in rules if rule.parser(context)]
             if len(skipped) == 0:
                 break
