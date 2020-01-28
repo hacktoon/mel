@@ -134,6 +134,27 @@ class Rule(Symbol):
         return node
 
 
+# STRING SYMBOL ==========================================
+
+class Str(Symbol):
+    def __init__(self, string):
+        self.string = string
+
+    def parser(self, context):
+        context._skip_symbols(context.stream)
+        text, index = context.stream.read_string(self.string)
+        return StringNode(text, index)
+
+
+# REGEX SYMBOL ==========================================
+
+class Regex(Str):
+    def parser(self, context):
+        context._skip_symbols(context.stream)
+        text, index = context.stream.read_pattern(self.string)
+        return PatternNode(text, index)
+
+
 # GRAMMAR ==========================================
 
 class Context:
@@ -174,20 +195,6 @@ class Grammar:
                 return
 
         self.skip_symbols[id] = Symbol(id, skip_rule_parser)
-
-    def p(self, string):
-        def pattern_parser(context):
-            self._skip_symbols(context.stream)
-            text, index = context.stream.read_pattern(string)
-            return PatternNode(text, index)
-        return Symbol(string, pattern_parser)
-
-    def s(self, string):
-        def string_parser(context):
-            self._skip_symbols(context.stream)
-            text, index = context.stream.read_string(string)
-            return StringNode(text, index)
-        return Symbol(string, string_parser)
 
     def _skip_symbols(self, context):
         rules = self.skip_symbols.values()
