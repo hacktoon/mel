@@ -173,6 +173,7 @@ class Skip(Str):
 
 
 # GRAMMAR ==========================================
+# TODO: need build the entire grammar tree to "unparse" example from it
 
 class Context:
     def __init__(self, **kw):
