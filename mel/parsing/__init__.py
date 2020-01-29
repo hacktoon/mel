@@ -157,15 +157,27 @@ class Skip(Str):
             return
 
 
+# ROOT SYMBOL ==========================================
+
+class Root(Symbol):
+    def parse(self, context):
+        symbols = iter(context.symbols.values())
+        symbol = next(symbols)
+        node = RootNode()
+        node.add(symbol.parse(context))
+        self.skip_parse(context)
+        context.stream.read_eof()
+        return node
+
+
 # GRAMMAR ==========================================
-# TODO: need build the entire grammar tree to "unparse" example from it
 
 class Context:
     def __init__(self, **kw):
         self.__dict__.update(kw)
 
 
-class Grammar(Symbol):
+class Grammar:
     def __init__(self):
         self.symbols = {}
         self.skip_symbols = {}
@@ -177,15 +189,9 @@ class Grammar(Symbol):
         self.skip_symbols[id] = Skip(string)
 
     def parse(self, text):
-        stream = Stream(text)
-        symbol = next(iter(self.symbols.values()))
         context = Context(
             skip_symbols=self.skip_symbols,
             symbols=self.symbols,
-            stream=stream
+            stream=Stream(text)
         )
-        tree = RootNode()
-        tree.add(symbol.parse(context))
-        self.skip_parse(context)
-        stream.read_eof()
-        return tree
+        return Root().parse(context)
