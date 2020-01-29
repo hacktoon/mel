@@ -26,5 +26,4 @@ def test_base_rule():
     g.skip('comment', r'--[^\n\r]*')
 
     node = g.parse('person = john')
-
     assert node

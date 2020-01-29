@@ -24,6 +24,9 @@ class Symbol:
             if len(skipped) == 0:
                 break
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 # ZERO MANY SYMBOL ==========================================
 
@@ -125,6 +128,10 @@ class Rule(Symbol):
             raise error
         return node
 
+    def __repr__(self):
+        classname = self.__class__.__name__
+        return f'{classname}("{self.id}")'
+
 
 # STRING SYMBOL ==========================================
 
@@ -136,6 +143,10 @@ class Str(Symbol):
         self.skip_parse(context)
         text, index = context.stream.read_string(self.string)
         return StringNode(text, index)
+
+    def __repr__(self):
+        classname = self.__class__.__name__
+        return f'{classname}("{self.string}")'
 
 
 # REGEX SYMBOL ==========================================
