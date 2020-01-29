@@ -177,9 +177,7 @@ class Skip(Str):
 
 class Context:
     def __init__(self, **kw):
-        self.symbols = kw.get('symbols', {})
-        self.skip_symbols = kw.get('skip_symbols', {})
-        self.stream = kw.get('stream', Stream())
+        self.__dict__.update(kw)
 
 
 class Grammar(Symbol):
@@ -187,7 +185,7 @@ class Grammar(Symbol):
         self.symbols = {}
         self.skip_symbols = {}
 
-    def set(self, id, symbol):
+    def rule(self, id, symbol):
         self.symbols[id] = symbol
 
     def skip(self, id, string):
