@@ -18,7 +18,21 @@ class Symbol:
         self.id = id
         self.parser = parser
 
-    def _skip_symbols(self, context):
+    def parse(self, _):
+        raise NotImplementedError
+
+    def list_parse(self, symbols):
+        index = context.stream.save()
+        nodes = []
+        try:
+            for symbol in self.symbols:
+                nodes.append(symbol.parse(context))
+        except ParsingError as error:
+            context.stream.restore(index)
+            raise error
+        return nodes
+
+    def skip_parse(self, context):
         rules = context.skip_symbols.values()
         while True:
             skipped = [True for rule in rules if rule.parse(context)]
@@ -29,15 +43,15 @@ class Symbol:
 # ZERO MANY SYMBOL ==========================================
 
 class ZeroMany(Symbol):
-    def __init__(self, *rules):
-        self.rules = rules
+    def __init__(self, *symbols):
+        self.symbols = symbols
 
     # HELPER FUNCTION
-    def _parse_rules(self, context, node):
+    def _parse_symbols(self, context, node):
         index = context.stream.save()
         try:
-            for rule in self.rules:
-                node.add(rule.parse(context))
+            for symbol in self.symbols:
+                node.add(symbol.parse(context))
         except ParsingError as error:
             context.stream.restore(index)
             raise error
@@ -47,7 +61,7 @@ class ZeroMany(Symbol):
         node = ZeroManyNode()
         while True:
             try:
-                node = self._parse_rules(context, node)
+                node = self._parse_symbols(context, node)
             except ParsingError:
                 break
         return node
@@ -148,7 +162,7 @@ class Str(Symbol):
         self.string = string
 
     def parse(self, context):
-        self._skip_symbols(context)
+        self.skip_parse(context)
         text, index = context.stream.read_string(self.string)
         return StringNode(text, index)
 
@@ -157,7 +171,7 @@ class Str(Symbol):
 
 class Regex(Str):
     def parse(self, context):
-        self._skip_symbols(context)
+        self.skip_parse(context)
         text, index = context.stream.read_pattern(self.string)
         return PatternNode(text, index)
 
@@ -201,6 +215,6 @@ class Grammar(Symbol):
         )
         tree = RootNode()
         tree.add(symbol.parse(context))
-        self._skip_symbols(context)
+        self.skip_parse(context)
         stream.read_eof()
         return tree
