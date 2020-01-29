@@ -51,7 +51,7 @@ def test_read_pattern_advances_index():
 def test_read_eof():
     stream = Stream('a')
     stream.read_string('a')
-    assert stream.read_eof() == None
+    assert stream.read_eof() is None
 
 
 def test_read_eof_in_unfinished_file():

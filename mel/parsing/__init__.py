@@ -14,28 +14,13 @@ from .nodes import (
 
 
 class Symbol:
-    def __init__(self, id, parser):
-        self.id = id
-        self.parser = parser
-
     def parse(self, _):
         raise NotImplementedError
 
-    def list_parse(self, symbols):
-        index = context.stream.save()
-        nodes = []
-        try:
-            for symbol in self.symbols:
-                nodes.append(symbol.parse(context))
-        except ParsingError as error:
-            context.stream.restore(index)
-            raise error
-        return nodes
-
     def skip_parse(self, context):
-        rules = context.skip_symbols.values()
+        symbols = context.skip_symbols.values()
         while True:
-            skipped = [True for rule in rules if rule.parse(context)]
+            skipped = [True for sym in symbols if sym.parse(context)]
             if len(skipped) == 0:
                 break
 
@@ -43,11 +28,27 @@ class Symbol:
 # ZERO MANY SYMBOL ==========================================
 
 class ZeroMany(Symbol):
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def parse(self, context):
+        node = ZeroManyNode()
+        while True:
+            try:
+                node.add(self.symbol.parse(context))
+            except ParsingError:
+                break
+        return node
+
+
+# SEQUENCE SYMBOL ==========================================
+
+class Seq(Symbol):
     def __init__(self, *symbols):
         self.symbols = symbols
 
-    # HELPER FUNCTION
-    def _parse_symbols(self, context, node):
+    def parse(self, context):
+        node = SequenceNode()
         index = context.stream.save()
         try:
             for symbol in self.symbols:
@@ -57,65 +58,35 @@ class ZeroMany(Symbol):
             raise error
         return node
 
-    def parse(self, context):
-        node = ZeroManyNode()
-        while True:
-            try:
-                node = self._parse_symbols(context, node)
-            except ParsingError:
-                break
-        return node
-
-
-# SEQUENCE SYMBOL ==========================================
-
-class Seq(Symbol):
-    def __init__(self, *rules):
-        self.rules = rules
-
-    def parse(self, context):
-        node = SequenceNode()
-        index = context.stream.save()
-        try:
-            for rule in self.rules:
-                node.add(rule.parse(context))
-        except ParsingError as error:
-            context.stream.restore(index)
-            raise error
-        return node
-
 
 # ONE MANY SYMBOL ==========================================
 
 class OneMany(Symbol):
-    def __init__(self, *rules):
-        self.rules = rules
+    def __init__(self, symbol):
+        self.symbol = symbol
 
     def parse(self, context):
         node = OneManyNode()
+        node.add(self.symbol.parse(context))
         while True:
             try:
-                for rule in self.rules:
-                    node.add(rule.parse(context))
+                node.add(self.symbol.parse(context))
             except ParsingError:
                 break
-        if len(node):  # TODO: remove this check
-            return node
-        raise ParsingError
+        return node
 
 
 # ONE OF SYMBOL ==========================================
 
 class OneOf(Symbol):
-    def __init__(self, *rules):
-        self.rules = rules
-        # TODO: use `rules` to build error messages
+    def __init__(self, *symbols):
+        self.symbols = symbols
 
     def parse(self, context):
         node = OneOfNode()
-        for rule in self.rules:
+        for symbol in self.symbols:
             try:
-                node.add(rule.parse(context))
+                node.add(symbol.parse(context))
                 return node
             except ParsingError:
                 pass
@@ -125,13 +96,13 @@ class OneOf(Symbol):
 # OPTIONAL SYMBOL ==========================================
 
 class Opt(Symbol):
-    def __init__(self, rule):
-        self.rule = rule
+    def __init__(self, symbol):
+        self.symbol = symbol
 
     def parse(self, context):
         node = OptionalNode()
         try:
-            node.add(self.rule.parse(context))
+            node.add(self.symbol.parse(context))
         except ParsingError:
             pass
         return node
@@ -144,11 +115,11 @@ class Rule(Symbol):
         self.id = id
 
     def parse(self, context):
-        rule = context.symbols[self.id]
+        symbol = context.symbols[self.id]
         node = RuleNode(self.id)
         index = context.stream.save()
         try:
-            node.add(rule.parse(context))
+            node.add(symbol.parse(context))
         except ParsingError as error:
             context.stream.restore(index)
             raise error
