@@ -204,6 +204,5 @@ class Grammar(Symbol):
         tree = RootNode()
         tree.add(symbol.parse(context))
         self._skip_symbols(context)
-        if not stream.eof:
-            raise ParsingError
+        stream.read_eof()
         return tree

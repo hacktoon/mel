@@ -21,7 +21,7 @@ def test_valid_pattern_index():
 def test_invalid_pattern():
     stream = Stream('54')
     with pytest.raises(ParsingError):
-        assert stream.read_pattern(r'4')
+        stream.read_pattern(r'4')
 
 
 def test_valid_symbols():
@@ -46,6 +46,19 @@ def test_read_pattern_advances_index():
     stream = Stream('    \n         ')
     stream.read_pattern(r'\s+')
     assert stream.index == len(stream.text)
+
+
+def test_read_eof():
+    stream = Stream('a')
+    stream.read_string('a')
+    assert stream.read_eof() == None
+
+
+def test_read_eof_in_unfinished_file():
+    stream = Stream('abc')
+    stream.read_string('ab')
+    with pytest.raises(ParsingError):
+        stream.read_eof()
 
 
 # PARSER TESTS ========================================
