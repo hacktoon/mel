@@ -1,4 +1,12 @@
-from mel.parsing import Grammar, ZeroMany, Str, Seq, OneMany, Rule, Regex
+from mel.parsing import Grammar
+from mel.parsing.symbol import (
+    ZeroMany,
+    Str,
+    Seq,
+    OneMany,
+    Rule,
+    Regex
+)
 
 
 def test_base_string_repetition():
