@@ -96,7 +96,7 @@ class OneOf(Symbol):
         raise ParsingError
 
 
-# OPTIONAL SYMBOL ==========================================
+# OPTIONAL SYMBOL ======================================
 
 class Opt(Symbol):
     def __init__(self, symbol):
@@ -133,7 +133,7 @@ class Rule(Symbol):
         return f'{classname}("{self.id}")'
 
 
-# STRING SYMBOL ==========================================
+# STRING SYMBOL ========================================
 
 class Str(Symbol):
     def __init__(self, string):
@@ -149,7 +149,7 @@ class Str(Symbol):
         return f'{classname}("{self.string}")'
 
 
-# REGEX SYMBOL ==========================================
+# REGEX SYMBOL =========================================
 
 class Regex(Str):
     def parse(self, context):
@@ -177,11 +177,11 @@ class Root(Symbol):
         node = RootNode()
         node.add(symbol.parse(context))
         self.skip_parse(context)
-        context.stream.read_eof()
+        context.stream.close()
         return node
 
 
-# GRAMMAR ==========================================
+# GRAMMAR ==============================================
 
 class Context:
     def __init__(self, **kw):

@@ -34,6 +34,6 @@ class Stream:
         self.index += len(string)
         return string, index
 
-    def read_eof(self):
+    def close(self):
         if self.index < len(self.text):
             raise ParsingError('Unexpected EOF')

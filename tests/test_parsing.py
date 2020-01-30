@@ -25,11 +25,10 @@ def test_invalid_pattern():
 
 
 def test_valid_symbols():
-    stream = Stream('[]{}')
-    assert stream.read_string('[')
-    assert stream.read_string(']')
-    assert stream.read_string('{')
-    assert stream.read_string('}')
+    string = '[]{}'
+    stream = Stream(string)
+    for s in string:
+        assert stream.read_string(s)
 
 
 def test_save_restore():
@@ -48,17 +47,17 @@ def test_read_pattern_advances_index():
     assert stream.index == len(stream.text)
 
 
-def test_read_eof():
+def test_closing_stream():
     stream = Stream('a')
     stream.read_string('a')
-    assert stream.read_eof() is None
+    assert stream.close() is None
 
 
-def test_read_eof_in_unfinished_file():
+def test_closing_unfinished_file():
     stream = Stream('abc')
     stream.read_string('ab')
     with pytest.raises(ParsingError):
-        stream.read_eof()
+        stream.close()
 
 
 # PARSER TESTS ========================================
