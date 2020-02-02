@@ -19,7 +19,7 @@ class Symbol:
     def skip_parse(self, context):
         symbols = context.skip_symbols.values()
 
-        def finished_skipping():
+        def all_skipped():
             total = 0
             for sym in symbols:
                 if sym.parse(context):
@@ -27,7 +27,7 @@ class Symbol:
             return total == 0
 
         while True:
-            if finished_skipping():
+            if all_skipped():
                 break
 
     def __repr__(self):
@@ -150,10 +150,13 @@ class Regex(Str):
         return PatternNode(text, index)
 
 
-class Skip(Str):
+class Skip(Symbol):
+    def __init__(self, symbol):
+        self.symbol = symbol
+
     def parse(self, context):
         try:
-            context.stream.read_pattern(self.string)
+            self.symbol.parse(context, skip=False)
         except ParsingError:
             return
 

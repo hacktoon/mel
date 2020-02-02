@@ -17,8 +17,8 @@ class Grammar:
     def rule(self, id, symbol):
         self.symbols[id] = symbol
 
-    def skip(self, id, Symbol):
-        self.skip_symbols[id] = Skip(Symbol)
+    def skip(self, id, symbol):
+        self.skip_symbols[id] = Skip(symbol)
 
     def parse(self, text):
         context = Context(
