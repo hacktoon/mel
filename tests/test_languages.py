@@ -28,8 +28,9 @@ def test_opt():
     assert node
 
 
-def test_base_rule():
+def test_complete_grammar():
     g = Grammar()
+
     g.rule('root', ZeroMany(Rule('rule')))
     g.rule('rule', Rule('name'), Str('='), Rule('alternative'))
     g.rule('alternative', Rule('sequence'), ZeroMany(
