@@ -14,8 +14,8 @@ class Grammar:
         self.symbols = {}
         self.skip_symbols = {}
 
-    def rule(self, id, symbol):
-        self.symbols[id] = symbol
+    def rule(self, id, *symbols):
+        self.symbols[id] = symbols
 
     def skip(self, id, symbol):
         self.skip_symbols[id] = Skip(symbol)

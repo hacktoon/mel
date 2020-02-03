@@ -34,20 +34,6 @@ class Symbol:
         return self.__class__.__name__
 
 
-class ZeroMany(Symbol):
-    def __init__(self, symbol):
-        self.symbol = symbol
-
-    def parse(self, context):
-        node = ZeroManyNode()
-        while True:
-            try:
-                node.add(self.symbol.parse(context))
-            except ParsingError:
-                break
-        return node
-
-
 class Seq(Symbol):
     def __init__(self, *symbols):
         self.symbols = symbols
@@ -64,16 +50,32 @@ class Seq(Symbol):
         return node
 
 
-class OneMany(Symbol):
-    def __init__(self, symbol):
-        self.symbol = symbol
+class ZeroMany(Symbol):
+    def __init__(self, *symbols):
+        self.symbols = symbols
 
     def parse(self, context):
-        node = OneManyNode()
-        node.add(self.symbol.parse(context))
+        parser = Seq(*self.symbols)
+        node = ZeroManyNode()
         while True:
             try:
-                node.add(self.symbol.parse(context))
+                node.add(*parser.parse(context).children)
+            except ParsingError:
+                break
+        return node
+
+
+class OneMany(Symbol):
+    def __init__(self, *symbols):
+        self.symbols = symbols
+
+    def parse(self, context):
+        parser = Seq(*self.symbols)
+        node = OneManyNode()
+        node.add(*parser.parse(context).children)
+        while True:
+            try:
+                node.add(*parser.parse(context).children)
             except ParsingError:
                 break
         return node
@@ -95,13 +97,14 @@ class OneOf(Symbol):
 
 
 class Opt(Symbol):
-    def __init__(self, symbol):
-        self.symbol = symbol
+    def __init__(self, *symbols):
+        self.symbols = symbols
 
     def parse(self, context):
+        parser = Seq(*self.symbols)
         node = OptionalNode()
         try:
-            node.add(self.symbol.parse(context))
+            node.add(*parser.parse(context).children)
         except ParsingError:
             pass
         return node
@@ -112,11 +115,12 @@ class Rule(Symbol):
         self.id = id
 
     def parse(self, context):
-        symbol = context.symbols[self.id]
+        symbols = context.symbols[self.id]
         node = RuleNode(self.id)
         index = context.stream.save()
+        parser = Seq(*symbols)
         try:
-            node.add(symbol.parse(context))
+            node.add(*parser.parse(context).children)
         except ParsingError as error:
             context.stream.restore(index)
             raise error
@@ -162,11 +166,14 @@ class Skip(Symbol):
 
 
 class Root(Symbol):
+    def get_root(self, context):
+        return next(iter(context.symbols.values()))
+
     def parse(self, context):
-        symbols = iter(context.symbols.values())
-        symbol = next(symbols)
+        symbols = self.get_root(context)
+        parser = Seq(*symbols)
         node = RootNode()
-        node.add(symbol.parse(context))
+        node.add(*parser.parse(context).children)
         self.skip_parse(context)
         context.stream.close()
         return node
