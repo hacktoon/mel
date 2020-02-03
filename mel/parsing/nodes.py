@@ -53,8 +53,9 @@ class Node(BaseNode):
         last = self.children[-1].index
         return (first[0], last[1])
 
-    def add(self, child):
-        self.children.append(child)
+    def add(self, *children):
+        for child in children:
+            self.children.append(child)
 
 
 class RuleNode(Node):
