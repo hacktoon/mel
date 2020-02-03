@@ -47,51 +47,17 @@ class Symbol:
         return self.__class__.__name__
 
 
-class ZeroMany(Symbol):
+class Root(Symbol):
+    def get_root(self, context):
+        return next(iter(context.symbols.values()))
+
     def parse(self, context):
-        node = ZeroManyNode()
-        while True:
-            try:
-                children = self.list_parse(self.symbols, context)
-                node.add(children)
-            except ParsingError:
-                break
-        return node
-
-
-class OneMany(Symbol):
-    def parse(self, context):
-        node = OneManyNode()
-        node.add(self.list_parse(self.symbols, context))
-        while True:
-            try:
-                children = self.list_parse(self.symbols, context)
-                node.add(children)
-            except ParsingError:
-                break
-        return node
-
-
-class OneOf(Symbol):
-    def parse(self, context):
-        node = OneOfNode()
-        for symbol in self.symbols:
-            try:
-                node.add(symbol.parse(context))
-                return node
-            except ParsingError:
-                pass
-        raise ParsingError
-
-
-class Opt(Symbol):
-    def parse(self, context):
-        node = OptionalNode()
-        try:
-            children = self.list_parse(self.symbols, context)
-            node.add(children)
-        except ParsingError:
-            pass
+        symbols = self.get_root(context)
+        node = RootNode()
+        children = self.list_parse(symbols, context)
+        node.add(*children)
+        self.skip_parse(context)
+        context.stream.close()
         return node
 
 
@@ -105,7 +71,7 @@ class Rule(Symbol):
         index = context.stream.save()
         try:
             children = self.list_parse(symbols, context)
-            node.add(children)
+            node.add(*children)
         except ParsingError as error:
             context.stream.restore(index)
             raise error
@@ -114,6 +80,54 @@ class Rule(Symbol):
     def __repr__(self):
         classname = self.__class__.__name__
         return f'{classname}("{self.id}")'
+
+
+class ZeroMany(Symbol):
+    def parse(self, context):
+        node = ZeroManyNode()
+        while True:
+            try:
+                children = self.list_parse(self.symbols, context)
+                node.add(*children)
+            except ParsingError:
+                break
+        return node
+
+
+class OneMany(Symbol):
+    def parse(self, context):
+        node = OneManyNode()
+        node.add(*self.list_parse(self.symbols, context))
+        while True:
+            try:
+                children = self.list_parse(self.symbols, context)
+                node.add(*children)
+            except ParsingError:
+                break
+        return node
+
+
+class Opt(Symbol):
+    def parse(self, context):
+        node = OptionalNode()
+        try:
+            children = self.list_parse(self.symbols, context)
+            node.add(*children)
+        except ParsingError:
+            pass
+        return node
+
+
+class OneOf(Symbol):
+    def parse(self, context):
+        node = OneOfNode()
+        for symbol in self.symbols:
+            try:
+                node.add(*symbol.parse(context))
+                return node
+            except ParsingError:
+                pass
+        raise ParsingError
 
 
 class Str(Symbol):
@@ -148,17 +162,3 @@ class Skip(Symbol):
             self.symbol.parse(context, skip=False)
         except ParsingError:
             return
-
-
-class Root(Symbol):
-    def get_root(self, context):
-        return next(iter(context.symbols.values()))
-
-    def parse(self, context):
-        symbols = self.get_root(context)
-        node = RootNode()
-        children = self.list_parse(symbols, context)
-        node.add(children)
-        self.skip_parse(context)
-        context.stream.close()
-        return node

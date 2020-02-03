@@ -43,4 +43,5 @@ def test_base_rule():
     g.skip('comment', Regex(r'--[^\n\r]*'))
 
     node = g.parse('person = john')
+
     assert node
