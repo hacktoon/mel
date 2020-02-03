@@ -85,9 +85,5 @@ class OptionalNode(Node):
     pass
 
 
-class SequenceNode(Node):
-    pass
-
-
 class OneOfNode(Node):
     pass

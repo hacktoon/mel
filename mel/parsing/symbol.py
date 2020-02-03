@@ -7,14 +7,27 @@ from .nodes import (
     ZeroManyNode,
     OneManyNode,
     OneOfNode,
-    SequenceNode,
     OptionalNode,
 )
 
 
 class Symbol:
+    def __init__(self, *symbols):
+        self.symbols = symbols
+
     def parse(self, _):
         raise NotImplementedError
+
+    def list_parse(self, symbols, context):
+        nodes = []
+        index = context.stream.save()
+        try:
+            for symbol in symbols:
+                nodes.append(symbol.parse(context))
+        except ParsingError as error:
+            context.stream.restore(index)
+            raise error
+        return nodes
 
     def skip_parse(self, context):
         symbols = context.skip_symbols.values()
@@ -34,57 +47,32 @@ class Symbol:
         return self.__class__.__name__
 
 
-class Seq(Symbol):
-    def __init__(self, *symbols):
-        self.symbols = symbols
-
-    def parse(self, context):
-        node = SequenceNode()
-        index = context.stream.save()
-        try:
-            for symbol in self.symbols:
-                node.add(symbol.parse(context))
-        except ParsingError as error:
-            context.stream.restore(index)
-            raise error
-        return node
-
-
 class ZeroMany(Symbol):
-    def __init__(self, *symbols):
-        self.symbols = symbols
-
     def parse(self, context):
-        parser = Seq(*self.symbols)
         node = ZeroManyNode()
         while True:
             try:
-                node.add(*parser.parse(context).children)
+                children = self.list_parse(self.symbols, context)
+                node.add(children)
             except ParsingError:
                 break
         return node
 
 
 class OneMany(Symbol):
-    def __init__(self, *symbols):
-        self.symbols = symbols
-
     def parse(self, context):
-        parser = Seq(*self.symbols)
         node = OneManyNode()
-        node.add(*parser.parse(context).children)
+        node.add(self.list_parse(self.symbols, context))
         while True:
             try:
-                node.add(*parser.parse(context).children)
+                children = self.list_parse(self.symbols, context)
+                node.add(children)
             except ParsingError:
                 break
         return node
 
 
 class OneOf(Symbol):
-    def __init__(self, *symbols):
-        self.symbols = symbols
-
     def parse(self, context):
         node = OneOfNode()
         for symbol in self.symbols:
@@ -97,14 +85,11 @@ class OneOf(Symbol):
 
 
 class Opt(Symbol):
-    def __init__(self, *symbols):
-        self.symbols = symbols
-
     def parse(self, context):
-        parser = Seq(*self.symbols)
         node = OptionalNode()
         try:
-            node.add(*parser.parse(context).children)
+            children = self.list_parse(self.symbols, context)
+            node.add(children)
         except ParsingError:
             pass
         return node
@@ -118,9 +103,9 @@ class Rule(Symbol):
         symbols = context.symbols[self.id]
         node = RuleNode(self.id)
         index = context.stream.save()
-        parser = Seq(*symbols)
         try:
-            node.add(*parser.parse(context).children)
+            children = self.list_parse(symbols, context)
+            node.add(children)
         except ParsingError as error:
             context.stream.restore(index)
             raise error
@@ -171,9 +156,9 @@ class Root(Symbol):
 
     def parse(self, context):
         symbols = self.get_root(context)
-        parser = Seq(*symbols)
         node = RootNode()
-        node.add(*parser.parse(context).children)
+        children = self.list_parse(symbols, context)
+        node.add(children)
         self.skip_parse(context)
         context.stream.close()
         return node

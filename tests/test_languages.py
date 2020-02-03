@@ -19,8 +19,10 @@ def test_base_string_repetition():
 
 def test_opt():
     g = Grammar()
-    g.rule('root', Opt(Str('a')))
-    node = g.parse('a')
+    g.rule('root', Opt(Str('a'), Regex(r'[a-z]')))
+    node = g.parse('ag')
+    assert node
+    node = g.parse('aa')
     assert node
     node = g.parse('')
     assert node
