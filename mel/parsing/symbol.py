@@ -32,9 +32,8 @@ class Symbol:
     def skip_parse(self, context):
         skip_symbols = context.skip_symbols.values()
 
-        def all_skipped():
-            total = len([1 for s in skip_symbols if skip(context, s)])
-            return total == 0
+        def skipped():
+            return len([s for s in skip_symbols if skip(context, s)])
 
         def skip(context, symbols):
             try:
@@ -44,9 +43,8 @@ class Symbol:
                 return False
             return True
 
-        while True:
-            if all_skipped():
-                break
+        while skipped():
+            pass
 
     def __repr__(self):
         children = ', '.join([repr(s) for s in self.symbols])
