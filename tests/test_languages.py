@@ -11,7 +11,7 @@ from mel.parsing.symbol import (
 
 def test_base_string_repetition():
     g = Grammar()
-    g.rule('root', ZeroMany(Str('a')))
+    g.start('root', ZeroMany(Str('a')))
     g.skip('space', Regex(r'[ \t]+'))
     node = g.parse('  \ta ')
     assert node
@@ -19,7 +19,7 @@ def test_base_string_repetition():
 
 def test_skip_parse_multi_symbols():
     g = Grammar()
-    g.rule('root', ZeroMany(Str('a')))
+    g.start('root', ZeroMany(Str('a')))
     g.skip('space', Regex(r'[ \t]+'), Str(';'))
     node = g.parse('  \t;a  ;a    ;')
     assert node
@@ -27,7 +27,7 @@ def test_skip_parse_multi_symbols():
 
 def test_opt():
     g = Grammar()
-    g.rule('root', Opt(Str('a'), Regex(r'[a-z]')))
+    g.start('root', Opt(Str('a'), Regex(r'[a-z]')))
     node = g.parse('ag')
     assert node
     node = g.parse('aa')
@@ -39,7 +39,7 @@ def test_opt():
 def test_complete_grammar():
     g = Grammar()
 
-    g.rule('root', ZeroMany(Rule('rule')))
+    g.start('root', ZeroMany(Rule('rule')))
     g.rule('rule', Rule('name'), Str('='), Rule('alternative'))
     g.rule('alternative', Rule('sequence'), ZeroMany(
         Str('|'),

@@ -8,13 +8,14 @@ class Grammar:
     def __init__(self):
         self.rules = {}
         self.skip_rules = {}
-
-    @property
-    def start_rule(self):
-        return next(iter(self.rules.values()))
+        self.start_rule = StartRule('', [])
 
     def rule(self, name, *symbols):
         self.rules[name] = Rule(name, symbols)
+
+    def start(self, name, *symbols):
+        self.start_rule = StartRule(name, symbols)
+        self.rule(name, *symbols)
 
     def skip(self, name, *symbols):
         self.skip_rules[name] = SkipRule(name, symbols)
@@ -38,8 +39,12 @@ class Rule:
         self.symbols = symbols
 
     def __repr__(self):
-        expression = ' '.join([repr(s) for s in self.symbols])
+        expression = ' '.join(repr(s) for s in self.symbols)
         return f'{self.name} = {expression}'
+
+
+class StartRule(Rule):
+    pass
 
 
 class SkipRule(Rule):
