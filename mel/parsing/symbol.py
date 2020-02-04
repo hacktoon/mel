@@ -30,14 +30,14 @@ class Symbol:
         return nodes
 
     def skip_parse(self, context):
-        skip_symbols = context.skip_symbols.values()
+        skip_rules = context.skip_rules.values()
 
         def skipped():
-            return len([s for s in skip_symbols if skip(context, s)])
+            return len([r for r in skip_rules if skip(context, r)])
 
-        def skip(context, symbols):
+        def skip(context, rule):
             try:
-                for symbol in symbols:
+                for symbol in rule.symbols:
                     symbol.parse(context, skip=False)  # TODO: remove skip
             except ParsingError:
                 return False
@@ -54,7 +54,8 @@ class Symbol:
 class Root(Symbol):
     def parse(self, context):
         node = RootNode()
-        children = self.list_parse(context.start_symbols, context)
+        symbols = context.start_rule.symbols
+        children = self.list_parse(symbols, context)
         node.add(*children)
         self.skip_parse(context)
         context.stream.close()
@@ -66,7 +67,7 @@ class Rule(Symbol):
         self.id = id
 
     def parse(self, context):
-        symbols = context.symbols[self.id]
+        symbols = context.rules[self.id].symbols
         node = RuleNode(self.id)
         index = context.stream.save()
         try:

@@ -4,41 +4,51 @@ from .symbol import Root
 
 # GRAMMAR ==============================================
 
-class Context:
-    def __init__(self, **kw):
-        self.__dict__.update(kw)
-
-
 class Grammar:
     def __init__(self):
-        self.symbols = {}
-        self.skip_symbols = {}
+        self.rules = {}
+        self.skip_rules = {}
 
     @property
-    def start_symbols(self):
-        return next(iter(self.symbols.values()))
+    def start_rule(self):
+        return next(iter(self.rules.values()))
 
     def rule(self, name, *symbols):
-        self.symbols[name] = symbols
+        self.rules[name] = Rule(name, symbols)
 
     def skip(self, name, *symbols):
-        self.skip_symbols[name] = symbols
+        self.skip_rules[name] = SkipRule(name, symbols)
 
     def parse(self, text):
         return Root().parse(Context(
-            start_symbols=self.start_symbols,
-            skip_symbols=self.skip_symbols,
-            symbols=self.symbols,
+            start_rule=self.start_rule,
+            skip_rules=self.skip_rules,
+            rules=self.rules,
             stream=Stream(text)
         ))
 
     def __repr__(self):
-        rules = []
+        lines = []
 
-        def repr_symbols(symbols):
-            for name, symbols in symbols.items():
-                expression = ' '.join([repr(s) for s in symbols])
-                rules.append(f'{name} = {expression}')
-        repr_symbols(self.symbols)
-        repr_symbols(self.skip_symbols)
-        return '\n'.join(rules)
+        def repr_rules(rules):
+            for name, rules in rules.items():
+                expression = ' '.join([repr(s) for s in rules])
+                lines.append(f'{name} = {expression}')
+        repr_rules(self.rules)
+        repr_rules(self.skip_rules)
+        return '\n'.join(lines)
+
+
+class Rule:
+    def __init__(self, name, symbols):
+        self.name = name
+        self.symbols = symbols
+
+
+class SkipRule(Rule):
+    pass
+
+
+class Context:
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
