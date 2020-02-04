@@ -8,17 +8,17 @@ class Grammar:
     def __init__(self):
         self.rules = {}
         self.skip_rules = {}
-        self.start_rule = StartRule('', [])
+        self.start_rule = StartRule([])
 
     def rule(self, name, *symbols):
-        self.rules[name] = Rule(name, symbols)
+        self.rules[name] = Rule(symbols)
 
     def start(self, name, *symbols):
-        self.start_rule = StartRule(name, symbols)
+        self.start_rule = StartRule(symbols)
         self.rule(name, *symbols)
 
     def skip(self, name, *symbols):
-        self.skip_rules[name] = SkipRule(name, symbols)
+        self.skip_rules[name] = SkipRule(symbols)
 
     def parse(self, text):
         return Root().parse(Context(
@@ -34,8 +34,7 @@ class Grammar:
 
 
 class Rule:
-    def __init__(self, name, symbols):
-        self.name = name
+    def __init__(self, symbols):
         self.symbols = symbols
 
     def __repr__(self):
