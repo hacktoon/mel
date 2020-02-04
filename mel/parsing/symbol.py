@@ -33,11 +33,14 @@ class Symbol:
         symbols = context.skip_symbols.values()
 
         def all_skipped():
-            total = 0
-            for sym in symbols:
-                if sym.parse(context):
-                    total += 1
+            total = len([True for s in symbols if parse(s, context)])
             return total == 0
+
+        def parse(symbol, context):
+            try:
+                symbol.parse(context, skip=False)
+            except ParsingError:
+                return
 
         while True:
             if all_skipped():
@@ -148,14 +151,3 @@ class Regex(Str):
             self.skip_parse(context)
         text, index = context.stream.read_pattern(self.string)
         return PatternNode(text, index)
-
-
-class Skip(Symbol):
-    def __init__(self, symbol):
-        self.symbol = symbol
-
-    def parse(self, context):
-        try:
-            self.symbol.parse(context, skip=False)
-        except ParsingError:
-            return

@@ -1,5 +1,5 @@
 from .stream import Stream
-from .symbol import Root, Skip
+from .symbol import Root
 
 
 # GRAMMAR ==============================================
@@ -22,7 +22,7 @@ class Grammar:
         self.symbols[id] = symbols
 
     def skip(self, id, symbol):
-        self.skip_symbols[id] = Skip(symbol)
+        self.skip_symbols[id] = symbol
 
     def parse(self, text):
         context = Context(
