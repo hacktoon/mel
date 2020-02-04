@@ -17,6 +17,14 @@ def test_base_string_repetition():
     assert node
 
 
+def test_skip_parse_multi_symbols():
+    g = Grammar()
+    g.rule('root', ZeroMany(Str('a')))
+    g.skip('space', Regex(r'[ \t]+'), Str(';'))
+    node = g.parse('  \t;a  ;a    ;')
+    assert node
+
+
 def test_opt():
     g = Grammar()
     g.rule('root', Opt(Str('a'), Regex(r'[a-z]')))

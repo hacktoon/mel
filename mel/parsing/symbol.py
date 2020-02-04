@@ -30,17 +30,19 @@ class Symbol:
         return nodes
 
     def skip_parse(self, context):
-        symbols = context.skip_symbols.values()
+        skip_symbols = context.skip_symbols.values()
 
         def all_skipped():
-            total = len([True for s in symbols if parse(s, context)])
+            total = len([1 for s in skip_symbols if skip(context, s)])
             return total == 0
 
-        def parse(symbol, context):
+        def skip(context, symbols):
             try:
-                symbol.parse(context, skip=False)
+                for symbol in symbols:
+                    symbol.parse(context, skip=False)  # TODO: remove skip
             except ParsingError:
-                return
+                return False
+            return True
 
         while True:
             if all_skipped():

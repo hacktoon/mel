@@ -18,20 +18,19 @@ class Grammar:
     def start_symbols(self):
         return next(iter(self.symbols.values()))
 
-    def rule(self, id, *symbols):
-        self.symbols[id] = symbols
+    def rule(self, name, *symbols):
+        self.symbols[name] = symbols
 
-    def skip(self, id, symbol):
-        self.skip_symbols[id] = symbol
+    def skip(self, name, *symbols):
+        self.skip_symbols[name] = symbols
 
     def parse(self, text):
-        context = Context(
+        return Root().parse(Context(
             start_symbols=self.start_symbols,
             skip_symbols=self.skip_symbols,
             symbols=self.symbols,
             stream=Stream(text)
-        )
-        return Root().parse(context)
+        ))
 
     def __repr__(self):
         rules = []
@@ -41,5 +40,5 @@ class Grammar:
                 expression = ' '.join([repr(s) for s in symbols])
                 rules.append(f'{name} = {expression}')
         repr_symbols(self.symbols)
-        # repr_symbols(self.skip_symbols)
+        repr_symbols(self.skip_symbols)
         return '\n'.join(rules)
