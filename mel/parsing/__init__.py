@@ -28,21 +28,18 @@ class Grammar:
         ))
 
     def __repr__(self):
-        lines = []
-
-        def repr_rules(rules):
-            for name, rules in rules.items():
-                expression = ' '.join([repr(s) for s in rules])
-                lines.append(f'{name} = {expression}')
-        repr_rules(self.rules)
-        repr_rules(self.skip_rules)
-        return '\n'.join(lines)
+        rules = {**self.rules, **self.skip_rules}
+        return '\n'.join(repr(rule) for rule in rules.values())
 
 
 class Rule:
     def __init__(self, name, symbols):
         self.name = name
         self.symbols = symbols
+
+    def __repr__(self):
+        expression = ' '.join([repr(s) for s in self.symbols])
+        return f'{self.name} = {expression}'
 
 
 class SkipRule(Rule):
