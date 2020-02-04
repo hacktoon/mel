@@ -44,17 +44,14 @@ class Symbol:
                 break
 
     def __repr__(self):
-        return self.__class__.__name__
+        children = ', '.join([repr(s) for s in self.symbols])
+        return f"{self.__class__.__name__}({children})"
 
 
 class Root(Symbol):
-    def get_root(self, context):
-        return next(iter(context.symbols.values()))
-
     def parse(self, context):
-        symbols = self.get_root(context)
         node = RootNode()
-        children = self.list_parse(symbols, context)
+        children = self.list_parse(context.start_symbols, context)
         node.add(*children)
         self.skip_parse(context)
         context.stream.close()
