@@ -51,7 +51,7 @@ class Symbol:
         return f"{self.__class__.__name__}({children})"
 
 
-class Root(Symbol):
+class Start(Symbol):
     def parse(self, context):
         node = RootNode()
         symbols = context.start_rule.symbols
@@ -62,7 +62,7 @@ class Root(Symbol):
         return node
 
 
-class Rule(Symbol):
+class Sym(Symbol):
     def __init__(self, id):
         self.id = id
 

@@ -3,7 +3,7 @@ from mel.parsing.symbol import (
     ZeroMany,
     Str,
     OneMany,
-    Rule,
+    Sym,
     Opt,
     Regex
 )
@@ -39,13 +39,14 @@ def test_opt():
 def test_complete_grammar():
     g = Grammar()
 
-    g.start('root', ZeroMany(Rule('rule')))
-    g.rule('rule', Rule('name'), Str('='), Rule('alternative'))
-    g.rule('alternative', Rule('sequence'), ZeroMany(
+    g.start('root', ZeroMany(Sym('rule')))
+
+    g.rule('rule', Sym('name'), Str('='), Sym('alternative'))
+    g.rule('alternative', Sym('sequence'), ZeroMany(
         Str('|'),
-        Rule('sequence')
+        Sym('sequence')
     ))
-    g.rule('sequence', OneMany(Rule('name')))
+    g.rule('sequence', OneMany(Sym('name')))
     g.rule('name', Regex(r'[a-z]+'))
 
     g.skip('space', Regex(r'[ \t]+'))
