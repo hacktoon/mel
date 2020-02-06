@@ -43,21 +43,18 @@ class TokenMap:
         tokens = []
         stream = Stream(text)
         while not stream.eof:
-            (skip, name, pattern, _) = self.get(char=stream.head[0])
+            (skip, name, pattern, _) = self.get_by_hint(stream.head[0])
             match_text, index = stream.read_pattern(pattern)
             if skip:
                 tokens.append(Token(name, match_text))
-        return tokens
+        return TokenStream(tokens)
 
-    def get(self, char):
-        index = self._get(char)
-        return self.spec[index]
-
-    def _get(self, char):
+    def get_by_hint(self, char):
         try:
-            return self.map[char]
+            index = self.map[char]
         except KeyError:
             raise GrammarError(f'Unrecognized character: "{char}"')
+        return self.spec[index]
 
 
 class Token:
@@ -67,6 +64,23 @@ class Token:
 
     def __repr__(self):
         return f'Token({self.name}, "{self.text}")'
+
+
+class TokenStream:
+    def __init__(self, tokens):
+        self.tokens = tokens
+        self.index = 0
+
+    def get(self):
+        token = self.tokens[self.index]
+        self.index += 1
+        return token
+
+    def __getitem__(self, index):
+        return self.tokens[index]
+
+    def __len__(self):
+        return len(self.tokens)
 
 
 def parse(text):
