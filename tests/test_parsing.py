@@ -1,38 +1,38 @@
 import pytest
 
-from mel.parsing import Stream
+from mel.parsing import TextStream
 from mel.exceptions import ParsingError
 
 
 # STREAM TESTS ========================================
 
 def test_valid_pattern_texts():
-    stream = Stream('abc 24')
+    stream = TextStream('abc 24')
     text, _ = stream.read_pattern(r'[a-z]+')
     assert text == 'abc'
 
 
 def test_valid_pattern_index():
-    stream = Stream('foo')
+    stream = TextStream('foo')
     _, index = stream.read_pattern(r'[a-z]+')
     assert index == (0, 3)
 
 
 def test_invalid_pattern():
-    stream = Stream('54')
+    stream = TextStream('54')
     with pytest.raises(ParsingError):
         stream.read_pattern(r'4')
 
 
 def test_valid_symbols():
     string = '[]{}'
-    stream = Stream(string)
+    stream = TextStream(string)
     for s in string:
         assert stream.read_string(s)
 
 
 def test_save_restore():
-    stream = Stream('    ')
+    stream = TextStream('    ')
     index = stream.save()
     try:
         stream.read_pattern(r'foo')
@@ -42,19 +42,19 @@ def test_save_restore():
 
 
 def test_read_pattern_advances_index():
-    stream = Stream('    \n         ')
+    stream = TextStream('    \n         ')
     stream.read_pattern(r'\s+')
     assert stream.index == len(stream.text)
 
 
 def test_closing_stream():
-    stream = Stream('a')
+    stream = TextStream('a')
     stream.read_string('a')
     assert stream.close() is None
 
 
 def test_closing_unfinished_file():
-    stream = Stream('abc')
+    stream = TextStream('abc')
     stream.read_string('ab')
     with pytest.raises(ParsingError):
         stream.close()

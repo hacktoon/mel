@@ -3,7 +3,7 @@ import re
 from ..exceptions import ParsingError
 
 
-class Stream:
+class TextStream:
     def __init__(self, text=''):
         self.text = text
         self.index = 0
@@ -17,14 +17,14 @@ class Stream:
         self.index = self._index_cache if _index is None else _index
 
     def read_pattern(self, string):
-        match = re.match(string, self.head)
+        match = re.match(string, self.head_text)
         if not match:
             raise ParsingError(f'Unrecognized pattern "{string}"')
         start, end = [offset + self.index for offset in match.span()]
         return self._read(match.group(0), (start, end))
 
     def read_string(self, string):
-        if not self.head.startswith(string):
+        if not self.head_text.startswith(string):
             raise ParsingError(f'Unrecognized string "{string}"')
         index = self.index, self.index + len(string)
         return self._read(string, index)
@@ -38,8 +38,12 @@ class Stream:
             raise ParsingError('Unexpected EOF')
 
     @property
-    def head(self):
+    def head_text(self):
         return self.text[self.index:]
+
+    @property
+    def head_char(self):
+        return self.head_text[0]
 
     @property
     def eof(self):

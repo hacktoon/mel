@@ -1,4 +1,5 @@
 from mel.parsing.grammar import (
+    HintMap,
     TokenMap,
 )
 
@@ -11,8 +12,8 @@ SAMPLE_SPEC = (
 
 
 def test_token_map_hint_search():
-    token_map = TokenMap(SAMPLE_SPEC)
-    (skip, name, pattern, hints) = token_map.get_by_hint('a')
+    hint_map = HintMap(SAMPLE_SPEC)
+    (skip, name, pattern, hints) = hint_map.get('a')
     assert skip == 1
     assert name == 'name'
     assert hints == 'abc'
