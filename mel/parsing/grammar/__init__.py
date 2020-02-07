@@ -1,7 +1,7 @@
 import string
 
-from ..exceptions import GrammarError
-from .stream import TextStream
+from ...exceptions import GrammarError
+from ..stream import TextStream
 
 
 '''
@@ -46,7 +46,11 @@ def parse_atom(stream):
     stream.read()
 
 
-class HintMap:
+def parse_choice(stream):
+    stream.read()
+
+
+class TokenHintMap:
     '''
     TODO: Currently supports only one token per hint
     '''
@@ -79,7 +83,7 @@ class HintMap:
 
 class TokenMap:
     def __init__(self):
-        self.hint_map = HintMap(TOKEN_SPEC)
+        self.hint_map = TokenHintMap(TOKEN_SPEC)
 
     def tokenize(self, text):
         tokens = []
