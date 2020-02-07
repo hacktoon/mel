@@ -1,6 +1,6 @@
 from mel.parsing.grammar import (
     HintMap,
-    TokenMap,
+    TokenStream,
 )
 
 
@@ -11,25 +11,22 @@ SAMPLE_SPEC = (
 )
 
 
-def test_token_map_hint_search():
+def test_token_hint_map_get():
     hint_map = HintMap(SAMPLE_SPEC)
-    (skip, name, pattern, hints) = hint_map.get('a')
+    (skip, name, _, hints) = hint_map.get('a')
     assert skip == 1
     assert name == 'name'
     assert hints == 'abc'
 
 
 def test_token_props():
-    text = 'aabc 12'
-    token_map = TokenMap(SAMPLE_SPEC)
-    stream = token_map.tokenize(text)
+    stream = TokenStream('aabc =')
     assert stream[0].name == 'name'
     assert stream[0].text == 'aabc'
-    assert stream[1].name == 'number'
-    assert stream[1].text == '12'
+    assert stream[1].name == '='
+    assert stream[1].text == '='
 
 
 def test_lex_skip_space():
-    token_map = TokenMap(SAMPLE_SPEC)
-    stream = token_map.tokenize('ab  2')
+    stream = TokenStream('ab def')
     assert len(stream) == 2

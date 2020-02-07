@@ -21,7 +21,7 @@ TOKEN_SPEC = (
     (0, 'token',     r'[-A-Z]+\b',          string.ascii_uppercase),
     (0, 'name',      r'[-a-z]+\b',          string.ascii_lowercase),
     (0, 'eol',       r'[\r\n;]+',           '\r\n;'),
-    (1, 'space',     r'[ \t]*',             ' \t'),
+    (1, 'space',     r'[ \t]+',             ' \t'),
     (0, 'string',    r"'[^']*'|\"[^\"]*\"", "'\""),
     (1, 'comment',   r'#[^\r\n]*',          '#'),
     (0, 'meta',      r'@',                  '@'),
@@ -35,6 +35,15 @@ TOKEN_SPEC = (
     (0, ']',         r'\]',                 ']'),
     (0, '|',         r'\|',                 '|'),
 )
+
+
+def parse(text):
+    stream = TokenStream(text)
+    return parse_atom(stream)
+
+
+def parse_atom(stream):
+    stream.read()
 
 
 class HintMap:
@@ -69,8 +78,8 @@ class HintMap:
 
 
 class TokenMap:
-    def __init__(self, spec):
-        self.hint_map = HintMap(spec)
+    def __init__(self):
+        self.hint_map = HintMap(TOKEN_SPEC)
 
     def tokenize(self, text):
         tokens = []
@@ -79,34 +88,9 @@ class TokenMap:
             (skip, name, pattern, _) = self.hint_map.get(txt_stream.head_char)
             match_text, index = txt_stream.read_pattern(pattern)
             if skip:
-                tokens.append(Token(name, match_text))
+                continue
+            tokens.append(Token(name, match_text))
         return tokens
-
-
-class TokenStream:
-    def __init__(self, token_map, text):
-        self.token_map = token_map
-        self.tokens = token_map.tokenize(text)
-        self.text = text
-        self.index = 0
-
-    def read(self, name=''):
-        token = self.tokens[self.index]
-        if name and token.name != name:
-            msg = f'Expected token "{name}" but found "{token}"'
-            raise GrammarError(msg)
-        self.index += 1
-        return token
-
-    def peek(self, name=''):
-        token = self.tokens[self.index]
-        return token.name == name
-
-    def __getitem__(self, index):
-        return self.tokens[index]
-
-    def __len__(self):
-        return len(self.tokens)
 
 
 class Token:
@@ -118,11 +102,34 @@ class Token:
         return f'Token({self.name}, "{self.text}")'
 
 
-def parse(text):
-    token_map = TokenMap(TOKEN_SPEC)
-    stream = TokenStream(token_map, text)
-    return parse_atom(stream)
+class TokenStream:
+    def __init__(self, text):
+        self.token_map = TokenMap()
+        self.tokens = self.token_map.tokenize(text)
+        self.text = text
+        self.index = 0
 
+    def read(self, name=''):
+        token = self.read_stream()
+        if name and not self.peek(name):
+            msg = f'Expected token "{name}" but found "{token}"'
+            raise GrammarError(msg)
+        self.index += 1
+        return token
 
-def parse_atom(stream):
-    stream.read()
+    def peek(self, name):
+        token = self.read_stream()
+        return token.name == name
+
+    def read_stream(self):
+        try:
+            token = self.tokens[self.index]
+        except IndexError:
+            return Token('eof', '')
+        return token
+
+    def __getitem__(self, index):
+        return self.tokens[index]
+
+    def __len__(self):
+        return len(self.tokens)
