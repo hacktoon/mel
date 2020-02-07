@@ -30,24 +30,22 @@ class TokenStream:
         self.tokens = self.token_map.tokenize(text)
         self.index = 0
 
-    def read(self, name=''):
-        token = self.read_stream()
-        if name and not self.peek(name):
-            msg = f'Expected token "{name}" but found "{token}"'
-            raise GrammarError(msg)
-        self.index += 1
-        return token
+    def read(self, id=''):
+        token = self.peek()
+        if self.has(id):
+            self.index += 1
+            return token
+        msg = f'Expected token "{id}" but found "{token.id}"'
+        raise GrammarError(msg)
 
-    def peek(self, name):
-        token = self.read_stream()
-        return token.name == name
+    def has(self, id):
+        return self.peek().id == id
 
-    def read_stream(self):
+    def peek(self):
         try:
-            token = self.tokens[self.index]
+            return self.tokens[self.index]
         except IndexError:
-            return Token('eof', '')
-        return token
+            return Token('eof', '\0')
 
     def __getitem__(self, index):
         return self.tokens[index]
@@ -64,11 +62,11 @@ class TokenMap:
         tokens = []
         txt_stream = CharStream(text)
         while not txt_stream.eof:
-            (skip, name, pattern, _) = self.hint_map.get(txt_stream.head_char)
+            (skip, id, pattern, _) = self.hint_map.get(txt_stream.head_char)
             match_text, index = txt_stream.read_pattern(pattern)
             if skip:
                 continue
-            tokens.append(Token(name, match_text))
+            tokens.append(Token(id, match_text))
         return tokens
 
 
@@ -84,14 +82,14 @@ class TokenHintMap:
     def _build(self, spec):
         _map = {}
 
-        def _build_hints(index, name, chars):
+        def _build_hints(index, id, chars):
             for char in chars:
                 if char in _map:
-                    raise GrammarError(f'Hint already defined: "{name}"')
+                    raise GrammarError(f'Hint already defined: "{id}"')
                 _map[char] = index
 
-        for index, (_, name, _, chars) in enumerate(spec):
-            _build_hints(index, name, chars)
+        for index, (_, id, _, chars) in enumerate(spec):
+            _build_hints(index, id, chars)
 
         return _map
 
@@ -104,10 +102,10 @@ class TokenHintMap:
 
 
 class Token:
-    def __init__(self, name, text):
-        self.name = name
+    def __init__(self, id, text):
+        self.id = id
         self.text = text
 
     def __repr__(self):
         cls = self.__class__.__name__
-        return f'{cls}({self.name.upper()}, "{self.text}")'
+        return f'{cls}({self.id.upper()}, "{self.text}")'
