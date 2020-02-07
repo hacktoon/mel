@@ -1,12 +1,12 @@
 # import pytest
 
-# from mel.parsing import Parser, TextStream
+# from mel.parsing import Parser, CharStream
 # from mel.exceptions import ParsingError
 # from mel.exceptions.formatting import ErrorFormatter
 
 
 # def parse(text):
-#     stream = TextStream(text)
+#     stream = CharStream(text)
 #     return Parser(stream).parse()
 
 

@@ -1,4 +1,4 @@
-from .stream import TextStream
+from .stream import CharStream
 from .symbol import Start, Regex
 
 
@@ -29,7 +29,7 @@ class Grammar:
             start_rule=self.start_rule,
             skip_rules=self.skip_rules,
             rules=self.rules,
-            stream=TextStream(text)
+            stream=CharStream(text)
         ))
 
     def __repr__(self):

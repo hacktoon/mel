@@ -1,7 +1,7 @@
 import string
 
 from ...exceptions import GrammarError
-from ..stream import TextStream
+from ..stream import CharStream
 
 
 TOKEN_SPEC = (
@@ -26,7 +26,7 @@ TOKEN_SPEC = (
 
 class TokenHintMap:
     '''
-    TODO: Currently supports only one token per hint
+    FIXME: Currently supports only one token per hint
     '''
 
     def __init__(self, spec):
@@ -61,7 +61,7 @@ class TokenMap:
 
     def tokenize(self, text):
         tokens = []
-        txt_stream = TextStream(text)
+        txt_stream = CharStream(text)
         while not txt_stream.eof:
             (skip, name, pattern, _) = self.hint_map.get(txt_stream.head_char)
             match_text, index = txt_stream.read_pattern(pattern)

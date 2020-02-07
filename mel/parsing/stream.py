@@ -3,7 +3,7 @@ import re
 from ..exceptions import ParsingError
 
 
-class TextStream:
+class CharStream:
     def __init__(self, text=''):
         self.text = text
         self.index = 0
