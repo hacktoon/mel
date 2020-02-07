@@ -24,6 +24,54 @@ TOKEN_SPEC = (
 )
 
 
+class TokenStream:
+    def __init__(self, text):
+        self.token_map = TokenMap(TOKEN_SPEC)
+        self.tokens = self.token_map.tokenize(text)
+        self.index = 0
+
+    def read(self, name=''):
+        token = self.read_stream()
+        if name and not self.peek(name):
+            msg = f'Expected token "{name}" but found "{token}"'
+            raise GrammarError(msg)
+        self.index += 1
+        return token
+
+    def peek(self, name):
+        token = self.read_stream()
+        return token.name == name
+
+    def read_stream(self):
+        try:
+            token = self.tokens[self.index]
+        except IndexError:
+            return Token('eof', '')
+        return token
+
+    def __getitem__(self, index):
+        return self.tokens[index]
+
+    def __len__(self):
+        return len(self.tokens)
+
+
+class TokenMap:
+    def __init__(self, spec):
+        self.hint_map = TokenHintMap(spec)
+
+    def tokenize(self, text):
+        tokens = []
+        txt_stream = CharStream(text)
+        while not txt_stream.eof:
+            (skip, name, pattern, _) = self.hint_map.get(txt_stream.head_char)
+            match_text, index = txt_stream.read_pattern(pattern)
+            if skip:
+                continue
+            tokens.append(Token(name, match_text))
+        return tokens
+
+
 class TokenHintMap:
     '''
     FIXME: Currently supports only one token per hint
@@ -55,59 +103,11 @@ class TokenHintMap:
         return self.spec[index]
 
 
-class TokenMap:
-    def __init__(self):
-        self.hint_map = TokenHintMap(TOKEN_SPEC)
-
-    def tokenize(self, text):
-        tokens = []
-        txt_stream = CharStream(text)
-        while not txt_stream.eof:
-            (skip, name, pattern, _) = self.hint_map.get(txt_stream.head_char)
-            match_text, index = txt_stream.read_pattern(pattern)
-            if skip:
-                continue
-            tokens.append(Token(name, match_text))
-        return tokens
-
-
 class Token:
     def __init__(self, name, text):
         self.name = name
         self.text = text
 
     def __repr__(self):
-        return f'Token({self.name}, "{self.text}")'
-
-
-class TokenStream:
-    def __init__(self, text):
-        self.token_map = TokenMap()
-        self.tokens = self.token_map.tokenize(text)
-        self.text = text
-        self.index = 0
-
-    def read(self, name=''):
-        token = self.read_stream()
-        if name and not self.peek(name):
-            msg = f'Expected token "{name}" but found "{token}"'
-            raise GrammarError(msg)
-        self.index += 1
-        return token
-
-    def peek(self, name):
-        token = self.read_stream()
-        return token.name == name
-
-    def read_stream(self):
-        try:
-            token = self.tokens[self.index]
-        except IndexError:
-            return Token('eof', '')
-        return token
-
-    def __getitem__(self, index):
-        return self.tokens[index]
-
-    def __len__(self):
-        return len(self.tokens)
+        cls = self.__class__.__name__
+        return f'{cls}({self.name.upper()}, "{self.text}")'
