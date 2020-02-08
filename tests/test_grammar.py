@@ -3,10 +3,6 @@ from mel.parsing.grammar.tokens import (
     TokenStream,
 )
 
-from mel.parsing.grammar import (
-    parse_modifier
-)
-
 
 SAMPLE_SPEC = (
     (1, 'name', r'[abc]+', 'abc'),
@@ -38,7 +34,7 @@ def test_lex_skip_space():
 
 # PARSING TESTS
 
-def test_parse_modifier():
-    for id in '?+*':
-        stream = TokenStream('?')
-        assert parse_modifier(stream)
+# def test_parse_modifier():
+#     for id in '?+*':
+#         stream = TokenStream('?')
+#         assert parse_modifier(stream)

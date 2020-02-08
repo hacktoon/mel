@@ -5,28 +5,46 @@ from .tokens import TokenStream
 '''
 Grammar's grammar:
 ---
-@start      = rules*
-rule        = '@'? name = alternative eol
-alternative = sequence ('|' sequence)*
-sequence    = atom+
-atom        = ( name | token | group | string ) modifier?
+/grammar    = rule*
+rule        = '@'? NAME = alternative eol
+alternative = seq *('|' seq)
+seq         = atom+
+atom        = ( NAME | TOKEN | group | string ) modifier?
 group       = '(' alternative ')'
 modifier    = '*' | '+' | '?'
+NAME        = [a-z]+
+TOKEN       = [A-Z]+
+-SPACE      = '\n'+
 '''
 
 
-def parse(text: str):
-    # grammar = Grammar()
-    stream = TokenStream(text)
-    return parse_atom(stream)
+GRAMMAR_SPEC = (
+    # First line is the start rule
+    # RULE         PARSER    EXPANSION
+    ('grammar',    '*',      '@rule'),
+    ('rule',       'SEQ',    '@rule-type', '@rule-name', '=', '@alt', 'eol'),
+    ('rule-name',  'ALT',    'name', 'token'),
+    ('rule-type',  '?/ALT',  '/', '-'),
+    ('alt',        'SEQ',    '@seq', '@alt-tail'),
+    ('alt-tail',   '*/SEQ',  '|', '@seq'),
+    ('seq',        '+',      '@atom'),
+    ('atom',       'SEQ',    '@atom-head', '@modifier'),
+    ('atom-head',  'ALT',    '@group', 'name', 'token', 'string'),
+    ('group',      'SEQ',    '(', '@alt', ')'),
+    ('modifier',   '?/ALT',  '*', '?', '+'),
+)
 
 
-def parse_atom(stream: TokenStream):
-    stream.read()
+def parse_spec(spec):
+    pass
 
 
-def parse_modifier(stream: TokenStream):
-    return _parse_alternative(stream, '*?+')
+def zero_many(parser):
+    pass
+
+
+def rule(name):
+    pass
 
 
 def _parse_alternative(stream, ids):

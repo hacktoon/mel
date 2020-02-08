@@ -5,32 +5,32 @@ from ..stream import CharStream
 
 
 TOKEN_SPEC = (
-    (0, 'token',     r'[-A-Z]+\b',          string.ascii_uppercase),
-    (0, 'name',      r'[-a-z]+\b',          string.ascii_lowercase),
-    (0, 'eol',       r'[\r\n;]+',           '\r\n;'),
-    (1, 'space',     r'[ \t]+',             ' \t'),
-    (0, 'string',    r"'[^']*'|\"[^\"]*\"", "'\""),
-    (1, 'comment',   r'#[^\r\n]*',          '#'),
-    (0, 'meta',      r'@',                  '@'),
-    (0, '=',         r'=',                  '='),
-    (0, '*',         r'\*',                 '*'),
-    (0, '+',         r'\+',                 '+'),
-    (0, '?',         r'\?',                 '?'),
-    (0, '(',         r'\(',                 '('),
-    (0, ')',         r'\)',                 ')'),
-    (0, '[',         r'\[',                 '['),
-    (0, ']',         r'\]',                 ']'),
-    (0, '|',         r'\|',                 '|'),
+    # ID         SKIP  PATTERN                 HINT
+    ('token',    0,    r'[-A-Z]+\b',           string.ascii_uppercase),
+    ('name',     0,    r'[-a-z]+\b',           string.ascii_lowercase),
+    ('eol',      0,    r'[\r\n;]+',            '\r\n;'),
+    ('space',    1,    r'[ \t]+',              ' \t'),
+    ('string',   0,    r"'[^']*'|\"[^\"]*\"",  "'\""),
+    ('comment',  1,    r'#[^\r\n]*',           '#'),
+    ('meta',     0,    r'@',                   '@'),
+    ('=',        0,    r'=',                   '='),
+    ('*',        0,    r'\*',                  '*'),
+    ('+',        0,    r'\+',                  '+'),
+    ('?',        0,    r'\?',                  '?'),
+    ('(',        0,    r'\(',                  '('),
+    (')',        0,    r'\)',                  ')'),
+    ('[',        0,    r'\[',                  '['),
+    (']',        0,    r'\]',                  ']'),
+    ('|',        0,    r'\|',                  '|'),
 )
 
 
 class TokenStream:
     def __init__(self, text):
-        self.token_map = TokenMap(TOKEN_SPEC)
-        self.tokens = self.token_map.tokenize(text)
+        self.tokens = tokenize(TOKEN_SPEC, text)
         self.index = 0
 
-    def read(self, id=''):
+    def read(self, id):
         token = self.peek()
         if self.has(id):
             self.index += 1
@@ -54,22 +54,6 @@ class TokenStream:
         return len(self.tokens)
 
 
-class TokenMap:
-    def __init__(self, spec):
-        self.hint_map = TokenHintMap(spec)
-
-    def tokenize(self, text):
-        tokens = []
-        txt_stream = CharStream(text)
-        while not txt_stream.eof:
-            (skip, id, pattern, _) = self.hint_map.get(txt_stream.head_char)
-            match_text, index = txt_stream.read_pattern(pattern)
-            if skip:
-                continue
-            tokens.append(Token(id, match_text))
-        return tokens
-
-
 class TokenHintMap:
     '''
     FIXME: Currently supports only one token per hint
@@ -87,10 +71,8 @@ class TokenHintMap:
                 if char in _map:
                     raise GrammarError(f'Hint already defined: "{id}"')
                 _map[char] = index
-
-        for index, (_, id, _, chars) in enumerate(spec):
+        for index, (id, _, _, chars) in enumerate(spec):
             _build_hints(index, id, chars)
-
         return _map
 
     def get(self, hint):
@@ -109,3 +91,16 @@ class Token:
     def __repr__(self):
         cls = self.__class__.__name__
         return f'{cls}({self.id.upper()}, "{self.text}")'
+
+
+def tokenize(spec, text):
+    tokens = []
+    hint_map = TokenHintMap(spec)
+    txt_stream = CharStream(text)
+    while not txt_stream.eof:
+        (id, skip, pattern, _) = hint_map.get(txt_stream.head_char)
+        match_text, index = txt_stream.read_pattern(pattern)
+        if skip:
+            continue
+        tokens.append(Token(id, match_text))
+    return tokens
