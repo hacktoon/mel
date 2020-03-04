@@ -1,24 +1,106 @@
-from ...exceptions import GrammarError
-from .tokens import TokenStream
+'''
+@root = body?
+@space = [SPACE|NEWLINE|,]+
 
+body = expression ( _ expression )*
+name = [a-z][a-z|0-9]+
+concept = [A-Z][a-z|0-9]*
+
+default-path = ':'
+default-doc = '?:'
+default-format = '%:'
+wildcard = '*'
+
+expression = tag | relation | value
+
+tag = '#' name
+
+relation = path _ sign _ value
+sign = equal | diff | lte | lt | gte | gt | in | out
+equal = '='
+diff = '!='
+lt = '<'
+lte = '<='
+gt = '>'
+gte = '>='
+in = '><'
+out = '<>'
+
+path = keyword ( _ ( sub-path | meta-path ) )*
+sub-path = '/' _ keyword
+meta-path = '.' _ keyword
+
+keyword = name | concept | log | alias | cache | format | meta | doc
+log = '!' name
+alias = '@' name
+cache = '$' name
+format = '%' name
+meta = '~' name
+doc = '?' name
+
+value = literal | reference | list | object
+
+reference = head-reference sub-reference*
+head-reference = query | keyword
+sub-reference = _ '/' _ sub-reference-item
+sub-reference-item = range | INT | tag | list | object | query | keyword | *
+
+literal = INT | FLOAT | STRING | BOOLEAN
+
+list = '[' _ list-items? _ ']'
+list-items = value ( _ value )*
+
+range = '..' INT | INT '..' INT?
+
+object = '(' _ key _ body? _ ')'
+key = path | default-path | default-format | default-doc
+
+query = '{' _ target _ body _ '}'
+target = default-path | path
 
 '''
-Grammar's grammar:
----
-/grammar    = rule*
-rule        = '@'? NAME = alternative eol
-alternative = seq *('|' seq)
-seq         = atom+
-atom        = ( NAME | TOKEN | group | string ) modifier?
-group       = '(' alternative ')'
-modifier    = '*' | '+' | '?'
-NAME        = [a-z]+
-TOKEN       = [A-Z]+
--SPACE      = '\n'+
-'''
 
 
-GRAMMAR_SPEC = (
+TOKEN_SPEC = {
+    'space':   r',\s+',
+    'comment': r'--',
+    'concept': r'[A-Z]-?[_A-Z]+',
+    'name':    r'[a-z]_?[_a-z]+',
+    'float':   r'-?[0-9](.[0-9]+)?',
+    'int':     r'-?[0-9]+',
+    ':':       r':',
+    '?:':      r'\?:',
+    '%:':      r'%:',
+    '!':       r'!',
+    '@':       r'@',
+    '#':       r'#',
+    '$':       r'\$',
+    '%':       r'%',
+    '?':       r'\?',
+    '/':       r'/',
+    '..':      r'..',
+    '.':       r'.',
+    "'":       r"'",
+    '"':       r'"',
+    '=':       r'=',
+    '!=':      r'!=',
+    '<>':      r'<>',
+    '><':      r'><',
+    '>=':      r'>=',
+    '<=':      r'<=',
+    '>':       r'>',
+    '<':       r'<',
+    '*':       r'\*',
+    '(':       r'\(',
+    ')':       r'\)',
+    '[':       r'\[',
+    ']':       r'\]',
+    '{':       r'\{',
+    '}':       r'\}',
+}
+
+
+RULES = (
     # First line is the start rule
     # RULE         PARSER    EXPANSION
     ('grammar',    '*',      '@rule'),
@@ -51,6 +133,4 @@ def _parse_alternative(stream, ids):
     for id in ids:
         if stream.has(id):
             return stream.read(id)
-    token = stream.peek()
-    msg = f'Expected one of {ids} but found {token.id}'
-    raise GrammarError(msg)
+    stream.peek()
