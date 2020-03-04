@@ -2,6 +2,23 @@ from .stream import CharStream
 from .symbol import Start, Regex
 
 
+RULES = (
+    # First line is the start rule
+    # RULE         PARSER    EXPANSION
+    ('grammar',    '*',      '@rule'),
+    ('rule',       'SEQ',    '@rule-type', '@rule-name', '=', '@alt', 'eol'),
+    ('rule-name',  'ALT',    'name', 'token'),
+    ('rule-type',  '?/ALT',  '/', '-'),
+    ('alt',        'SEQ',    '@seq', '@alt-tail'),
+    ('alt-tail',   '*/SEQ',  '|', '@seq'),
+    ('seq',        '+',      '@atom'),
+    ('atom',       'SEQ',    '@atom-head', '@modifier'),
+    ('atom-head',  'ALT',    '@group', 'name', 'token', 'string'),
+    ('group',      'SEQ',    '(', '@alt', ')'),
+    ('modifier',   '?/ALT',  '*', '?', '+'),
+)
+
+
 # GRAMMAR ==============================================
 
 class Grammar:

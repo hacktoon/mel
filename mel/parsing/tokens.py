@@ -4,6 +4,45 @@ from ...exceptions import GrammarError
 from ..stream import CharStream
 
 
+TOKEN_SPEC = {
+    'space':   r',\s+',
+    'comment': r'--',
+    'concept': r'[A-Z]-?[_A-Z]+',
+    'name':    r'[a-z]_?[_a-z]+',
+    'float':   r'-?[0-9](.[0-9]+)?',
+    'int':     r'-?[0-9]+',
+    ':':       r':',
+    '?:':      r'\?:',
+    '%:':      r'%:',
+    '!':       r'!',
+    '@':       r'@',
+    '#':       r'#',
+    '$':       r'\$',
+    '%':       r'%',
+    '?':       r'\?',
+    '/':       r'/',
+    '..':      r'..',
+    '.':       r'.',
+    "'":       r"'",
+    '"':       r'"',
+    '=':       r'=',
+    '!=':      r'!=',
+    '<>':      r'<>',
+    '><':      r'><',
+    '>=':      r'>=',
+    '<=':      r'<=',
+    '>':       r'>',
+    '<':       r'<',
+    '*':       r'\*',
+    '(':       r'\(',
+    ')':       r'\)',
+    '[':       r'\[',
+    ']':       r'\]',
+    '{':       r'\{',
+    '}':       r'\}',
+}
+
+
 TOKEN_SPEC = (
     # ID         SKIP  PATTERN                 HINT
     ('token',    0,    r'[-A-Z]+\b',           string.ascii_uppercase),
@@ -26,8 +65,8 @@ TOKEN_SPEC = (
 
 
 class TokenStream:
-    def __init__(self, text):
-        self.tokens = tokenize(TOKEN_SPEC, text)
+    def __init__(self, text, spec=TOKEN_SPEC):
+        self.tokens = tokenize(spec, text)
         self.index = 0
 
     def read(self, id):
@@ -89,8 +128,7 @@ class Token:
         self.text = text
 
     def __repr__(self):
-        cls = self.__class__.__name__
-        return f'{cls}({self.id.upper()}, "{self.text}")'
+        return f'Token({self.id.upper()}, "{self.text}")'
 
 
 def tokenize(spec, text):
