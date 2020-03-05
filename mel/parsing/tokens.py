@@ -1,46 +1,49 @@
 import string
 
-from ...exceptions import GrammarError
+from ...exceptions import LexingError
 from ..stream import CharStream
 
 
 TOKEN_SPEC = (
-    # ID         SKIP  PATTERN                 HINT
-    ('space',    1,    r'[,\s]+',              string.whitespace + ','),
-    ('comment',  1,    r'--[^\r\n]*',          '-'),
-    ('concept',  0,    r'[A-Z][_A-Z]+',        string.ascii_uppercase),
-    ('name',     0,    r'[a-z][_a-z]+',        string.ascii_lowercase),
-    ('float',    0,    r'-?[0-9](.[0-9]+)?',   string.digits + '-'),
-    ('int',      0,    r'-?[0-9]+',            string.digits + '-'),
-    ('string',   0,    r"'[^']*'|\"[^\"]*\"",  "'\""),
-    (':',        0,    r':',                   ':'),
-    ('?:',       0,    r'\?:',                 '?'),
-    ('%:',       0,    r'%:',                  '%'),
-    ('..',       0,    r'\.\.',                '.'),
-    ('.',        0,    r'\.',                  '.'),
-    ('/',        0,    r'/',                   '/'),
-    ('!',        0,    r'!',                   '!'),
-    ('@',        0,    r'@',                   '@'),
-    ('#',        0,    r'#',                   '#'),
-    ('$',        0,    r'\$',                  '$'),
-    ('%',        0,    r'%',                   '%'),
-    ('?',        0,    r'\?',                  '?'),
-    ('*',        0,    r'\*',                  '*'),
-    ('=',        0,    r'=',                   '='),
-    ('!=',       0,    r'!=',                  '!'),
-    ('(',        0,    r'\(',                  '('),
-    (')',        0,    r'\)',                  ')'),
-    ('[',        0,    r'\[',                  '['),
-    (']',        0,    r'\]',                  ']'),
-    ('{',        0,    r'\{',                  '{'),
-    ('}',        0,    r'\}',                  '}'),
-    ('<>',       0,    r'<>',                  '<'),
-    ('><',       0,    r'><',                  '>'),
-    ('<=',       0,    r'<=',                  '<'),
-    ('>=',       0,    r'>=',                  '>'),
-    ('>',        0,    r'>',                   '>'),
-    ('<',        0,    r'<',                   '<'),
+    # Priority is defined by declaration order
+    # ID          PATTERN                HINT
+    ('space',     r'[,\s]+',             string.whitespace + ','),
+    ('comment',   r'--[^\r\n]*',         '-'),
+    ('concept',   r'[A-Z][_A-Z]+',       string.ascii_uppercase),
+    ('name',      r'[a-z][_a-z]+',       string.ascii_lowercase),
+    ('float',     r'-?[0-9](.[0-9]+)?',  string.digits + '-'),
+    ('int',       r'-?[0-9]+',           string.digits + '-'),
+    ('string',    r"'[^']*'",            "'"),
+    ('template',  r'"[^"]*"',            '"'),
+    (':',         r':',                  ':'),
+    ('?:',        r'\?:',                '?'),
+    ('%:',        r'%:',                 '%'),
+    ('..',        r'\.\.',               '.'),
+    ('.',         r'\.',                 '.'),
+    ('/',         r'/',                  '/'),
+    ('=',         r'=',                  '='),
+    ('!=',        r'!=',                 '!'),
+    ('<>',        r'<>',                 '<'),
+    ('><',        r'><',                 '>'),
+    ('<=',        r'<=',                 '<'),
+    ('>=',        r'>=',                 '>'),
+    ('>',         r'>',                  '>'),
+    ('<',         r'<',                  '<'),
+    ('!',         r'!',                  '!'),
+    ('@',         r'@',                  '@'),
+    ('#',         r'#',                  '#'),
+    ('$',         r'\$',                 '$'),
+    ('%',         r'%',                  '%'),
+    ('?',         r'\?',                 '?'),
+    ('*',         r'\*',                 '*'),
+    ('(',         r'\(',                 '('),
+    (')',         r'\)',                 ')'),
+    ('[',         r'\[',                 '['),
+    (']',         r'\]',                 ']'),
+    ('{',         r'\{',                 '{'),
+    ('}',         r'\}',                 '}'),
 )
+SKIP_TOKENS = set('space', 'comment')
 
 
 class TokenStream:
@@ -54,7 +57,7 @@ class TokenStream:
             self.index += 1
             return token
         msg = f'Expected token "{id}" but found "{token.id}"'
-        raise GrammarError(msg)
+        raise LexingError(msg)
 
     def has(self, id):
         return self.peek().id == id
@@ -72,7 +75,7 @@ class TokenStream:
         return len(self.tokens)
 
 
-class TokenHintMap:
+class TokenSpec:
     '''
     FIXME: Currently supports only one token per hint
     '''
@@ -86,8 +89,6 @@ class TokenHintMap:
 
         def _build_hints(index, id, chars):
             for char in chars:
-                if char in _map:
-                    raise GrammarError(f'Hint already defined: "{id}"')
                 _map[char] = index
         for index, (id, _, _, chars) in enumerate(spec):
             _build_hints(index, id, chars)
@@ -97,7 +98,7 @@ class TokenHintMap:
         try:
             index = self.map[hint]
         except KeyError:
-            raise GrammarError(f'Unrecognized hint: "{hint}"')
+            raise LexingError(f'Unrecognized hint: "{hint}"')
         return self.spec[index]
 
 
@@ -112,10 +113,10 @@ class Token:
 
 def tokenize(spec, text):
     tokens = []
-    hint_map = TokenHintMap(spec)
+    token_spec = TokenSpec(spec)
     txt_stream = CharStream(text)
     while not txt_stream.eof:
-        (id, skip, pattern, _) = hint_map.get(txt_stream.head_char)
+        (id, skip, pattern, _) = token_spec.get(txt_stream.head_char)
         match_text, index = txt_stream.read_pattern(pattern)
         if skip:
             continue

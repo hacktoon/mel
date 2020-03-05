@@ -2,7 +2,7 @@ class MelError(Exception):
     pass
 
 
-class GrammarError(Exception):
+class LexingError(Exception):
     pass
 
 
