@@ -1,7 +1,7 @@
 import pytest
 
-from mel.parsing import CharStream
-from mel.exceptions import ParsingError
+from infiniscribe.parsing import CharStream
+from infiniscribe.exceptions import ParsingError
 
 
 # STREAM TESTS ========================================

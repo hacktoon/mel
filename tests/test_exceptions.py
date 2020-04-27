@@ -1,8 +1,8 @@
 # import pytest
 
-# from mel.parsing import Parser, CharStream
-# from mel.exceptions import ParsingError
-# from mel.exceptions.formatting import ErrorFormatter
+# from infiniscribe.parsing import Parser, CharStream
+# from infiniscribe.exceptions import ParsingError
+# from infiniscribe.exceptions.formatting import ErrorFormatter
 
 
 # def parse(text):

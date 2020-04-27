@@ -1,4 +1,4 @@
-from mel.parsing.grammar.tokens import (
+from infiniscribe.parsing.grammar.tokens import (
     TokenHintMap,
     TokenStream,
 )

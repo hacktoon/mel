@@ -75,7 +75,7 @@ class TokenSpec:
 
         def _build_hints(index, id, hints):
             for symbol in spec_data['symbols']:
-                hint_map[char] = index
+                hint_map[symbol] = index
 
         for index, (id, _, _, hints) in enumerate(spec_data):
             _build_hints(index, id, hints)

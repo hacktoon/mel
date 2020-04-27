@@ -1,5 +1,5 @@
-from mel.parsing import Grammar
-from mel.parsing.symbol import (
+from infiniscribe.parsing import Grammar
+from infiniscribe.parsing.symbol import (
     ZeroMany,
     Str,
     OneMany,

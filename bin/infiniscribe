@@ -5,8 +5,8 @@ import sys
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, path)
 
-import mel
-from mel.exceptions import MelError
+import infiniscribe
+from infiniscribe.exceptions import BaseError
 
 
 def _read_file(path):
@@ -28,8 +28,8 @@ def main():
     path = _read_path()
     text = _read_file(path)
     try:
-        print(mel.eval(text))
-    except MelError as error:
+        print(infiniscribe.eval(text))
+    except BaseError as error:
         sys.exit("File {!r}: \n\n{}".format(path, error))
 
 
