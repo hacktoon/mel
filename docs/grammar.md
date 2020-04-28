@@ -23,41 +23,44 @@ GTE             =  '>='
 IN              =  '><'
 NOT-IN          =  '<>'
 SUB-PATH        =  '/'
-META-PATH       =  '.'
+ATTR-PATH       =  '.'
 WILDCARD        =  '*'
 DEFAULT-DOC     =  '?:'
 DEFAULT-FORMAT  =  '%:'
-ANONYM-PATH     =  ':'
+DEFAULT-PATH     =  ':'
 
 root            =  expression*
 
 expression      =  tag | relation | value
 
+tag             =  '#' NAME ( SUB-PATH NAME )*
+
 relation        =  path sign value
 
 path            =  keyword ( separator keyword )*
-keyword         =  NAME | CONCEPT | meta-keyword
-meta-keyword    =  ( LOG | ALIAS | CACHE | FORMAT | META | DOC ) NAME
+keyword         =  NAME | CONCEPT | attr-keyword
+attr-keyword    =  ( LOG | ALIAS | CACHE | FORMAT | META | DOC ) NAME
 
-separator       =  SUB-PATH | META-PATH
+separator       =  SUB-PATH | ATTR-PATH
 
 sign            =  EQUAL | DIFFERENT | LT | LTE | GT | GTE | IN | NOT-IN
 
 value           =  reference | literal | list | object
 
-reference       =  head-ref ( separator sub-ref )*
-head-ref        =  query | keyword
-sub-ref         =  RANGE | INT | tag | list | object | query | keyword | wildcard
+reference       =  ( query | keyword ) reference-tail
+reference-tail  =  ( sub-reference | attr-reference )*
+sub-reference   =  WILDCARD | RANGE | INT | tag | list | object | query | keyword
+attr-reference  =  WILDCARD | tag | keyword
 
 literal         =  INT | FLOAT | STRING | TEMPLATE-STRING | BOOLEAN
 
 list            =  '[' value* ']'
 
 object          =  '(' object-key expression* ')'
-object-key      =  ANONYM-PATH | DEFAULT-FORMAT | DEFAULT-DOC | path
+object-key      =  WILDCARD | DEFAULT-PATH | DEFAULT-FORMAT | DEFAULT-DOC | path
 
 query           =  '{' query-key expression* '}'
-query-key       =  ANONYM-PATH | path
+query-key       =  DEFAULT-PATH | path
 ```
 
 
