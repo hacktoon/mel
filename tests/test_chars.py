@@ -1,3 +1,5 @@
+import pytest
+
 from infiniscribe.parsing.chars import parse
 from infiniscribe.parsing.chars import (
     LOWER, UPPER, DIGIT, SYMBOL, SPACE, NEWLINE, OTHER
@@ -22,33 +24,39 @@ def test_empty_text():
     assert len(chars) == 0
 
 
-def test_lower_letters():
-    assert char_type_at('a') == LOWER
+@pytest.mark.parametrize('test_input, expected', [
+    ('a',  LOWER),
+    ('h',  LOWER),
+    ('z',  LOWER),
+    ('A',  UPPER),
+    ('M',  UPPER),
+    ('Z',  UPPER),
+    ('0',  DIGIT),
+    ('1',  DIGIT),
+    ('5',  DIGIT),
+    ('9',  DIGIT),
+    (' ',  SPACE),
+    ('\t', SPACE),
+    ('%',  SYMBOL),
+    ('*',  SYMBOL),
+    ('"',  SYMBOL),
+    ('\n', NEWLINE),
+    ('\r', OTHER),
+    ('é',  OTHER),
+    ('ó',  OTHER),
+    ('¨',  OTHER),
+    ('£',  OTHER),
+    ('ã',  OTHER),
+])
+def test_char_type(test_input, expected):
+    assert char_type_at(test_input) == expected
 
 
-def test_upper_letters():
-    assert char_type_at('Y') == UPPER
-
-
-def test_digits():
-    assert char_type_at('5') == DIGIT
-
-
-def test_space():
-    assert char_type_at(' ') == SPACE
-
-
-def test_symbol():
-    assert char_type_at('$') == SYMBOL
-
-
-def test_newline():
-    assert char_type_at('\n') == NEWLINE
-
-
-def test_other():
-    assert char_type_at('\r') == OTHER
-
-
-def test_other_unicode_char():
-    assert char_type_at('á') == OTHER
+# Test char index in a text
+@pytest.mark.parametrize('test_input, char, index', [
+    ('a\nb', '\n', 1),
+])
+def test_char_index(test_input, char, index):
+    chars = char_list(test_input)
+    index = chars[index].index
+    assert test_input[index] == char
