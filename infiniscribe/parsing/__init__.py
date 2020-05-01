@@ -1,72 +1,79 @@
-# from .stream import CharStream
-# from .symbol import Start, Regex
+
+class Language:
+    def __init__(self, name='Unnamed'):
+        self.name = name
+
+    def line_comment(self, evaluator):
+        def parser():
+            return evaluator()
+        return parser
+
+    def node(self):
+        pass
 
 
-# RULES = (
-#     # First line is the start rule
-#     # RULE         PARSER    EXPANSION
-#     ('grammar',    '*',      '@rule'),
-#     ('rule',       'SEQ',    '@rule-type', '@rule-name', '=', '@alt', 'eol'),
-#     ('rule-name',  'ALT',    'name', 'token'),
-#     ('rule-type',  '?/ALT',  '/', '-'),
-#     ('alt',        'SEQ',    '@seq', '@alt-tail'),
-#     ('alt-tail',   '*/SEQ',  '|', '@seq'),
-#     ('seq',        '+',      '@atom'),
-#     ('atom',       'SEQ',    '@atom-head', '@modifier'),
-#     ('atom-head',  'ALT',    '@group', 'name', 'token', 'string'),
-#     ('group',      'SEQ',    '(', '@alt', ')'),
-#     ('modifier',   '?/ALT',  '*', '?', '+'),
-# )
+'''
+# rules =================================
+
+@lang.line_comment(oneof('STRING', 'INT', 'FLOAT'))
+def literal_parser(value):
+    return
+
+@lang.node('keyword', oneof('STRING', 'INT', 'FLOAT'))
+def literal_parser(value):
+    return
 
 
-# # GRAMMAR ==============================================
-
-# class Grammar:
-#     def __init__(self):
-#         self.rules = {}
-#         self.tokens = {}
-#         self.skip_rules = {}
-#         self.start_rule = Start([])
-
-#     def rule(self, name, *symbols):
-#         self.rules[name] = Rule(symbols)
-
-#     def token(self, name, string):
-#         self.tokens[name] = Regex(string)
-
-#     def start(self, name, *symbols):
-#         self.start_rule = Start(*symbols)
-#         self.rule(name, *symbols)
-
-#     def skip(self, name, *symbols):
-#         self.skip_rules[name] = SkipRule(symbols)
-
-#     def parse(self, text):
-#         return self.start_rule.parse(Context(
-#             start_rule=self.start_rule,
-#             skip_rules=self.skip_rules,
-#             rules=self.rules,
-#             stream=CharStream(text)
-#         ))
-
-#     def __repr__(self):
-#         rules = {**self.rules, **self.skip_rules}
-#         return '\n'.join(repr(rule) for rule in rules.values())
+@lang.node('literal', oneof('STRING', 'INT', 'FLOAT'))
+def literal_parser(value):
+    return
 
 
-# class Rule:
-#     def __init__(self, symbols):
-#         self.symbols = symbols
-
-#     def __repr__(self):
-#         expression = ' '.join(repr(s) for s in self.symbols)
-#         return f'{self.name} = {expression}'
+@lang.node('int', zeromany(char('digit'), hints=digits)
+def int_parser(value):
+    return
 
 
-# class SkipRule(Rule):
-#     pass
+@lang.token('string', use('STRING'))
+def string_parser(value):
+    return
 
 
-# class Context:
-#     def __init__(self, **kw):
-#         self.__dict__.update(kw)
+# ========= node conversion (to other formats)
+
+@lang.map(lang.rules.string)
+def string_node(node):
+    return
+
+
+
+==========================================================
+GRAMMAR
+==========================================================
+# line comment
+root          =  *expression
+expression    =  tag | relation | value | +attr-keyword
+tag           =  '#' NAME *( SUB-PATH NAME )
+
+##  multi comment
+relation      =  path sign value?
+##
+
+path          =  keyword __ *( separator __ keyword )
+keyword       =  !( NAME | CONCEPT )
+attr-keyword  =  '@' name
+separator     =  sub-path | !attr-path
+literal       =  STRING | INT | FLOAT
+name          =  [a-z]
+string        =  '"' *(!'"') '"'
+
+
+oneof  = um dentre as opcoes
+anyof  = quantos possiveis dentre as opcoes
+noneof = um fora das opcoes
+
+# make extra processing, or define custom lexers
+@lang.lex(rule, 'STRING')
+def string_parser_plugin(stream):
+    return
+'''
