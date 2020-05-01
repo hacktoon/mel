@@ -48,3 +48,7 @@ def test_newline():
 
 def test_other():
     assert char_type_at('\r') == OTHER
+
+
+def test_other_unicode_char():
+    assert char_type_at('á') == OTHER

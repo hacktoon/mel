@@ -27,7 +27,7 @@ def parse(text):
 
 @functools.lru_cache(maxsize=1)
 def _type_map():
-    '''Build a map from char to type'''
+    '''Build a dict {char: type} from constants'''
     table = (
         (string.digits, DIGIT),
         (string.ascii_lowercase, LOWER),
@@ -45,6 +45,7 @@ def _type_map():
 
 
 def _char_position(type, index, line, column):
+    '''Return char position markers depending on char's type'''
     index += 1
     if type == NEWLINE:
         return index, line + 1, 0
@@ -53,6 +54,7 @@ def _char_position(type, index, line, column):
 
 @dataclass
 class _Char:
+    '''A char has an index, line and column in a text.'''
     index: int
     line: int
     column: int
