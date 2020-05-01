@@ -34,7 +34,8 @@
 
 #     def _line_prefix(self, index):
 #         line_num = str(index + 1).zfill(self._digits_offset)
-#         return "{}{}{}".format(line_num, self._linenum_sep, self.lines[index])
+#         params = line_num, self._linenum_sep, self.lines[index]
+#         return "{}{}{}".format(*params)
 
 #     def _error_pointer(self):
 #         prefix_length = self._digits_offset + len(self._linenum_sep)
