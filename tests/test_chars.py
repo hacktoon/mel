@@ -8,12 +8,12 @@ from infiniscribe.parsing.chars import (
 
 # HELPER FUNCTIONS ==================================
 
-def char_list(chars):
-    return list(parse(chars))
+def char_list(text):
+    return list(parse(text))
 
 
-def char_type_at(chars, index=0):
-    chars = char_list(chars)
+def char_type_at(text, index=0):
+    chars = char_list(text)
     return chars[index].type
 
 
@@ -52,11 +52,32 @@ def test_char_type(test_input, expected):
     assert char_type_at(test_input) == expected
 
 
-# Test char index in a text
 @pytest.mark.parametrize('test_input, char, index', [
     ('a\nb', '\n', 1),
+    ('a\nb', 'b', 2),
 ])
 def test_char_index(test_input, char, index):
     chars = char_list(test_input)
     index = chars[index].index
     assert test_input[index] == char
+
+
+@pytest.mark.parametrize('test_input, index, line', [
+    ('a\nb',   1, 0),
+    ('a\nb',   2, 1),
+    ('a\r\nb', 3, 1),
+])
+def test_char_line(test_input, index, line):
+    chars = char_list(test_input)
+    assert chars[index].line == line
+
+
+@pytest.mark.parametrize('test_input, index, column', [
+    ('ab\nc',       0, 0),
+    ('ab\nc',       3, 0),
+    ('ab\t\r\n\nc', 6, 0),
+    ('ab\nc',       1, 1),
+])
+def test_char_column(test_input, index, column):
+    chars = char_list(test_input)
+    assert chars[index].column == column
