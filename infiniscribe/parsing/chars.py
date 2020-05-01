@@ -19,8 +19,38 @@ def parse(text):
     index = line = column = 0
     for char in text:
         type = char_type_map.get(char, OTHER)
-        yield _Char(index, line, column, type)
-        index, line, column = _char_position(type, index, line, column)
+        yield Char(index, line, column, type)
+        index, line, column = _update_position(type, index, line, column)
+
+
+@dataclass
+class Char:
+    '''A char has an index, line and column in a text.'''
+    index: int
+    line: int
+    column: int
+    type: int
+
+    def is_digit(self):
+        return self.type == DIGIT
+
+    def is_lower(self):
+        return self.type == LOWER
+
+    def is_upper(self):
+        return self.type == UPPER
+
+    def is_symbol(self):
+        return self.type == SYMBOL
+
+    def is_space(self):
+        return self.type == SPACE
+
+    def is_newline(self):
+        return self.type == NEWLINE
+
+    def is_other(self):
+        return self.type == OTHER
 
 
 # PRIVATE DEFINITIONS =======================
@@ -34,28 +64,18 @@ def _type_map():
         (string.ascii_uppercase, UPPER),
         (string.punctuation, SYMBOL),
         (' \t\x0b\x0c', SPACE),
-        ('\n', NEWLINE),
-        ('\r', OTHER),
+        ('\n', NEWLINE)
     )
     char_map = {}
     for chars, type in table:
-        map_for_type = {char: type for char in chars}
-        char_map.update(map_for_type)
+        row_map = {char: type for char in chars}
+        char_map.update(row_map)
     return char_map
 
 
-def _char_position(type, index, line, column):
-    '''Return char position markers depending on char's type'''
+def _update_position(type, index, line, column):
+    '''Return updated position markers depending on char's type'''
     index += 1
     if type == NEWLINE:
         return index, line + 1, 0
     return index, line, column + 1
-
-
-@dataclass
-class _Char:
-    '''A char has an index, line and column in a text.'''
-    index: int
-    line: int
-    column: int
-    type: int
