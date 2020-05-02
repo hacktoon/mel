@@ -2,16 +2,23 @@ import pytest
 import random
 import string
 
-from infiniscribe.parsing.chars import parse
 from infiniscribe.parsing.chars import (
-    LOWER, UPPER, DIGIT, SYMBOL, SPACE, NEWLINE, OTHER
+    char_generator,
+    CharStream,
+    LOWER,
+    UPPER,
+    DIGIT,
+    SYMBOL,
+    SPACE,
+    NEWLINE,
+    OTHER
 )
 
 
 # HELPER FUNCTIONS ==================================
 
 def char_list(text):
-    return list(parse(text))
+    return list(char_generator(text))
 
 
 def char_type_at(text, index=0):
@@ -144,3 +151,10 @@ def test_char_is_not_other():
     choices = string.ascii_letters + string.digits
     negative_test_input = random.choice(choices)
     assert not char_at(negative_test_input).is_other()
+
+
+# CHAR STREAM TESTS ===========================================
+
+def test_char_stream():
+    stream = CharStream('abc')
+    assert stream.read().value == 'a'

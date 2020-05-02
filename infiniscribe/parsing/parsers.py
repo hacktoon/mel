@@ -1,14 +1,12 @@
-# from ..exceptions import ParsingError
-# from .nodes import (
-#     RootNode,
-#     RuleNode,
-#     StringNode,
-#     PatternNode,
-#     ZeroManyNode,
-#     OneManyNode,
-#     OneOfNode,
-#     OptionalNode,
-# )
+
+def qs(quote):
+    '''parse a string'''
+    def parser(stream):
+        stream.read_string(quote)
+
+        stream.read_string(quote)
+        return string
+    return parser
 
 
 # class Symbol:

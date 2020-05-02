@@ -6,7 +6,7 @@ from infiniscribe.parsing import Language
 def create_base_lang():
     lang = Language('foo')
 
-    @lang.start(lambda: 'comment')
+    @lang.start(lambda stream: 'start')
     def parse_start(parsed):
         return f'{parsed} node'
 
@@ -17,4 +17,4 @@ def create_base_lang():
 
 def test_line_comment():
     lang = create_base_lang()
-    assert lang.parse() == 'comment node'
+    assert lang.parse('') == 'start node'

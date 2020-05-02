@@ -1,18 +1,21 @@
 import functools
 
+from .tokens import TokenStream
+from .parsers import qs
+
 
 class Language:
     def __init__(self, name='Default'):
         self.name = name
-        self._start = None
+        self._start = lambda stream: None
         self._tokens = {}
         self._rules = {}
 
     def start(self, parser):
         def decorator(evaluator):
             @functools.wraps(evaluator)
-            def _evaluator():
-                return evaluator(parser())
+            def _evaluator(stream):
+                return evaluator(parser(stream))
             self._start = _evaluator
             return _evaluator
         return decorator
@@ -20,23 +23,21 @@ class Language:
     def token(self, id, parser):
         def decorator(evaluator):
             @functools.wraps(evaluator)
-            def _evaluator():
-                return evaluator(parser())
+            def _evaluator(stream):
+                return evaluator(parser(stream))
             self._tokens[id] = _evaluator
             return _evaluator
         return decorator
 
-    def node(self):
-        pass
-
-    def parse(self):
-        return self._start()
+    def parse(self, text):
+        stream = TokenStream(text)
+        return self._start(stream)
 
 
 '''
 # rules =================================
 
-lang.token('string', seq(s('"'), zero_many(neg(s('"'))), s('"')))
+lang.token('string', qs('"'))
 def eval_token(parsed):
     return
 

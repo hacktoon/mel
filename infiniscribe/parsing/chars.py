@@ -14,22 +14,36 @@ NEWLINE = 6
 OTHER = 7
 
 
-def parse(text):
+class CharStream:
+    def __init__(self, text=''):
+        self.text = text.rstrip()
+        self._stream = char_generator(self.text)
+
+    def read(self):
+        char = next(self._stream)
+        return char
+
+    def read_spaces(self):
+        char = next(self._stream)
+        return self.text[char.index]
+
+
+def char_generator(text):
     char_type_map = _type_map()
     index = line = column = 0
     for char in text:
         type = char_type_map.get(char, OTHER)
-        yield Char(index, line, column, type)
+        yield Char(index, line, column, type, char)
         index, line, column = _update_position(type, index, line, column)
 
 
 @dataclass
 class Char:
-    '''A char has an index, line and column in a text.'''
     index: int
     line: int
     column: int
     type: int
+    value: str
 
     def is_digit(self):
         return self.type == DIGIT
