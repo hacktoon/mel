@@ -17,15 +17,20 @@ from infiniscribe.parsing.chars import (
 
 # HELPER FUNCTIONS ==================================
 
-def create_stream(text):
+def create_stream(text=''):
     return CharStream(text)
 
 
 # TESTS ==================================
 
 def test_empty_text():
-    stream = create_stream('')
+    stream = create_stream()
     assert len(stream) == 0
+
+
+def test_empty_stream_read_many():
+    stream = create_stream()
+    assert stream.read_many() == []
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -157,3 +162,16 @@ def test_char_read_many():
     chars = stream.read_many([LOWER])
     token = ''.join(c.value for c in chars)
     assert token == 'abc'
+
+
+def test_char_read_many_alnum():
+    stream = create_stream('a6bXc92A30_12ab')
+    chars = stream.read_many([LOWER, UPPER, DIGIT])
+    token = ''.join(c.value for c in chars)
+    assert token == 'a6bXc92A30'
+
+
+def test_char_read_many_empty_match_length():
+    stream = create_stream('abc')
+    chars = stream.read_many([DIGIT])
+    assert len(chars) == 0

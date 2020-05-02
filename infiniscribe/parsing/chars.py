@@ -50,7 +50,7 @@ class CharStream:
         else:
             self.column += 1
 
-    def read_many(self, types):
+    def read_many(self, types=()):
         chars = []
         while True:
             char = self.read()

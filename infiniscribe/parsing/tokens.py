@@ -2,56 +2,56 @@
 # import string
 
 # from ...exceptions import ParsingError, LexingError
-from dataclasses import dataclass
+# from dataclasses import dataclass
 
 
-class TokenStream:
-    def __init__(self, text):
-        # self.tokens = tokenize(text)
-        self.index = 0
+# class TokenStream:
+#     def __init__(self, text):
+#         # self.tokens = tokenize(text)
+#         self.index = 0
 
-    def read(self, id):
-        token = self.peek()
-        if self.has(id):
-            self.index += 1
-            return token
-        msg = f'Expected token "{id}" but found "{token.id}"'
-        raise LexingError(msg)
+#     def read(self, id):
+#         token = self.peek()
+#         if self.has(id):
+#             self.index += 1
+#             return token
+#         msg = f'Expected token "{id}" but found "{token.id}"'
+#         raise LexingError(msg)
 
-    def has(self, id):
-        return self.peek().id == id
+#     def has(self, id):
+#         return self.peek().id == id
 
-    def peek(self):
-        try:
-            return self.tokens[self.index]
-        except IndexError:
-            return Token('eof', '\0')
+#     def peek(self):
+#         try:
+#             return self.tokens[self.index]
+#         except IndexError:
+#             return Token('eof', '\0')
 
-    def __getitem__(self, index):
-        return self.tokens[index]
+#     def __getitem__(self, index):
+#         return self.tokens[index]
 
-    def __len__(self):
-        return len(self.tokens)
-
-
-def tokenize(text):
-    tokens = []
-    token_spec = TokenSpec(LEXING_TABLE)
-    char_stream = CharStream(text)
-    while not char_stream.eof:
-        (id, skip, pattern, _) = token_spec.get(char_stream.head_char)
-        match_text, index = char_stream.read_pattern(pattern)
-        if skip:
-            continue
-        token = Token(id, match_text)
-        tokens.append(token)
-    return tokens
+#     def __len__(self):
+#         return len(self.tokens)
 
 
-@dataclass
-class Token:
-    id: int
-    text: str
+# def tokenize(text):
+#     tokens = []
+#     token_spec = TokenSpec(LEXING_TABLE)
+#     char_stream = CharStream(text)
+#     while not char_stream.eof:
+#         (id, skip, pattern, _) = token_spec.get(char_stream.head_char)
+#         match_text, index = char_stream.read_pattern(pattern)
+#         if skip:
+#             continue
+#         token = Token(id, match_text)
+#         tokens.append(token)
+#     return tokens
+
+
+# @dataclass
+# class Token:
+#     id: int
+#     text: str
 
 
 # LEXING_TABLE = {
@@ -82,7 +82,6 @@ class Token:
 #         ('template',  r'"[^"]*"',            0,    '"'),
 #     )
 # }
-
 
 
 # class TokenSpecItem:
@@ -124,7 +123,3 @@ class Token:
 #         except KeyError:
 #             raise LexingError(f'Unrecognized hint: "{hint}"')
 #         return self.spec[index]
-
-
-
-

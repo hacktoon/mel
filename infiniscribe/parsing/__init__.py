@@ -1,8 +1,5 @@
 import functools
 
-from .tokens import TokenStream
-from .parsers import qs
-
 
 class Language:
     def __init__(self, name='Default'):
@@ -30,8 +27,8 @@ class Language:
         return decorator
 
     def parse(self, text):
-        stream = TokenStream(text)
-        return self._start(stream)
+        # stream = TokenStream(text)
+        return self._start(text)
 
 
 '''
@@ -52,7 +49,6 @@ lang.node('int', zeromany(char('digit'), hints=digits)
 @lang.map(lang.rules.string)
 def string_node(node):
     return
-
 
 
 ==========================================================

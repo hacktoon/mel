@@ -5,7 +5,7 @@ def qs(quote):
         stream.read_string(quote)
 
         stream.read_string(quote)
-        return string
+        return
     return parser
 
 
