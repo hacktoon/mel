@@ -28,6 +28,11 @@ def test_empty_text():
     assert len(stream) == 0
 
 
+def test_eof():
+    stream = create_stream()
+    assert stream.read().is_eof()
+
+
 def test_empty_stream_read_many():
     stream = create_stream()
     assert stream.read_many() == []
@@ -55,8 +60,7 @@ def test_empty_stream_read_many():
     ('ó',  OTHER),
     ('¨',  OTHER),
     ('£',  OTHER),
-    ('ã',  OTHER),
-    ('',  EOF),
+    ('ã',  OTHER)
 ])
 def test_char_type(test_input, expected):
     stream = create_stream(test_input)

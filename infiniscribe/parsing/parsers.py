@@ -1,12 +1,12 @@
 
-def qs(quote):
-    '''parse a string'''
-    def parser(stream):
-        stream.read_string(quote)
+# def qs(quote):
+#     '''parse a string'''
+#     def parser(stream):
+#         stream.read_string(quote)
 
-        stream.read_string(quote)
-        return
-    return parser
+#         stream.read_string(quote)
+#         return
+#     return parser
 
 
 # class Symbol:

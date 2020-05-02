@@ -27,15 +27,17 @@ class CharStream:
         return len(self.text)
 
     def read(self):
-        type, value = self._read_text()
+        value, type = self._read_text()
         char = self._build_char(type, value)
         self._update_indexes(type)
         return char
 
     def _read_text(self):
-        value = EOF_VALUE if self.eof else self.text[self.index]
+        if self.eof:
+            return (EOF_VALUE, EOF)
+        value = self.text[self.index]
         type = self._type_map.get(value, OTHER)
-        return type, value
+        return value, type
 
     def _build_char(self, type, value):
         return Char(self.index, self.line, self.column, type, value)
@@ -106,8 +108,7 @@ def create_type_map():
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
         (' \t\x0b\x0c',          SPACE),
-        ('\n',                   NEWLINE),
-        (EOF_VALUE,              EOF)
+        ('\n',                   NEWLINE)
     )
     char_map = {}
     for chars, type in table:
