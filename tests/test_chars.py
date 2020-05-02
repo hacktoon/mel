@@ -150,3 +150,10 @@ def test_char_is_not_other():
     text = random.choice(string.ascii_letters + string.digits)
     stream = create_stream(text)
     assert not stream.read().is_other()
+
+
+def test_char_read_many():
+    stream = create_stream('abc 123')
+    chars = stream.read_many([LOWER])
+    token = ''.join(c.value for c in chars)
+    assert token == 'abc'

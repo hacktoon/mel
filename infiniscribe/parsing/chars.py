@@ -50,6 +50,15 @@ class CharStream:
         else:
             self.column += 1
 
+    def read_many(self, types):
+        chars = []
+        while True:
+            char = self.read()
+            if char.type not in types:
+                break
+            chars.append(char)
+        return chars
+
     @property
     def eof(self):
         return self.index >= len(self.text)
@@ -83,6 +92,9 @@ class Char:
 
     def is_other(self):
         return self.type == OTHER
+
+    def is_eof(self):
+        return self.type == EOF
 
 
 @functools.lru_cache(maxsize=1)
