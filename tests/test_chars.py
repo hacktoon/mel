@@ -165,13 +165,22 @@ def test_char_read_many():
 
 
 def test_char_read_many_alnum():
-    stream = create_stream('a6bXc92A30_12ab')
+    expected = 'a6bXc92A30'
+    stream = create_stream(expected + '_12ab')
     chars = stream.read_many([LOWER, UPPER, DIGIT])
     token = ''.join(c.value for c in chars)
-    assert token == 'a6bXc92A30'
+    assert token == expected
 
 
-def test_char_read_many_empty_match_length():
+def test_char_read_many_digits():
     stream = create_stream('abc')
     chars = stream.read_many([DIGIT])
     assert len(chars) == 0
+
+
+def test_char_read_many_symbols():
+    text = '$%@*('
+    stream = create_stream(text)
+    chars = stream.read_many([SYMBOL])
+    token = ''.join(c.value for c in chars)
+    assert token == text
