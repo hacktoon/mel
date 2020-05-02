@@ -40,12 +40,12 @@ def test_empty_text():
     ('5',  DIGIT),
     ('9',  DIGIT),
     (' s',  SPACE),
-    ('\t4', SPACE),
+    ('\t', SPACE),
     ('%',  SYMBOL),
     ('*',  SYMBOL),
     ('"',  SYMBOL),
-    ('\ng', NEWLINE),
-    ('\ra', OTHER),
+    ('\n', NEWLINE),
+    ('\r', OTHER),
     ('é',  OTHER),
     ('ó',  OTHER),
     ('¨',  OTHER),
@@ -58,96 +58,95 @@ def test_char_type(test_input, expected):
     assert stream.read().type == expected
 
 
-# @pytest.mark.parametrize('test_input, char, index', [
-#     ('a\nb', '\n', 1),
-#     ('a\nb', 'b', 2),
-# ])
-# def test_char_index(test_input, char, index):
-#     chars = char_list(test_input)
-#     index = chars[index].index
-#     assert test_input[index] == char
+def test_char_index():
+    text = 'ab\r\nc\td '
+    stream = create_stream(text)
+    indexes = [stream.read().index for _ in text]
+    assert indexes == list(range(8))
 
 
-# @pytest.mark.parametrize('test_input, index, line', [
-#     ('a\nb',   1, 0),
-#     ('a\nb',   2, 1),
-#     ('a\r\nb', 3, 1),
-#     ('ab\t\r\n\nc', 6, 2),
-# ])
-# def test_char_line(test_input, index, line):
-#     chars = char_list(test_input)
-#     assert chars[index].line == line
+def test_char_line():
+    text = 'ab\nc\n\nd'
+    stream = create_stream(text)
+    lines = [stream.read().line for _ in text]
+    assert lines == [0, 0, 0, 1, 1, 2, 3]
 
 
-# @pytest.mark.parametrize('test_input, index, column', [
-#     ('ab\nc',       0, 0),
-#     ('ab\nc',       3, 0),
-#     ('ab\t\r\n\nc', 6, 0),
-#     ('ab\nc',       1, 1),
-# ])
-# def test_char_column(test_input, index, column):
-#     chars = char_list(test_input)
-#     assert chars[index].column == column
+def test_char_column():
+    text = 'ab\nc\n\nd'
+    stream = create_stream(text)
+    lines = [stream.read().column for _ in text]
+    assert lines == [0, 1, 2, 0, 1, 0, 0]
 
 
-# def test_char_is_digit():
-#     test_input = random.choice(string.digits)
-#     assert char_at(test_input).is_digit()
+def test_char_values():
+    text = 'i76hj-'
+    stream = create_stream(text)
+    values = [stream.read().value for _ in text]
+    assert values == list(text)
 
 
-# def test_char_is_not_digit():
-#     choices = string.ascii_letters + string.punctuation + string.whitespace
-#     test_input = random.choice(choices)
-#     assert not char_at(test_input).is_digit()
+def test_char_is_digit():
+    text = random.choice(string.digits)
+    stream = create_stream(text)
+    assert stream.read().is_digit()
 
 
-# def test_char_is_lower():
-#     test_input = random.choice(string.ascii_lowercase)
-#     assert char_at(test_input).is_lower()
+def test_char_is_not_digit():
+    choices = string.ascii_letters + string.punctuation + string.whitespace
+    text = random.choice(choices)
+    stream = create_stream(text)
+    assert not stream.read().is_digit()
 
 
-# def test_char_is_upper():
-#     test_input = random.choice(string.ascii_uppercase)
-#     assert char_at(test_input).is_upper()
+def test_char_is_lower():
+    text = random.choice(string.ascii_lowercase)
+    stream = create_stream(text)
+    assert stream.read().is_lower()
 
 
-# def test_char_is_symbol():
-#     test_input = random.choice(string.punctuation)
-#     assert char_at(test_input).is_symbol()
+def test_char_is_upper():
+    text = random.choice(string.ascii_uppercase)
+    stream = create_stream(text)
+    assert stream.read().is_upper()
 
 
-# def test_char_is_space():
-#     test_input = random.choice(' \t\x0b\x0c')
-#     assert char_at(test_input).is_space()
+def test_char_is_symbol():
+    text = random.choice(string.punctuation)
+    stream = create_stream(text)
+    assert stream.read().is_symbol()
 
 
-# def test_char_is_not_space():
-#     negative_test_input = random.choice(string.ascii_letters)
-#     assert not char_at(negative_test_input).is_space()
+def test_char_is_space():
+    text = random.choice(' \t\x0b\x0c')
+    stream = create_stream(text)
+    assert stream.read().is_space()
 
 
-# def test_char_is_newline():
-#     assert char_at('\n').is_newline()
+def test_char_is_not_space():
+    text = random.choice(string.ascii_letters)
+    stream = create_stream(text)
+    assert not stream.read().is_space()
 
 
-# def test_char_is_not_newline():
-#     negative_test_input = random.choice(string.ascii_letters)
-#     assert not char_at(negative_test_input).is_newline()
+def test_char_is_newline():
+    stream = create_stream('\n')
+    assert stream.read().is_newline()
 
 
-# def test_char_is_other():
-#     test_input = random.choice('éàõ¢£¬áï\r')
-#     assert char_at(test_input).is_other()
+def test_char_is_not_newline():
+    text = random.choice(string.ascii_letters)
+    stream = create_stream(text)
+    assert not stream.read().is_newline()
 
 
-# def test_char_is_not_other():
-#     choices = string.ascii_letters + string.digits
-#     negative_test_input = random.choice(choices)
-#     assert not char_at(negative_test_input).is_other()
+def test_char_is_other():
+    text = random.choice('éàõ¢£¬áï\r')
+    stream = create_stream(text)
+    assert stream.read().is_other()
 
 
-# # CHAR STREAM TESTS ===========================================
-
-# def test_char_stream():
-#     stream = CharStream('abc')
-#     assert stream.read().value == 'a'
+def test_char_is_not_other():
+    text = random.choice(string.ascii_letters + string.digits)
+    stream = create_stream(text)
+    assert not stream.read().is_other()

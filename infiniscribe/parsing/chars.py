@@ -17,16 +17,19 @@ EOF_VALUE = '\0'
 
 class CharStream:
     def __init__(self, text=''):
-        self._type_map = _type_map()
-        self.text = text.rstrip()
+        self._type_map = create_type_map()
+        self.text = text
         self.index = 0
         self.line = 0
         self.column = 0
 
+    def __len__(self):
+        return len(self.text)
+
     def read(self):
         type, value = self._read_text()
         char = self._build_char(type, value)
-        self._update_indexes(char)
+        self._update_indexes(type)
         return char
 
     def _read_text(self):
@@ -46,9 +49,6 @@ class CharStream:
             self.column = 0
         else:
             self.column += 1
-
-    def __len__(self):
-        return len(self.text)
 
     @property
     def eof(self):
@@ -86,7 +86,7 @@ class Char:
 
 
 @functools.lru_cache(maxsize=1)
-def _type_map():
+def create_type_map():
     '''Build a dict {char: type} from constants'''
     table = (
         (string.digits,          DIGIT),
