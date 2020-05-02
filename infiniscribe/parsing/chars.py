@@ -3,8 +3,6 @@ import functools
 from dataclasses import dataclass
 
 
-# PUBLIC DEFINITIONS =======================
-
 DIGIT = 1
 LOWER = 2
 UPPER = 3
@@ -12,29 +10,49 @@ SYMBOL = 4
 SPACE = 5
 NEWLINE = 6
 OTHER = 7
+EOF = 8
+
+EOF_VALUE = '\0'
 
 
 class CharStream:
     def __init__(self, text=''):
+        self._type_map = _type_map()
         self.text = text.rstrip()
-        self._stream = char_generator(self.text)
+        self.index = 0
+        self.line = 0
+        self.column = 0
 
     def read(self):
-        char = next(self._stream)
+        type, value = self._read_text()
+        char = self._build_char(type, value)
+        self._update_indexes(char)
         return char
 
-    def read_spaces(self):
-        char = next(self._stream)
-        return self.text[char.index]
+    def _read_text(self):
+        value = EOF_VALUE if self.eof else self.text[self.index]
+        type = self._type_map.get(value, OTHER)
+        return type, value
 
+    def _build_char(self, type, value):
+        return Char(self.index, self.line, self.column, type, value)
 
-def char_generator(text):
-    char_type_map = _type_map()
-    index = line = column = 0
-    for char in text:
-        type = char_type_map.get(char, OTHER)
-        yield Char(index, line, column, type, char)
-        index, line, column = _update_position(type, index, line, column)
+    def _update_indexes(self, type):
+        if self.eof:
+            return
+        self.index += 1
+        if type == NEWLINE:
+            self.line += 1
+            self.column = 0
+        else:
+            self.column += 1
+
+    def __len__(self):
+        return len(self.text)
+
+    @property
+    def eof(self):
+        return self.index >= len(self.text)
 
 
 @dataclass
@@ -67,29 +85,20 @@ class Char:
         return self.type == OTHER
 
 
-# PRIVATE DEFINITIONS =======================
-
 @functools.lru_cache(maxsize=1)
 def _type_map():
     '''Build a dict {char: type} from constants'''
     table = (
-        (string.digits, DIGIT),
+        (string.digits,          DIGIT),
         (string.ascii_lowercase, LOWER),
         (string.ascii_uppercase, UPPER),
-        (string.punctuation, SYMBOL),
-        (' \t\x0b\x0c', SPACE),
-        ('\n', NEWLINE)
+        (string.punctuation,     SYMBOL),
+        (' \t\x0b\x0c',          SPACE),
+        ('\n',                   NEWLINE),
+        (EOF_VALUE,              EOF)
     )
     char_map = {}
     for chars, type in table:
         row_map = {char: type for char in chars}
         char_map.update(row_map)
     return char_map
-
-
-def _update_position(type, index, line, column):
-    '''Return updated position markers depending on char's type'''
-    index += 1
-    if type == NEWLINE:
-        return index, line + 1, 0
-    return index, line, column + 1
