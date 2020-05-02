@@ -1,42 +1,49 @@
+import functools
+
 
 class Language:
-    def __init__(self, name='Unnamed'):
+    def __init__(self, name='Default'):
         self.name = name
+        self._start = None
+        self._tokens = {}
+        self._rules = {}
 
-    def line_comment(self, evaluator):
-        def parser():
-            return evaluator()
-        return parser
+    def start(self, parser):
+        def decorator(evaluator):
+            @functools.wraps(evaluator)
+            def _evaluator():
+                return evaluator(parser())
+            self._start = _evaluator
+            return _evaluator
+        return decorator
+
+    def token(self, id, parser):
+        def decorator(evaluator):
+            @functools.wraps(evaluator)
+            def _evaluator():
+                return evaluator(parser())
+            self._tokens[id] = _evaluator
+            return _evaluator
+        return decorator
 
     def node(self):
         pass
+
+    def parse(self):
+        return self._start()
 
 
 '''
 # rules =================================
 
-@lang.line_comment(oneof('STRING', 'INT', 'FLOAT'))
-def literal_parser(value):
+lang.token('string', seq(s('"'), zero_many(neg(s('"'))), s('"')))
+def eval_token(parsed):
     return
 
-@lang.node('keyword', oneof('STRING', 'INT', 'FLOAT'))
-def literal_parser(value):
-    return
-
-
-@lang.node('literal', oneof('STRING', 'INT', 'FLOAT'))
-def literal_parser(value):
-    return
-
-
-@lang.node('int', zeromany(char('digit'), hints=digits)
-def int_parser(value):
-    return
-
-
-@lang.token('string', use('STRING'))
-def string_parser(value):
-    return
+lang.line_comment(oneof('STRING', 'INT', 'FLOAT'))
+lang.node('keyword', oneof('STRING', 'INT', 'FLOAT'))
+lang.node('literal', oneof('STRING', 'INT', 'FLOAT'))
+lang.node('int', zeromany(char('digit'), hints=digits)
 
 
 # ========= node conversion (to other formats)
@@ -71,6 +78,7 @@ string        =  '"' *(!'"') '"'
 oneof  = um dentre as opcoes
 anyof  = quantos possiveis dentre as opcoes
 noneof = um fora das opcoes
+
 
 # make extra processing, or define custom lexers
 @lang.lex(rule, 'STRING')

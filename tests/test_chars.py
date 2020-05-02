@@ -122,7 +122,7 @@ def test_char_is_space():
 
 
 def test_char_is_not_space():
-    negative_test_input = random.choice(string.printable)
+    negative_test_input = random.choice(string.ascii_letters)
     assert not char_at(negative_test_input).is_space()
 
 
@@ -131,12 +131,16 @@ def test_char_is_newline():
 
 
 def test_char_is_not_newline():
-    negative_test_input = random.choice(string.printable)
+    negative_test_input = random.choice(string.ascii_letters)
     assert not char_at(negative_test_input).is_newline()
 
 
 def test_char_is_other():
     test_input = random.choice('éàõ¢£¬áï\r')
     assert char_at(test_input).is_other()
-    negative_test_input = random.choice(string.printable)
+
+
+def test_char_is_not_other():
+    choices = string.ascii_letters + string.digits
+    negative_test_input = random.choice(choices)
     assert not char_at(negative_test_input).is_other()
