@@ -33,9 +33,7 @@ class CharStream:
         return char
 
     def _read_text(self):
-        if self.eof:
-            return (EOF_VALUE, EOF)
-        value = self.text[self.index]
+        value = EOF_VALUE if self.eof else self.text[self.index]
         type = self._type_map.get(value, OTHER)
         return value, type
 
@@ -52,7 +50,8 @@ class CharStream:
         else:
             self.column += 1
 
-    def read_many(self, types=()):
+    def read_many(self, _types=()):
+        types = set(_types)
         chars = []
         while True:
             char = self.read()
@@ -60,6 +59,32 @@ class CharStream:
                 break
             chars.append(char)
         return chars
+
+    # Built-in methods
+    def read_whitespace(self):
+        return self.read_many([SPACE, NEWLINE])
+
+    def read_integers(self):
+        return self.read_many([DIGIT])
+
+    def read_letters(self):
+        return self.read_many([LOWER, UPPER])
+
+    def read_lower_letters(self):
+        return self.read_many([LOWER])
+
+    def read_upper_letters(self):
+        return self.read_many([UPPER])
+
+    def read_lower_name(self):
+        first = self.read_many([LOWER])
+        rest = self.read_letters()
+        return first + rest
+
+    def read_capital_name(self):
+        first = self.read_many([UPPER])
+        rest = self.read_letters()
+        return first + rest
 
     @property
     def eof(self):
@@ -108,7 +133,8 @@ def create_type_map():
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
         (' \t\x0b\x0c',          SPACE),
-        ('\n',                   NEWLINE)
+        ('\n',                   NEWLINE),
+        (EOF_VALUE,              EOF)
     )
     char_map = {}
     for chars, type in table:
