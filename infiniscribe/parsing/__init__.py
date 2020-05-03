@@ -34,15 +34,28 @@ class Language:
 '''
 # rules =================================
 
-lang.token('string', qs('"'))
-def eval_token(parsed):
+lang.line_comment('#')
+lang.multi_comment('##')
+
+@lang.rule('int', integer())
+def eval_int(parsed):
     return
 
-lang.line_comment(oneof('STRING', 'INT', 'FLOAT'))
-lang.node('keyword', oneof('STRING', 'INT', 'FLOAT'))
-lang.node('literal', oneof('STRING', 'INT', 'FLOAT'))
-lang.node('int', zeromany(char('digit'), hints=digits)
+@lang.rule('float', floatp())
+def eval_float(parsed):
+    return
 
+@lang.rule('concept', seq(upper(), zero_many(alnum())))
+def eval_concept(parsed):
+    return
+
+@lang.rule('string', qst('"'))
+def eval_string(parsed):
+    return
+
+@lang.rule('keyword', oneof(t('string'), t('int'), t('float')))
+def eval_keyword(parsed):
+    return
 
 # ========= node conversion (to other formats)
 
@@ -71,14 +84,8 @@ literal       =  STRING | INT | FLOAT
 name          =  [a-z]
 string        =  '"' *(!'"') '"'
 
-
 oneof  = um dentre as opcoes
 anyof  = quantos possiveis dentre as opcoes
 noneof = um fora das opcoes
 
-
-# make extra processing, or define custom lexers
-@lang.lex(rule, 'STRING')
-def string_parser_plugin(stream):
-    return
 '''

@@ -60,36 +60,6 @@ class CharStream:
             chars.append(char)
         return chars
 
-    # Helper reading methods =====================================
-    def read_whitespace(self):
-        return self.read_many([SPACE, NEWLINE])
-
-    def read_integers(self):
-        return self.read_many([DIGIT])
-
-    def read_letters(self):
-        return self.read_many([LOWER, UPPER])
-
-    def read_lower_letters(self):
-        return self.read_many([LOWER])
-
-    def read_upper_letters(self):
-        return self.read_many([UPPER])
-
-    def read_lower_name(self):
-        first = self.read_many([LOWER])
-        if not first:
-            return []
-        rest = self.read_letters()
-        return first + rest
-
-    def read_capital_name(self):
-        first = self.read_many([UPPER])
-        if not first:
-            return []
-        rest = self.read_letters()
-        return first + rest
-
     @property
     def eof(self):
         return self.index >= len(self.text)

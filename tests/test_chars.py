@@ -189,16 +189,16 @@ def test_char_read_many_symbols():
     assert token == text
 
 
-def test_char_read_whitespace():
-    stream = create_stream(' \n\t   t \r  a ')
-    stream.read_whitespace()
-    nonws = stream.read()
-    assert nonws.index == 7
-    assert nonws.type == SPACE
+# def test_char_read_whitespace():
+#     stream = create_stream(' \n\t   t \r  a ')
+#     stream.read_whitespace()
+#     nonws = stream.read()
+#     assert nonws.index == 7
+#     assert nonws.type == SPACE
 
 
-def test_char_read_integers():
-    text = '634'
-    stream = create_stream(text)
-    integers = [int(c.value) for c in stream.read_integers()]
-    assert integers == [6, 3, 4]
+# def test_char_read_integers():
+#     text = '634'
+#     stream = create_stream(text)
+#     integers = [int(c.value) for c in stream.read_integers()]
+#     assert integers == [6, 3, 4]
