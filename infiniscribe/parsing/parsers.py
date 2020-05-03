@@ -1,4 +1,4 @@
-from .chars import DIGIT
+from .stream import DIGIT
 
 
 def parser(function):

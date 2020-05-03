@@ -1,5 +1,7 @@
 import functools
 
+from .stream import Stream
+
 
 class Language:
     def __init__(self, name='Default'):
@@ -26,7 +28,7 @@ class Language:
         return decorator
 
     def parse(self, text):
-        return self._start(text)
+        return self._start(Stream(text))
 
 
 '''

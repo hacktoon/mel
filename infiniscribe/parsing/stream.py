@@ -18,6 +18,7 @@ EOF_VALUE = '\0'
 class Stream:
     def __init__(self, text=''):
         self._type_map = create_type_map()
+        self.skip_types = [SPACE]
         self.text = text
         self.index = 0
         self.line = 0
