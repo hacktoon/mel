@@ -20,6 +20,10 @@ def create_stream(text=''):
     return CharStream(text)
 
 
+def concat_values(chars):
+    return ''.join(ch.value for ch in chars)
+
+
 # TESTS ==================================
 
 def test_empty_text():
@@ -186,7 +190,7 @@ def test_sequence_read_one_digit():
 def test_char_read_many():
     stream = create_stream('abc 123')
     chars = stream.read_many([LOWER])
-    token = ''.join(c.value for c in chars)
+    token = concat_values(chars)
     assert token == 'abc'
 
 
@@ -194,21 +198,21 @@ def test_char_read_many_alnum():
     expected = 'a6bXc92A30'
     stream = create_stream(expected + '_12ab')
     chars = stream.read_many([LOWER, UPPER, DIGIT])
-    token = ''.join(c.value for c in chars)
+    token = concat_values(chars)
     assert token == expected
 
 
 def test_char_read_many_digits():
     stream = create_stream('abc')
     chars = stream.read_many([DIGIT])
-    assert len(chars) == 0
+    assert chars == []
 
 
 def test_char_read_many_symbols():
     text = '$%@*('
     stream = create_stream(text)
     chars = stream.read_many([SYMBOL])
-    token = ''.join(c.value for c in chars)
+    token = concat_values(chars)
     assert token == text
 
 
