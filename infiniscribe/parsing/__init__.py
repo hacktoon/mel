@@ -26,7 +26,6 @@ class Language:
         return decorator
 
     def parse(self, text):
-        # stream = TokenStream(text)
         return self._start(text)
 
 
@@ -36,11 +35,21 @@ class Language:
 lang.line_comment('#')
 lang.multi_comment('##')
 
-@lang.rule('int', integer())
-def eval_int(parsed):
+
+# t('int') can read predefined tokens by id
+
+# method extension to override/complement default tokens
+@lang.token('super-int')
+def parse_int(stream):
+    return stream.read_int()
+
+
+@lang.rule('int', some(chr('digit')))
+def eval_float(parsed):
     return
 
-@lang.rule('float', floatp())
+
+@lang.rule('float', some(chr('digit')))
 def eval_float(parsed):
     return
 

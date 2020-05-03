@@ -1,12 +1,22 @@
+from .chars import DIGIT
 
-# def qs(quote):
-#     '''parse a string'''
-#     def parser(stream):
-#         stream.read_string(quote)
 
-#         stream.read_string(quote)
-#         return
-#     return parser
+def parser(function):
+    def _parser():
+        return
+    return _parser(function)
+
+
+def digit():
+    def digit_parser(stream):
+        return stream.read_many(DIGIT)
+    return digit_parser
+
+
+def char(id):
+    def char_parser(stream):
+        return stream.read(id)
+    return char_parser
 
 
 # class Symbol:

@@ -15,7 +15,7 @@ EOF = 8
 EOF_VALUE = '\0'
 
 
-class CharStream:
+class Stream:
     def __init__(self, text=''):
         self._type_map = create_type_map()
         self.text = text
@@ -52,17 +52,17 @@ class CharStream:
         else:
             self.column += 1
 
-    def read_one(self, types=()):
+    def read_one(self, *types):
         for type in types:
             char = self.read(type)
             if char:
                 return char
         return
 
-    def read_many(self, types=()):
+    def read_many(self, *types):
         chars = []
         while True:
-            char = self.read_one(types)
+            char = self.read_one(*types)
             if not char:
                 break
             chars.append(char)

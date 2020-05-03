@@ -2,8 +2,8 @@ import pytest
 import random
 import string
 
-from infiniscribe.parsing.chars import (
-    CharStream,
+from infiniscribe.parsing.stream import (
+    Stream,
     LOWER,
     UPPER,
     DIGIT,
@@ -17,14 +17,14 @@ from infiniscribe.parsing.chars import (
 # HELPER FUNCTIONS ==================================
 
 def create_stream(text=''):
-    return CharStream(text)
+    return Stream(text)
 
 
 def concat_values(chars):
     return ''.join(ch.value for ch in chars)
 
 
-# TESTS ==================================
+# BEGIN  TESTS ==================================
 
 def test_empty_text():
     stream = create_stream()
@@ -178,18 +178,18 @@ def test_char_read_by_unexpected_type_returns_none():
 
 def test_read_one_lower():
     stream = create_stream('z')
-    assert stream.read_one([DIGIT, LOWER]).value == 'z'
+    assert stream.read_one(DIGIT, LOWER).value == 'z'
 
 
 def test_sequence_read_one_digit():
     stream = create_stream('4a')
-    assert stream.read_one([LOWER, DIGIT]).value == '4'
-    assert stream.read_one([DIGIT, LOWER]).value == 'a'
+    assert stream.read_one(LOWER, DIGIT).value == '4'
+    assert stream.read_one(DIGIT, LOWER).value == 'a'
 
 
 def test_char_read_many():
     stream = create_stream('abc 123')
-    chars = stream.read_many([LOWER])
+    chars = stream.read_many(LOWER)
     token = concat_values(chars)
     assert token == 'abc'
 
@@ -197,21 +197,21 @@ def test_char_read_many():
 def test_char_read_many_alnum():
     expected = 'a6bXc92A30'
     stream = create_stream(expected + '_12ab')
-    chars = stream.read_many([LOWER, UPPER, DIGIT])
+    chars = stream.read_many(LOWER, UPPER, DIGIT)
     token = concat_values(chars)
     assert token == expected
 
 
 def test_char_read_many_digits():
     stream = create_stream('abc')
-    chars = stream.read_many([DIGIT])
+    chars = stream.read_many(DIGIT)
     assert chars == []
 
 
 def test_char_read_many_symbols():
     text = '$%@*('
     stream = create_stream(text)
-    chars = stream.read_many([SYMBOL])
+    chars = stream.read_many(SYMBOL)
     token = concat_values(chars)
     assert token == text
 
