@@ -160,6 +160,29 @@ def test_char_is_not_other():
     assert not stream.read().is_other()
 
 
+def test_char_read_by_type():
+    stream = create_stream('abc 123')
+    char = stream.read(LOWER)
+    assert char.value == 'a'
+
+
+def test_char_read_by_unexpected_type_returns_none():
+    stream = create_stream('22')
+    char = stream.read(LOWER)
+    assert char is None
+
+
+def test_read_one_lower():
+    stream = create_stream('z')
+    assert stream.read_one([DIGIT, LOWER]).value == 'z'
+
+
+def test_sequence_read_one_digit():
+    stream = create_stream('4a')
+    assert stream.read_one([LOWER, DIGIT]).value == '4'
+    assert stream.read_one([DIGIT, LOWER]).value == 'a'
+
+
 def test_char_read_many():
     stream = create_stream('abc 123')
     chars = stream.read_many([LOWER])

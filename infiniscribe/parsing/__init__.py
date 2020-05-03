@@ -5,7 +5,6 @@ class Language:
     def __init__(self, name='Default'):
         self.name = name
         self._start = lambda stream: None
-        self._tokens = {}
         self._rules = {}
 
     def start(self, parser):
@@ -17,12 +16,12 @@ class Language:
             return _evaluator
         return decorator
 
-    def token(self, id, parser):
+    def rule(self, id, parser):
         def decorator(evaluator):
             @functools.wraps(evaluator)
             def _evaluator(stream):
                 return evaluator(parser(stream))
-            self._tokens[id] = _evaluator
+            self._rules[id] = _evaluator
             return _evaluator
         return decorator
 

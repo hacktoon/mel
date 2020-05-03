@@ -26,8 +26,10 @@ class CharStream:
     def __len__(self):
         return len(self.text)
 
-    def read(self):
+    def read(self, expected_type=None):
         value, type = self._read_text()
+        if expected_type is not None and type != expected_type:
+            return
         char = self._build_char(type, value)
         self._update_indexes(type)
         return char
@@ -50,12 +52,18 @@ class CharStream:
         else:
             self.column += 1
 
-    def read_many(self, _types=()):
-        types = set(_types)
+    def read_one(self, types=()):
+        for type in types:
+            char = self.read(type)
+            if char:
+                return char
+        return
+
+    def read_many(self, types=()):
         chars = []
         while True:
-            char = self.read()
-            if char.type not in types:
+            char = self.read_one(types)
+            if not char:
                 break
             chars.append(char)
         return chars
