@@ -1,7 +1,8 @@
 from infiniscribe.parsing import Language
 from infiniscribe.parsing.stream import Stream
 from infiniscribe.parsing.parsers import (
-    digit
+    dgt,
+    stg
 )
 
 
@@ -28,6 +29,21 @@ def test_line_comment():
 
 
 def test_digit_parser():
-    parser = digit()
+    parser = dgt()
     stream = Stream('545')
-    assert as_string(parser(stream)) == '545'
+    match = parser(stream)
+    assert str(match) == '5'
+
+
+def test_digit_parser_wrong_string():
+    parser = dgt()
+    stream = Stream('drfg')
+    match = parser(stream)
+    assert str(match) == ''
+
+
+# def test_string_parser():
+#     parser = stg('bar')
+#     stream = Stream('bar')
+#     match = parser(stream)
+#     assert str(match) == 'bar'

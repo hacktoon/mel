@@ -4,32 +4,39 @@ from .stream import (
 )
 
 
-class ParseResult:
-    def __init__(self, chars):
+class Match:
+    def __init__(self, id, chars):
+        self.id = id
         self.error = len(chars) == 0
-        self.chars
+        self.chars = chars
+
+    def __repr__(self):
+        return ''.join(char.value for char in self.chars)
 
 
 def parser(name):
-    def decorator(generator):
-        @functools.wraps(generator)
-        def real_generator():
-            return generator()
-        return real_generator
+    def decorator(parser):
+        @functools.wraps(parser)
+        def real_parser(stream):
+            return Match(name, parser(stream))
+        return real_parser
     return decorator
 
 
-@parser('Digit')
-def digit():
+# Digit parser ======================================
+def dgt():
+    @parser('Digit')
     def digit_parser(stream):
-        return stream.read_many(DIGIT)
+        return stream.read_one(DIGIT)
     return digit_parser
 
 
-def char(id):
-    def char_parser(stream):
-        return stream.read(id)
-    return char_parser
+# String parser ======================================
+def stg(text):
+    @parser('String')
+    def string_parser(stream):
+        return stream.read_string(text)
+    return string_parser
 
 
 # class Symbol:

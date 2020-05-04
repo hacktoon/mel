@@ -28,22 +28,27 @@ class Stream:
         return len(self.text)
 
     def read(self, expected_type=None):
-        value, type = self._read_text()
+        value, type = self._peek()
         if expected_type is not None and type != expected_type:
             return None
         char = self._build_char(type, value)
-        self._update_indexes(type)
+        self.forward(type)
         return char
 
-    def _read_text(self):
-        value = EOF_VALUE if self.eof else self.text[self.index]
+    def _peek(self, offset=0):
+        index = self.index + offset
+        value = self._peek_value(offset)
         type = self._type_map.get(value, OTHER)
         return value, type
+
+    def _peek_value(self, offset=0):
+        index = self.index + offset
+        return EOF_VALUE if self.eof else self.text[index]
 
     def _build_char(self, type, value):
         return Char(self.index, self.line, self.column, type, value)
 
-    def _update_indexes(self, type):
+    def forward(self, type):
         if self.eof:
             return
         self.index += 1
@@ -67,6 +72,17 @@ class Stream:
             if not char:
                 break
             chars.extend(char)
+        return chars
+
+    def read_string(self, text):
+        cache_index = self.index
+        chars = []
+        for expected_char in enumerate(text):
+            value, type = self.read()
+            if value != expected_char:
+                return []
+            char = self._build_next_char(type, value)
+            chars.append(char)
         return chars
 
     @property
