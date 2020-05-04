@@ -20,7 +20,7 @@ def create_stream(text=''):
     return Stream(text)
 
 
-def concat_values(chars):
+def as_string(chars):
     return ''.join(ch.value for ch in chars)
 
 
@@ -178,28 +178,26 @@ def test_char_read_by_unexpected_type_returns_none():
 
 def test_read_one_lower():
     stream = create_stream('z')
-    assert stream.read_one(DIGIT, LOWER).value == 'z'
+    assert as_string(stream.read_one(DIGIT, LOWER)) == 'z'
 
 
 def test_sequence_read_one_digit():
     stream = create_stream('4a')
-    assert stream.read_one(LOWER, DIGIT).value == '4'
-    assert stream.read_one(DIGIT, LOWER).value == 'a'
+    assert as_string(stream.read_one(LOWER, DIGIT)) == '4'
+    assert as_string(stream.read_one(DIGIT, LOWER)) == 'a'
 
 
 def test_char_read_many():
     stream = create_stream('abc 123')
     chars = stream.read_many(LOWER)
-    token = concat_values(chars)
-    assert token == 'abc'
+    assert as_string(chars) == 'abc'
 
 
 def test_char_read_many_alnum():
     expected = 'a6bXc92A30'
     stream = create_stream(expected + '_12ab')
     chars = stream.read_many(LOWER, UPPER, DIGIT)
-    token = concat_values(chars)
-    assert token == expected
+    assert as_string(chars) == expected
 
 
 def test_char_read_many_digits():
@@ -212,8 +210,7 @@ def test_char_read_many_symbols():
     text = '$%@*('
     stream = create_stream(text)
     chars = stream.read_many(SYMBOL)
-    token = concat_values(chars)
-    assert token == text
+    assert as_string(chars) == text
 
 
 # def test_char_read_whitespace():

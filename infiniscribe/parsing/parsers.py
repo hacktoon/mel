@@ -1,12 +1,25 @@
-from .stream import DIGIT
+import functools
+from .stream import (
+    DIGIT
+)
 
 
-def parser(function):
-    def _parser():
-        return
-    return _parser(function)
+class ParseResult:
+    def __init__(self, chars):
+        self.error = len(chars) == 0
+        self.chars
 
 
+def parser(name):
+    def decorator(generator):
+        @functools.wraps(generator)
+        def real_generator():
+            return generator()
+        return real_generator
+    return decorator
+
+
+@parser('Digit')
 def digit():
     def digit_parser(stream):
         return stream.read_many(DIGIT)

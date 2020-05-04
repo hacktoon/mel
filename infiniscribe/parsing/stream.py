@@ -30,7 +30,7 @@ class Stream:
     def read(self, expected_type=None):
         value, type = self._read_text()
         if expected_type is not None and type != expected_type:
-            return
+            return None
         char = self._build_char(type, value)
         self._update_indexes(type)
         return char
@@ -56,9 +56,9 @@ class Stream:
     def read_one(self, *types):
         for type in types:
             char = self.read(type)
-            if char:
-                return char
-        return
+            if char is not None:
+                return [char]
+        return []
 
     def read_many(self, *types):
         chars = []
@@ -66,7 +66,7 @@ class Stream:
             char = self.read_one(*types)
             if not char:
                 break
-            chars.append(char)
+            chars.extend(char)
         return chars
 
     @property

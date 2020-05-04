@@ -16,7 +16,7 @@ def create_base_lang():
     return lang
 
 
-def concat_values(chars):
+def as_string(chars):
     return ''.join(char.value for char in chars)
 
 
@@ -30,4 +30,4 @@ def test_line_comment():
 def test_digit_parser():
     parser = digit()
     stream = Stream('545')
-    assert concat_values(parser(stream)) == '545'
+    assert as_string(parser(stream)) == '545'
