@@ -27,6 +27,7 @@ def as_string(chars):
 
 def test_empty_text_eof():
     stream = create_stream()
+    assert stream.eof
     assert stream.read().type == EOF
 
 

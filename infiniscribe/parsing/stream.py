@@ -44,7 +44,7 @@ class Stream:
 
     @property
     def eof(self):
-        return self.index >= len(self.chars)
+        return self.chars.read(self.index).type == EOF
 
 
 class CharStream:
