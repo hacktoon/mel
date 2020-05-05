@@ -25,12 +25,7 @@ def as_string(chars):
 
 # BEGIN  TESTS ==================================
 
-def test_empty_text():
-    stream = create_stream()
-    assert len(stream) == 0
-
-
-def test_eof():
+def test_empty_text_eof():
     stream = create_stream()
     assert stream.read().type == EOF
 

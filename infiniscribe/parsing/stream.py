@@ -16,23 +16,15 @@ EOF = 8
 class Stream:
     def __init__(self, text='', config={}):
         # TODO: should update the map with provided separator chars
-        self.chars = build_char_data(text)
+        self.chars = CharStream(text)
         self.index = 0
 
-    def __len__(self):
-        return len(self.chars)
-
     def read(self, expected_type=None):
-        char = self.char_at(self.index)
+        char = self.chars.read(self.index)
         if expected_type is not None and char.type != expected_type:
             return None
         self.index += 1
         return char
-
-    def char_at(self, index=0):
-        if self.eof:
-            return Char('\0', EOF, -1, -1)
-        return self.chars[index]
 
     def read_one(self, *types):
         for type in types:
@@ -55,39 +47,51 @@ class Stream:
         return self.index >= len(self.chars)
 
 
+class CharStream:
+    def __init__(self, text):
+        self.type_map = self._build_type_map()
+        self.chars = self._build(text)
+
+    def read(self, index):
+        try:
+            return self.chars[index]
+        except IndexError:
+            return Char('\0', EOF, -1, -1)
+
+    def _build(self, text):
+        line = col = 0
+        chars = []
+        for value in text:
+            type = self.type_map.get(value, OTHER)
+            chars.append(Char(value, type, line, col))
+            line = line + 1 if type == NEWLINE else line
+            col = 0 if type == NEWLINE else col + 1
+        return chars
+
+    @functools.lru_cache(maxsize=1)
+    def _build_type_map(self, extra_space=''):
+        '''Build a {char_value: char_type} dict for each allowed char'''
+        table = (
+            (string.ascii_lowercase, LOWER),
+            (string.ascii_uppercase, UPPER),
+            (string.punctuation,     SYMBOL),
+            (string.digits,          DIGIT),
+            (' \r\t\b\a\v\f',        SPACE),
+            ('\n',                   NEWLINE),
+        )
+        char_map = {}
+        for chars, type in table:
+            row_map = {char: type for char in chars}
+            char_map.update(row_map)
+        return char_map
+
+    def __len__(self):
+        return len(self.chars)
+
+
 @dataclass
 class Char:
     value: str
     type: int
     line: int
     column: int
-
-
-def build_char_data(text):
-    line = col = 0
-    type_map = build_type_map()
-    chars = []
-    for value in text:
-        type = type_map.get(value, OTHER)
-        chars.append(Char(value, type, line, col))
-        line = line + 1 if type == NEWLINE else line
-        col = 0 if type == NEWLINE else col + 1
-    return chars
-
-
-@functools.lru_cache(maxsize=1)
-def build_type_map(extra_space=''):
-    '''Build a dict {char: type} from constants'''
-    table = (
-        (string.ascii_lowercase, LOWER),
-        (string.ascii_uppercase, UPPER),
-        (string.punctuation,     SYMBOL),
-        (string.digits,          DIGIT),
-        (' \r\t\b\a\v\f',        SPACE),
-        ('\n',                   NEWLINE),
-    )
-    char_map = {}
-    for chars, type in table:
-        row_map = {char: type for char in chars}
-        char_map.update(row_map)
-    return char_map
