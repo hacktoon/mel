@@ -23,60 +23,54 @@ def parser(name):
     return decorator
 
 
-# Digit parser ======================================
-def dgt():
-    @parser('Digit')
+# ======================================
+def digit():
+    @parser('one digit')
     def digit_parser(stream):
         return stream.read_one(DIGIT)
     return digit_parser
 
 
-# String parser ======================================
-def stg(text):
-    @parser('String')
+# ======================================
+def digits():
+    @parser('one or more digits')
+    def digit_parser(stream):
+        return stream.read_one(DIGIT)
+    return digit_parser
+
+
+# ======================================
+def quoted(text):
+    @parser('a quoted literal')
     def string_parser(stream):
-        return stream.read_string(text)
+        return stream.read(text)
     return string_parser
 
 
-# class Symbol:
-#     def __init__(self, *symbols):
-#         self.symbols = symbols
+# ======================================
+def seq(text):
+    @parser('a sequence')
+    def string_parser(stream):
+        return stream.read(text)
+    return string_parser
 
-#     def parse(self, _):
-#         raise NotImplementedError
 
-#     def list_parse(self, symbols, context):
-#         nodes = []
-#         index = context.stream.save()
-#         try:
-#             for symbol in symbols:
-#                 nodes.append(symbol.parse(context))
-#         except ParsingError as error:
-#             context.stream.restore(index)
-#             raise error
-#         return nodes
+# ======================================
+def lit(text):
+    @parser('a literal sequence')
+    def string_parser(stream):
+        return stream.read(text)
+    return string_parser
 
-#     def skip_parse(self, context):
-#         skip_rules = context.skip_rules.values()
 
-#         def skipped():
-#             return len([r for r in skip_rules if skip(context, r)])
-
-#         def skip(context, rule):
-#             try:
-#                 for symbol in rule.symbols:
-#                     symbol.parse(context, skip=False)  # TODO: remove skip
-#             except ParsingError:
-#                 return False
-#             return True
-
-#         while skipped():
-#             pass
-
-#     def __repr__(self):
-#         children = ', '.join([repr(s) for s in self.symbols])
-#         return f"{self.__class__.__name__}({children})"
+# ======================================
+def zeromany(parser):
+    @parser('zero or many')
+    def parse(self, context):
+        nodes = []
+        # while True:
+        #     nodes.append(parser)
+        return nodes
 
 
 # class Start(Symbol):
@@ -109,18 +103,6 @@ def stg(text):
 #     def __repr__(self):
 #         classname = self.__class__.__name__
 #         return f'{classname}("{self.id}")'
-
-
-# class ZeroMany(Symbol):
-#     def parse(self, context):
-#         node = ZeroManyNode()
-#         while True:
-#             try:
-#                 children = self.list_parse(self.symbols, context)
-#                 node.add(*children)
-#             except ParsingError:
-#                 break
-#         return node
 
 
 # class OneMany(Symbol):

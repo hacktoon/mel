@@ -17,6 +17,7 @@ EOF_VALUE = '\0'
 
 class Stream:
     def __init__(self, text=''):
+        # TODO: should update the map with provided separator chars
         self._type_map = create_type_map()
         self.text = text
         self.index = 0
@@ -35,16 +36,13 @@ class Stream:
         return char
 
     def _peek(self, offset=0):
-        value = self._peek_value(offset)
+        index = self.index + offset
+        value = EOF_VALUE if self.eof else self.text[index]
         type = self._type_map.get(value, OTHER)
         return value, type
 
-    def _peek_value(self, offset=0):
-        index = self.index + offset
-        return EOF_VALUE if self.eof else self.text[index]
-
     def _build_char(self, value, type):
-        return Char(self.index, self.line, self.column, value, type)
+        return Char(self.line, self.column, value, type)
 
     def forward(self, type):
         if self.eof:
@@ -76,7 +74,6 @@ class Stream:
 
 @dataclass
 class Char:
-    index: int
     line: int
     column: int
     value: str

@@ -37,11 +37,13 @@ class Language:
 
 '''
 # parsers =================================
-numbers
-quoted  -- disables reading spaces
-lit     -- disables reading spaces
 s
 r
+digit
+digits  -- one or many digits
+quoted  -- disables reading spaces
+litseq  -- disables reading spaces
+seq     -- sequence of parsers
 alt
 non
 opt
@@ -58,7 +60,7 @@ lang.separator(' \n\t,;')
 def eval_float(parsed):
     return
 
-@lang.rule('float', lit(numbers(), opt(numbers()), ))
+@lang.rule('float', lseq(numbers(), opt(numbers()), ))
 def eval_float(parsed):
     return
 

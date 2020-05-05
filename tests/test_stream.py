@@ -70,13 +70,6 @@ def test_char_type(test_input, expected):
     assert stream.read().type == expected
 
 
-def test_char_index():
-    text = 'ab\r\nc\td '
-    stream = create_stream(text)
-    indexes = [stream.read().index for _ in text]
-    assert indexes == list(range(8))
-
-
 def test_char_line():
     text = 'ab\nc\n\nd'
     stream = create_stream(text)
