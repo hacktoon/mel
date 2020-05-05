@@ -1,6 +1,4 @@
 import pytest
-import random
-import string
 
 from infiniscribe.parsing.stream import (
     Stream,
@@ -53,11 +51,15 @@ def test_empty_stream_read_many():
     ('1',  DIGIT),
     ('5',  DIGIT),
     ('9',  DIGIT),
-    (' s',  SPACE),
+    (' ',  SPACE),
     ('\t', SPACE),
-    ('\r', NEWLINE),
+    ('\a', SPACE),
+    ('\b', SPACE),
+    ('\v', SPACE),
+    ('\r', SPACE),
     ('%',  SYMBOL),
     ('*',  SYMBOL),
+    ('_',  SYMBOL),
     ('"',  SYMBOL),
     ('\n', NEWLINE),
     ('é',  OTHER),
@@ -90,72 +92,6 @@ def test_char_values():
     stream = create_stream(text)
     values = [stream.read().value for _ in text]
     assert values == list(text)
-
-
-def test_char_is_digit():
-    text = random.choice(string.digits)
-    stream = create_stream(text)
-    assert stream.read().is_digit()
-
-
-def test_char_is_not_digit():
-    choices = string.ascii_letters + string.punctuation + string.whitespace
-    text = random.choice(choices)
-    stream = create_stream(text)
-    assert not stream.read().is_digit()
-
-
-def test_char_is_lower():
-    text = random.choice(string.ascii_lowercase)
-    stream = create_stream(text)
-    assert stream.read().is_lower()
-
-
-def test_char_is_upper():
-    text = random.choice(string.ascii_uppercase)
-    stream = create_stream(text)
-    assert stream.read().is_upper()
-
-
-def test_char_is_symbol():
-    text = random.choice(string.punctuation)
-    stream = create_stream(text)
-    assert stream.read().is_symbol()
-
-
-def test_char_is_space():
-    text = random.choice(' \t\x0b\x0c')
-    stream = create_stream(text)
-    assert stream.read().is_space()
-
-
-def test_char_is_not_space():
-    text = random.choice(string.ascii_letters)
-    stream = create_stream(text)
-    assert not stream.read().is_space()
-
-
-def test_char_is_newline():
-    stream = create_stream('\n')
-    assert stream.read().is_newline()
-
-
-def test_char_is_not_newline():
-    text = random.choice(string.ascii_letters)
-    stream = create_stream(text)
-    assert not stream.read().is_newline()
-
-
-def test_char_is_other():
-    text = random.choice('éàõ¢£¬áï\r')
-    stream = create_stream(text)
-    assert stream.read().is_other()
-
-
-def test_char_is_not_other():
-    text = random.choice(string.ascii_letters + string.digits)
-    stream = create_stream(text)
-    assert not stream.read().is_other()
 
 
 def test_char_read_by_type():

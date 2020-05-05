@@ -62,30 +62,6 @@ class Char:
     line: int
     column: int
 
-    def is_digit(self):
-        return self.type == DIGIT
-
-    def is_lower(self):
-        return self.type == LOWER
-
-    def is_upper(self):
-        return self.type == UPPER
-
-    def is_symbol(self):
-        return self.type == SYMBOL
-
-    def is_space(self):
-        return self.type == SPACE
-
-    def is_newline(self):
-        return self.type == NEWLINE
-
-    def is_other(self):
-        return self.type == OTHER
-
-    def is_eof(self):
-        return self.type == EOF
-
 
 def build_char_data(text):
     line = col = 0
@@ -107,8 +83,8 @@ def build_type_map(extra_space=''):
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
         (string.digits,          DIGIT),
-        (' \t\b\a\v\f',          SPACE),
-        ('\r\n',                 NEWLINE),
+        (' \r\t\b\a\v\f',        SPACE),
+        ('\n',                   NEWLINE),
     )
     char_map = {}
     for chars, type in table:
