@@ -1,8 +1,7 @@
 from infiniscribe.parsing import Language
 from infiniscribe.parsing.stream import Stream
 from infiniscribe.parsing.parsers import (
-    dgt,
-    stg
+    dgt
 )
 
 

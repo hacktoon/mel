@@ -18,7 +18,6 @@ EOF_VALUE = '\0'
 class Stream:
     def __init__(self, text=''):
         self._type_map = create_type_map()
-        self.skip_types = [SPACE]
         self.text = text
         self.index = 0
         self.line = 0
@@ -31,12 +30,11 @@ class Stream:
         value, type = self._peek()
         if expected_type is not None and type != expected_type:
             return None
-        char = self._build_char(type, value)
+        char = self._build_char(value, type)
         self.forward(type)
         return char
 
     def _peek(self, offset=0):
-        index = self.index + offset
         value = self._peek_value(offset)
         type = self._type_map.get(value, OTHER)
         return value, type
@@ -45,18 +43,15 @@ class Stream:
         index = self.index + offset
         return EOF_VALUE if self.eof else self.text[index]
 
-    def _build_char(self, type, value):
-        return Char(self.index, self.line, self.column, type, value)
+    def _build_char(self, value, type):
+        return Char(self.index, self.line, self.column, value, type)
 
     def forward(self, type):
         if self.eof:
             return
+        self.line += 1 if type == NEWLINE else 0
+        self.column = 0 if type == NEWLINE else self.column + 1
         self.index += 1
-        if type == NEWLINE:
-            self.line += 1
-            self.column = 0
-        else:
-            self.column += 1
 
     def read_one(self, *types):
         for type in types:
@@ -74,17 +69,6 @@ class Stream:
             chars.extend(char)
         return chars
 
-    def read_string(self, text):
-        cache_index = self.index
-        chars = []
-        for expected_char in enumerate(text):
-            value, type = self.read()
-            if value != expected_char:
-                return []
-            char = self._build_next_char(type, value)
-            chars.append(char)
-        return chars
-
     @property
     def eof(self):
         return self.index >= len(self.text)
@@ -95,8 +79,8 @@ class Char:
     index: int
     line: int
     column: int
-    type: int
     value: str
+    type: int
 
     def is_digit(self):
         return self.type == DIGIT
@@ -131,7 +115,7 @@ def create_type_map():
         (string.ascii_lowercase, LOWER),
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
-        (' \t\x0b\x0c',          SPACE),
+        (' \r\t\x0b\x0c',        SPACE),
         ('\n',                   NEWLINE),
         (EOF_VALUE,              EOF)
     )

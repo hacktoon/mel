@@ -3,6 +3,8 @@ import functools
 from .stream import Stream
 
 
+# TODO: class RuleRegistry
+
 class Language:
     def __init__(self, name='Default'):
         self.name = name
@@ -24,34 +26,56 @@ class Language:
             def real_parser(stream):
                 return evaluator(parser(stream))
             self._rules[id] = real_parser
-            return real_parser
+            return real_parser  # TODO: wrap in Parser Metadata class
         return decorator
+
+    # TODO: add magic_methods to extend evaluators, maybe
 
     def parse(self, text):
         return self._start(Stream(text))
 
 
 '''
-# rules =================================
+# parsers =================================
+numbers
+quoted  -- disables reading spaces
+lit     -- disables reading spaces
+s
+r
+alt
+non
+opt
+onemany
+zeromany
 
-lang.line_comment('#')
+
+# rules ===================================
+lang.single_comment('#')
 lang.multi_comment('##')
+lang.separator(' \n\t,;')
 
-@lang.rule('int', some(ch('digit')))
+@lang.rule('int', some(digit()))
 def eval_float(parsed):
     return
 
-
-@lang.rule('float', some(ch('digit')))
+@lang.rule('float', lit(numbers(), opt(numbers()), ))
 def eval_float(parsed):
     return
 
-@lang.rule('concept', seq(upper(), zero_many(alnum())))
-def eval_concept(parsed):
+@lang.rule('float', seq(
+    s('('),
+    r('key'), r('value'),
+    s(')')
+)
+def eval_float(parsed):
     return
 
-@lang.rule('string', qst('"'))
+@lang.rule('string', quoted('"\''))
 def eval_string(parsed):
+    return parsed.value.strip(parsed.parser.hint)
+
+@lang.rule('concept', lit(upper(), zero_many(alnum())))
+def eval_concept(parsed):
     return
 
 @lang.rule('keyword', oneof(t('string'), t('int'), t('float')))

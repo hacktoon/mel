@@ -54,11 +54,11 @@ def test_empty_stream_read_many():
     ('9',  DIGIT),
     (' s',  SPACE),
     ('\t', SPACE),
+    ('\r', SPACE),
     ('%',  SYMBOL),
     ('*',  SYMBOL),
     ('"',  SYMBOL),
     ('\n', NEWLINE),
-    ('\r', OTHER),
     ('é',  OTHER),
     ('ó',  OTHER),
     ('¨',  OTHER),
@@ -211,18 +211,3 @@ def test_char_read_many_symbols():
     stream = create_stream(text)
     chars = stream.read_many(SYMBOL)
     assert as_string(chars) == text
-
-
-# def test_char_read_whitespace():
-#     stream = create_stream(' \n\t   t \r  a ')
-#     stream.read_whitespace()
-#     nonws = stream.read()
-#     assert nonws.index == 7
-#     assert nonws.type == SPACE
-
-
-# def test_char_read_integers():
-#     text = '634'
-#     stream = create_stream(text)
-#     integers = [int(c.value) for c in stream.read_integers()]
-#     assert integers == [6, 3, 4]
