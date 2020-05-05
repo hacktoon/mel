@@ -1,5 +1,4 @@
 import string
-import functools
 from dataclasses import dataclass
 
 
@@ -14,6 +13,40 @@ EOF = 8
 
 
 class Stream:
+    def __init__(self, text='', config={}):
+        # TODO: should update the map with provided separator chars
+        self.chars = CharStream(text)
+        self.index = 0
+
+    def read(self, expected_type=None):
+        char = self.chars.read(self.index)
+        if expected_type is not None and char.type != expected_type:
+            return None
+        self.index += 1
+        return char
+
+    def read_one(self, *types):
+        for type in types:
+            char = self.read(type)
+            if char is not None:
+                return [char]
+        return []
+
+    def read_many(self, *types):
+        chars = []
+        while True:
+            char = self.read_one(*types)
+            if not char:
+                break
+            chars.extend(char)
+        return chars
+
+    @property
+    def eof(self):
+        return self.chars.read(self.index).type == EOF
+
+
+class TokenStream:
     def __init__(self, text='', config={}):
         # TODO: should update the map with provided separator chars
         self.chars = CharStream(text)
@@ -68,7 +101,6 @@ class CharStream:
             col = 0 if type == NEWLINE else col + 1
         return chars
 
-    @functools.lru_cache(maxsize=1)
     def _build_type_map(self, extra_space=''):
         '''Build a {char_value: char_type} dict for each allowed char'''
         table = (
