@@ -12,8 +12,6 @@ NEWLINE = 6
 OTHER = 7
 EOF = 8
 
-EOF_VALUE = '\0'
-
 
 class Stream:
     def __init__(self, text=''):
@@ -28,25 +26,18 @@ class Stream:
         return len(self.text)
 
     def read(self, expected_type=None):
-        value, type = self._peek()
+        value = '' if self.eof else self.text[self.index]
+        type = EOF if self.eof else self._type_map.get(value, OTHER)
         if expected_type is not None and type != expected_type:
             return None
         char = self._build_char(value, type)
         self.forward(type)
         return char
 
-    def _peek(self, offset=0):
-        index = self.index + offset
-        value = EOF_VALUE if self.eof else self.text[index]
-        type = self._type_map.get(value, OTHER)
-        return value, type
-
     def _build_char(self, value, type):
         return Char(self.line, self.column, value, type)
 
     def forward(self, type):
-        if self.eof:
-            return
         self.line += 1 if type == NEWLINE else 0
         self.column = 0 if type == NEWLINE else self.column + 1
         self.index += 1
@@ -104,8 +95,12 @@ class Char:
         return self.type == EOF
 
 
+def build_chars(text):
+    pass
+
+
 @functools.lru_cache(maxsize=1)
-def create_type_map():
+def create_type_map(extra_space_chars=''):
     '''Build a dict {char: type} from constants'''
     table = (
         (string.digits,          DIGIT),
@@ -113,8 +108,7 @@ def create_type_map():
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
         (' \r\t\x0b\x0c',        SPACE),
-        ('\n',                   NEWLINE),
-        (EOF_VALUE,              EOF)
+        ('\n',                   NEWLINE)
     )
     char_map = {}
     for chars, type in table:

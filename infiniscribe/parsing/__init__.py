@@ -47,6 +47,7 @@ seq     -- sequence of parsers
 alt
 non
 opt
+optseq
 onemany
 zeromany
 
@@ -60,7 +61,10 @@ lang.separator(' \n\t,;')
 def eval_float(parsed):
     return
 
-@lang.rule('float', lseq(numbers(), opt(numbers()), ))
+@lang.rule('float', litseq(
+    numbers(),
+    optseq(s('.'), numbers()),
+))
 def eval_float(parsed):
     return
 
