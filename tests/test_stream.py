@@ -10,7 +10,8 @@ from infiniscribe.parsing.stream import (
     SYMBOL,
     SPACE,
     NEWLINE,
-    OTHER
+    OTHER,
+    EOF
 )
 
 
@@ -33,7 +34,7 @@ def test_empty_text():
 
 def test_eof():
     stream = create_stream()
-    assert stream.read().is_eof()
+    assert stream.read().type == EOF
 
 
 def test_empty_stream_read_many():
@@ -54,7 +55,7 @@ def test_empty_stream_read_many():
     ('9',  DIGIT),
     (' s',  SPACE),
     ('\t', SPACE),
-    ('\r', SPACE),
+    ('\r', NEWLINE),
     ('%',  SYMBOL),
     ('*',  SYMBOL),
     ('"',  SYMBOL),

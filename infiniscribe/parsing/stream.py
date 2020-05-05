@@ -14,33 +14,25 @@ EOF = 8
 
 
 class Stream:
-    def __init__(self, text=''):
+    def __init__(self, text='', config={}):
         # TODO: should update the map with provided separator chars
-        self._type_map = create_type_map()
-        self.text = text
+        self.chars = build_char_data(text)
         self.index = 0
-        self.line = 0
-        self.column = 0
 
     def __len__(self):
-        return len(self.text)
+        return len(self.chars)
 
     def read(self, expected_type=None):
-        value = '' if self.eof else self.text[self.index]
-        type = EOF if self.eof else self._type_map.get(value, OTHER)
-        if expected_type is not None and type != expected_type:
+        char = self.char_at(self.index)
+        if expected_type is not None and char.type != expected_type:
             return None
-        char = self._build_char(value, type)
-        self.forward(type)
+        self.index += 1
         return char
 
-    def _build_char(self, value, type):
-        return Char(self.line, self.column, value, type)
-
-    def forward(self, type):
-        self.line += 1 if type == NEWLINE else 0
-        self.column = 0 if type == NEWLINE else self.column + 1
-        self.index += 1
+    def char_at(self, index=0):
+        if self.eof:
+            return Char('\0', EOF, -1, -1)
+        return self.chars[index]
 
     def read_one(self, *types):
         for type in types:
@@ -60,15 +52,15 @@ class Stream:
 
     @property
     def eof(self):
-        return self.index >= len(self.text)
+        return self.index >= len(self.chars)
 
 
 @dataclass
 class Char:
-    line: int
-    column: int
     value: str
     type: int
+    line: int
+    column: int
 
     def is_digit(self):
         return self.type == DIGIT
@@ -95,20 +87,28 @@ class Char:
         return self.type == EOF
 
 
-def build_chars(text):
-    pass
+def build_char_data(text):
+    line = col = 0
+    type_map = build_type_map()
+    chars = []
+    for value in text:
+        type = type_map.get(value, OTHER)
+        chars.append(Char(value, type, line, col))
+        line = line + 1 if type == NEWLINE else line
+        col = 0 if type == NEWLINE else col + 1
+    return chars
 
 
 @functools.lru_cache(maxsize=1)
-def create_type_map(extra_space_chars=''):
+def build_type_map(extra_space=''):
     '''Build a dict {char: type} from constants'''
     table = (
-        (string.digits,          DIGIT),
         (string.ascii_lowercase, LOWER),
         (string.ascii_uppercase, UPPER),
         (string.punctuation,     SYMBOL),
-        (' \r\t\x0b\x0c',        SPACE),
-        ('\n',                   NEWLINE)
+        (string.digits,          DIGIT),
+        (' \t\b\a\v\f',          SPACE),
+        ('\r\n',                 NEWLINE),
     )
     char_map = {}
     for chars, type in table:
