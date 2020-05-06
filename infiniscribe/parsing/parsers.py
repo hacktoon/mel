@@ -7,11 +7,13 @@ from .stream import (
 class Match:
     def __init__(self, id, chars):
         self.id = id
-        self.error = len(chars) == 0
         self.chars = chars
 
     def __repr__(self):
         return ''.join(char.value for char in self.chars)
+
+    def __bool__(self):
+        return len(self.chars)
 
 
 def parser(name):
