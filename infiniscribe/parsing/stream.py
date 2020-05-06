@@ -46,25 +46,6 @@ class Stream:
         return self.chars.read(self.index).type == EOF
 
 
-class TokenStream:
-    def __init__(self, chars):
-        self.chars = chars
-        self.tokens = self._build()
-        self.index = 0
-
-    def _build(self):
-        return []
-
-    def read(self):
-        char = self.tokens.read(self.index)
-        self.index += 1
-        return char
-
-    @property
-    def eof(self):
-        return self.chars.read(self.index).type == EOF
-
-
 class CharStream:
     def __init__(self, text):
         # TODO: should update the map with provided separator chars
