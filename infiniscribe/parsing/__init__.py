@@ -1,5 +1,3 @@
-import functools
-
 from .stream import Stream
 
 
@@ -10,24 +8,26 @@ class Language:
         self.name = name
         self._start = lambda stream: None
         self._rules = {}
+        self._tokens = {}
 
     def start(self, parser):
-        def decorator(evaluator):
-            @functools.wraps(evaluator)
-            def real_parser(stream):
-                return evaluator(parser(stream))
-            self._start = real_parser
-            return real_parser
-        return decorator
+        def real_parser(stream):
+            return parser(stream)
+        self._start = real_parser
+        return real_parser
 
     def rule(self, id, parser):
-        def decorator(evaluator):
-            @functools.wraps(evaluator)
-            def real_parser(stream):
-                return evaluator(parser(stream))
-            self._rules[id] = real_parser
-            return real_parser  # TODO: wrap in Parser Metadata class
-        return decorator
+        def real_parser(stream):
+            return parser(stream)
+        self._rules[id] = real_parser
+        return real_parser  # TODO: wrap in Parser Metadata class
+
+    def token(self, id, parser):
+        def token_parser(stream):
+            # stream.read_separator()
+            return parser(stream)
+        self._tokens[id] = token_parser
+        return token_parser  # TODO: wrap in Parser Metadata class
 
     # TODO: add magic_methods to extend evaluators, maybe
 
@@ -39,10 +39,13 @@ class Language:
 # parsers =================================
 s
 r
-digit
-digits  -- one or many digits
+number  --
+lower   --
+upper   --
+alpha   -- lower + upper
+alnum   -- one of letters + digits
+numbers -- shortcut to one or many digits
 quoted  -- disables reading spaces
-litseq  -- disables reading spaces
 seq     -- sequence of parsers
 alt
 non
@@ -54,39 +57,30 @@ zeromany
 
 # rules ===================================
 lang.single_comment('#')
+
 lang.multi_comment('##')
+
 lang.separator(' \n\t,;')
 
-@lang.rule('int', some(digit()))
-def eval_float(parsed):
-    return
+lang.token('int', numbers())
 
-@lang.rule('float', litseq(
+lang.token('float', seq(
     numbers(),
     optseq(s('.'), numbers()),
 ))
-def eval_float(parsed):
-    return
 
-@lang.rule('float', seq(
+lang.rule('string', quoted('"\'', escape='\\'))
+
+lang.token('concept', seq(upper(), zero_many(alnum())))
+
+lang.rule('object', seq(
     s('('),
     r('key'), r('value'),
     s(')')
 )
-def eval_float(parsed):
-    return
 
-@lang.rule('string', quoted('"\''))
-def eval_string(parsed):
-    return parsed.value.strip(parsed.parser.hint)
+@lang.rule('keyword', oneof(t('string'), t('int')))
 
-@lang.rule('concept', lit(upper(), zero_many(alnum())))
-def eval_concept(parsed):
-    return
-
-@lang.rule('keyword', oneof(t('string'), t('int'), t('float')))
-def eval_keyword(parsed):
-    return
 
 # ========= node conversion (to other formats)
 

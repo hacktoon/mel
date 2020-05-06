@@ -47,33 +47,18 @@ class Stream:
 
 
 class TokenStream:
-    def __init__(self, text='', config={}):
-        # TODO: should update the map with provided separator chars
-        self.chars = CharStream(text)
+    def __init__(self, chars):
+        self.chars = chars
+        self.tokens = self._build()
         self.index = 0
 
-    def read(self, expected_type=None):
-        char = self.chars.read(self.index)
-        if expected_type is not None and char.type != expected_type:
-            return None
-        self.index += 1
-        return char
-
-    def read_one(self, *types):
-        for type in types:
-            char = self.read(type)
-            if char is not None:
-                return [char]
+    def _build(self):
         return []
 
-    def read_many(self, *types):
-        chars = []
-        while True:
-            char = self.read_one(*types)
-            if not char:
-                break
-            chars.extend(char)
-        return chars
+    def read(self):
+        char = self.tokens.read(self.index)
+        self.index += 1
+        return char
 
     @property
     def eof(self):
@@ -82,6 +67,7 @@ class TokenStream:
 
 class CharStream:
     def __init__(self, text):
+        # TODO: should update the map with provided separator chars
         self.type_map = self._build_type_map()
         self.chars = self._build(text)
 
