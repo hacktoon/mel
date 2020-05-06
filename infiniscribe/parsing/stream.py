@@ -18,9 +18,9 @@ class Stream:
         self.chars = CharStream(text)
         self.index = 0
 
-    def read(self, expected_type=None):
+    def read(self, type=None):
         char = self.chars.read(self.index)
-        if expected_type is not None and char.type != expected_type:
+        if type is not None and char.type != type:
             return None
         self.index += 1
         return char
