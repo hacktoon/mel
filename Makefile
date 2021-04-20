@@ -1,14 +1,14 @@
 PYTHON_DEBUGGER=ipdb.set_trace
 
 install:
-ifdef DEV
-	pip install ipython pudb
-endif
 	cp bin/pre-commit.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 	chmod +x bin/infiniscribe
 	pip install --upgrade pip
 	pip install -r requirements.txt
+
+install-dev:
+	pip install ipython ipdb
 
 upgrade:
 	pip install --upgrade pip -r requirements.txt
