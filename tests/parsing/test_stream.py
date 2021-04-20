@@ -1,6 +1,7 @@
 import pytest
 
 from mel.parsing.stream import (
+    Char,
     Stream,
     LOWER,
     UPPER,
@@ -29,6 +30,11 @@ def test_empty_text_eof():
     stream = create_stream()
     assert stream.eof
     assert stream.read().type == EOF
+
+
+def test_empty_text_char_type():
+    stream = create_stream()
+    assert isinstance(stream.read(), Char)
 
 
 def test_empty_stream_read_many():
