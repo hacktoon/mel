@@ -1,7 +1,7 @@
 [run]
-source = infiniscribe/
+source = mel/
 branch = true
-data_file = /tmp/.infiniscribe-coverage
+data_file = /tmp/.mel-coverage
 
 [report]
 fail_under = 90

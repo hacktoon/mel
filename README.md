@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/hacktoon/infiniscribe.svg?branch=master)](https://travis-ci.org/hacktoon/infiniscribe)
+[![Build Status](https://travis-ci.org/hacktoon/mel.svg?branch=master)](https://travis-ci.org/hacktoon/mel)
 
-# Infiniscribe
+# mel
 
-Infiniscribe is a general purpose data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
+mel is a general purpose data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Main objectives
@@ -43,17 +43,17 @@ make inspect
 ### Using system's Python
 
 ```
-./bin/infiniscribe examples/person
+./bin/mel examples/person
 ```
 
 ### Using Docker
 
 ```
-docker build -t infiniscribe .
-docker run infiniscribe examples/thumbnail
+docker build -t mel .
+docker run mel examples/thumbnail
 ```
 
 
 ## License
 
-Infiniscribe is distributed under the terms of the **MIT** license. See [LICENSE](LICENSE.md).
+mel is distributed under the terms of the **MIT** license. See [LICENSE](LICENSE.md).

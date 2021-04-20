@@ -1,6 +1,6 @@
 import pytest
 
-from infiniscribe.parsing.stream import (
+from mel.parsing.stream import (
     Stream,
     LOWER,
     UPPER,

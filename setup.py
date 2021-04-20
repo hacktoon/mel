@@ -1,13 +1,13 @@
 from setuptools import setup
 
 setup(
-    name="Infiniscribe",
+    name="mel",
     version="0.1",
     description="Data Language",
-    url="http://github.com/hacktoon/infiniscribe",
+    url="http://github.com/hacktoon/mel",
     author="Karlisson Bezerra",
     author_email="karlisson@hacktoon.com",
     license="MIT",
-    packages=["infiniscribe"],
+    packages=["mel"],
     zip_safe=False,
 )

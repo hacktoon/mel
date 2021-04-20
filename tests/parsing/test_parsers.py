@@ -1,5 +1,5 @@
-from infiniscribe.parsing.stream import Stream
-from infiniscribe.parsing.parsers import (
+from mel.parsing.stream import Stream
+from mel.parsing.parsers import (
     digit
 )
 

@@ -1,4 +1,4 @@
-from infiniscribe.parsing import Language
+from mel.parsing import Language
 
 
 # HELPER FUNCTIONS ==================================
