@@ -1,14 +1,6 @@
-[![Build Status](https://travis-ci.org/hacktoon/mel.svg?branch=master)](https://travis-ci.org/hacktoon/mel)
+# MEL
 
-# mel
-
-mel is a general purpose data markup language which describes the metadata, context and relations in a data model. It can be used to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
-
-
-## Main objectives
- * Provide a uniform interface for building webapps
- * Build and represent different types of information
- * Automate data generation for different formats
+Mel is a general purpose data markup language which describes the metadata, context and relations in a data model. Its objective is to generate data like HTML, CSS, XML, JSON and other tree structures, using a common language.
 
 
 ## Documentation
@@ -25,7 +17,7 @@ mel is a general purpose data markup language which describes the metadata, cont
 
 ### Dependencies
 
- * Python 3.7+
+ * Python 3.9+
  * Pip
  * GNU Make
  * Docker (optional)
