@@ -1,7 +1,8 @@
-from .stream import Stream
+from ..lexing.stream import CharStream
 
 
 # TODO: class RuleRegistry
+
 
 class Language:
     def __init__(self, name='Default'):
@@ -24,7 +25,7 @@ class Language:
     # TODO: add magic_methods to extend evaluators, maybe
 
     def parse(self, text):
-        return self._start(Stream(text))
+        return self._start(CharStream(text))
 
 
 '''
@@ -48,16 +49,6 @@ Opt          first char of parser
 OptSeq       optional sequence
 OneMany
 ZeroMany
-
-
-### when two parsers start with same char
-ex: int and float
-
-    char = stream.read(type)
-    for p in parsers:
-        p.result += char
-
-
 
 # rules ===================================
 lang.single_comment('#')

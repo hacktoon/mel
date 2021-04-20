@@ -1,23 +1,12 @@
 import pytest
 
-from mel.parsing.stream import (
-    Char,
-    Stream,
-    LOWER,
-    UPPER,
-    DIGIT,
-    SYMBOL,
-    SPACE,
-    NEWLINE,
-    OTHER,
-    EOF
-)
+from mel.lexing.stream import Char, CharStream
 
 
 # HELPER FUNCTIONS ==================================
 
 def create_stream(text=''):
-    return Stream(text)
+    return CharStream(text)
 
 
 def as_string(chars):
@@ -29,7 +18,7 @@ def as_string(chars):
 def test_empty_text_eof():
     stream = create_stream()
     assert stream.eof
-    assert stream.read().type == EOF
+    assert stream.read().type == Char.EOF
 
 
 def test_empty_text_char_type():
@@ -43,32 +32,32 @@ def test_empty_stream_read_many():
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ('a',  LOWER),
-    ('h',  LOWER),
-    ('z',  LOWER),
-    ('A',  UPPER),
-    ('M',  UPPER),
-    ('Z',  UPPER),
-    ('0',  DIGIT),
-    ('1',  DIGIT),
-    ('5',  DIGIT),
-    ('9',  DIGIT),
-    (' ',  SPACE),
-    ('\t', SPACE),
-    ('\a', SPACE),
-    ('\b', SPACE),
-    ('\v', SPACE),
-    ('\r', SPACE),
-    ('%',  SYMBOL),
-    ('*',  SYMBOL),
-    ('_',  SYMBOL),
-    ('"',  SYMBOL),
-    ('\n', NEWLINE),
-    ('é',  OTHER),
-    ('ó',  OTHER),
-    ('¨',  OTHER),
-    ('£',  OTHER),
-    ('ã',  OTHER)
+    ('a',  Char.LOWER),
+    ('h',  Char.LOWER),
+    ('z',  Char.LOWER),
+    ('A',  Char.UPPER),
+    ('M',  Char.UPPER),
+    ('Z',  Char.UPPER),
+    ('0',  Char.DIGIT),
+    ('1',  Char.DIGIT),
+    ('5',  Char.DIGIT),
+    ('9',  Char.DIGIT),
+    (' ',  Char.SPACE),
+    ('\t', Char.SPACE),
+    ('\a', Char.SPACE),
+    ('\b', Char.SPACE),
+    ('\v', Char.SPACE),
+    ('\r', Char.SPACE),
+    ('%',  Char.SYMBOL),
+    ('*',  Char.SYMBOL),
+    ('_',  Char.SYMBOL),
+    ('"',  Char.SYMBOL),
+    ('\n', Char.NEWLINE),
+    ('é',  Char.OTHER),
+    ('ó',  Char.OTHER),
+    ('¨',  Char.OTHER),
+    ('£',  Char.OTHER),
+    ('ã',  Char.OTHER)
 ])
 def test_char_type(test_input, expected):
     stream = create_stream(test_input)
@@ -98,48 +87,48 @@ def test_char_values():
 
 def test_char_read_by_type():
     stream = create_stream('abc 123')
-    char = stream.read(LOWER)
+    char = stream.read(Char.LOWER)
     assert char.value == 'a'
 
 
 def test_char_read_by_unexpected_type_returns_none():
     stream = create_stream('22')
-    char = stream.read(LOWER)
+    char = stream.read(Char.LOWER)
     assert char is None
 
 
 def test_read_one_lower():
     stream = create_stream('z')
-    assert as_string(stream.read_one(DIGIT, LOWER)) == 'z'
+    assert as_string(stream.read_one(Char.DIGIT, Char.LOWER)) == 'z'
 
 
 def test_sequence_read_one_digit():
     stream = create_stream('4a')
-    assert as_string(stream.read_one(LOWER, DIGIT)) == '4'
-    assert as_string(stream.read_one(DIGIT, LOWER)) == 'a'
+    assert as_string(stream.read_one(Char.LOWER, Char.DIGIT)) == '4'
+    assert as_string(stream.read_one(Char.DIGIT, Char.LOWER)) == 'a'
 
 
 def test_char_read_many():
     stream = create_stream('abc 123')
-    chars = stream.read_many(LOWER)
+    chars = stream.read_many(Char.LOWER)
     assert as_string(chars) == 'abc'
 
 
 def test_char_read_many_alnum():
     expected = 'a6bXc92A30'
     stream = create_stream(expected + '_12ab')
-    chars = stream.read_many(LOWER, UPPER, DIGIT)
+    chars = stream.read_many(Char.LOWER, Char.UPPER, Char.DIGIT)
     assert as_string(chars) == expected
 
 
-def test_char_read_many_digits():
+def test_char_read_many_digits_wrong_text():
     stream = create_stream('abc')
-    chars = stream.read_many(DIGIT)
+    chars = stream.read_many(Char.DIGIT)
     assert chars == []
 
 
 def test_char_read_many_symbols():
     text = '$%@*('
     stream = create_stream(text)
-    chars = stream.read_many(SYMBOL)
+    chars = stream.read_many(Char.SYMBOL)
     assert as_string(chars) == text

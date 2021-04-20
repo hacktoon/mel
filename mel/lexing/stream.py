@@ -1,28 +1,19 @@
 import string
-from dataclasses import dataclass
+
+from .char import Char
 
 
-DIGIT = 1
-LOWER = 2
-UPPER = 3
-SYMBOL = 4
-SPACE = 5
-NEWLINE = 6
-OTHER = 7
-EOF = 8
-
-
-class Stream:
+class CharStream:
     def __init__(self, text='', config={}):
         # TODO: should update the map with provided separator chars
-        self.chars = CharStream(text)
-        self.index = 0
+        self._chars = TextStream(text)
+        self._index = 0
 
     def read(self, type=None):
-        char = self.chars.read(self.index)
+        char = self._chars.read(self._index)
         if type is not None and char.type != type:
             return None
-        self.index += 1
+        self._index += 1
         return char
 
     def read_one(self, *types):
@@ -43,10 +34,10 @@ class Stream:
 
     @property
     def eof(self):
-        return self.chars.read(self.index).type == EOF
+        return self._chars.read(self._index).type == Char.EOF
 
 
-class CharStream:
+class TextStream:
     def __init__(self, text):
         # TODO: should update the map with provided separator chars
         self.type_map = self._build_type_map()
@@ -56,27 +47,28 @@ class CharStream:
         try:
             return self.chars[index]
         except IndexError:
-            return Char('\0', EOF, -1, -1)
+            return Char('', Char.EOF, -1, -1)
 
     def _build(self, text):
         line = col = 0
         chars = []
         for value in text:
-            type = self.type_map.get(value, OTHER)
-            chars.append(Char(value, type, line, col))
-            line = line + 1 if type == NEWLINE else line
-            col = 0 if type == NEWLINE else col + 1
+            type = self.type_map.get(value, Char.OTHER)
+            char = Char(value, type, line, col)
+            line = line + 1 if type == Char.NEWLINE else line
+            col = 0 if type == Char.NEWLINE else col + 1
+            chars.append(char)
         return chars
 
     def _build_type_map(self, extra_space=''):
         '''Build a {char_value: char_type} dict for each allowed char'''
         table = (
-            (string.ascii_lowercase, LOWER),
-            (string.ascii_uppercase, UPPER),
-            (string.punctuation,     SYMBOL),
-            (string.digits,          DIGIT),
-            (' \r\t\b\a\v\f',        SPACE),
-            ('\n',                   NEWLINE),
+            (string.ascii_lowercase, Char.LOWER),
+            (string.ascii_uppercase, Char.UPPER),
+            (string.punctuation,     Char.SYMBOL),
+            (string.digits,          Char.DIGIT),
+            (' \r\t\b\a\v\f',        Char.SPACE),
+            ('\n',                   Char.NEWLINE),
         )
         char_map = {}
         for chars, type in table:
@@ -86,11 +78,3 @@ class CharStream:
 
     def __len__(self):
         return len(self.chars)
-
-
-@dataclass
-class Char:
-    value: str
-    type: int
-    line: int
-    column: int

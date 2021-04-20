@@ -1,7 +1,4 @@
-import functools
-from .stream import (
-    DIGIT
-)
+from ..lexing.stream import Char
 
 
 class Match:
@@ -16,42 +13,42 @@ class Match:
         return len(self.chars)
 
 
-def parser(name):
-    def decorator(parser):
-        @functools.wraps(parser)
-        def real_parser(stream):
-            return Match(name, parser(stream))
-        return real_parser
-    return decorator
+# parser decorator, returns a match object using
+# the actual parser
+
+
+class BaseParser:
+    id = ''
+    hint = ''
+
+    def parse(self, stream):
+        chars = self._read(stream)
+        return Match(self.id, chars)
+
+    def _read(self, stream):
+        raise NotImplementedError()
 
 
 # ======================================
-def digit():
-    @parser('one digit')
-    def digit_parser(stream):
-        return stream.read_one(DIGIT)
-    return digit_parser
+class IntParser(BaseParser):
+    id = 'integer'
+    hint = Char.DIGIT
+
+    def _read(self, stream):
+        return stream.read_many(Char.DIGIT)
 
 
 # ======================================
-def digits():
-    @parser('one or more digits')
-    def digit_parser(stream):
-        return stream.read_one(DIGIT)
-    return digit_parser
+def StringParser(BaseParser):
+    id = 'string'  # noqa
+    hint = '"'  # noqa
+
+    def _read(self, stream):
+        return stream.read_char('"')
 
 
 # ======================================
-def quoted(text):
-    @parser('a quoted literal')
-    def string_parser(stream):
-        return stream.read(text)
-    return string_parser
-
-
-# ======================================
-def seq(text):
-    @parser('a sequence')
+def Seq(text):
     def string_parser(stream):
         return stream.read(text)
     return string_parser
@@ -59,7 +56,6 @@ def seq(text):
 
 # ======================================
 def lit(text):
-    @parser('a literal sequence')
     def string_parser(stream):
         return stream.read(text)
     return string_parser
@@ -67,7 +63,6 @@ def lit(text):
 
 # ======================================
 def zeromany(parser):
-    @parser('zero or many')
     def parse(self, context):
         nodes = []
         # while True:
