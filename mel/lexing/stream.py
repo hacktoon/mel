@@ -9,28 +9,39 @@ class CharStream:
         self._chars = TextStream(text)
         self._index = 0
 
-    def read(self, type=None):
+    def one_types(self, *types):
+        # get one char of many types
+        for type in types:
+            char = self.one_type(type)
+            if char is not None:
+                return [char]
+        return []
+
+    def one_many_types(self, *types):
+        # get a list of chars of many types
+        chars = []
+        while True:
+            char = self.one_types(*types)
+            if not char:
+                break
+            chars.extend(char)
+        return chars
+
+    def one_str(self, _str=''):
+        # get one char equal to string
+        char = self._chars.read(self._index)
+        if char.value == _str:
+            self._index += 1
+            return char
+        return None
+
+    def one_type(self, type=None):
+        # get one char of type
         char = self._chars.read(self._index)
         if type is not None and char.type != type:
             return None
         self._index += 1
         return char
-
-    def read_one(self, *types):
-        for type in types:
-            char = self.read(type)
-            if char is not None:
-                return [char]
-        return []
-
-    def read_many(self, *types):
-        chars = []
-        while True:
-            char = self.read_one(*types)
-            if not char:
-                break
-            chars.extend(char)
-        return chars
 
     @property
     def eof(self):

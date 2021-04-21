@@ -35,7 +35,7 @@ class IntParser(BaseParser):
     hint = Char.DIGIT
 
     def _read(self, stream):
-        return stream.read_many(Char.DIGIT)
+        return stream.one_many_types(Char.DIGIT)
 
 
 # ======================================
@@ -44,20 +44,13 @@ def StringParser(BaseParser):
     hint = '"'  # noqa
 
     def _read(self, stream):
-        return stream.read_char('"')
+        return stream.one_str('"')
 
 
 # ======================================
 def Seq(text):
     def string_parser(stream):
-        return stream.read(text)
-    return string_parser
-
-
-# ======================================
-def lit(text):
-    def string_parser(stream):
-        return stream.read(text)
+        return stream.one_types(text)
     return string_parser
 
 
