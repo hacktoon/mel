@@ -27,8 +27,10 @@ class CharStream:
             chars.extend(char)
         return chars
 
-    def one_str(self, _str=''):
+    def one_str(self, _str):
         # get one char equal to string
+        if len(_str) > 1:
+            raise ValueError('one char only')
         char = self._chars.read(self._index)
         if char.value == _str:
             self._index += 1

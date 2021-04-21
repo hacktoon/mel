@@ -1,20 +1,5 @@
 from ..lexing.stream import Char
-
-
-class Match:
-    def __init__(self, id, chars):
-        self.id = id
-        self.chars = chars
-
-    def __repr__(self):
-        return ''.join(char.value for char in self.chars)
-
-    def __bool__(self):
-        return len(self.chars)
-
-
-# parser decorator, returns a match object using
-# the actual parser
+from .nodes import Node
 
 
 class BaseParser:
@@ -23,7 +8,7 @@ class BaseParser:
 
     def parse(self, stream):
         chars = self._read(stream)
-        return Match(self.id, chars)
+        return Node(self.id, chars)
 
     def _read(self, stream):
         raise NotImplementedError()
