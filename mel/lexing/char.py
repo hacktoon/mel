@@ -1,7 +1,4 @@
-from dataclasses import dataclass
 
-
-@dataclass
 class Char:
     EOF = None
     DIGIT = 1
@@ -12,7 +9,11 @@ class Char:
     NEWLINE = 6
     OTHER = 7
 
-    value: str
-    type: int
-    line: int
-    column: int
+    def __init__(self, value, type, line=-1, column=-1):
+        self.value = value
+        self.type = type
+        self.line = line
+        self.column = column
+
+    def __repr__(self):
+        return f'"{self.value}"'

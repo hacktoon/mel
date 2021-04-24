@@ -4,9 +4,8 @@ from .char import Char
 
 
 class CharStream:
-    def __init__(self, text='', config={}):
-        # TODO: should update the map with provided separator chars
-        self._chars = TextStream(text)
+    def __init__(self, text=''):
+        self._chars = CharList(text)
         self._index = 0
 
     def one_types(self, *types):
@@ -47,33 +46,34 @@ class CharStream:
 
     @property
     def eof(self):
-        return self._chars.read(self._index).type == Char.EOF
+        char = self._chars.read(self._index)
+        return char.type == Char.EOF
 
 
-class TextStream:
+class CharList:
     def __init__(self, text):
-        # TODO: should update the map with provided separator chars
-        self.type_map = self._build_type_map()
-        self.chars = self._build(text)
+        self._chars = self._build(text)
 
     def read(self, index):
         try:
-            return self.chars[index]
+            return self._chars[index]
         except IndexError:
-            return Char('', Char.EOF, -1, -1)
+            return Char('', Char.EOF)
 
     def _build(self, text):
-        line = col = 0
+        line = column = 0
         chars = []
-        for value in text:
-            type = self.type_map.get(value, Char.OTHER)
-            char = Char(value, type, line, col)
-            line = line + 1 if type == Char.NEWLINE else line
-            col = 0 if type == Char.NEWLINE else col + 1
+        _type_map = self._build_type_map()
+        for char_str in text:
+            type = _type_map.get(char_str, Char.OTHER)
+            char = Char(char_str, type, line, column)
             chars.append(char)
+            #  update line and columns for next char
+            line = line + 1 if type == Char.NEWLINE else line
+            column = 0 if type == Char.NEWLINE else column + 1
         return chars
 
-    def _build_type_map(self, extra_space=''):
+    def _build_type_map(self):
         '''Build a {char_value: char_type} dict for each allowed char'''
         table = (
             (string.ascii_lowercase, Char.LOWER),
@@ -90,4 +90,4 @@ class TextStream:
         return char_map
 
     def __len__(self):
-        return len(self.chars)
+        return len(self._chars)

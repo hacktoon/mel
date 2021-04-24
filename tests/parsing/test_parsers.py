@@ -9,6 +9,15 @@ def test_int_parser():
     stream = CharStream('51')
     match = parser.parse(stream)
     assert str(match) == '51'
+    assert stream.eof
+
+
+def test_int_parser_not_eof():
+    parser = IntParser()
+    stream = CharStream('3d')
+    match = parser.parse(stream)
+    assert str(match) == '3'
+    assert not stream.eof
 
 
 def test_int_parser_wrong_text():

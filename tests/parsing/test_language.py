@@ -1,16 +1,12 @@
 from mel.parsing import Language
+from mel.parsing import Language
+from mel.parsing.parsers import (
+    IntParser,
+    StringParser,
+)
 
 
-# HELPER FUNCTIONS ==================================
-
-def create_base_lang():
-    lang = Language('foo')
-    lang.start(lambda stream: 'start')
-    return lang
-
-
-# TESTS ==================================
-
-def test_line_comment():
-    lang = create_base_lang()
-    assert lang.parse('') == 'start'
+def test_hint_map():
+    lang = Language()
+    assert lang.hint_map.has(IntParser)
+    assert lang.hint_map.has(StringParser)

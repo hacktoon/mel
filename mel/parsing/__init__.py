@@ -1,31 +1,13 @@
 from ..lexing.stream import CharStream
-
-
-# TODO: class RuleRegistry
+from .parsers import ParserHintMap
 
 
 class Language:
-    def __init__(self, name='Default'):
-        self.name = name
-        self._start = lambda stream: None
-        self._rules = {}
-
-    def start(self, parser):
-        def real_parser(stream):
-            return parser(stream)
-        self._start = real_parser
-        return real_parser
-
-    def rule(self, id, parser):
-        def real_parser(stream):
-            return parser(stream)
-        self._rules[id] = real_parser
-        return real_parser  # TODO: wrap in Parser Metadata class
-
-    # TODO: add magic_methods to extend evaluators, maybe
+    def __init__(self):
+        self.hint_map = ParserHintMap()
 
     def parse(self, text):
-        return self._start(CharStream(text))
+        stream = CharStream(text)
 
 
 '''
