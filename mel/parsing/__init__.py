@@ -1,4 +1,3 @@
-from ..lexing.stream import CharStream
 from .parsers import ParserHintMap
 
 
@@ -7,7 +6,7 @@ class Language:
         self.hint_map = ParserHintMap()
 
     def parse(self, text):
-        stream = CharStream(text)
+        pass
 
 
 '''

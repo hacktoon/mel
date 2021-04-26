@@ -1,5 +1,4 @@
 from mel.parsing import Language
-from mel.parsing import Language
 from mel.parsing.parsers import (
     IntParser,
     StringParser,

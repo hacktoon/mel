@@ -1,16 +1,5 @@
-from ..lexing.stream import Char
-from .nodes import Node
-
-
-class ParserHintMap:
-    def __init__(self):
-        self._map = {
-            cls.hint: cls for cls in
-            BaseParser.__subclasses__()
-        }
-
-    def has(self, parser):
-        return self._map.get(parser.hint)
+from .char import Char
+from .token import Token
 
 
 class BaseParser:
@@ -19,7 +8,7 @@ class BaseParser:
 
     def parse(self, stream):
         chars = self._read(stream)
-        return Node(self.id, chars)
+        return Token(self.id, chars)
 
     def _read(self, stream):
         raise NotImplementedError()
@@ -41,4 +30,3 @@ class StringParser(BaseParser):
 
     def _read(self, stream):
         return stream.one_str('"')
-

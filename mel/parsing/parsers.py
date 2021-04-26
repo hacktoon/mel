@@ -41,4 +41,3 @@ class StringParser(BaseParser):
 
     def _read(self, stream):
         return stream.one_str('"')
-
