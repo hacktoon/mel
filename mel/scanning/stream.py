@@ -13,14 +13,10 @@ class CharStream:
         ch = self._chars.read(self._index)
         return isinstance(ch, char.EOFChar)
 
-    def read(self, types) -> list[BaseChar]:
-        chars = []
-        for type in types:
-            ch = self._chars.read(self._index)
-            if isinstance(ch, type):
-                chars.append(ch)
-                self._index += 1
-        return chars
+    def has(self, expected: BaseChar) -> bool:
+        ch = self._chars.read(self._index)
+        return ch == expected
+
 
     #  read(Char('('))
 

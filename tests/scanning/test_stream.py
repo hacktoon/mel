@@ -16,10 +16,10 @@ def as_string(chars):
 
 # BEGIN  TESTS ==================================
 
-def test_empty_text_eof():
-    stream = create_stream()
-    assert stream.is_eof()
-    assert stream.one_char() == char.EOFChar
+# def test_empty_text_eof():
+#     stream = create_stream()
+#     assert stream.is_eof()
+#     assert stream.read() == char.EOFChar
 
 
 # def test_empty_text_char_type():

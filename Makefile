@@ -13,7 +13,7 @@ install-dev:
 upgrade:
 	pip install --upgrade pip -r requirements.txt
 
-inspect:
+lint:
 	flake8 .
 
 clean:
