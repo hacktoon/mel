@@ -1,7 +1,7 @@
 import string
 
 
-class BaseChar:
+class Char:
     CHARS = ''
 
     def __init__(self, value=None, line: int = -1, column: int = -1):
@@ -25,32 +25,32 @@ class BaseChar:
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"{class_name}('{self.value}')"
+        return f"{class_name}({self.value or ''})"
 
 
-class EOFChar(BaseChar):
+class EOFChar(Char):
     pass
 
 
-class DigitChar(BaseChar):
+class DigitChar(Char):
     CHARS = string.digits
 
 
-class LowerChar(BaseChar):
+class LowerChar(Char):
     CHARS = string.ascii_lowercase
 
 
-class UpperChar(BaseChar):
+class UpperChar(Char):
     CHARS = string.ascii_uppercase
 
 
-class SymbolChar(BaseChar):
+class SymbolChar(Char):
     CHARS = string.punctuation
 
 
-class SpaceChar(BaseChar):
+class SpaceChar(Char):
     CHARS = ' \t\r\b\a\v\f'
 
 
-class NewlineChar(BaseChar):
+class NewlineChar(Char):
     CHARS = '\n'

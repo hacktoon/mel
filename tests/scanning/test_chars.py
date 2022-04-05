@@ -8,8 +8,13 @@ from mel.scanning import char
 
 # BEGIN  TESTS ==================================
 
+def test_null_char():
+    ch = char.Char()
+    assert repr(ch) == 'Char()'
+
+
 def test_empty_base_char():
-    ch = char.BaseChar()
+    ch = char.Char()
     assert ch.value is None
 
 
@@ -21,6 +26,12 @@ def test_empty_char():
 def test_char_eq_type():
     d1 = char.DigitChar()
     d2 = char.DigitChar()
+    assert d1 == d2
+
+
+def test_char_eq_type_and_optional_value():
+    d1 = char.DigitChar()
+    d2 = char.DigitChar('3')
     assert d1 == d2
 
 

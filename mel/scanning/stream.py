@@ -1,7 +1,7 @@
 import string
 
 from . import char
-from .char import BaseChar
+from .char import Char
 
 
 class CharStream:
@@ -13,7 +13,7 @@ class CharStream:
         ch = self._chars.read(self._index)
         return isinstance(ch, char.EOFChar)
 
-    def has(self, expected: BaseChar) -> bool:
+    def is_next(self, expected: Char) -> bool:
         ch = self._chars.read(self._index)
         return ch == expected
 
