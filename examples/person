@@ -1,7 +1,6 @@
 (person                         -- Let's define a "person" object.
-    #active                     -- This person is tagged as active
     name = "John"               -- a property "name" with value "John" and
     surname = "Doe"             -- a property "surname" with value "Doe".
     age = 45                    -- Define the "age" property as 45.
-    (%list name ' ' surname)    -- Set format for lists using name and surname
+    (Format name ' ' surname)    -- Set default format using name and surname
 )

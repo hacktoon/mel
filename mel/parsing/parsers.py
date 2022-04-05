@@ -1,4 +1,4 @@
-from ..lexing.stream import Char
+from ..scanning.stream import Char
 from .nodes import Node
 
 

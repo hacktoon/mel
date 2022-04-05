@@ -1,4 +1,4 @@
-from .char import Char
+from ..scanning import Char
 from .token import Token
 
 

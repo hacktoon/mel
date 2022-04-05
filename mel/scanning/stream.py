@@ -1,6 +1,7 @@
 import string
 
-from .char import Char
+from . import char
+from .char import BaseChar
 
 
 class CharStream:
@@ -8,46 +9,48 @@ class CharStream:
         self._chars = CharList(text)
         self._index = 0
 
-    def one_types(self, *types):
-        # get one char of many types
-        for type in types:
-            char = self.one_type(type)
-            if char is not None:
-                return [char]
-        return []
+    def is_eof(self) -> bool:
+        ch = self._chars.read(self._index)
+        return isinstance(ch, char.EOFChar)
 
-    def one_many_types(self, *types):
-        # get a list of chars of many types
+    def read(self, types) -> list[BaseChar]:
         chars = []
-        while True:
-            char = self.one_types(*types)
-            if not char:
-                break
-            chars.extend(char)
+        for type in types:
+            ch = self._chars.read(self._index)
+            if isinstance(ch, type):
+                chars.append(ch)
+                self._index += 1
         return chars
 
-    def one_str(self, _str):
-        # get one char equal to string
-        if len(_str) > 1:
-            raise ValueError('one char only')
-        char = self._chars.read(self._index)
-        if char.value == _str:
-            self._index += 1
-            return char
-        return None
+    #  read(Char('('))
 
-    def one_type(self, type=None):
-        # get one char of type
-        char = self._chars.read(self._index)
-        if type is not None and char.type != type:
-            return None
-        self._index += 1
-        return char
+    # def one_types(self, *types):
+    #     # get one char of many types
+    #     for type in types:
+    #         char = self.one_type(type)
+    #         if char is not None:
+    #             return [char]
+    #     return []
 
-    @property
-    def eof(self):
-        char = self._chars.read(self._index)
-        return char.type == Char.EOF
+    # def one_many_types(self, *types):
+    #     # get a list of chars of many types
+    #     chars = []
+    #     while True:
+    #         char = self.one_types(*types)
+    #         if not char:
+    #             break
+    #         chars.extend(char)
+    #     return chars
+
+    # def one_str(self, _str):
+    #     # get one char equal to string
+    #     if len(_str) > 1:
+    #         raise ValueError('one char only')
+    #     char = self._chars.read(self._index)
+    #     if char.value == _str:
+    #         self._index += 1
+    #         return char
+    #     return None
 
 
 class CharList:
@@ -58,7 +61,7 @@ class CharList:
         try:
             return self._chars[index]
         except IndexError:
-            return Char('', Char.EOF)
+            return char.EOFChar()
 
     def _build(self, text):
         line = column = 0
