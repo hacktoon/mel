@@ -3,35 +3,25 @@ import pytest
 from mel.scanning.stream import CharStream
 
 
-# HELPER FUNCTIONS ==================================
-
-def create_stream(text=''):
-    return CharStream(text)
-
-
-def as_string(chars):
-    return ''.join(ch.value for ch in chars)
-
-
 # BEGIN  TESTS ==================================
 
 def test_empty_text_is_eof():
-    stream = create_stream()
+    stream = CharStream()
     assert stream.peek().is_eof()
 
 
 def test_empty_text_has_zero_length():
-    stream = create_stream()
+    stream = CharStream()
     assert len(stream) == 0
 
 
 def test_stream_length():
-    stream = create_stream('abc')
+    stream = CharStream('abc')
     assert len(stream) == 3
 
 
 def test_empty_text_char_type():
-    stream = create_stream()
+    stream = CharStream()
     assert stream.read().is_eof()
 
 
@@ -64,34 +54,34 @@ def test_empty_text_char_type():
     ('ã',  'is_other')
 ])
 def test_char_type(test_input, method):
-    stream = create_stream(test_input)
+    stream = CharStream(test_input)
     ch = stream.read()
     assert getattr(ch, method)()
 
 
 def test_char_line():
     text = 'ab\nc\n\nd'
-    stream = create_stream(text)
+    stream = CharStream(text)
     lines = [stream.read().line for _ in text]
     assert lines == [0, 0, 0, 1, 1, 2, 3]
 
 
 def test_char_column():
     text = 'ab\nc\n\nd'
-    stream = create_stream(text)
+    stream = CharStream(text)
     lines = [stream.read().column for _ in text]
     assert lines == [0, 1, 2, 0, 1, 0, 0]
 
 
 def test_char_values():
     text = 'i76hj-'
-    stream = create_stream(text)
+    stream = CharStream(text)
     values = ''.join([stream.read().value for _ in text])
     assert values == text
 
 
 def test_is_next_char():
-    stream = create_stream('a3')
+    stream = CharStream('a3')
     assert stream.peek().value == 'a'
     assert not stream.peek().value == 'C'
     stream.read()
