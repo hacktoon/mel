@@ -114,10 +114,25 @@ OPEN_LIST_SYMBOL       =  '['
 CLOSE_LIST_SYMBOL      =  ']'
 ```
 
-### Needed functions
+### Token parsers
+- char
 - optional
 - group
 - not
-- alternative
+- any
 - one_many
 - zero_many
+
+Each parser returns a ParserResult
+
+Example for NameToken
+    seq(
+        char(LowerChar()),
+        zero_many(
+            any(
+                char(SymbolChar('_'))
+                char(LowerChar())
+                char(DigitChar())
+            )
+        )
+    )

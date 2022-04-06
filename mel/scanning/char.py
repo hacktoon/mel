@@ -1,27 +1,53 @@
 import string
 
 
+type_map = {}
+
+
+def _register_char(cls):
+    '''Build a {char_str: char_type} dict for chars'''
+    sub_map = {char: cls for char in cls.CHARS}
+    type_map.update(sub_map)
+    return cls
+
+
 class Char:
     CHARS = ''
 
+    @staticmethod
+    def build(ch: str, line: int = 0, column: int = 0):
+        # any char not mapped will be a generic Char
+        _Char = type_map.get(ch, Char)
+        return _Char(ch, line, column)
+
     def __init__(self, value=None, line: int = -1, column: int = -1):
-        self.value = self.__parse_value(value)
+        self.value = value
         self.line = line
         self.column = column
 
-    def __parse_value(self, value) -> None | str:
-        if value is not None and value in self.CHARS:
-            return value
-        return None
+    def is_eof(self) -> bool:
+        return isinstance(self, EOFChar)
 
-    def __eq__(self, other):
-        eq_type = self.__class__.__name__ == other.__class__.__name__
-        if self.value is not None and other.value is not None:
-            return eq_type and self.value == other.value
-        return eq_type
+    def is_digit(self) -> bool:
+        return isinstance(self, DigitChar)
 
-    def __ne__(self, other):
-        return not self == other
+    def is_lower(self) -> bool:
+        return isinstance(self, LowerChar)
+
+    def is_upper(self) -> bool:
+        return isinstance(self, UpperChar)
+
+    def is_symbol(self) -> bool:
+        return isinstance(self, SymbolChar)
+
+    def is_newline(self) -> bool:
+        return isinstance(self, NewlineChar)
+
+    def is_space(self) -> bool:
+        return isinstance(self, SpaceChar)
+
+    def is_other(self) -> bool:
+        return isinstance(self, Char)
 
     def __repr__(self):
         class_name = self.__class__.__name__
@@ -32,25 +58,31 @@ class EOFChar(Char):
     pass
 
 
+@_register_char
 class DigitChar(Char):
     CHARS = string.digits
 
 
+@_register_char
 class LowerChar(Char):
     CHARS = string.ascii_lowercase
 
 
+@_register_char
 class UpperChar(Char):
     CHARS = string.ascii_uppercase
 
 
+@_register_char
 class SymbolChar(Char):
     CHARS = string.punctuation
 
 
+@_register_char
 class SpaceChar(Char):
     CHARS = ' \t\r\b\a\v\f'
 
 
+@_register_char
 class NewlineChar(Char):
     CHARS = '\n'

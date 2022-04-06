@@ -1,3 +1,5 @@
+# from ..scanning import char
+
 
 class Token:
     def __init__(self, id, chars):
