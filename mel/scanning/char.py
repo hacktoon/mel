@@ -13,6 +13,7 @@ def _register_char(cls):
 
 class Char:
     CHARS = ''
+    SKIP = False
 
     @staticmethod
     def build(ch: str, line: int = 0, column: int = 0):
@@ -81,8 +82,10 @@ class SymbolChar(Char):
 @_register_char
 class SpaceChar(Char):
     CHARS = ' \t\r\b\a\v\f'
+    SKIP = True
 
 
 @_register_char
 class NewlineChar(Char):
     CHARS = '\n'
+    SKIP = True

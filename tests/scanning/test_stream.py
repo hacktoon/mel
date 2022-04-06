@@ -1,6 +1,5 @@
 import pytest
 
-from mel.scanning.char import Char
 from mel.scanning.stream import CharStream
 
 
@@ -87,8 +86,8 @@ def test_char_column():
 def test_char_values():
     text = 'i76hj-'
     stream = create_stream(text)
-    values = [stream.read().value for _ in text]
-    assert values == list(text)
+    values = ''.join([stream.read().value for _ in text])
+    assert values == text
 
 
 def test_is_next_char():
