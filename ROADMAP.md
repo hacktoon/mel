@@ -126,13 +126,15 @@ CLOSE_LIST_SYMBOL      =  ']'
 Each parser returns a ParserResult
 
 Example for NameToken
-    seq(
-        char(LowerChar()),
-        zero_many(
-            any(
-                char(SymbolChar('_'))
-                char(LowerChar())
-                char(DigitChar())
-            )
+```
+seq(
+    char(LowerChar()),
+    zero_many(
+        any(
+            char(SymbolChar('_'))
+            char(LowerChar())
+            char(DigitChar())
         )
     )
+)
+```

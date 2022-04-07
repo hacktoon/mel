@@ -1,4 +1,4 @@
-# from ..scanning import char
+from ..scanning import char
 
 
 class Token:
@@ -11,3 +11,7 @@ class Token:
 
     def __bool__(self):
         return len(self.chars)
+
+
+class IntToken:
+    HINTS = char.DigitChar
