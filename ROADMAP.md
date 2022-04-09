@@ -96,6 +96,9 @@ FLOAT                  =  '-'? DIGIT+ ('.' DIGIT+)?
 NAME                   =  LOWER ('_' | LOWER | DIGIT)*
 CONCEPT                =  UPPER ('_' | LOWER | DIGIT)*
 STRING                 =  '"' [^'"']* '"'
+VALUE_SYMBOL           =  '$'
+FORMAT_SYMBOL          =  '%'
+HELP_SYMBOL            =  '?'
 EQUAL_SYMBOL           =  '='
 DIFFERENT_SYMBOL       =  '!='
 LT_SYMBOL              =  '<'

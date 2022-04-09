@@ -16,12 +16,17 @@ class Char:
     SKIP = False
 
     @staticmethod
-    def build(ch: str, line: int = 0, column: int = 0):
+    def build(ch: str = None, line: int = 0, column: int = 0):
         # any char not mapped will be a generic Char
         _Char = type_map.get(ch, Char)
         return _Char(ch, line, column)
 
-    def __init__(self, value=None, line: int = -1, column: int = -1):
+    def __init__(
+        self,
+        value: str = '',
+        line: int = -1,
+        column: int = -1
+    ):
         self.value = value
         self.line = line
         self.column = column
@@ -49,6 +54,9 @@ class Char:
 
     def is_other(self) -> bool:
         return isinstance(self, Char)
+
+    def __bool__(self):
+        return bool(self.value)
 
     def __repr__(self):
         class_name = self.__class__.__name__

@@ -13,7 +13,7 @@ def test_null_char():
 
 def test_empty_base_char():
     ch = Char()
-    assert ch.value is None
+    assert ch.value == ''
 
 
 def test_char_type():
