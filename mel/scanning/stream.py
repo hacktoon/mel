@@ -4,17 +4,11 @@ from .char import Char, EOFChar
 class CharStream:
     def __init__(self, text: str = ''):
         self._chars = self.__build(text)
-        self._index = 0
 
-    def peek(self) -> Char:
-        if self._index < len(self._chars):
-            return self._chars[self._index]
+    def get(self, index: int = 0) -> Char:
+        if index < len(self._chars):
+            return self._chars[index]
         return EOFChar()
-
-    def read(self) -> Char:
-        char = self.peek()
-        self._index += 1
-        return char
 
     def __build(self, text: str) -> list[Char]:
         line = column = 0
