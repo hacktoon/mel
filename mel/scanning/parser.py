@@ -18,8 +18,9 @@ SeqParser(
 
 
 class Produce:
-    def __init__(self, chars: list[Char] = None):
-        self.chars = chars or []
+    def __init__(self, index: int, chars: list[Char]):
+        self.index = index
+        self.chars = chars
 
     def append(self, produce):
         return self.chars.append(produce.chars)
@@ -30,11 +31,12 @@ class Produce:
         return -1
 
     def __bool__(self):
-        return len(self.chars)
+        return len(self.chars) > 0
 
-    def __str__(self):
+    def __repr__(self):
         classname = self.__class__.__name__
-        return f'{classname}({"".join(self.chars)})'
+        _str = [c.value for c in self.chars]
+        return f'{classname}({"".join(_str)})'
 
 
 ########################################################################
@@ -47,12 +49,7 @@ class Parser:
         self.index = 0  # start parsing from here
 
     def parse(self, stream: CharStream) -> Produce:
-        matched = self.__matches(stream.peek())
-        chars = [stream.read()] if matched else []
-        return Produce(chars)
-
-    def __matches(self, char: Char) -> bool:
-        return char.value == self.expected
+        raise NotImplementedError
 
 
 ########################################################################
@@ -95,24 +92,43 @@ class OneOfParser(Parser):
 
 
 ########################################################################
-# SUB PARSERS
+# CHAR PARSERS
 ########################################################################
 
-class LowerParser(Parser):
-    def __matches(self, char: Char) -> bool:
+class CharParser:
+    def __init__(self, index: int, expected: str = None):
+        self.index = index
+        self.expected = expected
+
+    def parse(self, stream: CharStream) -> Produce:
+        char = stream.get(self.index)
+        chars = [char] if self._matches(char) else []
+        return Produce(self.index, chars)
+
+    def _matches(self, char: Char) -> bool:
+        return char.value == self.expected
+
+
+class LowerParser(CharParser):
+    def _matches(self, char: Char) -> bool:
         return char.is_lower()
 
 
-class UpperParser(Parser):
-    def __matches(self, char: Char) -> bool:
+class UpperParser(CharParser):
+    def _matches(self, char: Char) -> bool:
         return char.is_upper()
 
 
-class DigitParser(Parser):
-    def __matches(self, char: Char) -> bool:
+class DigitParser(CharParser):
+    def _matches(self, char: Char) -> bool:
         return char.is_digit()
 
 
-class SymbolParser(Parser):
-    def __matches(self, char: Char) -> bool:
-        return char.is_symbol()
+class SpaceParser(CharParser):
+    def _matches(self, char: Char) -> bool:
+        return char.is_space()
+
+
+class NewlineParser(CharParser):
+    def _matches(self, char: Char) -> bool:
+        return char.is_newline()
