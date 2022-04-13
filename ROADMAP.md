@@ -131,12 +131,12 @@ Each parser returns a ParserResult
 Example for NameToken
 ```
 seq(
-    char(LowerChar()),
+    lower(),
     zero_many(
         any(
-            char(SymbolChar('_'))
-            char(LowerChar())
-            char(DigitChar())
+            char('_')
+            lower()
+            digit()
         )
     )
 )
