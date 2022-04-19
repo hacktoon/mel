@@ -8,7 +8,7 @@ SeqParser(
     LowerParser(),
     ZeroManyParser(
         OneOfParser(
-            Parser('_')
+            CharParser('_')
             LowerParser()
             DigitParser()
         )
@@ -18,9 +18,9 @@ SeqParser(
 
 
 class Produce:
-    def __init__(self, index: int, chars: list[Char] = None):
-        self.index = index
+    def __init__(self, chars: list[Char] = None, index: int = 0):
         self.chars = chars or []
+        self.index = index
 
     def line(self):
         if len(self.chars):
@@ -28,18 +28,24 @@ class Produce:
         return -1
 
     def __add__(self, produce):
-        self.chars.append(produce.chars)
+        chars = self.chars + produce.chars
+        index = self.index + len(produce)
+        return Produce(chars, index)
 
     def __iadd__(self, produce):
-        self.chars.append(produce.chars)
+        return self + produce
 
     def __bool__(self):
         return len(self.chars) > 0
 
+    def __len__(self):
+        return len(self.chars)
+
+    def __str__(self):
+        return "".join(char.value for char in self.chars)
+
     def __repr__(self):
-        classname = self.__class__.__name__
-        _str = [c.value for c in self.chars]
-        return f'{classname}({"".join(_str)})'
+        return f'{self.__class__.__name__}({str(self)})'
 
 
 ########################################################################
@@ -62,7 +68,7 @@ class SingleRuleParser(Parser):
 
 class ZeroManyParser(SingleRuleParser):
     def parse(self, index: int, stream: CharStream) -> Produce:
-        produce = Produce(index + 1)
+        produce = Produce(index=index)
         while subproduce := self.__parser.parse(index + 1, stream):
             produce += subproduce
         return produce
@@ -70,9 +76,11 @@ class ZeroManyParser(SingleRuleParser):
 
 class OneManyParser(SingleRuleParser):
     def parse(self, index: int, stream: CharStream) -> Produce:
-        produce = self.__parser.parse(index + 1, stream)
-        while subproduce := self.__parser.parse(index + 1, stream):
+        produce = self.__parser.parse(index, stream)
+        new_index = index + produce.index
+        while subproduce := self.__parser.parse(new_index, stream):
             produce += subproduce
+            new_index += subproduce.index
         return produce
 
 
@@ -81,25 +89,27 @@ class OneManyParser(SingleRuleParser):
 ########################################################################
 
 class MultiRuleParser(Parser):
-    def __init__(self, parsers: list[Parser]):
+    def __init__(self, *parsers: list[Parser]):
         self._parsers = parsers
+
+    def parse(self, index: int, stream: CharStream) -> Produce:
+        raise NotImplementedError
 
 
 class SeqParser(MultiRuleParser):
-    def parse(self, stream: CharStream) -> Produce:
-        produce = Produce(self._index)
+    def parse(self, index: int, stream: CharStream) -> Produce:
+        produce = Produce(index=index)
         for parser in self._parsers:
-            subproduce = parser.parse(stream)
+            subproduce = parser.parse(produce.index, stream)
             produce += subproduce
-            self._index += 1
         return produce
 
 
 class OneOfParser(MultiRuleParser):
-    def parse(self, stream: CharStream) -> Produce:
-        produce = Produce(self._index)
+    def parse(self, index: int, stream: CharStream) -> Produce:
+        produce = Produce(index=index)
         for parser in self._parsers:
-            if subproduce := parser.parse(stream):
+            if subproduce := parser.parse(index, stream):
                 return produce + subproduce
         return produce
 
@@ -109,17 +119,19 @@ class OneOfParser(MultiRuleParser):
 ########################################################################
 
 class CharParser(Parser):
-    def __init__(self, index: int, expected: str = None):
-        self._index = index
+    def __init__(self, expected: str = ''):
         self._expected = expected
 
-    def parse(self, stream: CharStream) -> Produce:
-        char = stream.get(self._index)
+    def parse(self, index: int, stream: CharStream) -> Produce:
+        char = stream.get(index)
         chars = [char] if self._matches(char) else []
-        return Produce(self._index, chars)
+        return Produce(chars, index)
 
     def _matches(self, char: Char) -> bool:
         return char.value == self._expected
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({self._expected})'
 
 
 ########################################################################

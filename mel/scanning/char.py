@@ -16,7 +16,7 @@ class Char:
     SKIP = False
 
     @staticmethod
-    def build(ch: str = None, line: int = 0, column: int = 0):
+    def build(ch: str = None, line: int = -1, column: int = -1):
         # any char not mapped will be a generic Char
         _Char = type_map.get(ch, Char)
         return _Char(ch, line, column)
