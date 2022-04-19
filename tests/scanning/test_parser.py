@@ -1,8 +1,11 @@
+import pytest
+
 from mel.scanning.stream import CharStream
 from mel.scanning.char import Char
 from mel.scanning.parser import (
     Produce,
     LowerParser,
+    DigitParser,
     OneOfParser,
 )
 
@@ -62,13 +65,29 @@ def test_produces_iadd_string():
 def test_lower_char_parser():
     parser = LowerParser()
     stream = CharStream('a')
-    prod = parser.parse(0, stream)
+    prod = parser.parse(stream)
     assert prod.index == 0
     assert len(prod) == 1
 
 
-# def test_one_of_parser():
-#     parser = OneOfParser(LowerParser())
-#     stream = CharStream('abc')
-#     prod = parser.parse(0, stream)
-#     assert prod.index == 0
+def test_valid_one_of_parser():
+    parser = OneOfParser(LowerParser())
+    stream = CharStream('a')
+    prod = parser.parse(stream)
+    assert prod.index == 0
+
+
+def test_invalid_one_of_parser():
+    parser = OneOfParser(LowerParser())
+    stream = CharStream('2')
+    production = parser.parse(stream)
+    assert not bool(production)
+
+
+@pytest.mark.parametrize('value', 'a3c90z7')
+def test_valid_one_of_parser_lower_int(value):
+    parser = OneOfParser(LowerParser(), DigitParser())
+    stream = CharStream(value)
+    production = parser.parse(stream)
+    assert str(production) == value
+    assert bool(production)

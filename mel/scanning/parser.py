@@ -29,8 +29,7 @@ class Produce:
 
     def __add__(self, produce):
         chars = self.chars + produce.chars
-        index = self.index + len(produce)
-        return Produce(chars, index)
+        return Produce(chars, self.index)
 
     def __iadd__(self, produce):
         return self + produce
@@ -53,7 +52,7 @@ class Produce:
 ########################################################################
 
 class Parser:
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         raise NotImplementedError
 
 
@@ -67,20 +66,18 @@ class SingleRuleParser(Parser):
 
 
 class ZeroManyParser(SingleRuleParser):
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
-        while subproduce := self.__parser.parse(index + 1, stream):
+        while subproduce := self.__parser.parse(stream, index):
             produce += subproduce
         return produce
 
 
 class OneManyParser(SingleRuleParser):
-    def parse(self, index: int, stream: CharStream) -> Produce:
-        produce = self.__parser.parse(index, stream)
-        new_index = index + produce.index
-        while subproduce := self.__parser.parse(new_index, stream):
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
+        produce = self.__parser.parse(stream, index)
+        while subproduce := self.__parser.parse(stream, index):
             produce += subproduce
-            new_index += subproduce.index
         return produce
 
 
@@ -92,24 +89,24 @@ class MultiRuleParser(Parser):
     def __init__(self, *parsers: list[Parser]):
         self._parsers = parsers
 
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         raise NotImplementedError
 
 
 class SeqParser(MultiRuleParser):
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
         for parser in self._parsers:
-            subproduce = parser.parse(produce.index, stream)
-            produce += subproduce
+            if subproduce := parser.parse(stream, index):
+                produce += subproduce
         return produce
 
 
 class OneOfParser(MultiRuleParser):
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
         for parser in self._parsers:
-            if subproduce := parser.parse(index, stream):
+            if subproduce := parser.parse(stream, index):
                 return produce + subproduce
         return produce
 
@@ -122,7 +119,7 @@ class CharParser(Parser):
     def __init__(self, expected: str = ''):
         self._expected = expected
 
-    def parse(self, index: int, stream: CharStream) -> Produce:
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
         char = stream.get(index)
         chars = [char] if self._matches(char) else []
         return Produce(chars, index)
