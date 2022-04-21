@@ -1,13 +1,13 @@
 import string
 
 
-type_map = {}
+_CHAR_TYPE_MAP = {}
 
 
 def _register_char(cls):
     '''Build a {char_str: char_type} dict for chars'''
     sub_map = {char: cls for char in cls.CHARS}
-    type_map.update(sub_map)
+    _CHAR_TYPE_MAP.update(sub_map)
     return cls
 
 
@@ -18,7 +18,7 @@ class Char:
     @staticmethod
     def build(ch: str = None, line: int = -1, column: int = -1):
         # any char not mapped will be a generic Char
-        _Char = type_map.get(ch, Char)
+        _Char = _CHAR_TYPE_MAP.get(ch, Char)
         return _Char(ch, line, column)
 
     def __init__(

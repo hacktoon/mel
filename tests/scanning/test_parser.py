@@ -3,16 +3,18 @@ import pytest
 from mel.scanning.stream import CharStream
 from mel.scanning.char import Char
 from mel.scanning.parser import (
-    Produce,
-    CharParser,
+    Parser,
+    ZeroManyParser,
+    OneManyParser,
+    AlphaParser,
+    SeqParser,
     SpaceParser,
     LowerParser,
     UpperParser,
     DigitParser,
     OneOfParser,
-    SeqParser,
-    ZeroManyParser,
-    OneManyParser,
+    CharParser,
+    Produce,
 )
 
 
@@ -28,8 +30,20 @@ CHARS_DEF = [
     Char.build('f'),
 ]
 
+NAME_PARSER = SeqParser(
+    LowerParser(),
+    ZeroManyParser(
+        OneOfParser(
+            CharParser('_'),
+            AlphaParser(),
+        )
+    )
+)
 
-# BEGIN  TESTS ==================================
+
+# ====================================================================
+# PRODUCE TESTS
+# ====================================================================
 
 def test_produce_length():
     prod2 = Produce(CHARS_ABC)
@@ -67,6 +81,10 @@ def test_produces_iadd_string():
     produce += Produce(CHARS_DEF)
     assert str(produce) == 'abcdef'
 
+
+# ====================================================================
+# PARSER TESTS
+# ====================================================================
 
 @pytest.mark.parametrize('value, parsers', [
     ('a', [CharParser('a')]),
@@ -137,12 +155,46 @@ def test_valid_zeromany_parser(value, parser):
 @pytest.mark.parametrize('value, parser', [
     ('auyjhakvgj', LowerParser()),
     ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
+    ('aZ', OneOfParser(LowerParser(), UpperParser())),
     ('a3r5t6h0k2', SeqParser(LowerParser(), DigitParser())),
+    ('a3', SeqParser(LowerParser(), DigitParser())),
     ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
 ])
-def test_valid_onemany_parser(value, parser):
+def test_valid_onemany_parser(value: str, parser: Parser):
     parser = OneManyParser(parser)
     stream = CharStream(value)
     production = parser.parse(stream)
     assert str(production) == value
     assert bool(production)
+
+
+# ====================================================================
+# TOKEN TESTS
+# ====================================================================
+
+@pytest.mark.parametrize('value', [
+    'auY_jHa',
+    'aB_C2 ',
+    'foobar',
+    'a3r_',
+    'fh44',
+    'a',
+])
+def test_valid_name_token_parser(value: str):
+    stream = CharStream(value)
+    production = NAME_PARSER.parse(stream)
+    assert value.startswith(str(production))
+    assert bool(production)
+
+
+@pytest.mark.parametrize('value', [
+    '$uY_jHa',
+    '6B_C2',
+    '_3r_',
+    '',
+])
+def test_invalid_name_token_parser(value: str):
+    stream = CharStream(value)
+    production = NAME_PARSER.parse(stream)
+    assert str(production) == ''
+    assert not bool(production)

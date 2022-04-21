@@ -2,21 +2,6 @@ from .char import Char
 from .stream import CharStream
 
 
-'''
-<NAME>
-SeqParser(
-    LowerParser(),
-    ZeroManyParser(
-        OneOfParser(
-            CharParser('_')
-            LowerParser()
-            DigitParser()
-        )
-    )
-)
-'''
-
-
 class Produce:
     def __init__(self, chars: list[Char] = None, index: int = 0):
         self.chars = chars or []
@@ -79,8 +64,8 @@ class ZeroManyParser(SingleRuleParser):
         produce = ValidProduce(index=index)
         current_index = index
         while subproduce := self._parser.parse(stream, current_index):
-            produce += subproduce
             current_index += len(subproduce)
+            produce += subproduce
         return produce
 
 
@@ -90,8 +75,8 @@ class OneManyParser(SingleRuleParser):
         produce = parser.parse(stream, index)
         current_index = index + len(produce)
         while subproduce := parser.parse(stream, current_index):
-            produce += subproduce
             current_index += len(subproduce)
+            produce += subproduce
         return produce
 
 
@@ -178,3 +163,10 @@ class SpaceParser(CharParser):
 class NewlineParser(CharParser):
     def _matches(self, char: Char) -> bool:
         return char.is_newline()
+
+
+class AlphaParser(CharParser):
+    def _matches(self, char: Char) -> bool:
+        return char.is_digit() or \
+               char.is_upper() or \
+               char.is_lower()

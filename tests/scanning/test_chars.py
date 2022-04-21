@@ -6,7 +6,7 @@ from mel.scanning.char import Char
 
 # BEGIN  TESTS ==================================
 
-def test_null_char():
+def test_char():
     ch = Char.build('a')
     assert repr(ch) == 'LowerChar(a)'
 
