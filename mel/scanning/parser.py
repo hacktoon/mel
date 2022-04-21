@@ -48,6 +48,11 @@ class Produce:
         return f'{self.__class__.__name__}({str(self)})'
 
 
+class ValidProduce(Produce):
+    def __bool__(self):
+        return True
+
+
 ########################################################################
 # BASE PARSER
 ########################################################################
@@ -71,7 +76,7 @@ class SingleRuleParser(Parser):
 
 class ZeroManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
-        produce = Produce(index=index)
+        produce = ValidProduce(index=index)
         current_index = index
         while subproduce := self._parser.parse(stream, current_index):
             produce += subproduce
@@ -82,8 +87,8 @@ class ZeroManyParser(SingleRuleParser):
 class OneManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         parser = self._parser
-        current_index = index + 1
         produce = parser.parse(stream, index)
+        current_index = index + len(produce)
         while subproduce := parser.parse(stream, current_index):
             produce += subproduce
             current_index += len(subproduce)

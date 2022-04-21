@@ -119,13 +119,29 @@ def test_invalid_seq_parser_returns_nothing(value, parsers):
 
 
 @pytest.mark.parametrize('value, parser', [
+    ('', LowerParser()),
+    ('auyjhakvgj', LowerParser()),
+    ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
+    ('a3r5t6h0k2', SeqParser(LowerParser(), DigitParser())),
+    ('', SeqParser(LowerParser(), DigitParser())),
+    ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
+])
+def test_valid_zeromany_parser(value, parser):
+    parser = ZeroManyParser(parser)
+    stream = CharStream(value)
+    production = parser.parse(stream)
+    assert str(production) == value
+    assert bool(production)
+
+
+@pytest.mark.parametrize('value, parser', [
     ('auyjhakvgj', LowerParser()),
     ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
     ('a3r5t6h0k2', SeqParser(LowerParser(), DigitParser())),
     ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
 ])
-def test_valid_zeromany_parser(value, parser):
-    parser = ZeroManyParser(parser)
+def test_valid_onemany_parser(value, parser):
+    parser = OneManyParser(parser)
     stream = CharStream(value)
     production = parser.parse(stream)
     assert str(production) == value
