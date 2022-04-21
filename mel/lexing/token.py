@@ -15,7 +15,7 @@ class Token:
         return len(self.chars)
 
 
-class NullToken(Token):
+class EOFToken(Token):
     def __init__(self):
         super().__init__('null', None)
 
