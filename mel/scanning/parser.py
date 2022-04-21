@@ -23,9 +23,10 @@ class Produce:
         self.index = index
 
     def line(self):
-        if len(self.chars):
-            return self.chars[0].line
-        return -1
+        return self.chars[0].line if len(self.chars) else -1
+
+    def column(self):
+        return self.chars[0].column if len(self.chars) else -1
 
     def __add__(self, produce):
         chars = self.chars + produce.chars
@@ -64,20 +65,28 @@ class SingleRuleParser(Parser):
     def __init__(self, parser: Parser):
         self._parser = parser
 
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
+        raise NotImplementedError
+
 
 class ZeroManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
-        while subproduce := self.__parser.parse(stream, index):
+        current_index = index
+        while subproduce := self._parser.parse(stream, current_index):
             produce += subproduce
+            current_index += len(subproduce)
         return produce
 
 
 class OneManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
-        produce = self.__parser.parse(stream, index)
-        while subproduce := self.__parser.parse(stream, index):
+        parser = self._parser
+        current_index = index + 1
+        produce = parser.parse(stream, index)
+        while subproduce := parser.parse(stream, current_index):
             produce += subproduce
+            current_index += len(subproduce)
         return produce
 
 
@@ -129,7 +138,9 @@ class CharParser(Parser):
         return Produce(chars, index)
 
     def _matches(self, char: Char) -> bool:
-        return char.value == self._expected
+        if self._expected:
+            return char.value == self._expected
+        return True
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._expected})'

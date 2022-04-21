@@ -7,10 +7,12 @@ from mel.scanning.parser import (
     CharParser,
     SpaceParser,
     LowerParser,
+    UpperParser,
     DigitParser,
     OneOfParser,
     SeqParser,
-    UpperParser,
+    ZeroManyParser,
+    OneManyParser,
 )
 
 
@@ -70,10 +72,11 @@ def test_produces_iadd_string():
     ('a', [CharParser('a')]),
     ('b', [CharParser('b')]),
     ('%', [CharParser('%')]),
+    ('%', [CharParser()]),
     ('a', [LowerParser(), DigitParser()]),
-    ('6', [LowerParser(), DigitParser()]),
+    ('6', [LowerParser(), CharParser()]),
     ('c', [LowerParser(), DigitParser(), UpperParser()]),
-    ('6', [LowerParser(), DigitParser(), UpperParser()]),
+    ('6', [CharParser(), DigitParser(), UpperParser()]),
     ('Z', [LowerParser(), DigitParser(), UpperParser()]),
 ])
 def test_valid_one_of_parser(value, parsers):
@@ -86,10 +89,11 @@ def test_valid_one_of_parser(value, parsers):
 
 @pytest.mark.parametrize('value, parsers', [
     ('z5', [LowerParser(), DigitParser()]),
-    ('a4B', [LowerParser(), DigitParser(), UpperParser()]),
+    ('a4B', [CharParser(), DigitParser(), UpperParser()]),
     ('caA', [LowerParser(), LowerParser(), UpperParser()]),
-    ('*\tA', [CharParser('*'), SpaceParser(), UpperParser()]),
+    ('*\tA', [CharParser('*'), SpaceParser(), CharParser()]),
     ('$ 6', [CharParser('$'), SpaceParser(), DigitParser()]),
+    ('# 6', [CharParser(), SpaceParser(), DigitParser()]),
 ])
 def test_valid_seq_parser(value, parsers):
     parser = SeqParser(*parsers)
@@ -112,3 +116,17 @@ def test_invalid_seq_parser_returns_nothing(value, parsers):
     production = parser.parse(stream)
     assert str(production) == ''
     assert not bool(production)
+
+
+@pytest.mark.parametrize('value, parser', [
+    ('auyjhakvgj', LowerParser()),
+    ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
+    ('a3r5t6h0k2', SeqParser(LowerParser(), DigitParser())),
+    ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
+])
+def test_valid_zeromany_parser(value, parser):
+    parser = ZeroManyParser(parser)
+    stream = CharStream(value)
+    production = parser.parse(stream)
+    assert str(production) == value
+    assert bool(production)

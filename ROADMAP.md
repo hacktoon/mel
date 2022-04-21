@@ -130,13 +130,13 @@ Each parser returns a ParserResult
 
 Example for NameToken
 ```
-seq(
-    lower(),
-    zero_many(
-        any(
-            char('_')
-            lower()
-            digit()
+SeqParser(
+    LowerParser(),
+    ZeroManyParser(
+        OneOfParser(
+            CharParser('_')
+            LowerParser()
+            DigitParser()
         )
     )
 )
