@@ -96,9 +96,13 @@ class MultiRuleParser(Parser):
 class SeqParser(MultiRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
+        current_index = index
         for parser in self._parsers:
-            if subproduce := parser.parse(stream, index):
+            if subproduce := parser.parse(stream, current_index):
                 produce += subproduce
+                current_index += 1
+            else:
+                return Produce(index=index)
         return produce
 
 
