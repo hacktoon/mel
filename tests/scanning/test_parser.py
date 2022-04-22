@@ -1,42 +1,33 @@
 import pytest
 
 from mel.scanning.stream import CharStream
-from mel.scanning.char import Char
-from mel.scanning.parser import (
-    Parser,
+from mel.scanning.parser.base import Parser
+from mel.scanning.parser.single import (
     ZeroManyParser,
     OneManyParser,
     OptionalParser,
-    AlphaParser,
+)
+from mel.scanning.parser.multi import (
     SeqParser,
+    OneOfParser,
+)
+from mel.scanning.parser.char import (
+    CharParser,
+    NotCharParser,
+    AlphaNumParser,
     SpaceParser,
     LowerParser,
     UpperParser,
     DigitParser,
-    OneOfParser,
-    CharParser,
-    Produce,
 )
 
-
-CHARS_ABC = [
-    Char.build('a'),
-    Char.build('b'),
-    Char.build('c'),
-]
-
-CHARS_DEF = [
-    Char.build('d'),
-    Char.build('e'),
-    Char.build('f'),
-]
 
 NAME_PARSER = SeqParser(
     LowerParser(),
     ZeroManyParser(
         OneOfParser(
             CharParser('_'),
-            AlphaParser(),
+            AlphaNumParser(),
         )
     )
 )
@@ -51,49 +42,21 @@ INT_PARSER = SeqParser(
 
 
 # ====================================================================
-# PRODUCE TESTS
-# ====================================================================
-
-def test_produce_length():
-    prod2 = Produce(CHARS_ABC)
-    assert len(prod2) == len(CHARS_ABC)
-
-
-def test_produce_string():
-    produce = Produce(CHARS_ABC)
-    assert str(produce) == 'abc'
-
-
-def test_produce_repr():
-    produce = Produce(CHARS_ABC)
-    assert repr(produce) == 'Produce(abc)'
-
-
-def test_produces_add_length():
-    produce = Produce(CHARS_ABC) + Produce(CHARS_DEF)
-    assert len(produce) == len(CHARS_ABC) + len(CHARS_DEF)
-
-
-def test_produces_add_string():
-    produce = Produce(CHARS_ABC) + Produce(CHARS_DEF)
-    assert str(produce) == 'abcdef'
-
-
-def test_produces_iadd_length():
-    produce = Produce(CHARS_ABC)
-    produce += Produce(CHARS_DEF)
-    assert len(produce) == len(CHARS_ABC) + len(CHARS_DEF)
-
-
-def test_produces_iadd_string():
-    produce = Produce(CHARS_ABC)
-    produce += Produce(CHARS_DEF)
-    assert str(produce) == 'abcdef'
-
-
-# ====================================================================
 # PARSER TESTS
 # ====================================================================
+@pytest.mark.parametrize('text, parser', [
+    ('Z', DigitParser()),
+    ('5', UpperParser()),
+    ('2', LowerParser()),
+    ('a', LowerParser()),
+])
+def test_valid_not_parser(text, parser):
+    parser = NotCharParser(parser)
+    stream = CharStream(text)
+    produce = parser.parse(stream)
+    assert str(produce) == ''
+    assert produce
+
 
 @pytest.mark.parametrize('text, parsers', [
     ('a', [CharParser('a')]),
@@ -111,23 +74,7 @@ def test_valid_one_of_parser(text, parsers):
     stream = CharStream(text)
     production = parser.parse(stream)
     assert str(production) == text
-    assert bool(production)
-
-
-@pytest.mark.parametrize('text, parsers', [
-    ('z5', [LowerParser(), DigitParser()]),
-    ('a4B', [CharParser(), DigitParser(), UpperParser()]),
-    ('caA', [LowerParser(), LowerParser(), UpperParser()]),
-    ('*\tA', [CharParser('*'), SpaceParser(), CharParser()]),
-    ('$ 6', [CharParser('$'), SpaceParser(), DigitParser()]),
-    ('# 6', [CharParser(), SpaceParser(), DigitParser()]),
-])
-def test_valid_seq_parser(text, parsers):
-    parser = SeqParser(*parsers)
-    stream = CharStream(text)
-    production = parser.parse(stream)
-    assert str(production) == text
-    assert bool(production)
+    assert production
 
 
 @pytest.mark.parametrize('text, parser', [
@@ -147,6 +94,22 @@ def test_valid_optional_parser(text, parser):
 
 
 @pytest.mark.parametrize('text, parsers', [
+    ('z5', [LowerParser(), DigitParser()]),
+    ('a4B', [CharParser(), DigitParser(), UpperParser()]),
+    ('caA', [LowerParser(), LowerParser(), UpperParser()]),
+    ('*\tA', [CharParser('*'), SpaceParser(), CharParser()]),
+    ('$ 6', [CharParser('$'), SpaceParser(), DigitParser()]),
+    ('# 6', [CharParser(), SpaceParser(), DigitParser()]),
+])
+def test_valid_seq_parser(text, parsers):
+    parser = SeqParser(*parsers)
+    stream = CharStream(text)
+    production = parser.parse(stream)
+    assert str(production) == text
+    assert production
+
+
+@pytest.mark.parametrize('text, parsers', [
     ('Z5', [LowerParser(), DigitParser()]),
     ('44B', [LowerParser(), DigitParser(), UpperParser()]),
     ('AaA', [LowerParser(), LowerParser(), UpperParser()]),
@@ -158,7 +121,7 @@ def test_invalid_seq_parser_returns_nothing(text, parsers):
     stream = CharStream(text)
     production = parser.parse(stream)
     assert str(production) == ''
-    assert not bool(production)
+    assert not production
 
 
 @pytest.mark.parametrize('text, parser', [
@@ -174,7 +137,7 @@ def test_valid_zeromany_parser(text, parser):
     stream = CharStream(text)
     production = parser.parse(stream)
     assert str(production) == text
-    assert bool(production)
+    assert production
 
 
 @pytest.mark.parametrize('text, parser', [
@@ -190,7 +153,7 @@ def test_valid_onemany_parser(text: str, parser: Parser):
     stream = CharStream(text)
     production = parser.parse(stream)
     assert str(production) == text
-    assert bool(production)
+    assert production
 
 
 # ====================================================================
@@ -213,17 +176,19 @@ def test_valid_token_parser(text: str, parser: Parser):
     stream = CharStream(text)
     production = parser.parse(stream)
     assert text.startswith(str(production))
-    assert bool(production)
+    assert production
 
 
-@pytest.mark.parametrize('text', [
-    '$uY_jHa',
-    '6B_C2',
-    '_3r_',
-    '',
+@pytest.mark.parametrize('text, parser', [
+    ('$uY_jHa', NAME_PARSER),
+    ('6B_C2', NAME_PARSER),
+    ('_3r_', NAME_PARSER),
+    ('', NAME_PARSER),
+    ('', INT_PARSER),
+    ('a', INT_PARSER),
 ])
-def test_invalid_name_token_parser(text: str):
+def test_invalid_token_parser(text: str, parser: Parser):
     stream = CharStream(text)
-    production = NAME_PARSER.parse(stream)
+    production = parser.parse(stream)
     assert str(production) == ''
-    assert not bool(production)
+    assert not production
