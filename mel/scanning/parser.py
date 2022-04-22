@@ -15,7 +15,7 @@ class Produce:
 
     def __add__(self, produce):
         chars = self.chars + produce.chars
-        return Produce(chars, self.index)
+        return self.__class__(chars, self.index)
 
     def __iadd__(self, produce):
         return self + produce
@@ -59,6 +59,15 @@ class SingleRuleParser(Parser):
         raise NotImplementedError
 
 
+class OptionalParser(SingleRuleParser):
+    def parse(self, stream: CharStream, index: int = 0) -> Produce:
+        produce = ValidProduce(index=index)
+        if subproduce := self._parser.parse(stream, index):
+            # breakpoint()
+            return subproduce
+        return produce
+
+
 class ZeroManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = ValidProduce(index=index)
@@ -99,7 +108,7 @@ class SeqParser(MultiRuleParser):
         for parser in self._parsers:
             if subproduce := parser.parse(stream, current_index):
                 produce += subproduce
-                current_index += 1
+                current_index += len(subproduce)
             else:
                 return Produce(index=index)
         return produce

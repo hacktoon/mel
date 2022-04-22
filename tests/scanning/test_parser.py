@@ -6,6 +6,7 @@ from mel.scanning.parser import (
     Parser,
     ZeroManyParser,
     OneManyParser,
+    OptionalParser,
     AlphaParser,
     SeqParser,
     SpaceParser,
@@ -37,6 +38,14 @@ NAME_PARSER = SeqParser(
             CharParser('_'),
             AlphaParser(),
         )
+    )
+)
+
+INT_PARSER = SeqParser(
+    OptionalParser(CharParser('-')),
+    DigitParser(),
+    ZeroManyParser(
+        DigitParser()
     )
 )
 
@@ -86,7 +95,7 @@ def test_produces_iadd_string():
 # PARSER TESTS
 # ====================================================================
 
-@pytest.mark.parametrize('value, parsers', [
+@pytest.mark.parametrize('text, parsers', [
     ('a', [CharParser('a')]),
     ('b', [CharParser('b')]),
     ('%', [CharParser('%')]),
@@ -97,15 +106,15 @@ def test_produces_iadd_string():
     ('6', [CharParser(), DigitParser(), UpperParser()]),
     ('Z', [LowerParser(), DigitParser(), UpperParser()]),
 ])
-def test_valid_one_of_parser(value, parsers):
+def test_valid_one_of_parser(text, parsers):
     parser = OneOfParser(*parsers)
-    stream = CharStream(value)
+    stream = CharStream(text)
     production = parser.parse(stream)
-    assert str(production) == value
+    assert str(production) == text
     assert bool(production)
 
 
-@pytest.mark.parametrize('value, parsers', [
+@pytest.mark.parametrize('text, parsers', [
     ('z5', [LowerParser(), DigitParser()]),
     ('a4B', [CharParser(), DigitParser(), UpperParser()]),
     ('caA', [LowerParser(), LowerParser(), UpperParser()]),
@@ -113,30 +122,46 @@ def test_valid_one_of_parser(value, parsers):
     ('$ 6', [CharParser('$'), SpaceParser(), DigitParser()]),
     ('# 6', [CharParser(), SpaceParser(), DigitParser()]),
 ])
-def test_valid_seq_parser(value, parsers):
+def test_valid_seq_parser(text, parsers):
     parser = SeqParser(*parsers)
-    stream = CharStream(value)
+    stream = CharStream(text)
     production = parser.parse(stream)
-    assert str(production) == value
+    assert str(production) == text
     assert bool(production)
 
 
-@pytest.mark.parametrize('value, parsers', [
+@pytest.mark.parametrize('text, parser', [
+    ('Z', DigitParser()),
+    ('', CharParser()),
+    ('c', LowerParser()),
+    ('C', LowerParser()),
+    ('*', CharParser('*')),
+    ('$', CharParser('$')),
+    ('#', CharParser()),
+    ('#', CharParser('#')),
+])
+def test_valid_optional_parser(text, parser):
+    parser = OptionalParser(parser)
+    stream = CharStream(text)
+    assert parser.parse(stream)
+
+
+@pytest.mark.parametrize('text, parsers', [
     ('Z5', [LowerParser(), DigitParser()]),
     ('44B', [LowerParser(), DigitParser(), UpperParser()]),
     ('AaA', [LowerParser(), LowerParser(), UpperParser()]),
     ('t\tA', [CharParser('*'), SpaceParser(), UpperParser()]),
     ('a 6', [CharParser('$'), SpaceParser(), DigitParser()]),
 ])
-def test_invalid_seq_parser_returns_nothing(value, parsers):
+def test_invalid_seq_parser_returns_nothing(text, parsers):
     parser = SeqParser(*parsers)
-    stream = CharStream(value)
+    stream = CharStream(text)
     production = parser.parse(stream)
     assert str(production) == ''
     assert not bool(production)
 
 
-@pytest.mark.parametrize('value, parser', [
+@pytest.mark.parametrize('text, parser', [
     ('', LowerParser()),
     ('auyjhakvgj', LowerParser()),
     ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
@@ -144,15 +169,15 @@ def test_invalid_seq_parser_returns_nothing(value, parsers):
     ('', SeqParser(LowerParser(), DigitParser())),
     ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
 ])
-def test_valid_zeromany_parser(value, parser):
+def test_valid_zeromany_parser(text, parser):
     parser = ZeroManyParser(parser)
-    stream = CharStream(value)
+    stream = CharStream(text)
     production = parser.parse(stream)
-    assert str(production) == value
+    assert str(production) == text
     assert bool(production)
 
 
-@pytest.mark.parametrize('value, parser', [
+@pytest.mark.parametrize('text, parser', [
     ('auyjhakvgj', LowerParser()),
     ('aZpjJcKvL', OneOfParser(LowerParser(), UpperParser())),
     ('aZ', OneOfParser(LowerParser(), UpperParser())),
@@ -160,11 +185,11 @@ def test_valid_zeromany_parser(value, parser):
     ('a3', SeqParser(LowerParser(), DigitParser())),
     ('-a -d -b ', SeqParser(CharParser('-'), LowerParser(), SpaceParser())),
 ])
-def test_valid_onemany_parser(value: str, parser: Parser):
+def test_valid_onemany_parser(text: str, parser: Parser):
     parser = OneManyParser(parser)
-    stream = CharStream(value)
+    stream = CharStream(text)
     production = parser.parse(stream)
-    assert str(production) == value
+    assert str(production) == text
     assert bool(production)
 
 
@@ -172,29 +197,33 @@ def test_valid_onemany_parser(value: str, parser: Parser):
 # TOKEN TESTS
 # ====================================================================
 
-@pytest.mark.parametrize('value', [
-    'auY_jHa',
-    'aB_C2 ',
-    'foobar',
-    'a3r_',
-    'fh44',
-    'a',
+@pytest.mark.parametrize('text, parser', [
+    ('auY_jHa', NAME_PARSER),
+    ('aB_C2 ', NAME_PARSER),
+    ('foobar', NAME_PARSER),
+    ('a3r_', NAME_PARSER),
+    ('fh44', NAME_PARSER),
+    ('a', NAME_PARSER),
+    ('2', INT_PARSER),
+    ('21115', INT_PARSER),
+    ('511', INT_PARSER),
+    ('-42', INT_PARSER),
 ])
-def test_valid_name_token_parser(value: str):
-    stream = CharStream(value)
-    production = NAME_PARSER.parse(stream)
-    assert value.startswith(str(production))
+def test_valid_token_parser(text: str, parser: Parser):
+    stream = CharStream(text)
+    production = parser.parse(stream)
+    assert text.startswith(str(production))
     assert bool(production)
 
 
-@pytest.mark.parametrize('value', [
+@pytest.mark.parametrize('text', [
     '$uY_jHa',
     '6B_C2',
     '_3r_',
     '',
 ])
-def test_invalid_name_token_parser(value: str):
-    stream = CharStream(value)
+def test_invalid_name_token_parser(text: str):
+    stream = CharStream(text)
     production = NAME_PARSER.parse(stream)
     assert str(production) == ''
     assert not bool(production)
