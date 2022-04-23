@@ -15,7 +15,7 @@ class SingleRuleParser(Parser):
 
 
 ########################################################################
-# SUB SINGLE RULE PARSER
+# SUB PARSERS
 ########################################################################
 class OptionalParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:

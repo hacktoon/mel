@@ -1,11 +1,6 @@
 from mel.scanning.char import Char
 
 
-# HELPER FUNCTIONS ==================================
-
-
-# BEGIN  TESTS ==================================
-
 def test_char():
     ch = Char.build('a')
     assert repr(ch) == 'LowerChar(a)'

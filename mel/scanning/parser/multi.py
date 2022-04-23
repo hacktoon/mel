@@ -14,6 +14,9 @@ class MultiRuleParser(Parser):
         raise NotImplementedError
 
 
+########################################################################
+# SUB PARSERS
+########################################################################
 class SeqParser(MultiRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
