@@ -8,7 +8,7 @@ from .base import Parser
 ########################################################################
 class MultiRuleParser(Parser):
     def __init__(self, *parsers: list[Parser]):
-        self._parsers = parsers
+        self._parsers: list[Parser] = parsers
 
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         raise NotImplementedError
@@ -18,6 +18,11 @@ class MultiRuleParser(Parser):
 # SUB PARSERS
 ########################################################################
 class SeqParser(MultiRuleParser):
+    def hints(self) -> str:
+        if len(self._parsers):
+            return self._parsers[0].hints()
+        return ''
+
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
         current_index = index
@@ -31,6 +36,9 @@ class SeqParser(MultiRuleParser):
 
 
 class OneOfParser(MultiRuleParser):
+    def hints(self) -> str:
+        return ''.join([p.hints() for p in self._parsers])
+
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = Produce(index=index)
         for parser in self._parsers:

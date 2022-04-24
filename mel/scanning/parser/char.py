@@ -15,11 +15,13 @@ from .base import Parser
 # BASE CHAR PARSER
 ########################################################################
 class CharParser(Parser):
-    def __init__(self, expected: str = ''):
-        self.__expected = expected
+    CHARS = ''
 
-    def _hints(self) -> str:
-        return self.__expected
+    def __init__(self, expected: str = ''):
+        self.__expected: str = expected
+
+    def hints(self) -> str:
+        return self.CHARS or self.__expected
 
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         char = stream.get(index)
@@ -38,7 +40,6 @@ class CharParser(Parser):
 ########################################################################
 # SUBPARSER
 ########################################################################
-
 class NotCharParser(CharParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         produce = ValidProduce(index=index)
@@ -49,52 +50,46 @@ class NotCharParser(CharParser):
 
 
 class LowerParser(CharParser):
-    def _hints(self) -> str:
-        return LowerChar.CHARS
+    CHARS = LowerChar.CHARS
 
     def _matches(self, char: Char) -> bool:
         return char.is_lower()
 
 
 class UpperParser(CharParser):
-    def _hints(self) -> str:
-        return UpperChar.CHARS
+    CHARS = UpperChar.CHARS
 
     def _matches(self, char: Char) -> bool:
         return char.is_upper()
 
 
 class DigitParser(CharParser):
-    def _hints(self) -> str:
-        return DigitChar.CHARS
+    CHARS = DigitChar.CHARS
 
     def _matches(self, char: Char) -> bool:
         return char.is_digit()
 
 
 class SpaceParser(CharParser):
-    def _hints(self) -> str:
-        return SpaceChar.CHARS
+    CHARS = SpaceChar.CHARS
 
     def _matches(self, char: Char) -> bool:
         return char.is_space()
 
 
 class NewlineParser(CharParser):
-    def _hints(self) -> str:
-        return NewlineChar.CHARS
+    CHARS = NewlineChar.CHARS
 
     def _matches(self, char: Char) -> bool:
         return char.is_newline()
 
 
 class AlphaNumParser(CharParser):
-    def _hints(self) -> str:
-        return (
-            DigitChar.CHARS +
-            LowerChar.CHARS +
-            UpperChar.CHARS
-        )
+    CHARS = (
+        DigitChar.CHARS +
+        LowerChar.CHARS +
+        UpperChar.CHARS
+    )
 
     def _matches(self, char: Char) -> bool:
         return char.is_digit() or \

@@ -8,7 +8,10 @@ from .base import Parser
 ########################################################################
 class SingleRuleParser(Parser):
     def __init__(self, parser: Parser):
-        self._parser = parser
+        self._parser: Parser = parser
+
+    def hints(self) -> str:
+        return self._parser.hints()
 
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
         raise NotImplementedError
@@ -37,10 +40,9 @@ class ZeroManyParser(SingleRuleParser):
 
 class OneManyParser(SingleRuleParser):
     def parse(self, stream: CharStream, index: int = 0) -> Produce:
-        parser = self._parser
-        produce = parser.parse(stream, index)
+        produce = self._parser.parse(stream, index)
         current_index = index + len(produce)
-        while subproduce := parser.parse(stream, current_index):
+        while subproduce := self._parser.parse(stream, current_index):
             current_index += len(subproduce)
             produce += subproduce
         return produce
