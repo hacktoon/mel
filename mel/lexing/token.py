@@ -42,13 +42,13 @@ class Token:
         return len(self.chars)
 
 
-def _register_token(token_cls: Token) -> Token:
+def _register_token(TokenClass: Token) -> Token:
     '''Build a {char_str: parsers} dict for tokens'''
-    for hint_str in token_cls.HINTS:
+    for hint_str in TokenClass.HINTS:
         if hint_str not in _TOKEN_TYPE_MAP:
             _TOKEN_TYPE_MAP[hint_str] = []
-        _TOKEN_TYPE_MAP[hint_str].append(token_cls.PARSER)
-    return token_cls
+        _TOKEN_TYPE_MAP[hint_str].append(TokenClass.PARSER)
+    return TokenClass
 
 
 class EOFToken(Token):
